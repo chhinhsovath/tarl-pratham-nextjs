@@ -8,7 +8,7 @@ import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, LoginOutl
 import Link from 'next/link';
 
 const { Title, Text } = Typography;
-const { Option } = Select;
+const { Option, OptGroup } = Select;
 
 interface QuickUser {
   id: number;
@@ -23,6 +23,7 @@ export default function QuickLoginPage() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<QuickUser[]>([]);
+  const [groupedUsers, setGroupedUsers] = useState<Record<string, QuickUser[]>>({});
   const [selectedUser, setSelectedUser] = useState<QuickUser | null>(null);
   const [usersLoading, setUsersLoading] = useState(true);
 
@@ -36,6 +37,7 @@ export default function QuickLoginPage() {
       const data = await response.json();
       if (data.users) {
         setUsers(data.users);
+        setGroupedUsers(data.groupedUsers || {});
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -85,7 +87,19 @@ export default function QuickLoginPage() {
       case 'coordinator': return 'purple';
       case 'mentor': return 'blue';
       case 'teacher': return 'green';
+      case 'viewer': return 'orange';
       default: return 'default';
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role.toLowerCase()) {
+      case 'admin': return 'អ្នកគ្រប់គ្រង';
+      case 'coordinator': return 'អ្នកសម្របសម្រួល';
+      case 'mentor': return 'អ្នកណែនាំ';
+      case 'teacher': return 'គ្រូបង្រៀន';
+      case 'viewer': return 'អ្នកមើល';
+      default: return role;
     }
   };
 
@@ -120,12 +134,12 @@ export default function QuickLoginPage() {
             layout="vertical"
           >
             <Form.Item
-              label="Select User"
+              label="ជ្រើសអ្នកប្រើប្រាស់"
               name="username"
-              rules={[{ required: true, message: 'Please select a user!' }]}
+              rules={[{ required: true, message: 'សូមជ្រើសអ្នកប្រើប្រាស់!' }]}
             >
               <Select
-                placeholder="Choose your name from the list"
+                placeholder="ជ្រើសឈ្មោះរបស់អ្នកពីបញ្ជី"
                 size="large"
                 loading={usersLoading}
                 onChange={handleUserSelect}
@@ -136,17 +150,35 @@ export default function QuickLoginPage() {
                     ?.includes(input.toLowerCase())
                 }
               >
-                {users.map(user => (
-                  <Option key={user.username} value={user.username}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>{user.username}</span>
-                      <Tag color={getRoleColor(user.role)} size="small">
-                        {user.role}
-                      </Tag>
-                    </div>
-                  </Option>
-                ))}
+                {['admin', 'coordinator', 'mentor', 'teacher', 'viewer'].map(role => 
+                  groupedUsers[role] && groupedUsers[role].length > 0 && (
+                    <OptGroup key={role} label={getRoleLabel(role)}>
+                      {groupedUsers[role].map(user => (
+                        <Option key={user.username} value={user.username}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>{user.username}</span>
+                            {user.province && user.province !== 'All' && (
+                              <Text type="secondary" style={{ fontSize: '12px' }}>
+                                ({user.province})
+                              </Text>
+                            )}
+                            {user.subject && user.subject !== 'All' && (
+                              <Text type="secondary" style={{ fontSize: '12px' }}>
+                                - {user.subject}
+                              </Text>
+                            )}
+                          </div>
+                        </Option>
+                      ))}
+                    </OptGroup>
+                  )
+                )}
               </Select>
+              
+              {/* Users count */}
+              <p style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
+                បង្ហាញអ្នកប្រើប្រាស់ {users.length} នាក់
+              </p>
             </Form.Item>
 
             {selectedUser && (
@@ -160,23 +192,23 @@ export default function QuickLoginPage() {
               >
                 <Row gutter={16}>
                   <Col span={12}>
-                    <Text strong>Role:</Text>
+                    <Text strong>តួនាទី:</Text>
                     <div>
                       <Tag color={getRoleColor(selectedUser.role)}>
-                        {selectedUser.role}
+                        {getRoleLabel(selectedUser.role)}
                       </Tag>
                     </div>
                   </Col>
                   <Col span={12}>
-                    <Text strong>Province:</Text>
+                    <Text strong>ខេត្ត:</Text>
                     <div>
-                      <Text>{selectedUser.province || 'All'}</Text>
+                      <Text>{selectedUser.province || 'ទាំងអស់'}</Text>
                     </div>
                   </Col>
                   <Col span={24} style={{ marginTop: 8 }}>
-                    <Text strong>Subject:</Text>
+                    <Text strong>មុខវិជ្ជា:</Text>
                     <div>
-                      <Text>{selectedUser.subject || 'All'}</Text>
+                      <Text>{selectedUser.subject || 'ទាំងអស់'}</Text>
                     </div>
                   </Col>
                 </Row>
@@ -184,13 +216,13 @@ export default function QuickLoginPage() {
             )}
 
             <Form.Item
-              label="Password"
+              label="ពាក្យសម្ងាត់"
               name="password"
-              rules={[{ required: true, message: 'Please input the password!' }]}
+              rules={[{ required: true, message: 'សូមបញ្ចូលពាក្យសម្ងាត់!' }]}
             >
               <Input.Password
                 prefix={<LockOutlined />}
-                placeholder="Enter password"
+                placeholder="បញ្ចូលពាក្យសម្ងាត់"
                 size="large"
                 iconRender={visible => visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />}
               />
@@ -206,19 +238,19 @@ export default function QuickLoginPage() {
                 icon={<LoginOutlined />}
                 disabled={!selectedUser}
               >
-                Quick Login
+                ចូលរហ័ស
               </Button>
             </Form.Item>
           </Form>
 
           <Divider plain>
-            <Text type="secondary">or</Text>
+            <Text type="secondary">ឬ</Text>
           </Divider>
 
           <div style={{ textAlign: 'center' }}>
             <Link href="/auth/login">
               <Button type="link" size="large">
-                Use Regular Login with Email
+                ប្រើការចូលធម្មតាជាមួយអ៊ីមែល
               </Button>
             </Link>
           </div>

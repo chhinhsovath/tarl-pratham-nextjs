@@ -19,7 +19,20 @@ export async function GET(request: NextRequest) {
       ]
     });
 
-    return NextResponse.json({ users: quickUsers });
+    // Group users by role for easier display
+    const groupedUsers = quickUsers.reduce((groups: Record<string, any[]>, user) => {
+      const role = user.role || 'other';
+      if (!groups[role]) {
+        groups[role] = [];
+      }
+      groups[role].push(user);
+      return groups;
+    }, {});
+
+    return NextResponse.json({ 
+      users: quickUsers,
+      groupedUsers: groupedUsers 
+    });
   } catch (error) {
     console.error('Error fetching quick login users:', error);
     return NextResponse.json(
