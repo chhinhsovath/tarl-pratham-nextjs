@@ -109,23 +109,21 @@ export default function Home() {
       x: {
         beginAtZero: true,
         title: {
-          display: true,
-          text: 'Number of Students'
+          display: false
         }
       },
       y: {
         title: {
-          display: true,
-          text: 'Reading Level'
+          display: false
         }
       }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-white shadow">
+      <nav className="bg-white border-b">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -134,7 +132,7 @@ export default function Home() {
             <div className="flex items-center space-x-4">
               <a 
                 href="https://plp.moeys.gov.kh" 
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out"
+                className="text-sm text-gray-700 hover:text-gray-900"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -144,7 +142,7 @@ export default function Home() {
                 href="/auth/login" 
                 className="text-sm text-gray-700 hover:text-gray-900"
               >
-                Login / ចូល
+                ចូល
               </Link>
             </div>
           </div>
@@ -153,33 +151,33 @@ export default function Home() {
 
       {/* Main Content */}
       <main>
-        <div className="max-w-4xl mx-auto mt-10 p-6 border shadow rounded-lg bg-white">
+        <div className="max-w-4xl mx-auto mt-10 p-6">
           {/* Header */}
           <h2 className="text-xl font-semibold text-center mb-4">
-            Assessment Results / លទ្ធផលវាយតម្លៃ
+            លទ្ធផលវាយតម្លៃ
           </h2>
           
           {/* Subject Selector */}
           <div className="flex justify-center gap-2 mb-6">
             <button 
               onClick={() => setSubject('khmer')}
-              className={`px-3 py-1 rounded transition-all duration-200 ${
+              className={`px-4 py-2 rounded transition-all duration-200 ${
                 subject === 'khmer' 
                   ? 'bg-blue-500 text-white' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              Khmer / ខ្មែរ
+              ខ្មែរ
             </button>
             <button 
               onClick={() => setSubject('math')}
-              className={`px-3 py-1 rounded transition-all duration-200 ${
+              className={`px-4 py-2 rounded transition-all duration-200 ${
                 subject === 'math' 
                   ? 'bg-blue-500 text-white' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              Math / គណិតវិទ្យា
+              គណិតវិទ្យា
             </button>
           </div>
           
@@ -202,16 +200,16 @@ export default function Home() {
           {/* Test Cycle Table */}
           <table className="table-auto mt-4 border mx-auto text-sm">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="border px-4 py-2">Test Cycle / វដ្តតេស្ត</th>
-                <th className="border px-4 py-2">Baseline / ដើមគ្រា</th>
-                <th className="border px-4 py-2">Midline / ពាក់កណ្តាលគ្រា</th>
-                <th className="border px-4 py-2">Endline / ចុងគ្រា</th>
+              <tr className="bg-gray-50">
+                <th className="border px-4 py-2"></th>
+                <th className="border px-4 py-2">ដើមគ្រា</th>
+                <th className="border px-4 py-2">ពាក់កណ្តាលគ្រា</th>
+                <th className="border px-4 py-2">ចុងគ្រា</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border px-4 py-2 font-medium">Students / សិស្ស</td>
+                <td className="border px-4 py-2 font-medium">សិស្ស</td>
                 <td className="border px-4 py-2 text-center">{cycleData.baseline}</td>
                 <td className="border px-4 py-2 text-center">{cycleData.midline}</td>
                 <td className="border px-4 py-2 text-center">{cycleData.endline}</td>
@@ -221,7 +219,7 @@ export default function Home() {
           
           {/* Total Students */}
           <p className="text-center mt-4 text-sm text-gray-600">
-            Total Students Assessed / សរុបសិស្សបានវាយតម្លៃ: 
+            សរុបសិស្សបានវាយតម្លៃ: 
             <span className="font-semibold ml-2">{cycleData.total}</span>
           </p>
         </div>

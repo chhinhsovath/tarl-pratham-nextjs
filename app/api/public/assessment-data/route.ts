@@ -12,12 +12,10 @@ export async function GET(request: NextRequest) {
     
     if (subject === "khmer") {
       levels = ["Beginner", "Letter", "Word", "Paragraph", "Story", "Comp. 1", "Comp. 2"];
-      levelLabels = ["Beginner / ចាប់ផ្តើម", "Letter / អក្សរ", "Word / ពាក្យ", 
-                     "Paragraph / កថាខណ្ឌ", "Story / រឿង", "Comp. 1 / យល់ដឹង 1", "Comp. 2 / យល់ដឹង 2"];
+      levelLabels = ["ចាប់ផ្តើម", "អក្សរ", "ពាក្យ", "កថាខណ្ឌ", "រឿង", "យល់ដឹង ១", "យល់ដឹង ២"];
     } else {
       levels = ["Beginner", "1-Digit", "2-Digit", "Subtraction", "Division", "Word Problem"];
-      levelLabels = ["Beginner / ចាប់ផ្តើម", "1-Digit / លេខ១ខ្ទង់", "2-Digit / លេខ២ខ្ទង់", 
-                     "Subtraction / ដក", "Division / ចែក", "Word Problem / ល្បាយពាក្យ"];
+      levelLabels = ["ចាប់ផ្តើម", "លេខ១ខ្ទង់", "លេខ២ខ្ទង់", "ដក", "ចែក", "ល្បាយពាក្យ"];
     }
 
     // Get assessment counts by level
