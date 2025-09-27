@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Hanuman } from "next/font/google";
-import "../styles/mobile.css";
+import "./globals.css";
 import StyledComponentsRegistry from "@/lib/antd-registry";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
 
