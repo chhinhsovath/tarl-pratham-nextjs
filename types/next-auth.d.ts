@@ -10,11 +10,13 @@ declare module "next-auth" {
     teacher_profile_setup: boolean
     mentor_profile_complete: boolean
     province: string | null
+    district?: string | null
     subject: string | null
     isQuickLogin?: boolean
     onboarding_completed?: any
     show_onboarding?: boolean
     holding_classes?: string | null
+    profile_expires_at?: Date | null
   }
 
   interface Session {
@@ -27,11 +29,13 @@ declare module "next-auth" {
       teacher_profile_setup: boolean
       mentor_profile_complete: boolean
       province: string | null
+      district: string | null
       subject: string | null
       isQuickLogin: boolean
       onboarding_completed: any
       show_onboarding: boolean
       holding_classes: string | null
+      profile_expires_at: Date | null
     }
   }
 }
@@ -44,10 +48,12 @@ declare module "next-auth/jwt" {
     teacher_profile_setup: boolean
     mentor_profile_complete: boolean
     province: string | null
+    district: string | null
     subject: string | null
     isQuickLogin: boolean
     onboarding_completed: any
     show_onboarding: boolean
     holding_classes: string | null
+    profile_expires_at: Date | null
   }
 }

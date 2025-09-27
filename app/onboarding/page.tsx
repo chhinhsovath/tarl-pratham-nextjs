@@ -372,8 +372,8 @@ export default function OnboardingPage() {
   const isStepCompleted = (stepId: string) => completedSteps.includes(stepId);
   
   const isStepNext = (index: number) => {
-    if (index === 0) return true;
-    return isStepCompleted(onboardingData?.steps[index - 1]?.id || '');
+    // Allow all steps to be clickable, not just sequential
+    return true;
   };
 
   if (loading || !onboardingData) {
@@ -526,7 +526,7 @@ export default function OnboardingPage() {
                           មើលម្តងទៀត →
                         </Button>
                       </div>
-                    ) : isNext ? (
+                    ) : (
                       <Space direction="vertical" style={{ width: '100%' }}>
                         <Button 
                           type="primary" 
@@ -537,10 +537,6 @@ export default function OnboardingPage() {
                           ចាប់ផ្តើម
                         </Button>
                       </Space>
-                    ) : (
-                      <div style={{ textAlign: 'center' }}>
-                        <Text type="secondary">បញ្ចប់ជំហានមុនសិន</Text>
-                      </div>
                     )}
                   </div>
                 </Card>

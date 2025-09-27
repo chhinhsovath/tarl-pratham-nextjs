@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Form, Input, Button, Card, Select, message, Typography, Space, Row, Col, Tag } from 'antd';
+import { Form, Input, Button, Card, Select, Typography, Space, Row, Col, Tag, App } from 'antd';
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, LoginOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -17,8 +17,9 @@ interface QuickUser {
   subject: string | null;
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<QuickUser[]>([]);
@@ -32,15 +33,20 @@ export default function LoginPage() {
 
   const fetchQuickUsers = async () => {
     try {
-      const response = await fetch('/api/auth/quick-users');
+      const response = await fetch('/api/users/quick-login');
       const data = await response.json();
       if (data.users) {
         setUsers(data.users);
-        setGroupedUsers(data.groupedUsers || {});
+        // Group users by role
+        const grouped = data.users.reduce((acc: Record<string, QuickUser[]>, user: QuickUser) => {
+          if (!acc[user.role]) acc[user.role] = [];
+          acc[user.role].push(user);
+          return acc;
+        }, {});
+        setGroupedUsers(grouped);
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
-      message.error('Failed to load users');
+      console.error('Failed to fetch quick users:', error);
     } finally {
       setUsersLoading(false);
     }
@@ -91,25 +97,25 @@ export default function LoginPage() {
     }
   };
 
-  const getRoleColor = (role: string) => {
-    switch (role.toLowerCase()) {
-      case 'admin': return 'red';
-      case 'coordinator': return 'purple';
-      case 'mentor': return 'blue';
-      case 'teacher': return 'green';
-      case 'viewer': return 'orange';
-      default: return 'default';
-    }
-  };
-
-  const getRoleLabel = (role: string) => {
-    switch (role.toLowerCase()) {
+  const formatRoleName = (role: string) => {
+    switch(role) {
       case 'admin': return 'អ្នកគ្រប់គ្រង';
       case 'coordinator': return 'អ្នកសម្របសម្រួល';
       case 'mentor': return 'អ្នកណែនាំ';
       case 'teacher': return 'គ្រូបង្រៀន';
       case 'viewer': return 'អ្នកមើល';
       default: return role;
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch(role) {
+      case 'admin': return 'red';
+      case 'coordinator': return 'purple';
+      case 'mentor': return 'blue';
+      case 'teacher': return 'green';
+      case 'viewer': return 'default';
+      default: return 'default';
     }
   };
 
@@ -130,130 +136,124 @@ export default function LoginPage() {
           borderRadius: '12px'
         }}
       >
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <div style={{ textAlign: 'center' }}>
-            <Title level={2} style={{ marginBottom: 8 }}>TaRL Pratham</Title>
-            <Text type="secondary">Teaching at the Right Level - ចូលប្រព័ន្ធ</Text>
-          </div>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <Title level={2} style={{ marginBottom: 8 }}>
+            <LoginOutlined /> TaRL កម្ពុជា
+          </Title>
+          <Text type="secondary">
+            ប្រព័ន្ធគ្រប់គ្រងការបង្រៀនតាមកម្រិតត្រឹមត្រូវ
+          </Text>
+        </div>
 
-          <Form
-            form={form}
-            name="login"
-            onFinish={onFinish}
-            autoComplete="off"
-            layout="vertical"
-            data-testid="quick-login-form"
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          autoComplete="off"
+        >
+          <Form.Item
+            name="username"
+            label="ជ្រើសអ្នកប្រើប្រាស់"
+            rules={[{ required: true, message: 'សូមជ្រើសអ្នកប្រើប្រាស់!' }]}
           >
-            <Form.Item
-              label="ជ្រើសអ្នកប្រើប្រាស់"
-              name="username"
-              rules={[{ required: true, message: 'សូមជ្រើសអ្នកប្រើប្រាស់!' }]}
+            <Select
+              placeholder="-- ជ្រើសរើសអ្នកប្រើប្រាស់ --"
+              size="large"
+              loading={usersLoading}
+              onChange={handleUserSelect}
+              showSearch
+              optionFilterProp="label"
+              filterOption={(input, option) => {
+                const label = option?.label?.toString() || '';
+                return label.toLowerCase().includes(input.toLowerCase());
+              }}
             >
-              <Select
-                placeholder="ជ្រើសឈ្មោះរបស់អ្នកពីបញ្ជី"
-                size="large"
-                loading={usersLoading}
-                onChange={handleUserSelect}
-                showSearch
-                filterOption={(input, option) => {
-                  if (!option?.value) return false;
-                  return option.value.toString().toLowerCase().includes(input.toLowerCase());
-                }}
-              >
-                {['admin', 'coordinator', 'mentor', 'teacher', 'viewer'].map(role => 
-                  groupedUsers[role] && groupedUsers[role].length > 0 && (
-                    <OptGroup key={role} label={getRoleLabel(role)}>
-                      {groupedUsers[role].map(user => (
-                        <Option key={user.username} value={user.username}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span>{user.username} ({user.role})</span>
-                            {user.province && user.province !== 'All' && (
-                              <Text type="secondary" style={{ fontSize: '12px' }}>
-                                ({user.province})
-                              </Text>
-                            )}
-                            {user.subject && user.subject !== 'All' && (
-                              <Text type="secondary" style={{ fontSize: '12px' }}>
-                                - {user.subject}
-                              </Text>
-                            )}
-                          </div>
-                        </Option>
-                      ))}
-                    </OptGroup>
-                  )
-                )}
-              </Select>
-            </Form.Item>
-            
-            {/* Users count */}
-            <p style={{ marginTop: -8, marginBottom: 16, fontSize: '12px', color: '#666' }}>
-              បង្ហាញអ្នកប្រើប្រាស់ {users.length} នាក់
-            </p>
+              {Object.entries(groupedUsers).map(([role, roleUsers]) => (
+                <OptGroup key={role} label={formatRoleName(role)}>
+                  {roleUsers.map(user => (
+                    <Option 
+                      key={user.username} 
+                      value={user.username}
+                      label={user.username}
+                    >
+                      <Space>
+                        <UserOutlined />
+                        <span>{user.username}</span>
+                        <Tag color={getRoleColor(user.role)} style={{ marginLeft: 8 }}>
+                          {formatRoleName(user.role)}
+                        </Tag>
+                      </Space>
+                    </Option>
+                  ))}
+                </OptGroup>
+              ))}
+            </Select>
+          </Form.Item>
 
-            {selectedUser && (
-              <Card 
-                size="small" 
-                style={{ 
-                  marginBottom: 16, 
-                  backgroundColor: '#f8f9fa',
-                  border: '1px solid #e9ecef'
-                }}
-              >
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Text strong>តួនាទី:</Text>
-                    <div>
-                      <Tag color={getRoleColor(selectedUser.role)}>
-                        {getRoleLabel(selectedUser.role)}
-                      </Tag>
-                    </div>
-                  </Col>
-                  <Col span={12}>
-                    <Text strong>ខេត្ត:</Text>
-                    <div>
-                      <Text>{selectedUser.province || 'ទាំងអស់'}</Text>
-                    </div>
-                  </Col>
-                  <Col span={24} style={{ marginTop: 8 }}>
-                    <Text strong>មុខវិជ្ជា:</Text>
-                    <div>
-                      <Text>{selectedUser.subject || 'ទាំងអស់'}</Text>
-                    </div>
-                  </Col>
-                </Row>
-              </Card>
-            )}
+          <Form.Item
+            name="password"
+            label="ពាក្យសម្ងាត់"
+            rules={[{ required: true, message: 'សូមបញ្ចូលពាក្យសម្ងាត់!' }]}
+          >
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="បញ្ចូលពាក្យសម្ងាត់ (admin123)"
+              size="large"
+              iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+            />
+          </Form.Item>
 
-            <Form.Item
-              label="ពាក្យសម្ងាត់"
-              name="password"
-              rules={[{ required: true, message: 'សូមបញ្ចូលពាក្យសម្ងាត់!' }]}
+          <Form.Item style={{ marginBottom: 16 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              size="large"
+              style={{ width: '100%', height: 48, fontSize: 16 }}
             >
-              <Input.Password
-                prefix={<LockOutlined />}
-                placeholder="បញ្ចូលពាក្យសម្ងាត់"
-                size="large"
-                iconRender={visible => visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />}
-              />
-            </Form.Item>
+              ចូលប្រើប្រាស់
+            </Button>
+          </Form.Item>
 
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                block
-                size="large"
-                icon={<LoginOutlined />}
-                disabled={!selectedUser}
-              >
-                ចូលប្រព័ន្ធ
-              </Button>
-            </Form.Item>
-          </Form>
-        </Space>
+          {selectedUser && (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '12px', 
+              background: '#f0f9ff', 
+              borderRadius: '8px',
+              marginTop: 16
+            }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                កំពុងចូលជា: <strong>{selectedUser.username}</strong>
+              </Text>
+              <br />
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                តួនាទី: <Tag color={getRoleColor(selectedUser.role)} size="small">{formatRoleName(selectedUser.role)}</Tag>
+              </Text>
+            </div>
+          )}
+        </Form>
+
+        <div style={{ 
+          textAlign: 'center', 
+          marginTop: 24, 
+          padding: '16px', 
+          background: '#fef3c7', 
+          borderRadius: '8px' 
+        }}>
+          <Text style={{ fontSize: 13, color: '#92400e' }}>
+            <strong>សម្រាប់សាកល្បង:</strong> ប្រើពាក្យសម្ងាត់ <strong>admin123</strong>
+          </Text>
+        </div>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <App>
+      <LoginContent />
+    </App>
   );
 }

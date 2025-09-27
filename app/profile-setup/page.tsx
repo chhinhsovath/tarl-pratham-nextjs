@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Form, Input, Button, Card, Select, message, Typography, Space, Alert, Radio, App } from 'antd';
+import { Form, Input, Button, Card, Select, Typography, Space, Alert, Radio, App } from 'antd';
 import { UserOutlined, PhoneOutlined, LogoutOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -30,17 +30,32 @@ function ProfileSetupContent() {
 
   useEffect(() => {
     fetchSchools();
-    
-    // Pre-fill form with existing data
-    if (session?.user) {
-      form.setFieldsValue({
-        pilot_school_id: session.user.pilot_school_id,
-        subject: session.user.subject,
-        holding_classes: session.user.holding_classes,
-        phone: session.user.phone || ''
+    fetchUserProfile();
+  }, []);
+
+  // Fetch user's current profile data
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('/api/profile', {
+        credentials: 'same-origin'
       });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user) {
+          console.log('Loading profile data:', data.user);
+          form.setFieldsValue({
+            pilot_school_id: data.user.pilot_school_id,
+            subject: data.user.subject,
+            holding_classes: data.user.holding_classes,
+            phone: data.user.phone || ''
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
-  }, [session, form]);
+  };
 
   const fetchSchools = async () => {
     try {
@@ -75,39 +90,58 @@ function ProfileSetupContent() {
   };
 
   const onFinish = async (values: any) => {
+    console.log('🔥 onFinish called with values:', values);
+    if (loading) return; // Prevent double submission
+    
     setLoading(true);
     try {
+      console.log('📡 Making API call to /api/profile/update');
       const response = await fetch('/api/profile/update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'same-origin',
         body: JSON.stringify(values),
       });
 
-      const data = await response.json();
+      console.log('📨 Response status:', response.status);
+      console.log('📨 Response headers:', response.headers.get('content-type'));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error Response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
 
-      if (response.ok) {
-        // Update the session with new data
-        await update();
-        
-        const successMessage = isMentor && isFirstTime
-          ? 'ប្រវត្តិរូបបានបំពេញដោយជោគជ័យ! ការកំណត់ប្រវត្តិរូបរបស់អ្នកនឹងត្រូវកំណត់ឡើងវិញបន្ទាប់ពី 48 ម៉ោង។'
-          : 'ប្រវត្តិរូបបានបំពេញដោយជោគជ័យ!';
-        
-        message.success(successMessage);
-        
-        if (isFirstTime) {
+      const data = await response.json();
+      console.log('✅ Parsed response data:', data);
+
+      // Update the session with new data - this triggers the JWT callback to fetch fresh data
+      console.log('🔄 Updating session...');
+      await update();
+      
+      // Wait a bit for session to propagate
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const successMessage = isMentor && isFirstTime
+        ? 'ប្រវត្តិរូបបានបំពេញដោយជោគជ័យ! ការកំណត់ប្រវត្តិរូបរបស់អ្នកនឹងត្រូវកំណត់ឡើងវិញបន្ទាប់ពី 48 ម៉ោង។'
+        : 'ប្រវត្តិរូបបានបំពេញដោយជោគជ័យ!';
+      
+      message.success(successMessage);
+      
+      // Navigate based on user role and whether this was first-time setup
+      console.log('🚀 Navigating...', { isFirstTime, isMentor, role: session?.user?.role });
+      setTimeout(() => {
+        if (isFirstTime && (session?.user?.role === 'teacher' || session?.user?.role === 'mentor')) {
           router.push('/onboarding');
         } else {
           router.push('/dashboard');
         }
-      } else {
-        message.error(data.error || 'Failed to update profile');
-      }
+      }, 1000);
     } catch (error) {
+      console.error('💥 Profile update error:', error);
       message.error('An error occurred while updating profile');
-    } finally {
       setLoading(false);
     }
   };
@@ -132,15 +166,32 @@ function ProfileSetupContent() {
             border: 'none'
           }}
         >
-          <Title level={2} style={{ color: 'white', marginBottom: 8 }}>
-            {isFirstTime ? `សូមស្វាគមន៍, ${session?.user?.name}!` : `កែប្រែប្រវត្តិរូប - ${session?.user?.name}`}
-          </Title>
-          <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16 }}>
-            {isFirstTime 
-              ? 'សូមបំពេញព័ត៌មានរៀបចំប្រវត្តិរូបរបស់អ្នកដើម្បីចាប់ផ្តើមគ្រប់គ្រងថ្នាក់របស់អ្នក'
-              : 'ធ្វើបច្ចុប្បន្នភាពព័ត៌មានប្រវត្តិរូប និងការចាត់តាំងបង្រៀនរបស់អ្នក'
-            }
-          </Text>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ flex: 1 }}>
+              <Title level={2} style={{ color: 'white', marginBottom: 8 }}>
+                {isFirstTime ? `សូមស្វាគមន៍, ${session?.user?.name}!` : `កែប្រែប្រវត្តិរូប - ${session?.user?.name}`}
+              </Title>
+              <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16 }}>
+                {isFirstTime 
+                  ? 'សូមបំពេញព័ត៌មានរៀបចំប្រវត្តិរូបរបស់អ្នកដើម្បីចាប់ផ្តើមគ្រប់គ្រងថ្នាក់របស់អ្នក'
+                  : 'ធ្វើបច្ចុប្បន្នភាពព័ត៌មានប្រវត្តិរូប និងការចាត់តាំងបង្រៀនរបស់អ្នក'
+                }
+              </Text>
+            </div>
+            <Button 
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+              size="large"
+              style={{ 
+                backgroundColor: 'rgba(255,255,255,0.2)', 
+                borderColor: 'rgba(255,255,255,0.3)',
+                color: 'white',
+                fontWeight: 'bold'
+              }}
+            >
+              ចាកចេញ
+            </Button>
+          </div>
         </Card>
 
         {/* Mentor Notice */}
@@ -175,9 +226,11 @@ function ProfileSetupContent() {
                 placeholder="-- ជ្រើសរើសសាលារៀនរបស់អ្នក --"
                 loading={schoolsLoading}
                 showSearch
-                filterOption={(input, option) =>
-                  (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
-                }
+                optionFilterProp="value"
+                filterOption={(input, option) => {
+                  const schoolName = option?.children?.toString() || '';
+                  return schoolName.toLowerCase().includes(input.toLowerCase());
+                }}
               >
                 {schools.map(school => (
                   <Option key={school.id} value={school.id}>
@@ -274,27 +327,17 @@ function ProfileSetupContent() {
               />
             </Form.Item>
 
-            {/* Submit Buttons */}
-            <Form.Item style={{ marginTop: 32 }}>
-              <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                <Button 
-                  icon={<LogoutOutlined />}
-                  onClick={handleLogout}
-                  style={{ color: '#666' }}
-                >
-                  ចាកចេញ
-                </Button>
-                
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
-                  loading={loading}
-                  size="large"
-                  style={{ minWidth: 200 }}
-                >
-                  {isFirstTime ? 'រក្សាទុក និងបន្ត →' : 'ធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូប'}
-                </Button>
-              </Space>
+            {/* Submit Button */}
+            <Form.Item style={{ marginTop: 32, textAlign: 'center' }}>
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                loading={loading}
+                size="large"
+                style={{ minWidth: 250, height: 50, fontSize: 16 }}
+              >
+                {isFirstTime ? 'រក្សាទុក និងបន្ត →' : 'ធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូប'}
+              </Button>
             </Form.Item>
           </Form>
         </Card>

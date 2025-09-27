@@ -259,10 +259,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       key: 'user-info',
       type: 'group',
       label: (
-        <div className="px-3 py-2">
-          <div className="text-sm font-semibold">{session?.user?.name}</div>
-          <div className="text-xs text-gray-500">{session?.user?.email}</div>
-          <div className="text-xs text-gray-400 capitalize mt-1">
+        <div style={{ padding: '8px 12px' }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: 4 }}>{session?.user?.name}</div>
+          <div style={{ fontSize: '12px', color: token.colorTextSecondary }}>{session?.user?.email}</div>
+          <div style={{ fontSize: '11px', color: token.colorTextTertiary, marginTop: 4 }}>
             {session?.user?.role === 'admin' && 'អ្នកគ្រប់គ្រង'}
             {session?.user?.role === 'teacher' && 'គ្រូបង្រៀន'}
             {session?.user?.role === 'mentor' && 'អ្នកណែនាំ'}
@@ -280,6 +280,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: <UserOutlined />,
       label: 'ប្រវត្តិរូបរបស់ខ្ញុំ',
       onClick: () => router.push('/profile'),
+    },
+    {
+      key: 'profile-setup',
+      icon: <SettingOutlined />,
+      label: 'កំណត់ប្រវត្តិរូប',
+      onClick: () => router.push('/profile-setup'),
     },
     {
       key: 'change-password',

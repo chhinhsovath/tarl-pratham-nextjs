@@ -86,7 +86,9 @@ export default function UnifiedDashboard() {
     setLoading(true);
     try {
       // Load schools and provinces
-      const schoolsRes = await fetch('/api/pilot-schools');
+      const schoolsRes = await fetch('/api/pilot-schools', {
+        credentials: 'same-origin'
+      });
       const schoolsData = await schoolsRes.json();
       
       if (schoolsData.data) {
@@ -120,7 +122,9 @@ export default function UnifiedDashboard() {
       if (selectedDistrict) params.append('district', selectedDistrict);
       if (selectedCluster) params.append('cluster', selectedCluster);
       
-      const response = await fetch(`/api/dashboard/stats?${params}`);
+      const response = await fetch(`/api/dashboard/stats?${params}`, {
+        credentials: 'same-origin'
+      });
       const data = await response.json();
       
       setStats({
@@ -143,7 +147,9 @@ export default function UnifiedDashboard() {
       if (selectedDistrict) params.append('district', selectedDistrict);
       if (selectedCluster) params.append('cluster', selectedCluster);
       
-      const response = await fetch(`/api/dashboard/overall-results?${params}`);
+      const response = await fetch(`/api/dashboard/overall-results?${params}`, {
+        credentials: 'same-origin'
+      });
       const data = await response.json();
       
       if (data.chartData) {
@@ -168,7 +174,9 @@ export default function UnifiedDashboard() {
       if (selectedDistrict) params.append('district', selectedDistrict);
       if (selectedCluster) params.append('cluster', selectedCluster);
       
-      const response = await fetch(`/api/dashboard/results-by-school?${params}`);
+      const response = await fetch(`/api/dashboard/results-by-school?${params}`, {
+        credentials: 'same-origin'
+      });
       const data = await response.json();
       
       if (data.chartData) {
@@ -413,22 +421,44 @@ export default function UnifiedDashboard() {
           <div className="p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">លទ្ធផលការវាយតម្លៃ</h3>
             
-            {/* Subject Toggle */}
-            <div className="flex justify-center gap-2 mb-6">
-              <Button
-                type={currentSubject === 'khmer' ? 'primary' : 'default'}
-                onClick={() => setCurrentSubject('khmer')}
-                className={currentSubject === 'khmer' ? 'bg-blue-500' : ''}
-              >
-                ខ្មែរ
-              </Button>
-              <Button
-                type={currentSubject === 'math' ? 'primary' : 'default'}
-                onClick={() => setCurrentSubject('math')}
-                className={currentSubject === 'math' ? 'bg-blue-500' : ''}
-              >
-                គណិតវិទ្យា
-              </Button>
+            {/* Enhanced Subject Toggle */}
+            <div className="flex justify-center mb-6">
+              <div style={{
+                display: 'flex',
+                backgroundColor: '#f5f5f5',
+                borderRadius: '12px',
+                padding: '4px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+              }}>
+                <Button
+                  type={currentSubject === 'khmer' ? 'primary' : 'text'}
+                  onClick={() => setCurrentSubject('khmer')}
+                  style={{
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontWeight: '600',
+                    backgroundColor: currentSubject === 'khmer' ? '#1890ff' : 'transparent',
+                    color: currentSubject === 'khmer' ? '#fff' : '#666',
+                    boxShadow: currentSubject === 'khmer' ? '0 2px 4px rgba(24, 144, 255, 0.3)' : 'none'
+                  }}
+                >
+                  📚 ខ្មែរ
+                </Button>
+                <Button
+                  type={currentSubject === 'math' ? 'primary' : 'text'}
+                  onClick={() => setCurrentSubject('math')}
+                  style={{
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontWeight: '600',
+                    backgroundColor: currentSubject === 'math' ? '#52c41a' : 'transparent',
+                    color: currentSubject === 'math' ? '#fff' : '#666',
+                    boxShadow: currentSubject === 'math' ? '0 2px 4px rgba(82, 196, 26, 0.3)' : 'none'
+                  }}
+                >
+                  🔢 គណិតវិទ្យា
+                </Button>
+              </div>
             </div>
 
             <Row gutter={[24, 24]}>
@@ -503,32 +533,64 @@ export default function UnifiedDashboard() {
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <h4 className="text-center font-medium mb-4">លទ្ធផលតាមសាលារៀន</h4>
                     
-                    {/* Cycle Selector */}
-                    <div className="flex justify-center gap-2 mb-4">
-                      <Button
-                        size="small"
-                        type={currentCycle === 'baseline' ? 'primary' : 'default'}
-                        onClick={() => setCurrentCycle('baseline')}
-                        className={currentCycle === 'baseline' ? 'bg-indigo-500' : ''}
-                      >
-                        ដើមគ្រា
-                      </Button>
-                      <Button
-                        size="small"
-                        type={currentCycle === 'midline' ? 'primary' : 'default'}
-                        onClick={() => setCurrentCycle('midline')}
-                        className={currentCycle === 'midline' ? 'bg-indigo-500' : ''}
-                      >
-                        ពាក់កណ្តាលគ្រា
-                      </Button>
-                      <Button
-                        size="small"
-                        type={currentCycle === 'endline' ? 'primary' : 'default'}
-                        onClick={() => setCurrentCycle('endline')}
-                        className={currentCycle === 'endline' ? 'bg-indigo-500' : ''}
-                      >
-                        ចុងគ្រា
-                      </Button>
+                    {/* Enhanced Cycle Selector */}
+                    <div className="flex justify-center mb-4">
+                      <div style={{
+                        display: 'flex',
+                        backgroundColor: '#fafafa',
+                        borderRadius: '10px',
+                        padding: '3px',
+                        border: '1px solid #e8e8e8'
+                      }}>
+                        <Button
+                          size="small"
+                          type={currentCycle === 'baseline' ? 'primary' : 'text'}
+                          onClick={() => setCurrentCycle('baseline')}
+                          style={{
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            backgroundColor: currentCycle === 'baseline' ? '#722ed1' : 'transparent',
+                            color: currentCycle === 'baseline' ? '#fff' : '#555',
+                            boxShadow: currentCycle === 'baseline' ? '0 1px 3px rgba(114, 46, 209, 0.3)' : 'none'
+                          }}
+                        >
+                          🥇 ដើមគ្រា
+                        </Button>
+                        <Button
+                          size="small"
+                          type={currentCycle === 'midline' ? 'primary' : 'text'}
+                          onClick={() => setCurrentCycle('midline')}
+                          style={{
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            backgroundColor: currentCycle === 'midline' ? '#fa8c16' : 'transparent',
+                            color: currentCycle === 'midline' ? '#fff' : '#555',
+                            boxShadow: currentCycle === 'midline' ? '0 1px 3px rgba(250, 140, 22, 0.3)' : 'none'
+                          }}
+                        >
+                          🥈 ពាក់កណ្តាលគ្រា
+                        </Button>
+                        <Button
+                          size="small"
+                          type={currentCycle === 'endline' ? 'primary' : 'text'}
+                          onClick={() => setCurrentCycle('endline')}
+                          style={{
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            backgroundColor: currentCycle === 'endline' ? '#13c2c2' : 'transparent',
+                            color: currentCycle === 'endline' ? '#fff' : '#555',
+                            boxShadow: currentCycle === 'endline' ? '0 1px 3px rgba(19, 194, 194, 0.3)' : 'none'
+                          }}
+                        >
+                          🥉 ចុងគ្រា
+                        </Button>
+                      </div>
                     </div>
                     
                     <div style={{ height: 400, overflowY: 'auto' }}>

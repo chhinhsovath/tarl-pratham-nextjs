@@ -23,7 +23,7 @@ import {
 import {
   DashboardOutlined,
   TeamOutlined,
-  SchoolOutlined,
+  BankOutlined,
   FileExcelOutlined,
   CloudUploadOutlined,
   SettingOutlined,
@@ -126,7 +126,7 @@ export default function CoordinatorWorkspacePage() {
     },
     {
       title: 'Import Schools',
-      icon: <SchoolOutlined style={{ fontSize: 24 }} />,
+      icon: <BankOutlined style={{ fontSize: 24 }} />,
       color: '#52c41a',
       description: 'Bulk import school data',
       path: '/coordinator/imports/schools'
@@ -312,7 +312,7 @@ export default function CoordinatorWorkspacePage() {
             <Statistic
               title="Total Schools"
               value={stats.total_schools}
-              prefix={<SchoolOutlined />}
+              prefix={<BankOutlined />}
               valueStyle={{ color: '#1890ff' }}
             />
           </Card>

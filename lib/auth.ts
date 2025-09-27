@@ -79,6 +79,7 @@ export const authOptions: NextAuthOptions = {
           teacher_profile_setup: false,
           mentor_profile_complete: false,
           province: user.province,
+          district: user.district,
           subject: user.subject,
           isQuickLogin: false,
           onboarding_completed: user.onboarding_completed,
@@ -90,7 +91,8 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // Handle initial sign in
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -105,6 +107,37 @@ export const authOptions: NextAuthOptions = {
         token.holding_classes = user.holding_classes;
         token.profile_expires_at = user.profile_expires_at;
       }
+      
+      // Handle session updates (when update() is called)
+      if (trigger === "update" && session) {
+        // Fetch fresh user data from database
+        const userId = parseInt(token.id as string);
+        const freshUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            pilot_school_id: true,
+            subject: true,
+            holding_classes: true,
+            province: true,
+            district: true,
+            onboarding_completed: true,
+            show_onboarding: true,
+            profile_expires_at: true
+          }
+        });
+        
+        if (freshUser) {
+          token.pilot_school_id = freshUser.pilot_school_id;
+          token.subject = freshUser.subject;
+          token.holding_classes = freshUser.holding_classes;
+          token.province = freshUser.province;
+          token.district = freshUser.district;
+          token.onboarding_completed = freshUser.onboarding_completed;
+          token.show_onboarding = freshUser.show_onboarding;
+          token.profile_expires_at = freshUser.profile_expires_at;
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {
@@ -115,6 +148,7 @@ export const authOptions: NextAuthOptions = {
         session.user.teacher_profile_setup = token.teacher_profile_setup as boolean;
         session.user.mentor_profile_complete = token.mentor_profile_complete as boolean;
         session.user.province = token.province as string | null;
+        session.user.district = token.district as string | null;
         session.user.subject = token.subject as string | null;
         session.user.isQuickLogin = token.isQuickLogin as boolean;
         session.user.onboarding_completed = token.onboarding_completed;

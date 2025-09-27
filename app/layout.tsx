@@ -1,9 +1,11 @@
 import '@ant-design/v5-patch-for-react-19';
+import '@/lib/suppress-warnings';
 import type { Metadata } from "next";
 import { Hanuman } from "next/font/google";
 import "./globals.css";
 import StyledComponentsRegistry from "@/lib/antd-registry";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
+import AntdProvider from "@/components/providers/AntdProvider";
 
 const hanuman = Hanuman({ 
   subsets: ["khmer"],
@@ -41,7 +43,9 @@ export default function RootLayout({
       <body className={`${hanuman.variable} font-khmer bg-white`} style={{ fontFamily: "'Hanuman', 'Khmer OS', sans-serif", backgroundColor: 'white' }}>
         <AuthSessionProvider>
           <StyledComponentsRegistry>
-            {children}
+            <AntdProvider>
+              {children}
+            </AntdProvider>
           </StyledComponentsRegistry>
         </AuthSessionProvider>
       </body>

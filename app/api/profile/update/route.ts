@@ -36,17 +36,25 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    console.log('👤 User ID from session:', userId);
+    console.log('👤 Full session user:', session.user);
+    
+    // Only use the main users table - simplified approach
     const user = await prisma.user.findUnique({
       where: { id: userId }
     });
 
     if (!user) {
+      console.error('❌ User not found with ID:', userId);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+    
+    console.log('✅ Found user:', user.name, user.email);
 
     // Check if this was first-time setup
     const wasFirstTime = !user.pilot_school_id || !user.subject || !user.holding_classes;
     const isMentor = user.role === 'mentor';
+    const isTeacher = user.role === 'teacher';
 
     let updateData: any = {
       pilot_school_id: parseInt(pilot_school_id),
@@ -64,6 +72,20 @@ export async function POST(request: NextRequest) {
       updateData.original_classes = user.holding_classes;
     }
 
+    // Mark profile setup as complete in onboarding
+    if (wasFirstTime && (isTeacher || isMentor)) {
+      const currentOnboarding = user.onboarding_completed 
+        ? (typeof user.onboarding_completed === 'string' 
+            ? JSON.parse(user.onboarding_completed) 
+            : user.onboarding_completed)
+        : [];
+      
+      if (!currentOnboarding.includes('complete_profile')) {
+        currentOnboarding.push('complete_profile');
+        updateData.onboarding_completed = JSON.stringify(currentOnboarding);
+      }
+    }
+
     // Get school details for location
     const school = await prisma.pilotSchool.findUnique({
       where: { id: parseInt(pilot_school_id) }
@@ -74,11 +96,13 @@ export async function POST(request: NextRequest) {
       updateData.district = school.district;
     }
 
-    // Update user profile
+    // Update user profile in the main users table
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updateData
     });
+    
+    console.log('✅ Updated user successfully:', updatedUser.id);
 
     return NextResponse.json({ 
       success: true, 

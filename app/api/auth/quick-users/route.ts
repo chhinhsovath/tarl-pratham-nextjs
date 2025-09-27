@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
           is_active: true
         },
         orderBy: [
-          { role: 'asc' },
           { username: 'asc' }
         ]
       });
@@ -36,8 +35,25 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Group users by role for easier display
-    const groupedUsers = quickUsers.reduce((groups: Record<string, any[]>, user) => {
+    // Define role hierarchy and sort users accordingly
+    const roleOrder = ['admin', 'coordinator', 'mentor', 'teacher', 'viewer'];
+    const roleHierarchy: { [key: string]: number } = {
+      'admin': 1,
+      'coordinator': 2, 
+      'mentor': 3,
+      'teacher': 4,
+      'viewer': 5
+    };
+
+    // Sort users by role hierarchy, then by username
+    const sortedUsers = quickUsers.sort((a, b) => {
+      const roleComparison = (roleHierarchy[a.role] || 99) - (roleHierarchy[b.role] || 99);
+      if (roleComparison !== 0) return roleComparison;
+      return a.username.localeCompare(b.username);
+    });
+
+    // Group users by role for organized display
+    const groupedUsers = sortedUsers.reduce((groups: Record<string, any[]>, user) => {
       const role = user.role || 'other';
       if (!groups[role]) {
         groups[role] = [];
@@ -46,9 +62,20 @@ export async function GET(request: NextRequest) {
       return groups;
     }, {});
 
+    // Calculate statistics
+    const stats = {
+      total: quickUsers.length,
+      byRole: roleOrder.reduce((acc, role) => {
+        acc[role] = groupedUsers[role]?.length || 0;
+        return acc;
+      }, {} as Record<string, number>)
+    };
+
     return NextResponse.json({ 
-      users: quickUsers,
-      groupedUsers: groupedUsers 
+      users: sortedUsers,
+      groupedUsers: groupedUsers,
+      stats: stats,
+      total: quickUsers.length
     });
   } catch (error) {
     console.error('Error in quick-users API:', error);

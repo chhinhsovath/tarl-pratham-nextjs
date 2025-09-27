@@ -7,10 +7,17 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
   const isOnboardingPage = request.nextUrl.pathname.startsWith('/onboarding');
   const isProfileSetupPage = request.nextUrl.pathname.startsWith('/profile-setup');
+  const isBypassPage = request.nextUrl.pathname.startsWith('/bypass');
+  const isAPIRoute = request.nextUrl.pathname.startsWith('/api/');
   const isPublicPage = request.nextUrl.pathname === '/' || 
                        request.nextUrl.pathname.startsWith('/api/auth') ||
                        request.nextUrl.pathname.startsWith('/api/public') ||
                        request.nextUrl.pathname.startsWith('/api/pilot-schools');
+
+  // For API routes, let them handle authentication internally (don't redirect)
+  if (isAPIRoute && !isPublicPage) {
+    return NextResponse.next();
+  }
 
   if (!token && !isAuthPage && !isPublicPage) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
@@ -31,9 +38,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // If user is logged in, check onboarding status for protected pages
-  if (token && !isOnboardingPage && !isProfileSetupPage && !isPublicPage) {
+  if (token && !isOnboardingPage && !isProfileSetupPage && !isPublicPage && !isBypassPage) {
     const needsProfileSetup = needsProfileSetupCheck(token);
     const shouldShowOnboarding = token.show_onboarding !== false && !hasCompletedOnboarding(token);
+
+    // TEMPORARY: Skip profile setup check if coming from bypass page
+    if (request.nextUrl.pathname === '/dashboard' && request.headers.get('referer')?.includes('/bypass')) {
+      return NextResponse.next();
+    }
 
     if (needsProfileSetup) {
       return NextResponse.redirect(new URL('/profile-setup', request.url));

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   Steps,
@@ -31,7 +32,7 @@ import {
   CloseCircleOutlined,
   ExclamationCircleOutlined,
   TeamOutlined,
-  SchoolOutlined,
+  BankOutlined,
   UserOutlined,
   FileDoneOutlined,
   ReloadOutlined,
@@ -63,6 +64,7 @@ interface ValidationError {
 
 export default function BulkImportPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [importType, setImportType] = useState<string>('');
   const [importData, setImportData] = useState<ImportData | null>(null);
@@ -85,7 +87,7 @@ export default function BulkImportPage() {
     {
       value: 'schools',
       label: 'Schools',
-      icon: <SchoolOutlined />,
+      icon: <BankOutlined />,
       color: '#52c41a',
       requiredFields: ['school_name', 'school_code', 'province', 'district'],
       optionalFields: ['cluster', 'commune', 'village', 'latitude', 'longitude'],
@@ -553,7 +555,7 @@ export default function BulkImportPage() {
               >
                 New Import
               </Button>,
-              <Button key="view" onClick={() => window.location.href = '/coordinator'}>
+              <Button key="view" onClick={() => router.push('/coordinator')}>
                 Back to Workspace
               </Button>
             ]}

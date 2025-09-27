@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Button } from 'antd';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -309,6 +310,7 @@ export default function Home() {
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
               Teaching at the Right Level - ប្រព័ន្ធវាយតម្លៃ និងការតាមដានទំនើបសម្រាប់កម្មវិធី TaRL នៅកម្ពុជា
             </p>
+            
           </div>
         </div>
       </section>
@@ -361,30 +363,28 @@ export default function Home() {
                   <p className="text-gray-600">ជ្រើសរើសមុខវិជ្ជាដើម្បីមើលលទ្ធផលការវាយតម្លៃ</p>
                 </div>
                 
-                {/* Enhanced Subject Selector */}
-                <div className="flex bg-white rounded-2xl p-2 shadow-lg">
-                  <button 
+                {/* Beautiful Ant Design Subject Selector */}
+                <div className="flex gap-3">
+                  <Button
+                    type={subject === 'khmer' ? 'primary' : 'default'}
+                    size="large"
+                    icon={<BookOpenIcon className="w-4 h-4" />}
                     onClick={() => setSubject('khmer')}
-                    className={`inline-flex items-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                      subject === 'khmer' 
-                        ? 'bg-blue-600 text-white shadow-lg transform scale-105' 
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600'
-                    }`}
+                    className="font-khmer-bold flex items-center h-12 px-6"
+                    style={subject === 'khmer' ? { backgroundColor: '#1677ff', borderColor: '#1677ff' } : {}}
                   >
-                    <BookOpenIcon className="w-5 h-5 mr-2" />
                     ខ្មែរ
-                  </button>
-                  <button 
+                  </Button>
+                  <Button
+                    type={subject === 'math' ? 'primary' : 'default'}
+                    size="large"
+                    icon={<AcademicCapIcon className="w-4 h-4" />}
                     onClick={() => setSubject('math')}
-                    className={`inline-flex items-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                      subject === 'math' 
-                        ? 'bg-green-600 text-white shadow-lg transform scale-105' 
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-green-600'
-                    }`}
+                    className="font-khmer-bold flex items-center h-12 px-6"
+                    style={subject === 'math' ? { backgroundColor: '#52c41a', borderColor: '#52c41a' } : {}}
                   >
-                    <AcademicCapIcon className="w-5 h-5 mr-2" />
                     គណិតវិទ្យា
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
