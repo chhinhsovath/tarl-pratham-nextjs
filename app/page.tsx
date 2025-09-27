@@ -13,7 +13,8 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { 
@@ -38,6 +39,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  Filler,
   ChartDataLabels
 );
 
@@ -280,17 +282,11 @@ export default function Home() {
             {/* Auth Links */}
             <div className="flex items-center space-x-4">
               <Link 
-                href="/auth/quick-login" 
-                className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                ចូលរហ័ស
-                <ArrowRightIcon className="ml-1 w-4 h-4" />
-              </Link>
-              <Link 
                 href="/auth/login" 
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
               >
-                ចូល
+                ចូលប្រព័ន្ធ
+                <ArrowRightIcon className="ml-1 w-4 h-4" />
               </Link>
             </div>
           </div>

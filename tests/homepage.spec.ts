@@ -134,18 +134,18 @@ test.describe('TaRL Homepage Tests', () => {
     console.log('✅ Footer content displayed correctly');
   });
 
-  test('should test quick login link', async ({ page }) => {
+  test('should test login link', async ({ page }) => {
     await page.goto('https://tarl.openplp.com/');
 
-    // Click on quick login button
-    const quickLoginLink = page.locator('text=ចូលរហ័ស');
-    await expect(quickLoginLink).toBeVisible();
+    // Click on login button
+    const loginLink = page.locator('text=ចូលប្រព័ន្ធ');
+    await expect(loginLink).toBeVisible();
     
     // Get the href attribute
-    const href = await quickLoginLink.getAttribute('href');
-    expect(href).toBe('/auth/quick-login');
+    const href = await loginLink.getAttribute('href');
+    expect(href).toBe('/auth/login');
 
-    console.log('✅ Quick login link configured correctly');
+    console.log('✅ Login link configured correctly');
   });
 
   test('should test responsive design', async ({ page }) => {
