@@ -1,0 +1,582 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+
+// Validation schema
+const assessmentSchema = z.object({
+  student_id: z.number().min(1, "Student ID is required"),
+  pilot_school_id: z.number().optional(),
+  assessment_type: z.enum(["baseline", "midline", "endline"], {
+    errorMap: () => ({ message: "Assessment type must be baseline, midline, or endline" })
+  }),
+  subject: z.enum(["khmer", "math"], {
+    errorMap: () => ({ message: "Subject must be khmer or math" })
+  }),
+  level: z.enum(["beginner", "letter", "word", "paragraph", "story"]).optional(),
+  score: z.number().min(0).max(100).optional(),
+  notes: z.string().optional(),
+  assessed_date: z.string().datetime().optional(),
+});
+
+// Bulk assessment schema
+const bulkAssessmentSchema = z.object({
+  assessments: z.array(assessmentSchema),
+  pilot_school_id: z.number().optional()
+});
+
+// Helper function to check permissions
+function hasPermission(userRole: string, action: string): boolean {
+  const permissions = {
+    admin: ["view", "create", "update", "delete"],
+    coordinator: ["view", "create", "update", "delete"],
+    mentor: ["view", "create", "update"],
+    teacher: ["view", "create", "update"],
+    viewer: ["view"]
+  };
+  
+  return permissions[userRole as keyof typeof permissions]?.includes(action) || false;
+}
+
+// Helper function to check if user can access assessment data
+function canAccessAssessment(userRole: string, userPilotSchoolId: number | null, assessmentPilotSchoolId: number | null): boolean {
+  if (userRole === "admin" || userRole === "coordinator") {
+    return true;
+  }
+  
+  if ((userRole === "mentor" || userRole === "teacher") && userPilotSchoolId) {
+    return assessmentPilotSchoolId === userPilotSchoolId;
+  }
+  
+  return false;
+}
+
+// GET /api/assessments - List assessments with pagination and filtering
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, "view")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const search = searchParams.get("search") || "";
+    const assessment_type = searchParams.get("assessment_type") || "";
+    const subject = searchParams.get("subject") || "";
+    const pilot_school_id = searchParams.get("pilot_school_id") || "";
+    const student_id = searchParams.get("student_id") || "";
+    const is_temporary = searchParams.get("is_temporary");
+    
+    const skip = (page - 1) * limit;
+    
+    // Build where clause
+    const where: any = {};
+    
+    if (search) {
+      where.OR = [
+        { 
+          student: { 
+            name: { contains: search, mode: "insensitive" } 
+          } 
+        },
+        { 
+          notes: { contains: search, mode: "insensitive" } 
+        }
+      ];
+    }
+    
+    if (assessment_type) {
+      where.assessment_type = assessment_type;
+    }
+    
+    if (subject) {
+      where.subject = subject;
+    }
+    
+    if (pilot_school_id) {
+      where.pilot_school_id = parseInt(pilot_school_id);
+    }
+    
+    if (student_id) {
+      where.student_id = parseInt(student_id);
+    }
+    
+    if (is_temporary !== null) {
+      where.is_temporary = is_temporary === "true";
+    }
+
+    // Apply access restrictions for mentors and teachers
+    if (session.user.role === "mentor" || session.user.role === "teacher") {
+      if (session.user.pilot_school_id) {
+        where.pilot_school_id = session.user.pilot_school_id;
+      } else {
+        // If user has no pilot school, they can't see any assessments
+        where.id = -1;
+      }
+    }
+
+    const [assessments, total] = await Promise.all([
+      prisma.assessment.findMany({
+        where,
+        include: {
+          student: {
+            select: {
+              id: true,
+              name: true,
+              age: true,
+              gender: true,
+              is_temporary: true
+            }
+          },
+          pilot_school: {
+            select: {
+              id: true,
+              name: true,
+              code: true
+            }
+          },
+          added_by: {
+            select: {
+              id: true,
+              name: true,
+              role: true
+            }
+          }
+        },
+        skip,
+        take: limit,
+        orderBy: { assessed_date: "desc" }
+      }),
+      prisma.assessment.count({ where })
+    ]);
+
+    return NextResponse.json({
+      data: assessments,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error("Error fetching assessments:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/assessments - Create new assessment or bulk assessments
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, "create")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = await request.json();
+    
+    // Check if this is a bulk assessment request
+    if (body.assessments && Array.isArray(body.assessments)) {
+      return handleBulkAssessment(body, session);
+    }
+    
+    // Single assessment creation
+    const validatedData = assessmentSchema.parse(body);
+    
+    // Verify student exists and user has access
+    const student = await prisma.student.findUnique({
+      where: { id: validatedData.student_id }
+    });
+    
+    if (!student) {
+      return NextResponse.json(
+        { error: "Student not found" },
+        { status: 404 }
+      );
+    }
+
+    // For mentors, automatically set their pilot school and mark as temporary
+    if (session.user.role === "mentor") {
+      if (!session.user.pilot_school_id) {
+        return NextResponse.json(
+          { error: "Mentor must be assigned to a pilot school" },
+          { status: 400 }
+        );
+      }
+      
+      validatedData.pilot_school_id = session.user.pilot_school_id;
+    }
+
+    // Check for duplicate assessment
+    const existingAssessment = await prisma.assessment.findFirst({
+      where: {
+        student_id: validatedData.student_id,
+        assessment_type: validatedData.assessment_type,
+        subject: validatedData.subject
+      }
+    });
+
+    if (existingAssessment) {
+      return NextResponse.json(
+        { error: `${validatedData.assessment_type} ${validatedData.subject} assessment already exists for this student` },
+        { status: 400 }
+      );
+    }
+
+    // Create assessment
+    const assessment = await prisma.assessment.create({
+      data: {
+        ...validatedData,
+        added_by_id: parseInt(session.user.id),
+        assessed_by_mentor: session.user.role === "mentor",
+        is_temporary: session.user.role === "mentor" ? true : false,
+        assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : new Date()
+      },
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+            age: true,
+            gender: true
+          }
+        },
+        pilot_school: {
+          select: {
+            id: true,
+            name: true,
+            code: true
+          }
+        },
+        added_by: {
+          select: {
+            id: true,
+            name: true,
+            role: true
+          }
+        }
+      }
+    });
+
+    // Update student assessment level
+    const levelField = `${validatedData.assessment_type}_${validatedData.subject}_level`;
+    await prisma.student.update({
+      where: { id: validatedData.student_id },
+      data: {
+        [levelField]: validatedData.level,
+        assessed_by_mentor: session.user.role === "mentor" ? true : undefined
+      }
+    });
+
+    return NextResponse.json({ 
+      message: "Assessment created successfully",
+      data: assessment 
+    }, { status: 201 });
+
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation failed", details: error.errors },
+        { status: 400 }
+      );
+    }
+    
+    console.error("Error creating assessment:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// Helper function for bulk assessment creation
+async function handleBulkAssessment(body: any, session: any) {
+  try {
+    const validatedData = bulkAssessmentSchema.parse(body);
+    
+    // For mentors, set pilot school automatically
+    let pilot_school_id = validatedData.pilot_school_id;
+    if (session.user.role === "mentor") {
+      if (!session.user.pilot_school_id) {
+        return NextResponse.json(
+          { error: "Mentor must be assigned to a pilot school" },
+          { status: 400 }
+        );
+      }
+      pilot_school_id = session.user.pilot_school_id;
+    }
+
+    const results = [];
+    const errors = [];
+
+    // Process each assessment in a transaction
+    for (let i = 0; i < validatedData.assessments.length; i++) {
+      const assessmentData = validatedData.assessments[i];
+      
+      try {
+        // Check if student exists
+        const student = await prisma.student.findUnique({
+          where: { id: assessmentData.student_id }
+        });
+        
+        if (!student) {
+          errors.push(`Assessment ${i + 1}: Student with ID ${assessmentData.student_id} not found`);
+          continue;
+        }
+
+        // Check for duplicate assessment
+        const existingAssessment = await prisma.assessment.findFirst({
+          where: {
+            student_id: assessmentData.student_id,
+            assessment_type: assessmentData.assessment_type,
+            subject: assessmentData.subject
+          }
+        });
+
+        if (existingAssessment) {
+          errors.push(`Assessment ${i + 1}: ${assessmentData.assessment_type} ${assessmentData.subject} assessment already exists for student ${student.name}`);
+          continue;
+        }
+
+        // Create assessment
+        const assessment = await prisma.assessment.create({
+          data: {
+            ...assessmentData,
+            pilot_school_id: pilot_school_id,
+            added_by_id: parseInt(session.user.id),
+            assessed_by_mentor: session.user.role === "mentor",
+            is_temporary: session.user.role === "mentor" ? true : false,
+            assessed_date: assessmentData.assessed_date ? new Date(assessmentData.assessed_date) : new Date()
+          },
+          include: {
+            student: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        });
+
+        // Update student assessment level
+        const levelField = `${assessmentData.assessment_type}_${assessmentData.subject}_level`;
+        await prisma.student.update({
+          where: { id: assessmentData.student_id },
+          data: {
+            [levelField]: assessmentData.level,
+            assessed_by_mentor: session.user.role === "mentor" ? true : undefined
+          }
+        });
+
+        results.push(assessment);
+
+      } catch (error) {
+        errors.push(`Assessment ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
+
+    return NextResponse.json({
+      message: `Bulk assessment completed. ${results.length} successful, ${errors.length} errors.`,
+      data: {
+        successful: results,
+        errors: errors,
+        total_processed: validatedData.assessments.length,
+        successful_count: results.length,
+        error_count: errors.length
+      }
+    }, { status: 201 });
+
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation failed", details: error.errors },
+        { status: 400 }
+      );
+    }
+    
+    console.error("Error creating bulk assessments:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT /api/assessments - Update assessment (requires assessment ID in body)
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, "update")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { id, ...updateData } = body;
+    
+    if (!id) {
+      return NextResponse.json({ error: "Assessment ID is required" }, { status: 400 });
+    }
+
+    // Check if assessment exists and user has access
+    const existingAssessment = await prisma.assessment.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existingAssessment) {
+      return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
+    }
+
+    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Validate input
+    const updateSchema = assessmentSchema.partial().omit({ student_id: true });
+    const validatedData = updateSchema.parse(updateData);
+
+    // Update assessment
+    const assessment = await prisma.assessment.update({
+      where: { id: parseInt(id) },
+      data: {
+        ...validatedData,
+        assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : undefined
+      },
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+            age: true,
+            gender: true
+          }
+        },
+        pilot_school: {
+          select: {
+            id: true,
+            name: true,
+            code: true
+          }
+        },
+        added_by: {
+          select: {
+            id: true,
+            name: true,
+            role: true
+          }
+        }
+      }
+    });
+
+    // Update student assessment level if level was changed
+    if (validatedData.level) {
+      const levelField = `${existingAssessment.assessment_type}_${existingAssessment.subject}_level`;
+      await prisma.student.update({
+        where: { id: existingAssessment.student_id },
+        data: {
+          [levelField]: validatedData.level
+        }
+      });
+    }
+
+    return NextResponse.json({ 
+      message: "Assessment updated successfully",
+      data: assessment 
+    });
+
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation failed", details: error.errors },
+        { status: 400 }
+      );
+    }
+    
+    console.error("Error updating assessment:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/assessments - Delete assessment (requires assessment ID in query)
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, "delete")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    
+    if (!id) {
+      return NextResponse.json({ error: "Assessment ID is required" }, { status: 400 });
+    }
+
+    // Check if assessment exists and user has access
+    const existingAssessment = await prisma.assessment.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existingAssessment) {
+      return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
+    }
+
+    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Delete assessment
+    await prisma.assessment.delete({
+      where: { id: parseInt(id) }
+    });
+
+    // Clear student assessment level
+    const levelField = `${existingAssessment.assessment_type}_${existingAssessment.subject}_level`;
+    await prisma.student.update({
+      where: { id: existingAssessment.student_id },
+      data: {
+        [levelField]: null
+      }
+    });
+
+    return NextResponse.json({ 
+      message: "Assessment deleted successfully" 
+    });
+
+  } catch (error) {
+    console.error("Error deleting assessment:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

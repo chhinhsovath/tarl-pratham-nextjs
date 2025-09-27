@@ -1,0 +1,428 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model with role-based access
+model User {
+  id                      Int                   @id @default(autoincrement())
+  name                    String
+  email                   String                @unique
+  username                String?               @unique
+  profile_photo           String?
+  sex                     String?               // enum('male','female')
+  phone                   String?
+  holding_classes         String?
+  assigned_subject        String?               // enum('khmer','math','both')
+  role                    String                @default("teacher") // admin, coordinator, mentor, teacher, viewer
+  email_verified_at       DateTime?
+  password                String
+  remember_token          String?
+  onboarding_completed    Json?
+  onboarding_completed_at DateTime?
+  show_onboarding         Boolean               @default(true)
+  created_at              DateTime              @default(now())
+  updated_at              DateTime              @updatedAt
+  profile_expires_at      DateTime?
+  original_school_id      Int?
+  original_subject        String?
+  original_classes        String?
+  school_id               Int?
+  subject                 String?
+  pilot_school_id         Int?
+  province                String?
+  district                String?
+  commune                 String?
+  village                 String?
+  is_active               Boolean               @default(true)
+  
+  pilot_school            PilotSchool?          @relation(fields: [pilot_school_id], references: [id])
+  students                Student[]             @relation("StudentAddedBy")
+  assessments             Assessment[]          @relation("AssessmentAddedBy")
+  mentoring_visits        MentoringVisit[]
+  teaching_activities     TeachingActivity[]
+  attendance_records      AttendanceRecord[]
+  
+  @@index([email])
+  @@index([role])
+  @@index([pilot_school_id])
+  @@map("users")
+}
+
+// Quick login users for simplified access
+model QuickLoginUser {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  password    String
+  role        String   @default("teacher")
+  province    String?
+  subject     String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  @@index([username])
+  @@map("quick_login_users")
+}
+
+// Province model
+model Province {
+  id                 Int                @id @default(autoincrement())
+  name_english       String
+  name_khmer         String?
+  code               String             @unique
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  
+  schools            School[]
+  
+  @@map("provinces")
+}
+
+// Pilot schools for mentoring program
+model PilotSchool {
+  id                  Int                  @id @default(autoincrement())
+  province            String
+  district            String
+  cluster_id          Int?
+  cluster             String
+  school_name         String
+  school_code         String               @unique
+  baseline_start_date DateTime?
+  baseline_end_date   DateTime?
+  midline_start_date  DateTime?
+  midline_end_date    DateTime?
+  endline_start_date  DateTime?
+  endline_end_date    DateTime?
+  created_at          DateTime             @default(now())
+  updated_at          DateTime             @updatedAt
+  
+  users               User[]
+  students            Student[]
+  assessments         Assessment[]
+  mentoring_visits    MentoringVisit[]
+  
+  @@index([school_code])
+  @@index([province])
+  @@index([district])
+  @@index([cluster])
+  @@index([baseline_start_date])
+  @@index([midline_start_date])
+  @@map("pilot_schools")
+}
+
+// School model
+model School {
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  code                  String                  @unique
+  province_id           Int
+  district              String?
+  commune               String?
+  village               String?
+  school_type           String?
+  level                 String?
+  total_students        Int?
+  total_teachers        Int?
+  latitude              Float?
+  longitude             Float?
+  phone                 String?
+  email                 String?
+  is_active             Boolean                 @default(true)
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+  
+  province              Province                @relation(fields: [province_id], references: [id])
+  classes               SchoolClass[]
+  
+  @@index([code])
+  @@index([province_id])
+  @@map("schools")
+}
+
+// School classes
+model SchoolClass {
+  id              Int              @id @default(autoincrement())
+  school_id       Int
+  name            String
+  grade           Int
+  teacher_name    String?
+  student_count   Int?
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  
+  school          School           @relation(fields: [school_id], references: [id])
+  students        Student[]
+  
+  @@index([school_id])
+  @@map("school_classes")
+}
+
+// Student model
+model Student {
+  id                          Int                          @id @default(autoincrement())
+  school_class_id             Int?
+  pilot_school_id             Int?
+  name                        String
+  age                         Int?
+  gender                      String?
+  guardian_name               String?
+  guardian_phone              String?
+  address                     String?
+  photo                       String?
+  baseline_assessment         String?
+  midline_assessment          String?
+  endline_assessment          String?
+  baseline_khmer_level        String?
+  baseline_math_level         String?
+  midline_khmer_level         String?
+  midline_math_level          String?
+  endline_khmer_level         String?
+  endline_math_level          String?
+  is_active                   Boolean                      @default(true)
+  is_temporary                Boolean                      @default(false)
+  added_by_id                 Int?
+  added_by_mentor             Boolean                      @default(false)
+  assessed_by_mentor          Boolean                      @default(false)
+  mentor_created_at           DateTime?
+  created_at                  DateTime                     @default(now())
+  updated_at                  DateTime                     @updatedAt
+  
+  school_class                SchoolClass?                 @relation(fields: [school_class_id], references: [id])
+  pilot_school                PilotSchool?                 @relation(fields: [pilot_school_id], references: [id])
+  added_by                    User?                        @relation("StudentAddedBy", fields: [added_by_id], references: [id])
+  assessments                 Assessment[]
+  student_interventions       StudentIntervention[]
+  assessment_eligibilities    StudentAssessmentEligibility[]
+  
+  @@index([school_class_id])
+  @@index([pilot_school_id])
+  @@index([added_by_id])
+  @@index([is_temporary])
+  @@index([added_by_mentor])
+  @@map("students")
+}
+
+// Assessment model
+model Assessment {
+  id                    Int                     @id @default(autoincrement())
+  student_id            Int
+  pilot_school_id       Int?
+  assessment_type       String                  // baseline, midline, endline
+  subject               String                  // khmer, math
+  level                 String?                 // beginner, letter, word, paragraph, story
+  score                 Float?
+  notes                 String?                 @db.Text
+  assessed_date         DateTime?
+  added_by_id           Int?
+  is_temporary          Boolean                 @default(false)
+  assessed_by_mentor    Boolean                 @default(false)
+  mentor_assessment_id  String?
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+  
+  student               Student                 @relation(fields: [student_id], references: [id])
+  pilot_school          PilotSchool?            @relation(fields: [pilot_school_id], references: [id])
+  added_by              User?                   @relation("AssessmentAddedBy", fields: [added_by_id], references: [id])
+  assessment_histories  AssessmentHistory[]
+  
+  @@index([student_id])
+  @@index([pilot_school_id])
+  @@index([assessment_type])
+  @@index([subject])
+  @@index([assessed_date])
+  @@index([is_temporary])
+  @@index([assessed_by_mentor])
+  @@map("assessments")
+}
+
+// Assessment history tracking
+model AssessmentHistory {
+  id              Int         @id @default(autoincrement())
+  assessment_id   Int
+  field_name      String
+  old_value       String?
+  new_value       String?
+  changed_by      Int?
+  created_at      DateTime    @default(now())
+  
+  assessment      Assessment  @relation(fields: [assessment_id], references: [id])
+  
+  @@index([assessment_id])
+  @@map("assessment_histories")
+}
+
+// Mentoring visits
+model MentoringVisit {
+  id                    Int          @id @default(autoincrement())
+  mentor_id             Int
+  pilot_school_id       Int?
+  visit_date            DateTime
+  level                 String?      // primary, secondary, etc.
+  purpose               String?
+  activities            String?      @db.Text
+  observations          String?      @db.Text
+  recommendations       String?      @db.Text
+  follow_up_actions     String?      @db.Text
+  photos                Json?
+  participants_count    Int?
+  duration_minutes      Int?
+  status                String       @default("scheduled") // scheduled, completed, cancelled
+  created_at            DateTime     @default(now())
+  updated_at            DateTime     @updatedAt
+  
+  mentor                User         @relation(fields: [mentor_id], references: [id])
+  pilot_school          PilotSchool? @relation(fields: [pilot_school_id], references: [id])
+  
+  @@index([mentor_id])
+  @@index([pilot_school_id])
+  @@index([visit_date])
+  @@index([status])
+  @@map("mentoring_visits")
+}
+
+// Teaching activities
+model TeachingActivity {
+  id              Int      @id @default(autoincrement())
+  teacher_id      Int
+  activity_date   DateTime
+  subject         String
+  topic           String
+  duration        Int?
+  materials_used  String?  @db.Text
+  student_count   Int?
+  notes           String?  @db.Text
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  teacher         User     @relation(fields: [teacher_id], references: [id])
+  
+  @@index([teacher_id])
+  @@index([activity_date])
+  @@map("teaching_activities")
+}
+
+// Intervention programs
+model InterventionProgram {
+  id                      Int                     @id @default(autoincrement())
+  name                    String
+  description             String?                 @db.Text
+  start_date              DateTime
+  end_date                DateTime?
+  target_group            String?
+  expected_outcomes       String?                 @db.Text
+  is_active               Boolean                 @default(true)
+  created_at              DateTime                @default(now())
+  updated_at              DateTime                @updatedAt
+  
+  student_interventions   StudentIntervention[]
+  
+  @@map("intervention_programs")
+}
+
+// Student interventions
+model StudentIntervention {
+  id                      Int                   @id @default(autoincrement())
+  student_id              Int
+  intervention_program_id Int
+  start_date              DateTime
+  end_date                DateTime?
+  status                  String                @default("active") // active, completed, withdrawn
+  progress_notes          String?               @db.Text
+  outcome                 String?
+  created_at              DateTime              @default(now())
+  updated_at              DateTime              @updatedAt
+  
+  student                 Student               @relation(fields: [student_id], references: [id])
+  intervention_program    InterventionProgram   @relation(fields: [intervention_program_id], references: [id])
+  
+  @@index([student_id])
+  @@index([intervention_program_id])
+  @@map("student_interventions")
+}
+
+// Progress tracking
+model ProgressTracking {
+  id                  Int      @id @default(autoincrement())
+  student_id          Int
+  tracking_date       DateTime
+  khmer_progress      String?
+  math_progress       String?
+  attendance_rate     Float?
+  behavior_notes      String?  @db.Text
+  teacher_comments    String?  @db.Text
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  
+  @@index([student_id])
+  @@index([tracking_date])
+  @@map("progress_trackings")
+}
+
+// Attendance records
+model AttendanceRecord {
+  id              Int      @id @default(autoincrement())
+  student_id      Int
+  teacher_id      Int
+  date            DateTime
+  status          String   // present, absent, late, excused
+  notes           String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  teacher         User     @relation(fields: [teacher_id], references: [id])
+  
+  @@index([student_id])
+  @@index([teacher_id])
+  @@index([date])
+  @@map("attendance_records")
+}
+
+// Student assessment eligibility
+model StudentAssessmentEligibility {
+  id                  Int      @id @default(autoincrement())
+  student_id          Int
+  assessment_type     String
+  is_eligible         Boolean  @default(true)
+  reason              String?
+  eligible_from       DateTime?
+  eligible_until      DateTime?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  
+  student             Student  @relation(fields: [student_id], references: [id])
+  
+  @@unique([student_id, assessment_type])
+  @@index([student_id])
+  @@map("student_assessment_eligibilities")
+}
+
+// Resource views tracking
+model ResourceView {
+  id              Int      @id @default(autoincrement())
+  resource_id     Int
+  user_id         Int?
+  ip_address      String?
+  user_agent      String?
+  viewed_at       DateTime @default(now())
+  
+  @@index([resource_id])
+  @@index([user_id])
+  @@map("resource_views")
+}
+
+// Cluster model
+model Cluster {
+  id              Int      @id @default(autoincrement())
+  name            String
+  code            String   @unique
+  description     String?  @db.Text
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  @@map("clusters")
+}
