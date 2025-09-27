@@ -1,0 +1,21 @@
+{
+  "name": "TaRL ប្រាថម",
+  "short_name": "TaRL",
+  "description": "ប្រព័ន្ធវាយតម្លៃ និងការតាមដានសម្រាប់កម្មវិធីបង្រៀនតាមកម្រិតត្រឹមត្រូវ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#1890ff",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
