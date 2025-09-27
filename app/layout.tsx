@@ -32,7 +32,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
-      <body className={`${hanuman.variable} font-khmer`} style={{ fontFamily: "'Hanuman', 'Khmer OS', sans-serif" }}>
+      <body className={`${hanuman.variable} font-khmer bg-white`} style={{ fontFamily: "'Hanuman', 'Khmer OS', sans-serif", backgroundColor: 'white' }}>
         <AuthSessionProvider>
           <StyledComponentsRegistry>
             {children}
