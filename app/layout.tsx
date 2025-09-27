@@ -25,12 +25,17 @@ export default function RootLayout({
     <html lang="km">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <meta name="theme-color" content="#1890ff" />
+        <meta name="theme-color" content="#667eea" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="TaRL ប្រាថម" />
+        <meta name="apple-mobile-web-app-title" content="TaRL Pratham" />
+        <meta name="msapplication-TileColor" content="#667eea" />
+        <meta name="msapplication-config" content="none" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png" />
       </head>
       <body className={`${hanuman.variable} font-khmer bg-white`} style={{ fontFamily: "'Hanuman', 'Khmer OS', sans-serif", backgroundColor: 'white' }}>
         <AuthSessionProvider>
