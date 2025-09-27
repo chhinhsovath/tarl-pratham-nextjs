@@ -162,11 +162,10 @@ export default function LoginPage() {
                 loading={usersLoading}
                 onChange={handleUserSelect}
                 showSearch
-                filterOption={(input, option) =>
-                  (option?.children as unknown as string)
-                    ?.toLowerCase()
-                    ?.includes(input.toLowerCase())
-                }
+                filterOption={(input, option) => {
+                  if (!option?.value) return false;
+                  return option.value.toString().toLowerCase().includes(input.toLowerCase());
+                }}
               >
                 {['admin', 'coordinator', 'mentor', 'teacher', 'viewer'].map(role => 
                   groupedUsers[role] && groupedUsers[role].length > 0 && (
