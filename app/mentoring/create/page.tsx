@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { message } from 'antd';
 import { useSession } from 'next-auth/react';
-import MentoringVisitForm from '@/components/forms/MentoringVisitForm';
+import CompleteMentoringVisitForm from '@/components/forms/CompleteMentoringVisitForm';
 import { hasPermission } from '@/lib/permissions';
 
 export default function CreateMentoringVisitPage() {
@@ -46,7 +46,7 @@ export default function CreateMentoringVisitPage() {
 
   return (
     <div style={{ padding: '24px' }}>
-      <MentoringVisitForm 
+      <CompleteMentoringVisitForm 
         mode="create" 
         onSubmit={handleSubmit}
       />

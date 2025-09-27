@@ -4,20 +4,123 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-// Validation schema
+// Comprehensive validation schema for complete mentoring visit
 const mentoringVisitSchema = z.object({
+  // Basic Information
   pilot_school_id: z.number().min(1, "Pilot school is required"),
-  visit_date: z.string().datetime("Invalid visit date format"),
+  teacher_id: z.number().optional(),
+  school_id: z.number().optional(),
+  visit_date: z.string(),
+  program_type: z.string().optional().default("TaRL"),
+  grade_group: z.string().optional(),
+  
+  // Location
+  province: z.string().optional(),
+  district: z.string().optional(),
+  commune: z.string().optional(),
+  village: z.string().optional(),
+  
+  // Class Session
+  class_in_session: z.boolean().optional().default(true),
+  class_not_in_session_reason: z.string().optional(),
+  full_session_observed: z.boolean().optional(),
+  class_started_on_time: z.boolean().optional(),
+  late_start_reason: z.string().optional(),
+  
+  // Student Data
+  total_students_enrolled: z.number().min(0).optional(),
+  students_present: z.number().min(0).optional(),
+  students_improved: z.number().min(0).optional(),
+  classes_conducted_before_visit: z.number().min(0).optional(),
+  students_improved_from_last_week: z.number().min(0).optional(),
+  
+  // Subject and Levels
+  subject_observed: z.string().optional(),
+  language_levels_observed: z.any().optional(),
+  numeracy_levels_observed: z.any().optional(),
+  
+  // Classroom Organization
+  students_grouped_by_level: z.boolean().optional(),
+  children_grouped_appropriately: z.boolean().optional(),
+  students_active_participation: z.boolean().optional(),
+  students_fully_involved: z.boolean().optional(),
+  
+  // Teacher Planning
+  has_session_plan: z.boolean().optional(),
+  followed_session_plan: z.boolean().optional(),
+  no_session_plan_reason: z.string().optional(),
+  no_follow_plan_reason: z.string().optional(),
+  session_plan_appropriate: z.boolean().optional(),
+  
+  // Classroom Materials
+  teaching_materials: z.any().optional(),
+  materials_present: z.string().optional(),
+  
+  // Activities
+  number_of_activities: z.number().min(1).max(3).optional(),
+  
+  // Activity 1
+  activity1_name_language: z.string().optional(),
+  activity1_name_numeracy: z.string().optional(),
+  activity1_duration: z.number().min(0).optional(),
+  activity1_clear_instructions: z.boolean().optional(),
+  activity1_no_clear_instructions_reason: z.string().optional(),
+  activity1_followed_process: z.boolean().optional(),
+  activity1_not_followed_reason: z.string().optional(),
+  activity1_type: z.string().optional(),
+  activity1_demonstrated: z.boolean().optional(),
+  activity1_students_practice: z.string().optional(),
+  activity1_small_groups: z.string().optional(),
+  activity1_individual: z.string().optional(),
+  
+  // Activity 2
+  activity2_name_language: z.string().optional(),
+  activity2_name_numeracy: z.string().optional(),
+  activity2_duration: z.number().min(0).optional(),
+  activity2_clear_instructions: z.boolean().optional(),
+  activity2_no_clear_instructions_reason: z.string().optional(),
+  activity2_followed_process: z.boolean().optional(),
+  activity2_not_followed_reason: z.string().optional(),
+  activity2_type: z.string().optional(),
+  activity2_demonstrated: z.boolean().optional(),
+  activity2_students_practice: z.string().optional(),
+  activity2_small_groups: z.string().optional(),
+  activity2_individual: z.string().optional(),
+  
+  // Activity 3
+  activity3_name_language: z.string().optional(),
+  activity3_name_numeracy: z.string().optional(),
+  activity3_duration: z.number().min(0).optional(),
+  activity3_clear_instructions: z.boolean().optional(),
+  activity3_no_clear_instructions_reason: z.string().optional(),
+  activity3_demonstrated: z.boolean().optional(),
+  activity3_students_practice: z.string().optional(),
+  activity3_small_groups: z.string().optional(),
+  activity3_individual: z.string().optional(),
+  
+  // Feedback and Actions
+  observation: z.string().optional(),
+  score: z.number().min(0).max(100).optional(),
+  follow_up_required: z.boolean().optional().default(false),
+  feedback_for_teacher: z.string().optional(),
+  recommendations: z.string().optional(),
+  action_plan: z.string().optional(),
+  follow_up_actions: z.string().optional(),
+  
+  // Photos
+  photo: z.string().optional(),
+  photos: z.array(z.string()).optional(),
+  
+  // Status
+  status: z.enum(["scheduled", "completed", "cancelled"]).default("scheduled"),
+  
+  // Legacy fields for backward compatibility
   level: z.string().optional(),
   purpose: z.string().optional(),
   activities: z.string().optional(),
   observations: z.string().optional(),
-  recommendations: z.string().optional(),
-  follow_up_actions: z.string().optional(),
-  photos: z.array(z.string()).optional(),
   participants_count: z.number().min(0).optional(),
   duration_minutes: z.number().min(0).optional(),
-  status: z.enum(["scheduled", "completed", "cancelled"]).default("scheduled"),
 });
 
 // Helper function to check permissions
