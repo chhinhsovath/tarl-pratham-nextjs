@@ -25,7 +25,10 @@ import {
   AcademicCapIcon,
   EyeIcon,
   ArrowRightIcon,
-  PlayIcon
+  PlayIcon,
+  SparklesIcon,
+  TrophyIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 
 // Register Chart.js components
@@ -245,16 +248,19 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white" data-chartjs-loaded="true">
-      {/* Header */}
+      {/* Clean Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center">
-                  <HomeIcon className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center">
+                  <HomeIcon className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="text-xl font-bold text-gray-900">TaRL ប្រាថម</h1>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">TaRL ប្រាថម</h1>
+                  <p className="text-xs text-gray-500">Teaching at the Right Level</p>
+                </div>
               </div>
             </div>
             
@@ -293,32 +299,33 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Clean Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
-            <h2 className="text-4xl font-bold mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
               ប្រព័ន្ធបង្រៀនតាមកម្រិតត្រឹមត្រូវ
             </h2>
-            <p className="text-xl text-blue-100 mb-8">
-              Teaching at the Right Level - ប្រព័ន្ធវាយតម្លៃ និងការតាមដានសម្រាប់កម្មវិធី TaRL
+            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+              Teaching at the Right Level - ប្រព័ន្ធវាយតម្លៃ និងការតាមដានទំនើបសម្រាប់កម្មវិធី TaRL នៅកម្ពុជា
             </p>
-            <div className="flex justify-center">
-              <button className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 transition-colors">
-                <PlayIcon className="mr-2 w-5 h-5" />
-                ចាប់ផ្តើម
-              </button>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section id="overview" className="py-12 border-b border-gray-100">
+      {/* Clean Stats Section */}
+      <section id="overview" className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">ទិដ្ឋភាពរួមនៃប្រព័ន្ធ</h2>
+            <p className="text-lg text-gray-600">
+              សង្ខេបនៃទិន្នន័យសំខាន់ៗ និងការវាយតម្លៃក្នុងប្រព័ន្ធ TaRL
+            </p>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat) => (
-              <div key={stat.name} className="bg-white rounded-lg shadow-sm p-6 border">
+              <div key={stat.name} className="bg-white rounded-lg shadow-md p-6 border hover:shadow-lg transition-shadow">
                 <div className="flex items-center">
                   <div className={`flex-shrink-0 p-3 rounded-lg ${stat.bgColor}`}>
                     <stat.icon className={`w-6 h-6 ${stat.color}`} />
@@ -334,57 +341,83 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Main Dashboard */}
-      <section id="assessments" className="py-12 border-b border-gray-100">
+      {/* Modern Dashboard Section */}
+      <section id="assessments" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                លទ្ធផលការវាយតម្លៃតាមកម្រិត
-              </h3>
-              
-              {/* Subject Selector */}
-              <div className="flex space-x-2">
-                <button 
-                  onClick={() => setSubject('khmer')}
-                  className={`inline-flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                    subject === 'khmer' 
-                      ? 'bg-blue-600 text-white shadow-sm' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <BookOpenIcon className="w-4 h-4 mr-2" />
-                  ខ្មែរ
-                </button>
-                <button 
-                  onClick={() => setSubject('math')}
-                  className={`inline-flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                    subject === 'math' 
-                      ? 'bg-green-600 text-white shadow-sm' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <AcademicCapIcon className="w-4 h-4 mr-2" />
-                  គណិតវិទ្យា
-                </button>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">លទ្ធផលការវាយតម្លៃតាមកម្រិត</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              ការបង្ហាញទិន្នន័យអន្តរកម្មសម្រាប់ការវាយតម្លៃសិស្សតាមកម្រិតសមត្ថភាព
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 border-b border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    ការវិភាគទិន្នន័យសិស្ស
+                  </h3>
+                  <p className="text-gray-600">ជ្រើសរើសមុខវិជ្ជាដើម្បីមើលលទ្ធផលការវាយតម្លៃ</p>
+                </div>
+                
+                {/* Enhanced Subject Selector */}
+                <div className="flex bg-white rounded-2xl p-2 shadow-lg">
+                  <button 
+                    onClick={() => setSubject('khmer')}
+                    className={`inline-flex items-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                      subject === 'khmer' 
+                        ? 'bg-blue-600 text-white shadow-lg transform scale-105' 
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600'
+                    }`}
+                  >
+                    <BookOpenIcon className="w-5 h-5 mr-2" />
+                    ខ្មែរ
+                  </button>
+                  <button 
+                    onClick={() => setSubject('math')}
+                    className={`inline-flex items-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                      subject === 'math' 
+                        ? 'bg-green-600 text-white shadow-lg transform scale-105' 
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-green-600'
+                    }`}
+                  >
+                    <AcademicCapIcon className="w-5 h-5 mr-2" />
+                    គណិតវិទ្យា
+                  </button>
+                </div>
               </div>
             </div>
             
-            {/* Chart Container */}
-            <div className="p-6">
-              <div className="relative" style={{ height: '400px' }}>
+            {/* Enhanced Chart Container */}
+            <div className="p-8">
+              <div className="relative bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6" style={{ height: '500px' }}>
                 {loading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 z-10 rounded-lg">
+                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-95 z-10 rounded-2xl backdrop-blur-sm">
                     <div className="flex flex-col items-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                      <p className="mt-3 text-sm text-gray-600">កំពុងផ្ទុក...</p>
+                      <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent"></div>
+                      <p className="mt-4 text-lg font-medium text-gray-700">កំពុងផ្ទុកទិន្នន័យ...</p>
+                      <p className="text-sm text-gray-500">សូមរង់ចាំ</p>
                     </div>
                   </div>
                 )}
                 {chartData && (
                   <Bar 
                     data={chartData} 
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      plugins: {
+                        ...chartOptions.plugins,
+                        tooltip: {
+                          ...chartOptions.plugins.tooltip,
+                          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                          titleFont: { size: 14, weight: 'bold' },
+                          bodyFont: { size: 13 },
+                          padding: 12,
+                          cornerRadius: 12,
+                        }
+                      }
+                    }}
                     plugins={[ChartDataLabels as any]}
                   />
                 )}

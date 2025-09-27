@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Form, Input, Button, Card, Select, message, Typography, Space, Alert, Radio } from 'antd';
+import { Form, Input, Button, Card, Select, message, Typography, Space, Alert, Radio, App } from 'antd';
 import { UserOutlined, PhoneOutlined, LogoutOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -16,13 +16,14 @@ interface PilotSchool {
   district: string;
 }
 
-export default function ProfileSetupPage() {
+function ProfileSetupContent() {
   const { data: session, update } = useSession();
   const router = useRouter();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [schools, setSchools] = useState<PilotSchool[]>([]);
   const [schoolsLoading, setSchoolsLoading] = useState(true);
+  const { message } = App.useApp();
 
   const isFirstTime = !session?.user?.pilot_school_id || !session?.user?.subject || !session?.user?.holding_classes;
   const isMentor = session?.user?.role === 'mentor';
@@ -44,6 +45,18 @@ export default function ProfileSetupPage() {
   const fetchSchools = async () => {
     try {
       const response = await fetch('/api/pilot-schools');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Expected JSON but got:', contentType, text.substring(0, 200));
+        throw new Error('Expected JSON response but got: ' + contentType);
+      }
+      
       const data = await response.json();
       if (data.data) {
         setSchools(data.data.map((school: any) => ({
@@ -302,4 +315,8 @@ export default function ProfileSetupPage() {
       </div>
     </div>
   );
+}
+
+export default function ProfileSetupPage() {
+  return <ProfileSetupContent />;
 }

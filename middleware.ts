@@ -9,7 +9,8 @@ export async function middleware(request: NextRequest) {
   const isProfileSetupPage = request.nextUrl.pathname.startsWith('/profile-setup');
   const isPublicPage = request.nextUrl.pathname === '/' || 
                        request.nextUrl.pathname.startsWith('/api/auth') ||
-                       request.nextUrl.pathname.startsWith('/api/public');
+                       request.nextUrl.pathname.startsWith('/api/public') ||
+                       request.nextUrl.pathname.startsWith('/api/pilot-schools');
 
   if (!token && !isAuthPage && !isPublicPage) {
     return NextResponse.redirect(new URL('/auth/login', request.url));

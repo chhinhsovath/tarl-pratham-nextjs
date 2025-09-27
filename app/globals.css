@@ -1,6 +1,165 @@
+/* Import Google Fonts first */
+@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@300;400;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Import mobile styles */
-@import '../styles/mobile.css';
+/* CSS Variables */
+:root {
+  --font-khmer: 'Hanuman', 'Khmer OS', sans-serif;
+  --font-latin: 'Inter', system-ui, sans-serif;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-4xl: 2.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.25rem;
+  --color-primary: #1890ff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-500: #6b7280;
+  --color-gray-700: #374151;
+  --color-gray-900: #111827;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Base Styles */
+body {
+  font-family: var(--font-khmer);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--color-gray-900);
+  background-color: var(--color-gray-50);
+}
+
+/* Khmer Font Classes */
+.font-khmer {
+  font-family: var(--font-khmer) !important;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.font-khmer-bold {
+  font-family: var(--font-khmer) !important;
+  font-weight: 700;
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-white { color: #ffffff; }
+.text-gray-900 { color: #111827 !important; }
+.text-gray-700 { color: #374151 !important; }
+.text-gray-600 { color: #6b7280 !important; }
+.text-gray-500 { color: #6b7280 !important; }
+.text-blue-100 { color: #dbeafe; }
+.text-blue-600 { color: #2563eb !important; }
+.text-green-600 { color: #16a34a !important; }
+.text-purple-600 { color: #9333ea !important; }
+.text-orange-600 { color: #ea580c !important; }
+
+.bg-white { background-color: #ffffff !important; }
+.bg-gray-50 { background-color: var(--color-gray-50); }
+
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem !important; }
+.text-4xl { font-size: 2.25rem; }
+.text-lg { font-size: 1.125rem !important; }
+.text-sm { font-size: 0.875rem !important; }
+
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500 !important; }
+
+.min-h-screen { min-height: 100vh; }
+.max-w-7xl { max-width: 80rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+.p-6 { padding: 1.5rem; }
+
+.flex { display: flex; }
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.gap-6 { gap: 1.5rem; }
+
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.items-center { align-items: center; }
+
+.space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem; }
+.space-x-8 > :not([hidden]) ~ :not([hidden]) { margin-left: 2rem; }
+
+.rounded-lg { border-radius: 0.5rem; }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.border { border-width: 1px; border-color: var(--color-gray-200); }
+.border-b { border-bottom-width: 1px; border-color: var(--color-gray-200); }
+
+.h-16 { height: 4rem; }
+.h-8 { height: 2rem; }
+.h-6 { height: 1.5rem; }
+.h-5 { height: 1.25rem; }
+.h-4 { height: 1rem; }
+.w-8 { width: 2rem; }
+.w-6 { width: 1.5rem; }
+.w-5 { width: 1.25rem; }
+.w-4 { width: 1rem; }
+
+.hidden { display: none; }
+
+/* Enhanced Button Styles */
+.rounded-xl { border-radius: 0.75rem; }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+.hover\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+.transform { transform: translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+.hover\:-translate-y-1:hover { --tw-translate-y: -0.25rem; }
+.transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+.duration-300 { transition-duration: 300ms; }
+
+/* Margin and Padding */
+.mr-3 { margin-right: 0.75rem; }
+.px-8 { padding-left: 2rem; padding-right: 2rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+
+/* Gradient utilities */
+.bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+.from-blue-600 {
+  --tw-gradient-from: #2563eb;
+  --tw-gradient-to: rgb(37 99 235 / 0);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.to-green-600 {
+  --tw-gradient-to: #16a34a;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+/* Responsive utilities */
+@media (min-width: 768px) {
+  .md\:flex { display: flex; }
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Hover effects */
+.hover\:text-blue-600:hover { color: var(--color-primary); }
+
+/* Ensure text visibility in white containers */
+.bg-white * { color: #111827 !important; }
+.bg-white .text-gray-600 { color: #6b7280 !important; }
+.bg-white .text-gray-500 { color: #9ca3af !important; }
+.bg-white p { color: #111827 !important; }
+.bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6 { color: #111827 !important; }

@@ -3,7 +3,7 @@
 import React from 'react';
 import { createCache, extractStyle, StyleProvider } from '@ant-design/cssinjs';
 import { useServerInsertedHTML } from 'next/navigation';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App } from 'antd';
 
 const StyledComponentsRegistry = ({ children }: { children: React.ReactNode }) => {
   const cache = React.useMemo(() => createCache(), []);
@@ -33,7 +33,9 @@ const StyledComponentsRegistry = ({ children }: { children: React.ReactNode }) =
           },
         }}
       >
-        {children}
+        <App>
+          {children}
+        </App>
       </ConfigProvider>
     </StyleProvider>
   );

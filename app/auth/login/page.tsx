@@ -54,13 +54,6 @@ export default function LoginPage() {
       username: username,
       password: 'admin123' 
     });
-    // Clear any validation errors on the username field
-    form.setFields([
-      {
-        name: 'username',
-        errors: [],
-      },
-    ]);
   };
 
   const onFinish = async (values: { username: string; password: string }) => {
@@ -191,12 +184,12 @@ export default function LoginPage() {
                   )
                 )}
               </Select>
-              
-              {/* Users count */}
-              <p style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
-                បង្ហាញអ្នកប្រើប្រាស់ {users.length} នាក់
-              </p>
             </Form.Item>
+            
+            {/* Users count */}
+            <p style={{ marginTop: -8, marginBottom: 16, fontSize: '12px', color: '#666' }}>
+              បង្ហាញអ្នកប្រើប្រាស់ {users.length} នាក់
+            </p>
 
             {selectedUser && (
               <Card 

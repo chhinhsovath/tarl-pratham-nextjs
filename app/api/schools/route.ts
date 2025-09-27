@@ -4,6 +4,16 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
+/**
+ * ⚠️  WARNING: LEGACY SCHOOLS API
+ * 
+ * This API uses the complex `schools` table for full education management.
+ * For TaRL application, prefer `/api/pilot-schools` which uses the simpler 
+ * `pilot_schools` table with 33 pilot program schools.
+ * 
+ * See: /docs/SCHOOL_DATA_STRATEGY.md for full explanation.
+ */
+
 // Validation schema
 const schoolSchema = z.object({
   name: z.string().min(1, "School name is required"),
