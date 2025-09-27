@@ -242,7 +242,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50" data-chartjs-loaded="true">
+    <div className="min-h-screen bg-white" data-chartjs-loaded="true">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -318,7 +318,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section id="overview" className="py-12">
+      <section id="overview" className="py-12 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat) => (
@@ -339,7 +339,7 @@ export default function Home() {
       </section>
 
       {/* Main Dashboard */}
-      <section id="assessments" className="py-12">
+      <section id="assessments" className="py-12 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
@@ -399,7 +399,7 @@ export default function Home() {
       </section>
 
       {/* Progress and Performance Charts */}
-      <section id="progress" className="py-12">
+      <section id="progress" className="py-12 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Progress Chart */}
@@ -464,7 +464,7 @@ export default function Home() {
       </section>
 
       {/* Assessment Cycles Table */}
-      <section className="py-12">
+      <section className="py-12 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
@@ -526,32 +526,32 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white">
+      <footer className="bg-white border-t">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">TaRL ប្រាថម</h3>
-              <p className="text-gray-400">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">TaRL ប្រាថម</h3>
+              <p className="text-gray-600">
                 ប្រព័ន្ធបង្រៀនតាមកម្រិតត្រឹមត្រូវសម្រាប់ការអភិវឌ្ឍការអប់រំនៅកម្ពុជា
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">តំណភ្ជាប់</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">អំពីយើង</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">ការវាយតម្លៃ</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">ទំនាក់ទំនង</a></li>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">តំណភ្ជាប់</h3>
+              <ul className="space-y-2 text-gray-600">
+                <li><a href="#" className="hover:text-blue-600 transition-colors">អំពីយើង</a></li>
+                <li><a href="#" className="hover:text-blue-600 transition-colors">ការវាយតម្លៃ</a></li>
+                <li><a href="#" className="hover:text-blue-600 transition-colors">ទំនាក់ទំនង</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">ភាគីដៃគូ</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="https://plp.moeys.gov.kh" className="hover:text-white transition-colors">PLP កម្ពុជា</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">ក្រសួងអប់រំ</a></li>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">ភាគីដៃគូ</h3>
+              <ul className="space-y-2 text-gray-600">
+                <li><a href="https://plp.moeys.gov.kh" className="hover:text-blue-600 transition-colors">PLP កម្ពុជា</a></li>
+                <li><a href="#" className="hover:text-blue-600 transition-colors">ក្រសួងអប់រំ</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-600">
             <p>&copy; 2024 TaRL ប្រាថម. រក្សាសិទ្ធិគ្រប់យ៉ាង។</p>
           </div>
         </div>
