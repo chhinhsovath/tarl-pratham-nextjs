@@ -405,15 +405,39 @@ a,
 }
 
 .text-gray-900 {
-  color: var(--color-gray-900);
+  color: #111827 !important;
 }
 
 .text-gray-700 {
-  color: var(--color-gray-700);
+  color: #374151 !important;
 }
 
 .text-gray-600 {
-  color: var(--color-gray-600);
+  color: #6b7280 !important;
+}
+
+.text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.text-2xl {
+  font-size: 1.5rem !important;
+  color: #111827 !important;
+}
+
+.text-sm {
+  font-size: 0.875rem !important;
+  color: #6b7280 !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+  color: #6b7280 !important;
+}
+
+.text-lg {
+  font-size: 1.125rem !important;
+  color: #111827 !important;
 }
 
 .hover\:text-blue-600:hover {
@@ -421,7 +445,47 @@ a,
 }
 
 .bg-white {
-  background-color: #ffffff;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+/* Ensure all text in white containers is visible */
+.bg-white * {
+  color: #111827 !important;
+}
+
+.bg-white .text-gray-600 {
+  color: #6b7280 !important;
+}
+
+.bg-white .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+/* Stats cards text visibility */
+.bg-white p {
+  color: #111827 !important;
+}
+
+.bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6 {
+  color: #111827 !important;
+}
+
+/* Icon colors */
+.text-blue-600 {
+  color: #2563eb !important;
+}
+
+.text-green-600 {
+  color: #16a34a !important;
+}
+
+.text-purple-600 {
+  color: #9333ea !important;
+}
+
+.text-orange-600 {
+  color: #ea580c !important;
 }
 
 .hidden {
