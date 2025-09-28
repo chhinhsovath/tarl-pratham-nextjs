@@ -124,9 +124,9 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
     // Coordinator Workspace - Admin, Coordinator
     if (hasRole(['admin', 'coordinator'])) {
       items.push({
-        key: '/coordinator/workspace',
+        key: '/coordinator',
         label: (
-          <Link href="/coordinator/workspace" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+          <Link href="/coordinator" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
             កន្លែងធ្វើការសម្របសម្រួល
           </Link>
         ),
