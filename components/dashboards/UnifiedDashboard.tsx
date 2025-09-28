@@ -41,6 +41,7 @@ interface School {
 export default function UnifiedDashboard() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   // Filter states
   const [provinces, setProvinces] = useState<string[]>([]);
@@ -76,6 +77,16 @@ export default function UnifiedDashboard() {
 
   useEffect(() => {
     loadInitialData();
+
+    // Check if mobile on client side
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
@@ -466,7 +477,7 @@ export default function UnifiedDashboard() {
               <Col xs={24} lg={showFilters ? 12 : 24}>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="text-center font-medium mb-4">លទ្ធផលសរុប</h4>
-                  <div style={{ height: 300 }}>
+                  <div className="h-64 md:h-80">
                     {overallChart && (
                       <Bar
                         data={overallChart}
@@ -491,11 +502,28 @@ export default function UnifiedDashboard() {
                             }
                           },
                           plugins: {
-                            legend: { position: 'bottom' },
+                            legend: {
+                              position: 'bottom',
+                              labels: {
+                                boxWidth: isMobile ? 12 : 16,
+                                font: {
+                                  size: isMobile ? 10 : 12
+                                }
+                              }
+                            },
                             datalabels: {
-                              display: true,
+                              display: function(context: any) {
+                                // Hide labels on mobile if value is too small
+                                if (isMobile) {
+                                  return context.dataset.data[context.dataIndex] > 5;
+                                }
+                                return true;
+                              },
                               color: 'white',
-                              font: { weight: 'bold', size: 11 },
+                              font: {
+                                weight: 'bold',
+                                size: isMobile ? 9 : 11
+                              },
                               formatter: (value: any) => Math.round(value) + '%'
                             }
                           }
@@ -593,7 +621,7 @@ export default function UnifiedDashboard() {
                       </div>
                     </div>
                     
-                    <div style={{ height: 400, overflowY: 'auto' }}>
+                    <div className="h-80 md:h-96 overflow-y-auto">
                       {schoolChart && (
                         <Bar
                           data={schoolChart}
@@ -625,13 +653,25 @@ export default function UnifiedDashboard() {
                               }
                             },
                             plugins: {
-                              legend: { position: 'bottom' },
+                              legend: {
+                                position: 'bottom',
+                                labels: {
+                                  boxWidth: isMobile ? 10 : 14,
+                                  font: {
+                                    size: isMobile ? 9 : 11
+                                  }
+                                }
+                              },
                               datalabels: {
                                 display: function(context: any) {
-                                  return context.dataset.data[context.dataIndex] > 3;
+                                  const threshold = isMobile ? 8 : 3;
+                                  return context.dataset.data[context.dataIndex] > threshold;
                                 },
                                 color: 'white',
-                                font: { weight: 'bold', size: 11 },
+                                font: {
+                                  weight: 'bold',
+                                  size: isMobile ? 8 : 11
+                                },
                                 formatter: (value: any) => Math.round(value) + '%'
                               }
                             }

@@ -326,7 +326,7 @@ export default function SimpleDashboard() {
             </Radio.Group>
           </div>
           
-          <div className="h-96 mb-6">
+          <div className="h-64 md:h-96 mb-6">
             <Bar data={chartData} options={chartOptions} />
           </div>
           
