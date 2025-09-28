@@ -284,7 +284,7 @@ function SelectStudentsContent() {
   ];
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       <Card>
         <div style={{ marginBottom: '24px' }}>
           <Title level={2}>Select Students for Assessment</Title>
@@ -383,7 +383,7 @@ function SelectStudentsContent() {
         </Card>
 
         {/* Students Table */}
-        <Table
+        <Table scroll={{ x: "max-content" }}
           columns={columns}
           dataSource={students}
           rowKey="id"

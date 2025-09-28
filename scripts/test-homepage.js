@@ -26,7 +26,7 @@ async function testHomepage() {
       },
       {
         name: 'Hero section present',
-        test: html.includes('ប្រព័ន្ធបង្រៀនតាមកម្រិតត្រឹមត្រូវ'),
+        test: html.includes('ប្រព័ន្ធការបង្រៀនស្របតាមសមត្ថភាព'),
         expected: 'Hero section with system description'
       },
       {

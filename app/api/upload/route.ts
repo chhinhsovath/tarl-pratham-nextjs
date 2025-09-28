@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { put } from '@vercel/blob';
 import path from 'path';
 
 export async function POST(request: NextRequest) {
@@ -13,52 +12,56 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    // Validate file type - expanded to include common document types
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'text/csv'
+    ];
+
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.' },
+        { error: 'Invalid file type. Only images, PDFs, Office documents, and text files are allowed.' },
         { status: 400 }
       );
     }
 
-    // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validate file size (10MB max for documents, 5MB for images)
+    const isImage = file.type.startsWith('image/');
+    const maxSize = isImage ? 5 * 1024 * 1024 : 10 * 1024 * 1024; // 5MB for images, 10MB for documents
     if (file.size > maxSize) {
+      const maxSizeMB = isImage ? '5MB' : '10MB';
       return NextResponse.json(
-        { error: 'File size must be less than 5MB.' },
+        { error: `File size must be less than ${maxSizeMB}.` },
         { status: 400 }
       );
     }
 
-    // Create upload directory structure
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', type);
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Generate unique filename
+    // Generate unique filename with type prefix
     const timestamp = Date.now();
     const randomSuffix = Math.random().toString(36).substring(2);
     const fileExtension = path.extname(file.name);
-    const fileName = `${timestamp}_${randomSuffix}${fileExtension}`;
-    const filePath = path.join(uploadDir, fileName);
+    const fileName = `${type}/${timestamp}_${randomSuffix}${fileExtension}`;
 
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
-
-    // Return the public URL
-    const publicUrl = `/uploads/${type}/${fileName}`;
+    // Upload to Vercel Blob storage
+    const blob = await put(fileName, file, {
+      access: 'public',
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
 
     return NextResponse.json({
       success: true,
       message: 'File uploaded successfully',
-      url: publicUrl,
+      url: blob.url,
       filename: fileName,
       size: file.size,
-      type: file.type
+      type: file.type,
+      downloadUrl: blob.downloadUrl
     });
 
   } catch (error) {

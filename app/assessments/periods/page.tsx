@@ -365,7 +365,7 @@ function AssessmentPeriodsPageContent() {
   };
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       <Card title="ការគ្រប់ឃ្រងរយៈពេលវាយតម្លៃ">
         <Row gutter={16} style={{ marginBottom: 24 }}>
           <Col span={4}>
@@ -451,7 +451,7 @@ function AssessmentPeriodsPageContent() {
           />
         )}
 
-        <Table
+        <Table scroll={{ x: "max-content" }}
           rowSelection={rowSelection}
           columns={columns}
           dataSource={periods}

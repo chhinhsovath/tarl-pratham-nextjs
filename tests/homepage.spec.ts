@@ -15,7 +15,7 @@ test.describe('TaRL Homepage Tests', () => {
     await expect(page.locator('nav')).toBeVisible();
 
     // Verify hero section
-    await expect(page.locator('h2')).toContainText('ប្រព័ន្ធបង្រៀនតាមកម្រិតត្រឹមត្រូវ');
+    await expect(page.locator('h2')).toContainText('ប្រព័ន្ធការបង្រៀនស្របតាមសមត្ថភាព');
 
     // Verify login buttons
     await expect(page.locator('text=ចូលរហ័ស')).toBeVisible();

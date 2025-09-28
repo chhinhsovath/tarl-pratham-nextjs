@@ -80,7 +80,7 @@ function EditStudentPageContent({ params }: EditStudentPageProps) {
 
   if (loading) {
     return (
-      <div className="w-full">
+      <div className="max-w-full overflow-x-hidden">
         <Card>
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <Spin size="large" />
@@ -96,7 +96,7 @@ function EditStudentPageContent({ params }: EditStudentPageProps) {
   }
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       <StudentForm 
         mode="edit" 
         student={student}

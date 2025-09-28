@@ -141,7 +141,7 @@ function LoginContent() {
             <LoginOutlined /> TaRL កម្ពុជា
           </Title>
           <Text type="secondary">
-            ប្រព័ន្ធគ្រប់គ្រងការបង្រៀនតាមកម្រិតត្រឹមត្រូវ
+            ប្រព័ន្ធគ្រប់គ្រងការបង្រៀនស្របតាមសមត្ថភាព
           </Text>
         </div>
 

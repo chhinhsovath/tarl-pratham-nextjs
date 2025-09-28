@@ -274,7 +274,7 @@ function CoordinatorWorkspaceContent() {
   };
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       {/* Header */}
       <Card style={{ marginBottom: 24 }}>
         <Row align="middle">
@@ -456,7 +456,7 @@ function CoordinatorWorkspaceContent() {
             }
             key="2"
           >
-            <Table
+            <Table scroll={{ x: "max-content" }}
               dataSource={importHistory}
               columns={importHistoryColumns}
               rowKey="id"

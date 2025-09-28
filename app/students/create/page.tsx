@@ -51,7 +51,7 @@ function CreateStudentPageContent() {
   };
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       <StudentForm 
         mode="create" 
         onSubmit={handleSubmit}

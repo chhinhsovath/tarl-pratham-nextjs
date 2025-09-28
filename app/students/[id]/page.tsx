@@ -191,7 +191,7 @@ function StudentDetailsPageContent({ params }: StudentDetailsPageProps) {
 
   if (loading) {
     return (
-      <div className="w-full">
+      <div className="max-w-full overflow-x-hidden">
         <Card>
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <Spin size="large" />
@@ -207,7 +207,7 @@ function StudentDetailsPageContent({ params }: StudentDetailsPageProps) {
   }
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       {/* Header */}
       <Card style={{ marginBottom: '24px' }}>
         <Row gutter={24} align="middle">
@@ -453,7 +453,7 @@ function StudentDetailsPageContent({ params }: StudentDetailsPageProps) {
         <TabPane tab="Assessment History" key="history">
           {assessmentHistory && (
             <Card title="All Assessments">
-              <Table
+              <Table scroll={{ x: "max-content" }}
                 columns={assessmentColumns}
                 dataSource={assessmentHistory.assessments}
                 rowKey="id"

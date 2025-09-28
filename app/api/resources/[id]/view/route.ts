@@ -3,14 +3,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/resources/[id]/download
+// GET /api/resources/[id]/view
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const resourceId = parseInt(params.id);
-    
+
     if (isNaN(resourceId)) {
       return NextResponse.json({ error: "Invalid resource ID" }, { status: 400 });
     }
@@ -31,12 +31,7 @@ export async function GET(
       }
     }
 
-    // YouTube resources cannot be downloaded
-    if (resource.is_youtube) {
-      return NextResponse.json({ error: "YouTube resources cannot be downloaded" }, { status: 400 });
-    }
-
-    // Track download as a view
+    // Track view
     const session = await getServerSession(authOptions);
     if (session?.user?.id) {
       try {
@@ -47,20 +42,25 @@ export async function GET(
             ip_address: request.ip || 'unknown',
             watch_duration: 0,
             total_duration: 0,
-            completion_percentage: 100, // Download counts as 100% view
+            completion_percentage: 50, // View counts as 50% view
           }
         });
       } catch (viewError) {
-        console.warn("Could not track download view:", viewError);
-        // Continue with download even if view tracking fails
+        console.warn("Could not track view:", viewError);
+        // Continue with view even if tracking fails
       }
     }
 
-    // Redirect to the Vercel Blob URL for download
+    // For YouTube resources, redirect to YouTube
+    if (resource.is_youtube && resource.youtube_url) {
+      return NextResponse.redirect(resource.youtube_url);
+    }
+
+    // For file resources, redirect to the Vercel Blob URL
     return NextResponse.redirect(resource.file_path);
 
   } catch (error) {
-    console.error("Error downloading resource:", error);
+    console.error("Error viewing resource:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

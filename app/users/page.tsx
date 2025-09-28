@@ -288,7 +288,7 @@ function UsersPageContent() {
   };
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       {/* Breadcrumb */}
       <Breadcrumb style={{ marginBottom: "16px" }}>
         <Breadcrumb.Item>

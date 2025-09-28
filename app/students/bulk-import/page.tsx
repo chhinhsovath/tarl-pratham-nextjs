@@ -200,7 +200,7 @@ function BulkImportStudentsPageContent() {
   ];
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       <Card>
         <Title level={2}>Bulk Import Students</Title>
         
@@ -328,7 +328,7 @@ function BulkImportStudentsPageContent() {
             {previewData.valid > 0 && (
               <div style={{ marginBottom: '24px' }}>
                 <Title level={5}>Preview Valid Students (First 10)</Title>
-                <Table
+                <Table scroll={{ x: "max-content" }}
                   columns={previewColumns}
                   dataSource={previewData.students}
                   pagination={false}
@@ -341,7 +341,7 @@ function BulkImportStudentsPageContent() {
             {previewData.errors.length > 0 && (
               <div style={{ marginBottom: '24px' }}>
                 <Title level={5}>Validation Errors</Title>
-                <Table
+                <Table scroll={{ x: "max-content" }}
                   columns={errorColumns}
                   dataSource={previewData.errors}
                   pagination={{ pageSize: 5 }}

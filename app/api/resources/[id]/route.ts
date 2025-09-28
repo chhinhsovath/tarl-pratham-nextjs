@@ -3,8 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { unlink } from "fs/promises";
-import path from "path";
+import { del } from '@vercel/blob';
 
 const updateResourceSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -175,13 +174,14 @@ export async function DELETE(
       return NextResponse.json({ error: "Resource not found" }, { status: 404 });
     }
 
-    // Delete file from filesystem if it's not a YouTube resource
+    // Delete file from Vercel Blob storage if it's not a YouTube resource
     if (!resource.is_youtube && resource.file_path) {
       try {
-        const filePath = path.join(process.cwd(), 'public', resource.file_path);
-        await unlink(filePath);
+        await del(resource.file_path, {
+          token: process.env.BLOB_READ_WRITE_TOKEN,
+        });
       } catch (fileError) {
-        console.warn("Could not delete file:", fileError);
+        console.warn("Could not delete file from blob storage:", fileError);
         // Continue with database deletion even if file deletion fails
       }
     }

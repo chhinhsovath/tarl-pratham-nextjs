@@ -1,118 +1,94 @@
 #!/bin/bash
 
-# Batch update all pages that need HorizontalLayout
+echo "🔧 Batch updating all pages with HorizontalLayout to fix overflow..."
 
-echo "🔄 Batch updating pages to use HorizontalLayout..."
-
-# Function to update a file
-update_file() {
-  local file=$1
-  local filename=$(basename "$file")
-  local dirname=$(basename $(dirname "$file"))
-  
-  echo "📝 Processing: $dirname/$filename"
-  
-  # Check if already has HorizontalLayout
-  if grep -q "HorizontalLayout" "$file"; then
-    echo "   ✓ Already has HorizontalLayout"
-    return
-  fi
-  
-  # Add import after 'use client' or at beginning
-  if grep -q "'use client'" "$file"; then
-    sed -i '' "/'use client'/a\\
-import HorizontalLayout from '@/components/layout/HorizontalLayout';" "$file"
-  elif grep -q '"use client"' "$file"; then
-    sed -i '' '/"use client"/a\\
-import HorizontalLayout from "@/components/layout/HorizontalLayout";' "$file"
-  else
-    # No use client, add both
-    sed -i '' '1i\
-"use client";\
-import HorizontalLayout from "@/components/layout/HorizontalLayout";\
-' "$file"
-  fi
-  
-  # Find export default function and rename it
-  if grep -q "^export default function" "$file"; then
-    # Get the function name
-    func_name=$(grep "^export default function" "$file" | sed 's/export default function \([^(]*\).*/\1/')
-    content_func="${func_name}Content"
-    
-    # Rename the function
-    sed -i '' "s/^export default function $func_name/function $content_func/" "$file"
-    
-    # Add new export at the end
-    echo "" >> "$file"
-    echo "export default function $func_name() {" >> "$file"
-    echo "  return (" >> "$file"
-    echo "    <HorizontalLayout>" >> "$file"
-    echo "      <$content_func />" >> "$file"
-    echo "    </HorizontalLayout>" >> "$file"
-    echo "  );" >> "$file"
-    echo "}" >> "$file"
-    
-    echo "   ✅ Updated successfully"
-  else
-    echo "   ⚠️ Manual update needed (complex structure)"
-  fi
-}
-
-# List of files to update
+# Array of files to update
 files=(
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/users/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/schools/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/resources/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/administration/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/users/create/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/students/create/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/students/bulk-import/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/assessments/select-students/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/assessments/data-entry/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/assessments/periods/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/coordinator/imports/page.tsx"
+  "settings/page.tsx"
+  "assessments/periods/page.tsx"
+  "assessments/data-entry/page.tsx"
+  "assessments/verify/page.tsx"
+  "assessments/manage/page.tsx"
+  "assessments/page.tsx"
+  "assessments/create/page.tsx"
+  "assessments/select-students/page.tsx"
+  "test-roles/page.tsx"
+  "coordinator/imports/page.tsx"
+  "coordinator/page.tsx"
+  "resources/page.tsx"
+  "mentoring-visits/[id]/edit/page.tsx"
+  "mentoring-visits/[id]/page.tsx"
+  "mentoring-visits/page.tsx"
+  "mentoring-visits/create/page.tsx"
+  "dashboard/page.tsx"
+  "students/bulk-import/page.tsx"
+  "students/[id]/edit/page.tsx"
+  "students/[id]/page.tsx"
+  "students/page.tsx"
+  "students/create/page.tsx"
+  "verification/page.tsx"
+  "profile/page.tsx"
+  "users/[id]/edit/page.tsx"
+  "users/page.tsx"
+  "users/create/page.tsx"
+  "administration/page.tsx"
+  "schools/[id]/teachers/page.tsx"
+  "schools/[id]/students/page.tsx"
+  "schools/page.tsx"
+  "teacher/dashboard/page.tsx"
+  "help/page.tsx"
+  "reports/intervention/page.tsx"
+  "reports/dashboard/page.tsx"
+  "reports/assessment-analysis/page.tsx"
+  "reports/page.tsx"
+  "mentoring/[id]/edit/page.tsx"
+  "mentoring/[id]/page.tsx"
+  "mentoring/page.tsx"
+  "mentoring/create/page.tsx"
 )
 
-# Dynamic pages need special handling
-dynamic_files=(
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/users/[id]/edit/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/students/[id]/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/students/[id]/edit/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/schools/[id]/students/page.tsx"
-  "/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app/schools/[id]/teachers/page.tsx"
-)
+APP_DIR="/Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app"
 
-echo ""
-echo "📦 Processing regular pages..."
 for file in "${files[@]}"; do
-  if [ -f "$file" ]; then
-    update_file "$file"
-  fi
-done
-
-echo ""
-echo "📦 Processing dynamic route pages..."
-for file in "${dynamic_files[@]}"; do
-  if [ -f "$file" ]; then
-    update_file "$file"
-  fi
-done
-
-echo ""
-echo "✅ Batch update complete!"
-echo ""
-echo "🔍 Verifying remaining pages without HorizontalLayout..."
-remaining=$(find /Users/chhinhsovath/Documents/GitHub/tarl-pratham-nextjs/app -name "page.tsx" -type f | while read file; do 
-  # Skip auth, profile-setup, onboarding, unauthorized, and root page
-  if [[ ! "$file" =~ "auth/" ]] && \
-     [[ ! "$file" =~ "profile-setup" ]] && \
-     [[ ! "$file" =~ "onboarding" ]] && \
-     [[ ! "$file" =~ "unauthorized" ]] && \
-     [[ ! "$file" =~ "app/page.tsx" ]]; then
-    if ! grep -q "HorizontalLayout" "$file"; then 
-      echo "$file"
+  FILE_PATH="$APP_DIR/$file"
+  
+  if [ -f "$FILE_PATH" ]; then
+    echo "📝 Processing: $file"
+    
+    # First, check if the file already has the overflow fix
+    if grep -q "max-w-full overflow-x-hidden" "$FILE_PATH"; then
+      echo "   ✅ Already fixed"
+    else
+      # Replace common patterns that cause overflow
+      
+      # Pattern 1: <div className="w-full"> at the start of content
+      sed -i '' 's/<div className="w-full">/<div className="max-w-full overflow-x-hidden">/g' "$FILE_PATH"
+      
+      # Pattern 2: className="w-full" with other classes
+      sed -i '' 's/className="w-full\([^"]*\)"/className="max-w-full overflow-x-hidden\1"/g' "$FILE_PATH"
+      
+      # Pattern 3: Just w-full in className
+      sed -i '' 's/className="\([^"]*\)w-full\([^"]*\)"/className="\1max-w-full overflow-x-hidden\2"/g' "$FILE_PATH"
+      
+      echo "   ✅ Updated"
     fi
+    
+    # Check for Tables and add scroll prop if needed
+    if grep -q "<Table" "$FILE_PATH"; then
+      # Check if Table already has scroll prop
+      if ! grep -q 'scroll={{' "$FILE_PATH"; then
+        echo "   📊 Adding table scroll..."
+        # Add scroll={{ x: "max-content" }} to Table components
+        sed -i '' 's/<Table$/<Table scroll={{ x: "max-content" }}/g' "$FILE_PATH"
+        sed -i '' 's/<Table \([^>]*\)>/<Table scroll={{ x: "max-content" }} \1>/g' "$FILE_PATH"
+        echo "   ✅ Table scroll added"
+      fi
+    fi
+  else
+    echo "⚠️  File not found: $file"
   fi
-done | wc -l | tr -d ' ')
+done
 
-echo "Remaining pages without HorizontalLayout: $remaining"
+echo ""
+echo "✅ Batch update completed!"
+echo "📌 Please review the changes and test each page"

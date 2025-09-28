@@ -305,7 +305,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              ប្រព័ន្ធបង្រៀនតាមកម្រិតត្រឹមត្រូវ
+              ប្រព័ន្ធការបង្រៀនស្របតាមសមត្ថភាព
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
               Teaching at the Right Level - ប្រព័ន្ធវាយតម្លៃ និងការតាមដានទំនើបសម្រាប់កម្មវិធី TaRL នៅកម្ពុជា
@@ -561,7 +561,7 @@ export default function Home() {
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-900">TaRL ប្រាថម</h3>
               <p className="text-gray-600">
-                ប្រព័ន្ធបង្រៀនតាមកម្រិតត្រឹមត្រូវសម្រាប់ការអភិវឌ្ឍការអប់រំនៅកម្ពុជា
+                ប្រព័ន្ធការបង្រៀនស្របតាមសមត្ថភាពសម្រាប់ការអភិវឌ្ឍការអប់រំនៅកម្ពុជា
               </p>
             </div>
             <div>

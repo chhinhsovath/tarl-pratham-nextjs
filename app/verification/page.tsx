@@ -369,7 +369,7 @@ export default function VerificationPage() {
 
   return (
     <HorizontalLayout>
-      <div className="w-full">
+      <div className="max-w-full overflow-x-hidden">
         {/* Page Header */}
         <div className="mb-6">
           <Title level={2}>ផ្ទៀងផ្ទាត់ការវាយតម្លៃ</Title>
@@ -520,7 +520,7 @@ export default function VerificationPage() {
           />
 
           {/* Table */}
-          <Table
+          <Table scroll={{ x: "max-content" }}
             rowSelection={activeTab === 'pending' ? rowSelection : undefined}
             columns={columns}
             dataSource={assessments}

@@ -135,7 +135,43 @@ export const MobileFormField: React.FC<MobileFormFieldProps> = ({
             listType="picture-card"
             className="avatar-uploader"
             showUploadList={false}
-            beforeUpload={() => false}
+            customRequest={async (options) => {
+              const { file, onSuccess, onError } = options;
+              try {
+                const formData = new FormData();
+                formData.append('file', file as File);
+                formData.append('type', 'mobile_photos');
+
+                const response = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formData,
+                });
+
+                if (response.ok) {
+                  const data = await response.json();
+                  onSuccess?.(data);
+                } else {
+                  throw new Error('Upload failed');
+                }
+              } catch (error) {
+                console.error('Upload error:', error);
+                onError?.(error as Error);
+              }
+            }}
+            beforeUpload={(file) => {
+              const isImage = file.type.startsWith('image/');
+              const isLt5M = file.size / 1024 / 1024 < 5;
+
+              if (!isImage) {
+                return false;
+              }
+
+              if (!isLt5M) {
+                return false;
+              }
+
+              return true;
+            }}
             disabled={disabled}
           >
             <div className="flex flex-col items-center justify-center p-4">

@@ -16,8 +16,8 @@ const hanuman = Hanuman({
 });
 
 export const metadata: Metadata = {
-  title: "TaRL ប្រាថម - បង្រៀនតាមកម្រិតត្រឹមត្រូវ",
-  description: "ប្រព័ន្ធវាយតម្លៃ និងការតាមដានសម្រាប់កម្មវិធីបង្រៀនតាមកម្រិតត្រឹមត្រូវ",
+  title: "TaRL ប្រាថម - ការបង្រៀនស្របតាមសមត្ថភាព",
+  description: "ប្រព័ន្ធវាយតម្លៃ និងការតាមដានសម្រាប់កម្មវិធីការបង្រៀនស្របតាមសមត្ថភាព",
 };
 
 export default function RootLayout({

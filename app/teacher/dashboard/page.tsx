@@ -406,7 +406,7 @@ function TeacherDashboardContent() {
               </Button>
             }
           >
-            <Table
+            <Table scroll={{ x: "max-content" }}
               columns={studentColumns}
               dataSource={recentStudents}
               rowKey="id"

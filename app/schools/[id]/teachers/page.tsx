@@ -340,7 +340,7 @@ function SchoolTeachersPageContent() {
   }));
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       {/* School Header */}
       <Card style={{ marginBottom: 24 }}>
         <Row align="middle">
@@ -439,7 +439,7 @@ function SchoolTeachersPageContent() {
 
       {/* Teachers Table */}
       <Card title={`Teachers (${teachers.length})`}>
-        <Table
+        <Table scroll={{ x: "max-content" }}
           columns={columns}
           dataSource={teachers}
           rowKey="id"

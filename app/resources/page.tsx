@@ -335,7 +335,7 @@ function ResourcesPageContent() {
   }
 
   return (
-    <div className="w-full">
+    <div className="max-w-full overflow-x-hidden">
       <div style={{ marginBottom: '24px' }}>
         <Title level={2}>
           <FolderOutlined style={{ marginRight: '8px' }} />
@@ -428,7 +428,7 @@ function ResourcesPageContent() {
           </Button>
         </div>
 
-        <Table
+        <Table scroll={{ x: "max-content" }}
           columns={columns}
           dataSource={resources}
           rowKey="id"

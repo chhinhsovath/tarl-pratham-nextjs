@@ -3,8 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { put } from '@vercel/blob';
 
 const createResourceSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -169,30 +168,25 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "File size exceeds 100MB limit" }, { status: 400 });
       }
 
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'resources');
-      await mkdir(uploadsDir, { recursive: true });
-
       // Generate unique filename
       const timestamp = Date.now();
       const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const fileName = `${timestamp}_${sanitizedName}`;
-      const filePath = path.join(uploadsDir, fileName);
+      const fileName = `resources/${timestamp}_${sanitizedName}`;
 
-      // Write file to disk
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      await writeFile(filePath, buffer);
+      // Upload to Vercel Blob storage
+      const blob = await put(fileName, file, {
+        access: 'public',
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
 
       const fileType = getFileType(file.type);
-      const relativeFilePath = `uploads/resources/${fileName}`;
 
       const resource = await prisma.resource.create({
         data: {
           title: validatedData.title,
           description: validatedData.description,
           file_name: file.name,
-          file_path: relativeFilePath,
+          file_path: blob.url,
           file_type: fileType,
           mime_type: file.type,
           file_size: file.size,

@@ -458,7 +458,7 @@ function AssessmentVerificationPage() {
           />
         )}
 
-        <Table
+        <Table scroll={{ x: "max-content" }}
           rowSelection={rowSelection}
           columns={columns}
           dataSource={assessments}

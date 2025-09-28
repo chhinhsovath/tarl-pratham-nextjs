@@ -2,7 +2,7 @@
 export const kmTranslations = {
   // App Name
   appName: 'គម្រោង TaRL',
-  appFullName: 'ការបង្រៀនតាមកម្រិតត្រឹមត្រូវ',
+  appFullName: 'ការបង្រៀនស្របតាមសមត្ថភាព',
   
   // User Roles
   roles: {

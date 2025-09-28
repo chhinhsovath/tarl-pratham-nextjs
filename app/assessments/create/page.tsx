@@ -268,7 +268,7 @@ function AssessmentCreateContent() {
                 saveAssessment(record.id, value, mathLevel.value);
               }
             }}
-            className="w-full"
+            className="max-w-full overflow-x-hidden"
             id={`khmer-${record.id}`}
             disabled={savingMap[record.id]}
           >
@@ -299,7 +299,7 @@ function AssessmentCreateContent() {
                 saveAssessment(record.id, khmerLevel.value, value);
               }
             }}
-            className="w-full"
+            className="max-w-full overflow-x-hidden"
             id={`math-${record.id}`}
             disabled={savingMap[record.id]}
           >
@@ -385,7 +385,7 @@ function AssessmentCreateContent() {
               <Select
                 value={assessmentPeriod}
                 onChange={setAssessmentPeriod}
-                className="w-full mt-2"
+                className="max-w-full overflow-x-hidden mt-2"
                 size="large"
               >
                 <Option value="baseline">មូលដ្ឋាន</Option>
@@ -399,7 +399,7 @@ function AssessmentCreateContent() {
               <Select
                 value={selectedSchool}
                 onChange={setSelectedSchool}
-                className="w-full mt-2"
+                className="max-w-full overflow-x-hidden mt-2"
                 size="large"
                 placeholder="ជ្រើសរើសសាលា"
                 showSearch

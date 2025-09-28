@@ -462,7 +462,7 @@ export default function AssessmentAnalysisPage() {
             <Row gutter={16}>
               <Col xs={24} lg={12}>
                 <Card title="សិស្សដែលត្រូវការជំនួយ">
-                  <Table
+                  <Table scroll={{ x: "max-content" }}
                     dataSource={data.performance_gaps.struggling_students}
                     rowKey="id"
                     pagination={{ pageSize: 10 }}
@@ -508,7 +508,7 @@ export default function AssessmentAnalysisPage() {
               </Col>
               <Col xs={24} lg={12}>
                 <Card title="សិស្សល្អបំផុត">
-                  <Table
+                  <Table scroll={{ x: "max-content" }}
                     dataSource={data.performance_gaps.top_performers}
                     rowKey="id"
                     pagination={{ pageSize: 10 }}
