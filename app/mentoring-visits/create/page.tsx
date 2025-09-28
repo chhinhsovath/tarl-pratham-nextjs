@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import {
   Form,
   Input,
@@ -186,7 +187,7 @@ export default function CreateMentoringVisitPage() {
   ];
 
   return (
-    <div className="p-6">
+    <DashboardLayout>
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
           <Button
@@ -662,6 +663,6 @@ export default function CreateMentoringVisitPage() {
           </Button>
         </div>
       </Form>
-    </div>
+    </DashboardLayout>
   );
 }

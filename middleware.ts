@@ -37,22 +37,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // If user is logged in, check onboarding status for protected pages
-  if (token && !isOnboardingPage && !isProfileSetupPage && !isPublicPage && !isBypassPage) {
-    const needsProfileSetup = needsProfileSetupCheck(token);
-    const shouldShowOnboarding = token.show_onboarding !== false && !hasCompletedOnboarding(token);
-
-    // TEMPORARY: Skip profile setup check if coming from bypass page
-    if (request.nextUrl.pathname === '/dashboard' && request.headers.get('referer')?.includes('/bypass')) {
-      return NextResponse.next();
-    }
-
-    if (needsProfileSetup) {
-      return NextResponse.redirect(new URL('/profile-setup', request.url));
-    } else if (shouldShowOnboarding && request.nextUrl.pathname !== '/dashboard') {
-      return NextResponse.redirect(new URL('/onboarding', request.url));
-    }
-  }
+  // TEMPORARILY DISABLED - Skip all onboarding and profile setup checks
+  // if (token && !isOnboardingPage && !isProfileSetupPage && !isPublicPage && !isBypassPage) {
+  //   const needsProfileSetup = needsProfileSetupCheck(token);
+  //   const shouldShowOnboarding = token.show_onboarding !== false && !hasCompletedOnboarding(token);
+  //   if (needsProfileSetup) {
+  //     return NextResponse.redirect(new URL('/profile-setup', request.url));
+  //   } else if (shouldShowOnboarding && request.nextUrl.pathname !== '/dashboard') {
+  //     return NextResponse.redirect(new URL('/onboarding', request.url));
+  //   }
+  // }
 
   // Role-based access control
   const adminPaths = ['/admin', '/users', '/settings'];
@@ -74,10 +68,7 @@ export async function middleware(request: NextRequest) {
 }
 
 function needsProfileSetupCheck(token: any): boolean {
-  // Check if profile setup is needed based on role
-  if (token.role === 'teacher' || token.role === 'mentor') {
-    return !token.pilot_school_id || !token.subject || !token.holding_classes;
-  }
+  // TEMPORARILY DISABLED - Always return false to bypass profile setup
   return false;
 }
 

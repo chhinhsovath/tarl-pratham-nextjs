@@ -2,21 +2,16 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { message } from 'antd';
+import { message, Typography } from 'antd';
 import { useSession } from 'next-auth/react';
-import CompleteMentoringVisitForm from '@/components/forms/CompleteMentoringVisitForm';
-import { hasPermission } from '@/lib/permissions';
+import DashboardLayout from '@/components/layout/DashboardLayout';
+import ComprehensiveMentoringForm from '@/components/forms/ComprehensiveMentoringForm';
+const { Title } = Typography;
 
 export default function CreateMentoringVisitPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
-
-  // Check permissions
-  if (!hasPermission(user, 'mentoring.create')) {
-    router.push('/unauthorized');
-    return null;
-  }
 
   const handleSubmit = async (values: any) => {
     try {
@@ -32,24 +27,29 @@ export default function CreateMentoringVisitPage() {
 
       if (response.ok) {
         const data = await response.json();
-        message.success(data.message || 'Mentoring visit scheduled successfully');
+        message.success(data.message || 'ការចុះអប់រំបានកំណត់ដោយជោគជ័យ');
         router.push('/mentoring');
       } else {
         const error = await response.json();
-        message.error(error.error || 'Failed to schedule visit');
+        message.error(error.error || 'មិនអាចកំណត់ការចុះអប់រំ');
       }
     } catch (error) {
       console.error('Create visit error:', error);
-      message.error('Failed to schedule visit');
+      message.error('មិនអាចកំណត់ការចុះអប់រំ');
     }
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <CompleteMentoringVisitForm 
-        mode="create" 
-        onSubmit={handleSubmit}
-      />
-    </div>
+    <DashboardLayout>
+      <div>
+        <Title level={2} style={{ marginBottom: 24, fontFamily: 'Hanuman, sans-serif' }}>
+          បង្កើតការចុះអប់រំ និងត្រួតពិនិត្យថ្មី
+        </Title>
+        <ComprehensiveMentoringForm 
+          mode="create" 
+          onSubmit={handleSubmit}
+        />
+      </div>
+    </DashboardLayout>
   );
 }

@@ -394,47 +394,43 @@ export default function SchoolStudentsPage() {
       title: 'Actions',
       key: 'actions',
       render: (_: any, record: Student) => {
-        const menu = (
-          <Menu>
-            <Menu.Item
-              key="view"
-              icon={<EyeOutlined />}
-              onClick={() => router.push(`/students/${record.id}`)}
-            >
-              View Details
-            </Menu.Item>
-            <Menu.Item
-              key="edit"
-              icon={<EditOutlined />}
-              onClick={() => {
-                setSelectedStudent(record);
-                form.setFieldsValue(record);
-                setEditModalVisible(true);
-              }}
-            >
-              Edit Student
-            </Menu.Item>
-            <Menu.Item
-              key="assess"
-              icon={<FileExcelOutlined />}
-              onClick={() => router.push(`/students/${record.id}/assess`)}
-            >
-              Add Assessment
-            </Menu.Item>
-            <Menu.Divider />
-            <Menu.Item
-              key="delete"
-              icon={<DeleteOutlined />}
-              danger
-              onClick={() => handleDeleteStudent(record.id)}
-            >
-              Delete Student
-            </Menu.Item>
-          </Menu>
-        );
+        const menuItems = [
+          {
+            key: 'view',
+            icon: <EyeOutlined />,
+            label: 'View Details',
+            onClick: () => router.push(`/students/${record.id}`)
+          },
+          {
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: 'Edit Student',
+            onClick: () => {
+              setSelectedStudent(record);
+              form.setFieldsValue(record);
+              setEditModalVisible(true);
+            }
+          },
+          {
+            key: 'assess',
+            icon: <FileExcelOutlined />,
+            label: 'Add Assessment',
+            onClick: () => router.push(`/students/${record.id}/assess`)
+          },
+          {
+            type: 'divider'
+          },
+          {
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: 'Delete Student',
+            danger: true,
+            onClick: () => handleDeleteStudent(record.id)
+          }
+        ];
         
         return (
-          <Dropdown overlay={menu} trigger={['click']}>
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
             <Button type="text" icon={<MoreOutlined />} />
           </Dropdown>
         );

@@ -35,12 +35,13 @@ import {
 } from '@ant-design/icons';
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
 
-export default function AssessmentVerificationPage() {
+function AssessmentVerificationPage() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [assessments, setAssessments] = useState([]);
@@ -185,7 +186,7 @@ export default function AssessmentVerificationPage() {
 
   const columns = [
     {
-      title: 'Student',
+      title: 'សិស្ស',
       dataIndex: 'student',
       key: 'student',
       render: (student: any) => (
@@ -198,7 +199,7 @@ export default function AssessmentVerificationPage() {
       )
     },
     {
-      title: 'School',
+      title: 'សាលារៀន',
       dataIndex: 'pilot_school',
       key: 'school',
       render: (school: any) => (
@@ -209,7 +210,7 @@ export default function AssessmentVerificationPage() {
       )
     },
     {
-      title: 'Assessment',
+      title: 'ការវាយតម្លៃ',
       key: 'assessment',
       render: (_: any, record: any) => (
         <div>
@@ -230,7 +231,7 @@ export default function AssessmentVerificationPage() {
       )
     },
     {
-      title: 'Assessed By',
+      title: 'វាយតម្លៃដោយ',
       dataIndex: 'added_by',
       key: 'added_by',
       render: (user: any) => (
@@ -243,7 +244,7 @@ export default function AssessmentVerificationPage() {
       )
     },
     {
-      title: 'Status',
+      title: 'ស្ថានភាព',
       key: 'status',
       render: (_: any, record: any) => {
         const status = record.verification_status || 'pending';
@@ -264,11 +265,11 @@ export default function AssessmentVerificationPage() {
       }
     },
     {
-      title: 'Actions',
+      title: 'សកម្មភាព',
       key: 'actions',
       render: (_: any, record: any) => (
         <Space size="small">
-          <Tooltip title="Verify Assessment">
+          <Tooltip title="ផ្ទៀងផ្ទាត់ការវាយតម្លៃ">
             <Button
               type="link"
               icon={<CheckCircleOutlined />}
@@ -280,7 +281,7 @@ export default function AssessmentVerificationPage() {
             />
           </Tooltip>
           
-          <Tooltip title={record.is_locked ? 'Unlock' : 'Lock'}>
+          <Tooltip title={record.is_locked ? 'ដោះសោ' : 'ចាក់សោ'}>
             <Button
               type="link"
               danger={record.is_locked}
@@ -304,13 +305,13 @@ export default function AssessmentVerificationPage() {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Card title="Assessment Verification Queue" style={{ marginBottom: 24 }}>
+    <DashboardLayout>
+      <Card title="ជួររង់ចាំការផ្ទៀងផ្ទាត់ការវាយតម្លៃ" style={{ marginBottom: 24 }}>
         <Row gutter={16} style={{ marginBottom: 24 }}>
           <Col span={6}>
             <Card>
               <Statistic
-                title="Pending Verification"
+                title="រង់ចាំការផ្ទៀងផ្ទាត់"
                 value={stats.pending}
                 valueStyle={{ color: '#faad14' }}
                 prefix={<ExclamationCircleOutlined />}
@@ -320,7 +321,7 @@ export default function AssessmentVerificationPage() {
           <Col span={6}>
             <Card>
               <Statistic
-                title="Verified"
+                title="បានផ្ទៀងផ្ទាត់"
                 value={stats.verified}
                 valueStyle={{ color: '#52c41a' }}
                 prefix={<CheckCircleOutlined />}
@@ -330,7 +331,7 @@ export default function AssessmentVerificationPage() {
           <Col span={6}>
             <Card>
               <Statistic
-                title="Rejected"
+                title="បានបដិសេធ"
                 value={stats.rejected}
                 valueStyle={{ color: '#ff4d4f' }}
                 prefix={<CloseCircleOutlined />}
@@ -340,7 +341,7 @@ export default function AssessmentVerificationPage() {
           <Col span={6}>
             <Card>
               <Statistic
-                title="Locked"
+                title="បានចាក់សោ"
                 value={stats.locked}
                 valueStyle={{ color: '#1890ff' }}
                 prefix={<LockOutlined />}
@@ -350,13 +351,13 @@ export default function AssessmentVerificationPage() {
         </Row>
 
         <Alert
-          message="Verification Guidelines"
+          message="គោលការណ៍ណែនាំការផ្ទៀងផ្ទាត់"
           description={
             <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
-              <li>Verify that student information matches school records</li>
-              <li>Check assessment scores are within valid ranges</li>
-              <li>Ensure assessment type matches the current period</li>
-              <li>Lock assessments to prevent further modifications after verification</li>
+              <li>ផ្ទៀងផ្ទាត់ថាព័ត៌មានសិស្សត្រូវគ្នានឹងកំណត់ត្រាសាលារៀន</li>
+              <li>ពិនិត្យមើលពិន្ទុការវាយតម្លៃស្ថិតក្នុងជួរត្រឹមត្រូវ</li>
+              <li>ធានាថាប្រភេទការវាយតម្លៃត្រូវគ្នានឹងកាលបរិច្ឆេទបច្ចុប្បន្ន</li>
+              <li>ចាក់សោការវាយតម្លៃដើម្បីការពារការកែប្រែបន្ថែមបន្ទាប់ពីការផ្ទៀងផ្ទាត់</li>
             </ul>
           }
           type="info"
@@ -364,45 +365,45 @@ export default function AssessmentVerificationPage() {
           style={{ marginBottom: 24 }}
         />
 
-        <Card bordered={false} style={{ marginBottom: 16 }}>
+        <Card variant="borderless" style={{ marginBottom: 16 }}>
           <Form layout="inline" onFinish={(values) => setFilters({...filters, ...values})}>
             <Form.Item name="status" initialValue="pending">
-              <Select style={{ width: 150 }} placeholder="Status">
-                <Option value="">All Status</Option>
-                <Option value="pending">Pending</Option>
-                <Option value="verified">Verified</Option>
-                <Option value="rejected">Rejected</Option>
+              <Select style={{ width: 150 }} placeholder="ស្ថានភាព">
+                <Option value="">ស្ថានភាពទាំងអស់</Option>
+                <Option value="pending">រង់ចាំ</Option>
+                <Option value="verified">បានផ្ទៀងផ្ទាត់</Option>
+                <Option value="rejected">បានបដិសេធ</Option>
               </Select>
             </Form.Item>
 
             <Form.Item name="assessment_type">
-              <Select style={{ width: 150 }} placeholder="Assessment Type">
-                <Option value="">All Types</Option>
-                <Option value="baseline">Baseline</Option>
-                <Option value="midline">Midline</Option>
-                <Option value="endline">Endline</Option>
+              <Select style={{ width: 150 }} placeholder="ប្រភេទការវាយតម្លៃ">
+                <Option value="">ប្រភេទទាំងអស់</Option>
+                <Option value="baseline">បន្ទាត់មូលដ្ឋាន</Option>
+                <Option value="midline">បន្ទាត់កណ្តាល</Option>
+                <Option value="endline">បន្ទាត់បញ្ចប់</Option>
               </Select>
             </Form.Item>
 
             <Form.Item name="subject">
-              <Select style={{ width: 120 }} placeholder="Subject">
-                <Option value="">All Subjects</Option>
-                <Option value="khmer">Khmer</Option>
-                <Option value="math">Mathematics</Option>
+              <Select style={{ width: 120 }} placeholder="មុខវិជ្ជា">
+                <Option value="">មុខវិជ្ជាទាំងអស់</Option>
+                <Option value="khmer">ភាសាខ្មែរ</Option>
+                <Option value="math">គណិតវិទ្យា</Option>
               </Select>
             </Form.Item>
 
             <Form.Item name="date_from">
-              <DatePicker placeholder="From Date" />
+              <DatePicker placeholder="ពីកាលបរិច្ឆេទ" />
             </Form.Item>
 
             <Form.Item name="date_to">
-              <DatePicker placeholder="To Date" />
+              <DatePicker placeholder="ដល់កាលបរិច្ឆេទ" />
             </Form.Item>
 
             <Form.Item>
               <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-                Search
+                ស្វែងរក
               </Button>
             </Form.Item>
 
@@ -418,7 +419,7 @@ export default function AssessmentVerificationPage() {
                 });
                 form.resetFields();
               }}>
-                Reset
+                កំណត់ឡើងវិញ
               </Button>
             </Form.Item>
           </Form>
@@ -426,7 +427,7 @@ export default function AssessmentVerificationPage() {
 
         {selectedAssessments.length > 0 && (
           <Alert
-            message={`${selectedAssessments.length} assessments selected`}
+            message={`បានជ្រើសរើសការវាយតម្លៃ ${selectedAssessments.length}`}
             type="info"
             showIcon
             action={
@@ -436,20 +437,20 @@ export default function AssessmentVerificationPage() {
                   type="primary"
                   onClick={() => handleBulkVerify('verified')}
                 >
-                  Verify All
+                  ផ្ទៀងផ្ទាត់ទាំងអស់
                 </Button>
                 <Button 
                   size="small" 
                   danger
                   onClick={() => handleBulkVerify('rejected')}
                 >
-                  Reject All
+                  បដិសេធទាំងអស់
                 </Button>
                 <Button 
                   size="small"
                   onClick={() => setSelectedAssessments([])}
                 >
-                  Clear Selection
+                  សម្អាតការជ្រើសរើស
                 </Button>
               </Space>
             }
@@ -465,13 +466,13 @@ export default function AssessmentVerificationPage() {
           loading={loading}
           pagination={{
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} assessments`,
+            showTotal: (total) => `សរុប ${total} ការវាយតម្លៃ`,
           }}
         />
       </Card>
 
       <Modal
-        title="Verify Assessment"
+        title="ផ្ទៀងផ្ទាត់ការវាយតម្លៃ"
         open={verifyModalVisible}
         onCancel={() => {
           setVerifyModalVisible(false);
@@ -492,17 +493,17 @@ export default function AssessmentVerificationPage() {
             }}
           >
             <Alert
-              message="Assessment Details"
+              message="ព័ត៌មានលម្អិតការវាយតម្លៃ"
               description={
                 <div>
-                  <p><strong>Student:</strong> {selectedAssessment.student?.name}</p>
-                  <p><strong>School:</strong> {selectedAssessment.pilot_school?.school_name}</p>
-                  <p><strong>Type:</strong> {selectedAssessment.assessment_type}</p>
-                  <p><strong>Subject:</strong> {selectedAssessment.subject}</p>
-                  <p><strong>Level:</strong> {selectedAssessment.level || 'N/A'}</p>
-                  <p><strong>Score:</strong> {selectedAssessment.score || 'N/A'}</p>
-                  <p><strong>Assessed By:</strong> {selectedAssessment.added_by?.name}</p>
-                  <p><strong>Date:</strong> {dayjs(selectedAssessment.assessed_date).format('DD/MM/YYYY')}</p>
+                  <p><strong>សិស្ស:</strong> {selectedAssessment.student?.name}</p>
+                  <p><strong>សាលារៀន:</strong> {selectedAssessment.pilot_school?.school_name}</p>
+                  <p><strong>ប្រភេទ:</strong> {selectedAssessment.assessment_type}</p>
+                  <p><strong>មុខវិជ្ជា:</strong> {selectedAssessment.subject}</p>
+                  <p><strong>កម្រិត:</strong> {selectedAssessment.level || 'មិនមាន'}</p>
+                  <p><strong>ពិន្ទុ:</strong> {selectedAssessment.score || 'មិនមាន'}</p>
+                  <p><strong>វាយតម្លៃដោយ:</strong> {selectedAssessment.added_by?.name}</p>
+                  <p><strong>កាលបរិច្ឆេទ:</strong> {dayjs(selectedAssessment.assessed_date).format('DD/MM/YYYY')}</p>
                 </div>
               }
               type="info"
@@ -511,21 +512,21 @@ export default function AssessmentVerificationPage() {
 
             <Form.Item
               name="status"
-              label="Verification Decision"
-              rules={[{ required: true, message: 'Please select a decision' }]}
+              label="ការសម្រេចចិត្តផ្ទៀងផ្ទាត់"
+              rules={[{ required: true, message: 'សូមជ្រើសរើសការសម្រេចចិត្ត' }]}
             >
               <Radio.Group>
                 <Space direction="vertical">
                   <Radio value="verified">
                     <Space>
                       <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                      Verify - Assessment data is correct and complete
+                      ផ្ទៀងផ្ទាត់ - ទិន្នន័យការវាយតម្លៃត្រឹមត្រូវ និងពេញលេញ
                     </Space>
                   </Radio>
                   <Radio value="rejected">
                     <Space>
                       <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
-                      Reject - Assessment needs correction
+                      បដិសេធ - ការវាយតម្លៃត្រូវការកែតម្រូវ
                     </Space>
                   </Radio>
                 </Space>
@@ -534,12 +535,12 @@ export default function AssessmentVerificationPage() {
 
             <Form.Item
               name="notes"
-              label="Verification Notes"
+              label="កំណត់ចំណាំការផ្ទៀងផ្ទាត់"
               rules={[
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (getFieldValue('status') === 'rejected' && !value) {
-                      return Promise.reject('Please provide a reason for rejection');
+                      return Promise.reject('សូមផ្តល់ហេតុផលសម្រាប់ការបដិសេធ');
                     }
                     return Promise.resolve();
                   },
@@ -548,26 +549,28 @@ export default function AssessmentVerificationPage() {
             >
               <TextArea 
                 rows={4} 
-                placeholder="Enter verification notes or reason for rejection..."
+                placeholder="បញ្ចូលកំណត់ចំណាំការផ្ទៀងផ្ទាត់ ឬហេតុផលបដិសេធ..."
               />
             </Form.Item>
 
             <Form.Item>
               <Space>
                 <Button type="primary" htmlType="submit">
-                  Submit Verification
+                  ដាក់ស្នើការផ្ទៀងផ្ទាត់
                 </Button>
                 <Button onClick={() => {
                   setVerifyModalVisible(false);
                   setSelectedAssessment(null);
                 }}>
-                  Cancel
+                  បោះបង់
                 </Button>
               </Space>
             </Form.Item>
           </Form>
         )}
       </Modal>
-    </div>
+    </DashboardLayout>
   );
 }
+
+export default AssessmentVerificationPage;

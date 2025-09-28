@@ -366,6 +366,7 @@ export default function OnboardingPage() {
   };
 
   const handleStepClick = (step: OnboardingStep) => {
+    console.log('🔥 Step clicked:', step.title, 'Route:', step.route);
     router.push(step.route);
   };
 
@@ -456,11 +457,9 @@ export default function OnboardingPage() {
                 <Card 
                   style={{ 
                     height: '100%',
-                    border: `2px solid ${isCompleted ? '#52c41a' : isNext ? '#1890ff' : '#d9d9d9'}`,
-                    cursor: 'pointer'
+                    border: `2px solid ${isCompleted ? '#52c41a' : isNext ? '#1890ff' : '#d9d9d9'}`
                   }}
                   hoverable
-                  onClick={() => handleStepClick(step)}
                 >
                   {/* Step Header */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>

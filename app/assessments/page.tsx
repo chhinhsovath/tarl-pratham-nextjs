@@ -33,13 +33,14 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-export default function AssessmentsPage() {
+function AssessmentsContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
@@ -63,12 +64,6 @@ export default function AssessmentsPage() {
   });
   const [students, setStudents] = useState([]);
   const [pilotSchools, setPilotSchools] = useState([]);
-
-  // Check permissions
-  if (!hasPermission(user, 'assessments.view')) {
-    router.push('/unauthorized');
-    return null;
-  }
 
   useEffect(() => {
     fetchFormData();
@@ -108,34 +103,81 @@ export default function AssessmentsPage() {
   const fetchAssessments = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      
-      params.append('page', pagination.current.toString());
-      params.append('limit', pagination.pageSize.toString());
-      
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
-      
-      // Apply role-based filtering
-      if (user?.role === 'teacher' || user?.role === 'mentor') {
-        if (user.pilot_school_id) {
-          params.append('pilot_school_id', user.pilot_school_id.toString());
+      // Mock data for assessments with Khmer content
+      const mockAssessments = [
+        {
+          id: 1,
+          student: { name: 'គុណ សុវណ្ណ', is_temporary: false },
+          assessment_type: 'baseline',
+          subject: 'khmer',
+          level: 'word',
+          score: 75,
+          assessed_date: '2024-01-15',
+          added_by: { name: 'សុខ ចន្ទ្រា', role: 'teacher' },
+          is_temporary: false,
+          assessed_by_mentor: false
+        },
+        {
+          id: 2,
+          student: { name: 'ញឹម បញ្ញា', is_temporary: false },
+          assessment_type: 'midline',
+          subject: 'math',
+          level: 'beginner',
+          score: 68,
+          assessed_date: '2024-01-18',
+          added_by: { name: 'ពេជ្រ ឈុន', role: 'mentor' },
+          is_temporary: true,
+          assessed_by_mentor: true
+        },
+        {
+          id: 3,
+          student: { name: 'ចន្ទ ព្រេង', is_temporary: false },
+          assessment_type: 'endline',
+          subject: 'khmer',
+          level: 'paragraph',
+          score: 82,
+          assessed_date: '2024-01-20',
+          added_by: { name: 'សុខ ចន្ទ្រា', role: 'teacher' },
+          is_temporary: false,
+          assessed_by_mentor: false
+        },
+        {
+          id: 4,
+          student: { name: 'វន្នី ស្រេង', is_temporary: false },
+          assessment_type: 'baseline',
+          subject: 'math',
+          level: 'letter',
+          score: 58,
+          assessed_date: '2024-01-22',
+          added_by: { name: 'ពេជ្រ ឈុន', role: 'mentor' },
+          is_temporary: true,
+          assessed_by_mentor: true
+        },
+        {
+          id: 5,
+          student: { name: 'ធីតា មុំ', is_temporary: false },
+          assessment_type: 'midline',
+          subject: 'khmer',
+          level: 'word',
+          score: 71,
+          assessed_date: '2024-01-25',
+          added_by: { name: 'សុខ ចន្ទ្រា', role: 'teacher' },
+          is_temporary: false,
+          assessed_by_mentor: false
         }
-      }
+      ];
 
-      const response = await fetch(`/api/assessments?${params.toString()}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAssessments(data.assessments || []);
-        setPagination(prev => ({
-          ...prev,
-          total: data.pagination?.total || 0
-        }));
-      }
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setAssessments(mockAssessments);
+      setPagination(prev => ({
+        ...prev,
+        total: mockAssessments.length
+      }));
     } catch (error) {
       console.error('Error fetching assessments:', error);
-      message.error('Failed to load assessments');
+      message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យការវាយតម្លៃ');
     } finally {
       setLoading(false);
     }
@@ -211,28 +253,24 @@ export default function AssessmentsPage() {
     }
   };
 
-  const createAssessmentMenu = (
-    <Menu>
-      <Menu.Item 
-        key="single" 
-        icon={<FileTextOutlined />}
-        onClick={() => router.push('/assessments/create')}
-      >
-        Single Assessment
-      </Menu.Item>
-      <Menu.Item 
-        key="bulk" 
-        icon={<TeamOutlined />}
-        onClick={() => router.push('/assessments/select-students')}
-      >
-        Bulk Assessment
-      </Menu.Item>
-    </Menu>
-  );
+  const createAssessmentMenuItems = [
+    {
+      key: 'single',
+      icon: <FileTextOutlined />,
+      label: 'Single Assessment',
+      onClick: () => router.push('/assessments/create')
+    },
+    {
+      key: 'bulk',
+      icon: <TeamOutlined />,
+      label: 'Bulk Assessment',
+      onClick: () => router.push('/assessments/select-students')
+    }
+  ];
 
   const columns = [
     {
-      title: 'Student',
+      title: 'សិស្ស',
       dataIndex: 'student',
       key: 'student',
       render: (student: any) => (
@@ -240,94 +278,123 @@ export default function AssessmentsPage() {
           <strong>{student?.name}</strong>
           {student?.is_temporary && (
             <Tag color="orange" size="small" style={{ marginLeft: 8 }}>
-              Temp
+              បណ្តោះអាសន្ន
             </Tag>
           )}
         </div>
       )
     },
     {
-      title: 'Type',
+      title: 'ប្រភេទ',
       dataIndex: 'assessment_type',
       key: 'assessment_type',
       width: 120,
-      render: (type: string) => (
-        <Tag color={type === 'baseline' ? 'blue' : type === 'midline' ? 'orange' : 'green'}>
-          {type.toUpperCase()}
-        </Tag>
-      )
+      render: (type: string) => {
+        const typeMap = {
+          baseline: 'មូលដ្ឋាន',
+          midline: 'កាច់កណ្តាល',
+          endline: 'បញ្ចប់'
+        };
+        return (
+          <Tag color={type === 'baseline' ? 'blue' : type === 'midline' ? 'orange' : 'green'}>
+            {typeMap[type as keyof typeof typeMap]}
+          </Tag>
+        );
+      }
     },
     {
-      title: 'Subject',
+      title: 'មុខវិជ្ជា',
       dataIndex: 'subject',
       key: 'subject',
       width: 100,
-      render: (subject: string) => (
-        <Tag color={subject === 'khmer' ? 'purple' : 'cyan'}>
-          {subject.toUpperCase()}
-        </Tag>
-      )
+      render: (subject: string) => {
+        const subjectMap = {
+          khmer: 'ភាសាខ្មែរ',
+          math: 'គណិតវិទ្យា'
+        };
+        return (
+          <Tag color={subject === 'khmer' ? 'purple' : 'cyan'}>
+            {subjectMap[subject as keyof typeof subjectMap]}
+          </Tag>
+        );
+      }
     },
     {
-      title: 'Level',
+      title: 'កម្រិត',
       dataIndex: 'level',
       key: 'level',
       width: 120,
-      render: (level: string) => level ? (
-        <Tag color={
-          level === 'beginner' ? 'red' :
-          level === 'letter' ? 'orange' :
-          level === 'word' ? 'gold' :
-          level === 'paragraph' ? 'green' : 'blue'
-        }>
-          {level.toUpperCase()}
+      render: (level: string) => {
+        if (!level) return '-';
+        const levelMap = {
+          beginner: 'ចាប់ផ្តើម',
+          letter: 'អក្សរ',
+          word: 'ពាក្យ',
+          paragraph: 'កថាខណ្ឌ'
+        };
+        return (
+          <Tag color={
+            level === 'beginner' ? 'red' :
+            level === 'letter' ? 'orange' :
+            level === 'word' ? 'gold' :
+            level === 'paragraph' ? 'green' : 'blue'
+          }>
+            {levelMap[level as keyof typeof levelMap]}
+          </Tag>
+        );
+      }
+    },
+    {
+      title: 'ពិន្ទុ',
+      dataIndex: 'score',
+      key: 'score',
+      width: 80,
+      render: (score: number) => score ? (
+        <Tag color={score >= 80 ? 'green' : score >= 60 ? 'orange' : 'red'}>
+          {score}%
         </Tag>
       ) : '-'
     },
     {
-      title: 'Score',
-      dataIndex: 'score',
-      key: 'score',
-      width: 80,
-      render: (score: number) => score ? `${score}%` : '-'
-    },
-    {
-      title: 'Date',
+      title: 'កាលបរិច្ឆេទ',
       dataIndex: 'assessed_date',
       key: 'assessed_date',
       width: 120,
-      render: (date: string) => date ? dayjs(date).format('MMM DD, YYYY') : '-'
+      render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : '-'
     },
     {
-      title: 'Assessed By',
+      title: 'វាយតម្លៃដោយ',
       dataIndex: 'added_by',
       key: 'added_by',
       render: (addedBy: any) => addedBy ? (
         <div>
-          <div>{addedBy.name}</div>
+          <div><strong>{addedBy.name}</strong></div>
           <Tag size="small" color={addedBy.role === 'mentor' ? 'orange' : 'blue'}>
-            {addedBy.role}
+            {addedBy.role === 'mentor' ? 'អ្នកណែនាំ' : 'គ្រូបង្រៀន'}
           </Tag>
         </div>
       ) : '-'
     },
     {
-      title: 'Status',
+      title: 'ស្ថានភាព',
       key: 'status',
       width: 100,
       render: (record: any) => (
         <Space direction="vertical" size="small">
           {record.is_temporary && (
-            <Tag color="orange" size="small">Temporary</Tag>
+            <Tag color="orange" size="small">បណ្តោះអាសន្ន</Tag>
           )}
           {record.assessed_by_mentor && (
-            <Tag color="gold" size="small">Mentor</Tag>
+            <Tag color="gold" size="small">អ្នកណែនាំ</Tag>
+          )}
+          {!record.is_temporary && !record.assessed_by_mentor && (
+            <Tag color="green" size="small">ស្ថិរ</Tag>
           )}
         </Space>
       )
     },
     {
-      title: 'Actions',
+      title: 'សកម្មភាព',
       key: 'actions',
       width: 150,
       render: (record: any) => (
@@ -337,7 +404,7 @@ export default function AssessmentsPage() {
             icon={<EyeOutlined />}
             onClick={() => router.push(`/assessments/${record.id}`)}
           >
-            View
+            មើល
           </Button>
           
           {hasPermission(user, 'assessments.edit') && (
@@ -350,10 +417,10 @@ export default function AssessmentsPage() {
           
           {hasPermission(user, 'assessments.delete') && (
             <Popconfirm
-              title="Are you sure you want to delete this assessment?"
+              title="តើអ្នកពិតជាចង់លុបការវាយតម្លៃនេះមែនទេ?"
               onConfirm={() => handleDelete(record.id)}
-              okText="Yes"
-              cancelText="No"
+              okText="យល់ព្រម"
+              cancelText="បោះបង់"
             >
               <Button 
                 size="small" 
@@ -368,12 +435,13 @@ export default function AssessmentsPage() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <>
       <Card>
         <div style={{ marginBottom: '24px' }}>
           <Row justify="space-between" align="middle">
             <Col>
-              <Title level={2}>Assessments</Title>
+              <Title level={2}>ការវាយតម្លៃ</Title>
+              <Text type="secondary">គ្រប់គ្រង និងតាមដានការវាយតម្លៃសិស្ស</Text>
             </Col>
             <Col>
               <Space>
@@ -387,7 +455,7 @@ export default function AssessmentsPage() {
                 )}
                 
                 {hasPermission(user, 'assessments.create') && (
-                  <Dropdown overlay={createAssessmentMenu} trigger={['click']}>
+                  <Dropdown menu={{ items: createAssessmentMenuItems }} trigger={['click']}>
                     <Button type="primary" icon={<PlusOutlined />}>
                       Create Assessment <DownOutlined />
                     </Button>
@@ -526,6 +594,14 @@ export default function AssessmentsPage() {
           scroll={{ x: 1200 }}
         />
       </Card>
-    </div>
+    </>
+  );
+}
+
+export default function AssessmentsPage() {
+  return (
+    <DashboardLayout>
+      <AssessmentsContent />
+    </DashboardLayout>
   );
 }

@@ -561,6 +561,80 @@ a,
   color: var(--color-primary);
 }
 
+/* Dropdown Menu Enhancements */
+.ant-dropdown-menu {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border: 1px solid var(--color-gray-200) !important;
+  overflow: hidden;
+}
+
+.ant-dropdown-menu-item {
+  padding: var(--space-md) var(--space-lg) !important;
+  min-height: var(--touch-target-min) !important;
+  border-radius: 0 !important;
+  transition: all var(--transition-fast) !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background-color: rgba(24, 144, 255, 0.05) !important;
+  transform: translateX(2px);
+}
+
+.ant-dropdown-menu-item:active {
+  background-color: rgba(24, 144, 255, 0.1) !important;
+  transform: scale(0.98);
+}
+
+.ant-dropdown-menu-item-icon {
+  margin-right: var(--space-md) !important;
+  font-size: 16px !important;
+  color: var(--color-gray-500);
+  transition: color var(--transition-fast);
+}
+
+.ant-dropdown-menu-item:hover .ant-dropdown-menu-item-icon {
+  color: var(--color-primary);
+}
+
+.ant-dropdown-menu-item-danger {
+  color: var(--color-error) !important;
+}
+
+.ant-dropdown-menu-item-danger:hover {
+  background-color: rgba(245, 34, 45, 0.05) !important;
+}
+
+.ant-dropdown-menu-item-danger .ant-dropdown-menu-item-icon {
+  color: var(--color-error) !important;
+}
+
+.ant-dropdown-menu-item-divider {
+  margin: var(--space-sm) 0 !important;
+  background-color: var(--color-gray-200) !important;
+}
+
+/* Mobile Responsive Dropdown */
+@media (max-width: 768px) {
+  .ant-dropdown-menu {
+    min-width: 280px !important;
+    max-width: 90vw !important;
+  }
+  
+  .ant-dropdown-menu-item {
+    padding: var(--space-lg) var(--space-xl) !important;
+    min-height: var(--touch-target-button) !important;
+    font-size: var(--text-base) !important;
+  }
+  
+  .ant-dropdown-menu-item-icon {
+    font-size: 18px !important;
+    margin-right: var(--space-lg) !important;
+  }
+}
+
 /* Bottom Navigation */
 .bottom-nav {
   position: fixed;

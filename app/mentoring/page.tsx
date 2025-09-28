@@ -32,13 +32,14 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-export default function MentoringPage() {
+function MentoringContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
@@ -61,12 +62,6 @@ export default function MentoringPage() {
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
 
-  // Check permissions
-  if (!hasPermission(user, 'mentoring.view')) {
-    router.push('/unauthorized');
-    return null;
-  }
-
   useEffect(() => {
     fetchPilotSchools();
     fetchVisits();
@@ -81,7 +76,7 @@ export default function MentoringPage() {
       const response = await fetch('/api/pilot-schools');
       if (response.ok) {
         const data = await response.json();
-        setPilotSchools(data.schools || []);
+        setPilotSchools(data.data || []);
       }
     } catch (error) {
       console.error('Error fetching pilot schools:', error);
@@ -108,7 +103,7 @@ export default function MentoringPage() {
       const response = await fetch(`/api/mentoring?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        setVisits(data.visits || []);
+        setVisits(data.data || []);
         setPagination(prev => ({
           ...prev,
           total: data.pagination?.total || 0
@@ -212,7 +207,7 @@ export default function MentoringPage() {
 
   const columns = [
     {
-      title: 'School',
+      title: 'ឈ្មោះសាលា',
       dataIndex: 'pilot_school',
       key: 'pilot_school',
       render: (school: any) => (
@@ -224,89 +219,116 @@ export default function MentoringPage() {
       )
     },
     {
-      title: 'Visit Date',
+      title: 'កាលបរិច្ចេទ',
       dataIndex: 'visit_date',
       key: 'visit_date',
       width: 120,
       render: (date: string) => (
         <div>
           <CalendarOutlined style={{ marginRight: 8 }} />
-          {dayjs(date).format('MMM DD, YYYY')}
+          {dayjs(date).format('DD/MM/YYYY')}
         </div>
       )
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: 100,
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>
-          {status.toUpperCase()}
-        </Tag>
-      )
-    },
-    {
-      title: 'Level',
-      dataIndex: 'level',
-      key: 'level',
-      width: 120,
-      render: (level: string) => level || '-'
-    },
-    {
-      title: 'Participants',
-      dataIndex: 'participants_count',
-      key: 'participants_count',
-      width: 100,
-      render: (count: number) => (
-        <div>
-          <TeamOutlined style={{ marginRight: 8 }} />
-          {count || '-'}
-        </div>
-      )
-    },
-    {
-      title: 'Duration',
-      dataIndex: 'duration_minutes',
-      key: 'duration_minutes',
-      width: 100,
-      render: (minutes: number) => (
-        <div>
-          <ClockCircleOutlined style={{ marginRight: 8 }} />
-          {minutes ? `${minutes}m` : '-'}
-        </div>
-      )
-    },
-    {
-      title: 'Mentor',
+      title: 'អ្នកណែនាំ',
       dataIndex: 'mentor',
       key: 'mentor',
       render: (mentor: any) => (
         <div>
           <strong>{mentor?.name}</strong>
           <br />
-          <Tag size="small" color="orange">Mentor</Tag>
+          <Text type="secondary">{mentor?.email}</Text>
         </div>
       )
     },
     {
-      title: 'Photos',
-      dataIndex: 'photos',
-      key: 'photos',
-      width: 80,
-      render: (photos: string[]) => (
-        photos && photos.length > 0 ? (
-          <Button 
-            size="small" 
-            onClick={() => showPhotos(photos)}
-          >
-            {photos.length} photo{photos.length !== 1 ? 's' : ''}
-          </Button>
+      title: 'គ្រូបង្រៀន',
+      dataIndex: 'teacher',
+      key: 'teacher',
+      render: (teacher: any) => (
+        <div>
+          <strong>{teacher?.name || 'មិនបានកំណត់'}</strong>
+          {teacher?.email && (
+            <>
+              <br />
+              <Text type="secondary">{teacher.email}</Text>
+            </>
+          )}
+        </div>
+      )
+    },
+    {
+      title: 'មុខវិជ្ជា',
+      dataIndex: 'subject_observed',
+      key: 'subject_observed',
+      width: 100,
+      render: (subject: string) => (
+        subject ? (
+          <Tag color={subject === 'ភាសាខ្មែរ' ? 'blue' : 'green'}>
+            {subject}
+          </Tag>
         ) : '-'
       )
     },
     {
-      title: 'Actions',
+      title: 'សិស្សចុះឈ្មោះ',
+      dataIndex: 'total_students_enrolled',
+      key: 'total_students_enrolled',
+      width: 100,
+      render: (count: number) => (
+        <div style={{ textAlign: 'center' }}>
+          <TeamOutlined style={{ marginRight: 8 }} />
+          {count || 0}
+        </div>
+      )
+    },
+    {
+      title: 'សិស្សមកថ្នាក់',
+      dataIndex: 'students_present',
+      key: 'students_present',
+      width: 100,
+      render: (count: number) => (
+        <div style={{ textAlign: 'center' }}>
+          <TeamOutlined style={{ marginRight: 8 }} />
+          {count || 0}
+        </div>
+      )
+    },
+    {
+      title: 'ពិន្ទុ',
+      dataIndex: 'score',
+      key: 'score',
+      width: 80,
+      render: (score: number) => (
+        score ? (
+          <Tag color={score >= 80 ? 'green' : score >= 60 ? 'orange' : 'red'}>
+            {score}
+          </Tag>
+        ) : '-'
+      )
+    },
+    {
+      title: 'ស្ថានភាព',
+      dataIndex: 'status',
+      key: 'status',
+      width: 100,
+      render: (status: string) => {
+        const statusMap = {
+          'scheduled': { label: 'កំពុងដំណើរការ', color: 'blue' },
+          'completed': { label: 'បានបញ្ចប់', color: 'green' },
+          'cancelled': { label: 'បានបោះបង់', color: 'red' }
+        };
+        const statusInfo = statusMap[status as keyof typeof statusMap] || { label: status, color: 'default' };
+        return (
+          <Tag color={statusInfo.color}>
+            {statusInfo.label}
+          </Tag>
+        );
+      }
+    },
+    {
+      title: 'សកម្មភាព',
       key: 'actions',
       width: 150,
       render: (record: any) => (
@@ -315,29 +337,32 @@ export default function MentoringPage() {
             size="small" 
             icon={<EyeOutlined />}
             onClick={() => router.push(`/mentoring/${record.id}`)}
-          >
-            View
-          </Button>
+            title="មើលលម្អិត"
+          />
           
-          {hasPermission(user, 'mentoring.edit') && (
+          {(user?.role === 'admin' || user?.role === 'coordinator' || 
+            (user?.role === 'mentor' && record.mentor_id === parseInt(user.id))) && (
             <Button 
               size="small" 
               icon={<EditOutlined />}
               onClick={() => router.push(`/mentoring/${record.id}/edit`)}
+              title="កែសម្រួល"
             />
           )}
           
-          {hasPermission(user, 'mentoring.delete') && (
+          {(user?.role === 'admin' || 
+            (user?.role === 'mentor' && record.mentor_id === parseInt(user.id))) && (
             <Popconfirm
-              title="Are you sure you want to delete this visit?"
+              title="តើអ្នកពិតជាចង់លុបការចុះអប់រំនេះមែនទេ?"
               onConfirm={() => handleDelete(record.id)}
-              okText="Yes"
-              cancelText="No"
+              okText="បាទ/ចាស"
+              cancelText="ទេ"
             >
               <Button 
                 size="small" 
                 danger 
                 icon={<DeleteOutlined />}
+                title="លុប"
               />
             </Popconfirm>
           )}
@@ -347,31 +372,32 @@ export default function MentoringPage() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <>
       <Card>
         <div style={{ marginBottom: '24px' }}>
           <Row justify="space-between" align="middle">
             <Col>
-              <Title level={2}>Mentoring Visits</Title>
+              <Title level={2}>ការចុះអប់រំ និងត្រួតពិនិត្យ</Title>
+              <Text type="secondary">គ្រប់គ្រង និងតាមដានការចុះអប់រំពីអ្នកណែនាំ</Text>
             </Col>
             <Col>
               <Space>
-                {hasPermission(user, 'mentoring.export') && (
+                {(user?.role === 'admin' || user?.role === 'coordinator' || user?.role === 'mentor') && (
                   <Button 
                     icon={<ExportOutlined />}
                     onClick={handleExport}
                   >
-                    Export
+                    នាំចេញ
                   </Button>
                 )}
                 
-                {hasPermission(user, 'mentoring.create') && (
+                {(user?.role === 'admin' || user?.role === 'coordinator' || user?.role === 'mentor') && (
                   <Button 
                     type="primary" 
                     icon={<PlusOutlined />}
                     onClick={() => router.push('/mentoring/create')}
                   >
-                    Schedule Visit
+                    បង្កើតការចុះអប់រំថ្មី
                   </Button>
                 )}
               </Space>
@@ -384,7 +410,7 @@ export default function MentoringPage() {
           <Row gutter={16}>
             <Col span={6}>
               <Input
-                placeholder="Search visits..."
+                placeholder="ស្វែងរកការចុះអប់រំ..."
                 prefix={<SearchOutlined />}
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
@@ -394,7 +420,7 @@ export default function MentoringPage() {
             
             <Col span={6}>
               <Select
-                placeholder="Select pilot school"
+                placeholder="ជ្រើសរើសសាលា"
                 value={filters.pilot_school_id}
                 onChange={(value) => handleFilterChange('pilot_school_id', value)}
                 allowClear
@@ -410,15 +436,15 @@ export default function MentoringPage() {
             
             <Col span={4}>
               <Select
-                placeholder="Status"
+                placeholder="ស្ថានភាព"
                 value={filters.status}
                 onChange={(value) => handleFilterChange('status', value)}
                 allowClear
                 style={{ width: '100%' }}
               >
-                <Option value="scheduled">Scheduled</Option>
-                <Option value="completed">Completed</Option>
-                <Option value="cancelled">Cancelled</Option>
+                <Option value="scheduled">កំពុងដំណើរការ</Option>
+                <Option value="completed">បានបញ្ចប់</Option>
+                <Option value="cancelled">បានបោះបង់</Option>
               </Select>
             </Col>
             
@@ -426,7 +452,7 @@ export default function MentoringPage() {
               <RangePicker
                 style={{ width: '100%' }}
                 onChange={handleDateRangeChange}
-                placeholder={['Start Date', 'End Date']}
+                placeholder={['ថ្ងៃចាប់ផ្តើម', 'ថ្ងៃបញ្ចប់']}
               />
             </Col>
           </Row>
@@ -483,6 +509,14 @@ export default function MentoringPage() {
           ))}
         </Row>
       </Modal>
-    </div>
+    </>
+  );
+}
+
+export default function MentoringPage() {
+  return (
+    <DashboardLayout>
+      <MentoringContent />
+    </DashboardLayout>
   );
 }

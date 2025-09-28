@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import { 
   Table, 
   Button, 
@@ -14,9 +15,9 @@ import {
   Tag, 
   Dropdown, 
   Modal, 
-  message,
   Tooltip,
-  Badge
+  Badge,
+  App
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -66,9 +67,10 @@ interface MentoringVisit {
   updated_at: string;
 }
 
-export default function MentoringVisitsPage() {
+function MentoringVisitsContent() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { message } = App.useApp();
   const [mentoringVisits, setMentoringVisits] = useState<MentoringVisit[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -426,7 +428,7 @@ export default function MentoringVisitsPage() {
   );
 
   return (
-    <div className="p-6">
+    <DashboardLayout>
       <div className="flex justify-between items-center mb-6">
         <Title level={2} className="mb-0">
           ការចុះអប់រំ និងត្រួតពិនិត្យ
@@ -468,6 +470,14 @@ export default function MentoringVisitsPage() {
           size="small"
         />
       </Card>
-    </div>
+    </DashboardLayout>
+  );
+}
+
+export default function MentoringVisitsPage() {
+  return (
+    <App>
+      <MentoringVisitsContent />
+    </App>
   );
 }
