@@ -41,6 +41,7 @@ import {
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const { Title, Text, Paragraph } = Typography;
 const { Panel } = Collapse;
@@ -48,6 +49,7 @@ const { Search } = Input;
 
 export default function HelpPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeKey, setActiveKey] = useState<string[]>(['1']);
 
@@ -179,32 +181,32 @@ export default function HelpPage() {
     
     const guides = {
       admin: [
-        { title: 'ការគ្រប់គ្រងអ្នកប្រើប្រាស់', icon: <TeamOutlined />, link: '#user-management' },
-        { title: 'ការកំណត់ប្រព័ន្ធ', icon: <SettingOutlined />, link: '#settings' },
-        { title: 'របាយការណ៍រដ្ឋបាល', icon: <BarChartOutlined />, link: '#admin-reports' },
-        { title: 'ការគ្រប់គ្រងសាលារៀន', icon: <SafetyOutlined />, link: '#school-management' }
+        { title: 'ការគ្រប់គ្រងអ្នកប្រើប្រាស់', icon: <TeamOutlined />, link: '/help/user-management' },
+        { title: 'ការកំណត់ប្រព័ន្ធ', icon: <SettingOutlined />, link: '/help/settings' },
+        { title: 'របាយការណ៍រដ្ឋបាល', icon: <BarChartOutlined />, link: '/help/admin-reports' },
+        { title: 'ការគ្រប់គ្រងសាលារៀន', icon: <SafetyOutlined />, link: '/help/school-management' }
       ],
       mentor: [
-        { title: 'ការផ្ទៀងផ្ទាត់វាយតម្លៃ', icon: <CheckCircleOutlined />, link: '#verification' },
-        { title: 'ទស្សនកិច្ចណែនាំ', icon: <SolutionOutlined />, link: '#mentoring' },
-        { title: 'តាមដានគ្រូបង្រៀន', icon: <UserOutlined />, link: '#teacher-monitoring' },
-        { title: 'របាយការណ៍វឌ្ឍនភាព', icon: <BarChartOutlined />, link: '#progress-reports' }
+        { title: 'ការផ្ទៀងផ្ទាត់វាយតម្លៃ', icon: <CheckCircleOutlined />, link: '/help/verification' },
+        { title: 'ទស្សនកិច្ចណែនាំ', icon: <SolutionOutlined />, link: '/help/mentoring' },
+        { title: 'តាមដានគ្រូបង្រៀន', icon: <UserOutlined />, link: '/help/teacher-monitoring' },
+        { title: 'របាយការណ៍វឌ្ឍនភាព', icon: <BarChartOutlined />, link: '/help/progress-reports' }
       ],
       teacher: [
-        { title: 'បញ្ចូលការវាយតម្លៃ', icon: <FormOutlined />, link: '#assessment-entry' },
-        { title: 'គ្រប់គ្រងសិស្ស', icon: <TeamOutlined />, link: '#student-management' },
-        { title: 'មើលរបាយការណ៍', icon: <FileSearchOutlined />, link: '#view-reports' },
-        { title: 'កែប្រែប្រវត្តិរូប', icon: <UserOutlined />, link: '#profile' }
+        { title: 'បញ្ចូលការវាយតម្លៃ', icon: <FormOutlined />, link: '/help/assessment-entry' },
+        { title: 'គ្រប់គ្រងសិស្ស', icon: <TeamOutlined />, link: '/help/student-management' },
+        { title: 'មើលរបាយការណ៍', icon: <FileSearchOutlined />, link: '/help/view-reports' },
+        { title: 'កែប្រែប្រវត្តិរូប', icon: <UserOutlined />, link: '/help/profile' }
       ],
       coordinator: [
-        { title: 'គ្រប់គ្រងទិន្នន័យ', icon: <DatabaseOutlined />, link: '#data-management' },
-        { title: 'សម្របសម្រួលសាលា', icon: <SafetyOutlined />, link: '#school-coordination' },
-        { title: 'តាមដានវឌ្ឍនភាព', icon: <BarChartOutlined />, link: '#progress-tracking' }
+        { title: 'គ្រប់គ្រងទិន្នន័យ', icon: <DatabaseOutlined />, link: '/help/data-management' },
+        { title: 'សម្របសម្រួលសាលា', icon: <SafetyOutlined />, link: '/help/school-coordination' },
+        { title: 'តាមដានវឌ្ឍនភាព', icon: <BarChartOutlined />, link: '/help/progress-tracking' }
       ],
       viewer: [
-        { title: 'មើលរបាយការណ៍', icon: <FileSearchOutlined />, link: '#view-reports' },
-        { title: 'ទិន្នន័យសិស្ស', icon: <TeamOutlined />, link: '#student-data' },
-        { title: 'ស្ថិតិវាយតម្លៃ', icon: <BarChartOutlined />, link: '#assessment-stats' }
+        { title: 'មើលរបាយការណ៍', icon: <FileSearchOutlined />, link: '/help/view-reports' },
+        { title: 'ទិន្នន័យសិស្ស', icon: <TeamOutlined />, link: '/help/student-data' },
+        { title: 'ស្ថិតិវាយតម្លៃ', icon: <BarChartOutlined />, link: '/help/assessment-stats' }
       ]
     };
 
@@ -228,7 +230,7 @@ export default function HelpPage() {
 
   return (
     <HorizontalLayout>
-      <div className="w-full">
+      <div className="max-w-full overflow-x-hidden">
         {/* Page Header */}
         <div className="text-center mb-8">
           <Title level={2}>
@@ -268,7 +270,7 @@ export default function HelpPage() {
             size="large"
             prefix={<SearchOutlined />}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
+            className="max-w-full overflow-x-hidden"
           />
         </Card>
 
@@ -283,7 +285,10 @@ export default function HelpPage() {
                   size="large"
                   icon={guide.icon}
                   className="h-auto py-4"
-                  onClick={() => {}}
+                  onClick={() => {
+                    // Navigate to the help sub-page
+                    router.push(guide.link);
+                  }}
                 >
                   <div className="text-sm">{guide.title}</div>
                 </Button>
@@ -445,6 +450,145 @@ export default function HelpPage() {
             </List.Item>
           </List>
         </Card>
+
+        <Divider />
+
+        {/* Help Sections Based on User Role */}
+        <div id="user-management" className="mb-8">
+          <Card title="ការគ្រប់គ្រងអ្នកប្រើប្រាស់" className="mb-6">
+            <Paragraph>
+              ការគ្រប់គ្រងអ្នកប្រើប្រាស់អនុញ្ញាតឱ្យអ្នកគ្រប់គ្រងប្រព័ន្ធបង្កើត កែប្រែ និងលុបគណនីអ្នកប្រើប្រាស់។
+            </Paragraph>
+            <List
+              dataSource={[
+                'បង្កើតគណនីអ្នកប្រើប្រាស់ថ្មី',
+                'កំណត់តួនាទីនិងការអនុញ្ញាត',
+                'កែប្រែព័ត៌មានអ្នកប្រើប្រាស់',
+                'ធ្វើបច្ចុប្បន្នភាពស្ថានភាពគណនី'
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </Card>
+        </div>
+
+        <div id="settings" className="mb-8">
+          <Card title="ការកំណត់ប្រព័ន្ធ" className="mb-6">
+            <Paragraph>
+              ការកំណត់ប្រព័ន្ធអនុញ្ញាតឱ្យអ្នកគ្រប់គ្រងប្រព័ន្ធកំណត់ការកំណត់ទូទៅរបស់ប្រព័ន្ធ។
+            </Paragraph>
+            <List
+              dataSource={[
+                'កំណត់ភាសាប្រព័ន្ធ',
+                'កំណត់ការជូនដំណឹង',
+                'គ្រប់គ្រងការបម្រុងទុកទិន្នន័យ',
+                'កំណត់សុវត្ថិភាពប្រព័ន្ធ'
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </Card>
+        </div>
+
+        <div id="verification" className="mb-8">
+          <Card title="ការផ្ទៀងផ្ទាត់វាយតម្លៃ" className="mb-6">
+            <Paragraph>
+              ការផ្ទៀងផ្ទាត់វាយតម្លៃគឺជាដំណើរការសំខាន់ដើម្បីធានាដល់គុណភាពនៃទិន្នន័យវាយតម្លៃ។
+            </Paragraph>
+            <List
+              dataSource={[
+                'ពិនិត្យការវាយតម្លៃដែលរង់ចាំ',
+                'អនុម័តឬបដិសេធការវាយតម្លៃ',
+                'ផ្តល់មតិយោបល់អំពីការវាយតម្លៃ',
+                'តាមដានស្ថានភាពការផ្ទៀងផ្ទាត់'
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </Card>
+        </div>
+
+        <div id="mentoring" className="mb-8">
+          <Card title="ទស្សនកិច្ចណែនាំ" className="mb-6">
+            <Paragraph>
+              ទស្សនកិច្ចណែនាំជួយបង្កើនគុណភាពបង្រៀននិងការវាយតម្លៃតាមរយៈការណែនាំផ្ទាល់។
+            </Paragraph>
+            <List
+              dataSource={[
+                'រៀបចំកាលវិភាគទស្សនកិច្ច',
+                'កត់ត្រាអំឡុងពេលទស្សនកិច្ច',
+                'ផ្តល់អនុសាសន៍ដល់គ្រូបង្រៀន',
+                'តាមដានការអនុវត្តអនុសាសន៍'
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </Card>
+        </div>
+
+        <div id="assessment-entry" className="mb-8">
+          <Card title="បញ្ចូលការវាយតម្លៃ" className="mb-6">
+            <Paragraph>
+              ការបញ្ចូលការវាយតម្លៃត្រឹមត្រូវនិងទាន់ពេលវេលាគឺជាមូលដ្ឋានសម្រាប់ការតាមដានវឌ្ឍនភាពសិស្ស។
+            </Paragraph>
+            <List
+              dataSource={[
+                'ជ្រើសរើសសិស្សសម្រាប់វាយតម្លៃ',
+                'បញ្ចូលពិន្ទុតាមមុខវិជ្ជា',
+                'កត់ត្រាការសង្កេត',
+                'បញ្ជូនការវាយតម្លៃសម្រាប់ផ្ទៀងផ្ទាត់'
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </Card>
+        </div>
+
+        <div id="student-management" className="mb-8">
+          <Card title="គ្រប់គ្រងសិស្ស" className="mb-6">
+            <Paragraph>
+              ការគ្រប់គ្រងសិស្សអនុញ្ញាតឱ្យអ្នកបន្ថែម កែប្រែ និងតាមដានព័ត៌មានសិស្ស។
+            </Paragraph>
+            <List
+              dataSource={[
+                'បន្ថែមសិស្សថ្មី',
+                'កែប្រែព័ត៌មានសិស្ស',
+                'ផ្ទេរសិស្សទៅថ្នាក់ផ្សេង',
+                'មើលប្រវត្តិការវាយតម្លៃ'
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </Card>
+        </div>
+
+        <div id="view-reports" className="mb-8">
+          <Card title="មើលរបាយការណ៍" className="mb-6">
+            <Paragraph>
+              របាយការណ៍ផ្តល់ព័ត៌មានវិភាគសម្រាប់ការសម្រេចចិត្តនិងការកែលម្អ។
+            </Paragraph>
+            <List
+              dataSource={[
+                'របាយការណ៍លទ្ធផលសិស្ស',
+                'របាយការណ៍វឌ្ឍនភាពថ្នាក់',
+                'របាយការណ៍ប្រៀបធៀបសាលា',
+                'នាំចេញរបាយការណ៍ជា Excel'
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </Card>
+        </div>
+
+        <div id="data-management" className="mb-8">
+          <Card title="គ្រប់គ្រងទិន្នន័យ" className="mb-6">
+            <Paragraph>
+              ការគ្រប់គ្រងទិន្នន័យធានាបាននូវភាពត្រឹមត្រូវនិងសុវត្ថិភាពនៃទិន្នន័យ។
+            </Paragraph>
+            <List
+              dataSource={[
+                'បម្រុងទុកទិន្នន័យ',
+                'នាំចេញទិន្នន័យ',
+                'តម្អាតទិន្នន័យ',
+                'ការកំណត់សុវត្ថិភាព'
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </Card>
+        </div>
 
         <Divider />
 
