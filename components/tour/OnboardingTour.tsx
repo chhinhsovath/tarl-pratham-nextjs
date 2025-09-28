@@ -25,9 +25,9 @@ const convertSteps = (steps: TourStep[]) => {
   return steps.map(step => ({
     selector: step.target || 'body',
     content: (
-      <div className="font-khmer">
-        {step.title && <h4 className="text-lg font-semibold mb-2">{step.title}</h4>}
-        <p className="text-sm">{step.content}</p>
+      <div className="font-khmer" style={{ minWidth: '280px' }}>
+        {step.title && <h4 className="text-lg font-semibold mb-3">{step.title}</h4>}
+        <p className="text-sm leading-relaxed">{step.content}</p>
       </div>
     ),
     position: step.placement || 'bottom',
@@ -46,6 +46,7 @@ function TourContent({ page, autoStart, showStartButton }: OnboardingTourProps) 
 
   const [language, setLanguage] = useState<'km' | 'en'>('km');
   const [completedTours, setCompletedTours] = useState<string[]>([]);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const { setIsOpen, isOpen, setSteps } = useTour();
 
@@ -53,6 +54,8 @@ function TourContent({ page, autoStart, showStartButton }: OnboardingTourProps) 
     // Load completed tours and language from localStorage
     const completed = localStorage.getItem('tarl-completed-tours');
     const langSetting = localStorage.getItem('tarl-tour-language');
+    const lastVisit = localStorage.getItem('tarl-last-tour-prompt');
+    const skipCount = localStorage.getItem('tarl-tour-skip-count');
 
     if (completed) {
       setCompletedTours(JSON.parse(completed));
@@ -61,15 +64,32 @@ function TourContent({ page, autoStart, showStartButton }: OnboardingTourProps) 
       setLanguage(langSetting as 'km' | 'en');
     }
 
-    // Auto-start tour for first-time users
+    // Smart tour display logic
     if (autoStart && session?.user?.role) {
       const tourKey = `${session.user.role}-${page}`;
       const hasCompletedTour = completed ? JSON.parse(completed).includes(tourKey) : false;
 
-      if (!hasCompletedTour) {
+      // Don't show if already completed
+      if (hasCompletedTour) return;
+
+      // Check if this is truly first visit (no last visit recorded)
+      const isFirstVisit = !lastVisit;
+
+      // Check if enough time has passed since last prompt (24 hours)
+      const hoursSinceLastPrompt = lastVisit ?
+        (Date.now() - parseInt(lastVisit)) / (1000 * 60 * 60) : Infinity;
+
+      // Check skip count (don't show if skipped more than 3 times)
+      const skips = skipCount ? parseInt(skipCount) : 0;
+
+      // Show tour only if:
+      // 1. First visit ever, OR
+      // 2. More than 24 hours since last prompt AND less than 3 skips
+      if (isFirstVisit || (hoursSinceLastPrompt > 24 && skips < 3)) {
         setTimeout(() => {
           startTour();
-        }, 1000);
+          localStorage.setItem('tarl-last-tour-prompt', Date.now().toString());
+        }, 2000); // Increased delay for better UX
       }
     }
   }, [session, page, autoStart]);
@@ -101,16 +121,32 @@ function TourContent({ page, autoStart, showStartButton }: OnboardingTourProps) 
     setIsOpen(true);
   };
 
-  const handleTourClose = () => {
+  const handleTourClose = (completed: boolean = false) => {
     setIsOpen(false);
 
-    // Mark tour as completed
-    if (session?.user?.role) {
+    if (completed && session?.user?.role) {
+      // Mark tour as completed
       const tourKey = `${session.user.role}-${page}`;
       const newCompleted = [...completedTours, tourKey];
       setCompletedTours(newCompleted);
       localStorage.setItem('tarl-completed-tours', JSON.stringify(newCompleted));
+
+      // Reset skip count on completion
+      localStorage.removeItem('tarl-tour-skip-count');
+
       message.success(language === 'km' ? 'បានបញ្ចប់ការណែនាំដោយជោគជ័យ!' : 'Tour completed successfully!');
+    } else {
+      // Track skip count when closed without completing
+      const currentSkips = localStorage.getItem('tarl-tour-skip-count');
+      const skips = currentSkips ? parseInt(currentSkips) + 1 : 1;
+      localStorage.setItem('tarl-tour-skip-count', skips.toString());
+
+      // Don't show again for 7 days if skipped 2+ times
+      if (skips >= 2) {
+        const sevenDaysFromNow = Date.now() + (7 * 24 * 60 * 60 * 1000);
+        localStorage.setItem('tarl-last-tour-prompt', sevenDaysFromNow.toString());
+        message.info(language === 'km' ? 'ការណែនាំនឹងមិនបង្ហាញម្តងទៀតរយៈពេល 7 ថ្ងៃ' : 'Tour will not show again for 7 days');
+      }
     }
   };
 
@@ -119,6 +155,41 @@ function TourContent({ page, autoStart, showStartButton }: OnboardingTourProps) 
     setCompletedTours([]);
     message.success(language === 'km' ? 'បានកំណត់ការណែនាំឡើងវិញ' : 'Tours reset successfully');
   };
+
+  // Listen for tour completion event
+  useEffect(() => {
+    const handleTourCompleted = (e: CustomEvent) => {
+      if (e.detail?.completed) {
+        handleTourClose(true);
+      }
+    };
+
+    window.addEventListener('tourCompleted' as any, handleTourCompleted);
+    return () => {
+      window.removeEventListener('tourCompleted' as any, handleTourCompleted);
+    };
+  }, [session, page, language]);
+
+  // Handle tour close when X button is clicked
+  useEffect(() => {
+    if (!isOpen && typeof localStorage !== 'undefined') {
+      // Check if tour was closed without completion
+      const tourKey = `${session?.user?.role}-${page}`;
+      const completed = localStorage.getItem('tarl-completed-tours');
+      const hasCompleted = completed ? JSON.parse(completed).includes(tourKey) : false;
+
+      // If tour was open but now closed and not completed, treat as skip
+      if (!hasCompleted) {
+        const wasOpen = localStorage.getItem('tarl-tour-was-open');
+        if (wasOpen === 'true') {
+          handleTourClose(false);
+          localStorage.removeItem('tarl-tour-was-open');
+        }
+      }
+    } else if (isOpen) {
+      localStorage.setItem('tarl-tour-was-open', 'true');
+    }
+  }, [isOpen]);
 
   const texts = tourTexts[language];
 
@@ -171,6 +242,7 @@ function TourContent({ page, autoStart, showStartButton }: OnboardingTourProps) 
 
 export default function OnboardingTour(props: OnboardingTourProps) {
   const { data: session } = useSession();
+  const [tourCompleted, setTourCompleted] = useState(false);
 
   if (!session?.user) {
     return null;
@@ -179,7 +251,9 @@ export default function OnboardingTour(props: OnboardingTourProps) {
   // Tour configuration
   const tourConfig = {
     steps: [],
-    onRequestClose: () => {},
+    onRequestClose: () => {
+      // Will be handled by TourContent
+    },
     styles: {
       popover: (base: any) => ({
         ...base,
@@ -202,9 +276,9 @@ export default function OnboardingTour(props: OnboardingTourProps) {
       }),
       content: (base: any) => ({
         ...base,
-        padding: '20px',
+        padding: '28px 32px', // Increased padding for better text clarity
         fontSize: '14px',
-        lineHeight: '1.6',
+        lineHeight: '1.8', // Slightly increased line height
       }),
     },
     className: 'tour-popover',
@@ -226,6 +300,9 @@ export default function OnboardingTour(props: OnboardingTourProps) {
           type="primary"
           onClick={() => {
             if (isLast) {
+              // Mark tour as completed before closing
+              const event = new CustomEvent('tourCompleted', { detail: { completed: true } });
+              window.dispatchEvent(event);
               setIsOpen(false);
             } else {
               setCurrentStep((s: number) => s + 1);

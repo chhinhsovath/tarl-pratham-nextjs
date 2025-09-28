@@ -202,80 +202,58 @@ export default function SimpleDashboard() {
       </h1>
 
       <Spin spinning={loading}>
-        {/* Statistics Cards - Refined style following verification page design */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {/* Total Students Card */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                    <TeamOutlined className="text-blue-600 text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-0">និស្សិតសរុប</p>
-                    <p className="text-2xl font-bold text-gray-900 mb-0" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
-                      {stats.totalStudents.toLocaleString()}
-                    </p>
-                  </div>
+        {/* Statistics - Single line responsive layout like verification page */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {/* Total Students */}
+            <div className="text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
+                  <TeamOutlined className="text-blue-600 text-xl" />
                 </div>
+                <p className="text-xs font-medium text-gray-600 mb-1">និស្សិតសរុប</p>
+                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
+                  {stats.totalStudents.toLocaleString()}
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Total Assessments Card */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                    <FileTextOutlined className="text-green-600 text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-0">ការវាយតម្លៃសរុប</p>
-                    <p className="text-2xl font-bold text-gray-900 mb-0" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
-                      {stats.totalAssessments.toLocaleString()}
-                    </p>
-                  </div>
+            {/* Total Assessments */}
+            <div className="text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-2">
+                  <FileTextOutlined className="text-green-600 text-xl" />
                 </div>
+                <p className="text-xs font-medium text-gray-600 mb-1">ការវាយតម្លៃសរុប</p>
+                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
+                  {stats.totalAssessments.toLocaleString()}
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Total Schools Card */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
-                    <BankOutlined className="text-yellow-600 text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-0">សាលារៀន</p>
-                    <p className="text-2xl font-bold text-gray-900 mb-0" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
-                      {stats.totalSchools.toLocaleString()}
-                    </p>
-                  </div>
+            {/* Total Schools */}
+            <div className="text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-2">
+                  <BankOutlined className="text-yellow-600 text-xl" />
                 </div>
+                <p className="text-xs font-medium text-gray-600 mb-1">សាលារៀន</p>
+                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
+                  {stats.totalSchools.toLocaleString()}
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Total Mentoring Visits Card */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                    <SolutionOutlined className="text-purple-600 text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-0">ដំណើរទស្សនកិច្ច</p>
-                    <p className="text-2xl font-bold text-gray-900 mb-0" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
-                      {stats.totalMentoringVisits.toLocaleString()}
-                    </p>
-                  </div>
+            {/* Total Mentoring Visits */}
+            <div className="text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
+                  <SolutionOutlined className="text-purple-600 text-xl" />
                 </div>
+                <p className="text-xs font-medium text-gray-600 mb-1">ដំណើរទស្សនកិច្ច</p>
+                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
+                  {stats.totalMentoringVisits.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
