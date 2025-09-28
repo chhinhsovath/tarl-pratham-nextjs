@@ -8,8 +8,8 @@ import { z } from "zod";
 const assessmentSchema = z.object({
   student_id: z.number().min(1, "Student ID is required"),
   pilot_school_id: z.number().optional(),
-  assessment_type: z.enum(["baseline", "midline", "endline"], {
-    errorMap: () => ({ message: "Assessment type must be baseline, midline, or endline" })
+  assessment_type: z.enum(["ដើមគ្រា", "ពាក់កណ្តាលគ្រា", "ចុងគ្រា"], {
+    errorMap: () => ({ message: "Assessment type must be ដើមគ្រា, ពាក់កណ្តាលគ្រា, or ចុងគ្រា" })
   }),
   subject: z.enum(["khmer", "math"], {
     errorMap: () => ({ message: "Subject must be khmer or math" })

@@ -157,6 +157,79 @@ body {
 /* Hover effects */
 .hover\:text-blue-600:hover { color: var(--color-primary); }
 
+/* Layout Container Centering Fix */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container { max-width: 640px; padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+@media (min-width: 768px) {
+  .container { max-width: 768px; }
+}
+
+@media (min-width: 1024px) {
+  .container { max-width: 1024px; padding-left: 2rem; padding-right: 2rem; }
+}
+
+@media (min-width: 1280px) {
+  .container { max-width: 1280px; }
+}
+
+@media (min-width: 1536px) {
+  .container { max-width: 1536px; }
+}
+
+/* Fix for grid layout centering */
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* Ensure proper content centering */
+main {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Balanced layout container */
+.dashboard-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .dashboard-container { padding: 0 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-container { padding: 0 2rem; }
+}
+
+/* Fix horizontal centering for all content */
+.horizontal-layout-content {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .horizontal-layout-content { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .horizontal-layout-content { padding-left: 2rem; padding-right: 2rem; }
+}
+
 /* Ensure text visibility in white containers */
 .bg-white * { color: #111827 !important; }
 .bg-white .text-gray-600 { color: #6b7280 !important; }

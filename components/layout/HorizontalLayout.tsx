@@ -236,7 +236,7 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
     <div className="min-h-screen bg-gray-100 overflow-x-hidden">
       {/* Header Navigation */}
       <nav className="bg-white shadow h-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
+        <div className="horizontal-layout-content">
           <div className="flex justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
@@ -328,10 +328,8 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
 
       {/* Main Content Area */}
       <main className="py-6">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
-          <div className="max-w-full overflow-x-hidden">
-            {children}
-          </div>
+        <div className="horizontal-layout-content">
+          {children}
         </div>
       </main>
     </div>

@@ -108,7 +108,7 @@ function AssessmentsContent() {
         {
           id: 1,
           student: { name: 'គុណ សុវណ្ណ', is_temporary: false },
-          assessment_type: 'baseline',
+          assessment_type: 'ដើមគ្រា',
           subject: 'khmer',
           level: 'word',
           score: 75,
@@ -120,7 +120,7 @@ function AssessmentsContent() {
         {
           id: 2,
           student: { name: 'ញឹម បញ្ញា', is_temporary: false },
-          assessment_type: 'midline',
+          assessment_type: 'ពាក់កណ្តាលគ្រា',
           subject: 'math',
           level: 'beginner',
           score: 68,
@@ -132,7 +132,7 @@ function AssessmentsContent() {
         {
           id: 3,
           student: { name: 'ចន្ទ ព្រេង', is_temporary: false },
-          assessment_type: 'endline',
+          assessment_type: 'ចុងគ្រា',
           subject: 'khmer',
           level: 'paragraph',
           score: 82,
@@ -144,7 +144,7 @@ function AssessmentsContent() {
         {
           id: 4,
           student: { name: 'វន្នី ស្រេង', is_temporary: false },
-          assessment_type: 'baseline',
+          assessment_type: 'ដើមគ្រា',
           subject: 'math',
           level: 'letter',
           score: 58,
@@ -156,7 +156,7 @@ function AssessmentsContent() {
         {
           id: 5,
           student: { name: 'ធីតា មុំ', is_temporary: false },
-          assessment_type: 'midline',
+          assessment_type: 'ពាក់កណ្តាលគ្រា',
           subject: 'khmer',
           level: 'word',
           score: 71,
@@ -291,12 +291,12 @@ function AssessmentsContent() {
       width: 120,
       render: (type: string) => {
         const typeMap = {
-          baseline: 'មូលដ្ឋាន',
-          midline: 'កាច់កណ្តាល',
-          endline: 'បញ្ចប់'
+          'ដើមគ្រា': 'ដើមគ្រា',
+          'ពាក់កណ្តាលគ្រា': 'ពាក់កណ្តាលគ្រា',
+          'ចុងគ្រា': 'ចុងគ្រា'
         };
         return (
-          <Tag color={type === 'baseline' ? 'blue' : type === 'midline' ? 'orange' : 'green'}>
+          <Tag color={type === 'ដើមគ្រា' ? 'blue' : type === 'ពាក់កណ្តាលគ្រា' ? 'orange' : 'green'}>
             {typeMap[type as keyof typeof typeMap]}
           </Tag>
         );
@@ -487,9 +487,9 @@ function AssessmentsContent() {
                 allowClear
                 style={{ width: '100%' }}
               >
-                <Option value="baseline">មូលដ្ឋាន</Option>
-                <Option value="midline">កុលសនភាព</Option>
-                <Option value="endline">បញ្ចប់</Option>
+                <Option value="ដើមគ្រា">ដើមគ្រា</Option>
+                <Option value="ពាក់កណ្តាលគ្រា">ពាក់កណ្តាលគ្រា</Option>
+                <Option value="ចុងគ្រា">ចុងគ្រា</Option>
               </Select>
             </Col>
             

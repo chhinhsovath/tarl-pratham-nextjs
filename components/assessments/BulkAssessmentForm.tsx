@@ -73,7 +73,7 @@ export default function BulkAssessmentForm() {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const [assessmentData, setAssessmentData] = useState<AssessmentData[]>([]);
-  const [assessmentType, setAssessmentType] = useState<string>('baseline');
+  const [assessmentType, setAssessmentType] = useState<string>('ដើមគ្រា');
   const [assessmentSubject, setAssessmentSubject] = useState<string>('both');
   const [assessmentDate, setAssessmentDate] = useState(dayjs());
   const [pilotSchools, setPilotSchools] = useState([]);
@@ -388,8 +388,8 @@ export default function BulkAssessmentForm() {
       width: 150,
       render: (_: any, record: any) => {
         const student = students.find(s => s.id === record.student_id);
-        const prevKhmer = student?.[`${assessmentType === 'baseline' ? '' : assessmentType === 'midline' ? 'baseline' : 'midline'}_khmer_level`];
-        const prevMath = student?.[`${assessmentType === 'baseline' ? '' : assessmentType === 'midline' ? 'baseline' : 'midline'}_math_level`];
+        const prevKhmer = student?.[`${assessmentType === 'ដើមគ្រា' ? '' : assessmentType === 'ពាក់កណ្តាលគ្រា' ? 'baseline' : 'midline'}_khmer_level`];
+        const prevMath = student?.[`${assessmentType === 'ដើមគ្រា' ? '' : assessmentType === 'ពាក់កណ្តាលគ្រា' ? 'baseline' : 'midline'}_math_level`];
         
         return (
           <div style={{ fontSize: '12px' }}>
@@ -522,9 +522,9 @@ export default function BulkAssessmentForm() {
                   value={assessmentType}
                   onChange={setAssessmentType}
                 >
-                  <Option value="baseline">Baseline</Option>
-                  <Option value="midline">Midline</Option>
-                  <Option value="endline">Endline</Option>
+                  <Option value="ដើមគ្រា">ដើមគ្រា</Option>
+                  <Option value="ពាក់កណ្តាលគ្រា">ពាក់កណ្តាលគ្រា</Option>
+                  <Option value="ចុងគ្រា">ចុងគ្រា</Option>
                 </Select>
               </Form.Item>
             </Col>

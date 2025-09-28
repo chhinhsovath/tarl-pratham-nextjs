@@ -92,12 +92,12 @@ model PilotSchool {
   cluster             String
   school_name         String
   school_code         String               @unique
-  baseline_start_date DateTime?
-  baseline_end_date   DateTime?
-  midline_start_date  DateTime?
-  midline_end_date    DateTime?
-  endline_start_date  DateTime?
-  endline_end_date    DateTime?
+  baseline_start_date DateTime?  // ដើមគ្រា ចាប់ផ្តើម
+  baseline_end_date   DateTime?  // ដើមគ្រា បញ្ចប់
+  midline_start_date  DateTime?  // ពាក់កណ្តាលគ្រា ចាប់ផ្តើម
+  midline_end_date    DateTime?  // ពាក់កណ្តាលគ្រា បញ្ចប់
+  endline_start_date  DateTime?  // ចុងគ្រា ចាប់ផ្តើម
+  endline_end_date    DateTime?  // ចុងគ្រា បញ្ចប់
   created_at          DateTime             @default(now())
   updated_at          DateTime             @updatedAt
   
@@ -110,8 +110,8 @@ model PilotSchool {
   @@index([province])
   @@index([district])
   @@index([cluster])
-  @@index([baseline_start_date])
-  @@index([midline_start_date])
+  @@index([baseline_start_date])  // ដើមគ្រា ចាប់ផ្តើម
+  @@index([midline_start_date])   // ពាក់កណ្តាលគ្រា ចាប់ផ្តើម
   @@map("pilot_schools")
 }
 
@@ -174,15 +174,15 @@ model Student {
   guardian_phone              String?
   address                     String?
   photo                       String?
-  baseline_assessment         String?
-  midline_assessment          String?
-  endline_assessment          String?
-  baseline_khmer_level        String?
-  baseline_math_level         String?
-  midline_khmer_level         String?
-  midline_math_level          String?
-  endline_khmer_level         String?
-  endline_math_level          String?
+  baseline_assessment         String?  // ដើមគ្រា
+  midline_assessment          String?  // ពាក់កណ្តាលគ្រា
+  endline_assessment          String?  // ចុងគ្រា
+  baseline_khmer_level        String?  // ដើមគ្រា ខ្មែរ
+  baseline_math_level         String?  // ដើមគ្រា គណិត
+  midline_khmer_level         String?  // ពាក់កណ្តាលគ្រា ខ្មែរ
+  midline_math_level          String?  // ពាក់កណ្តាលគ្រា គណិត
+  endline_khmer_level         String?  // ចុងគ្រា ខ្មែរ
+  endline_math_level          String?  // ចុងគ្រា គណិត
   is_active                   Boolean                      @default(true)
   is_temporary                Boolean                      @default(false)
   added_by_id                 Int?
@@ -212,7 +212,7 @@ model Assessment {
   id                    Int                     @id @default(autoincrement())
   student_id            Int
   pilot_school_id       Int?
-  assessment_type       String                  // baseline, midline, endline
+  assessment_type       String                  // ដើមគ្រា, ពាក់កណ្តាលគ្រា, ចុងគ្រា
   subject               String                  // khmer, math
   level                 String?                 // beginner, letter, word, paragraph, story
   score                 Float?

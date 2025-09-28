@@ -77,7 +77,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
       selectedStudents.forEach(studentId => {
         initialData[studentId] = {
           student_id: studentId,
-          assessment_type: assessmentType || 'baseline',
+          assessment_type: assessmentType || 'ដើមគ្រា',
           subject: subject || 'khmer',
           assessed_date: dayjs().format('YYYY-MM-DD')
         };
@@ -110,9 +110,9 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
   };
 
   const assessmentTypes = [
-    { value: 'baseline', label: 'Baseline Assessment', color: 'blue' },
-    { value: 'midline', label: 'Midline Assessment', color: 'orange' },
-    { value: 'endline', label: 'Endline Assessment', color: 'green' }
+    { value: 'ដើមគ្រា', label: 'ដើមគ្រា', color: 'blue' },
+    { value: 'ពាក់កណ្តាលគ្រា', label: 'ពាក់កណ្តាលគ្រា', color: 'orange' },
+    { value: 'ចុងគ្រា', label: 'ចុងគ្រា', color: 'green' }
   ];
 
   const subjects = [
@@ -273,7 +273,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
           onFinish={mode === 'single' ? handleSingleSubmit : handleBulkNext}
           disabled={loading}
           initialValues={{
-            assessment_type: assessmentType || 'baseline',
+            assessment_type: assessmentType || 'ដើមគ្រា',
             subject: subject || 'khmer',
             assessed_date: dayjs()
           }}

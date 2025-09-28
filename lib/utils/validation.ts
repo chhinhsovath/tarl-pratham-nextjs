@@ -63,7 +63,7 @@ export const updateStudentSchema = createStudentSchema.partial();
 export const createAssessmentSchema = z.object({
   student_id: z.number().min(1, 'Student is required'),
   pilot_school_id: z.number().optional(),
-  assessment_type: z.enum(['baseline', 'midline', 'endline']),
+  assessment_type: z.enum(['ដើមគ្រា', 'ពាក់កណ្តាលគ្រា', 'ចុងគ្រា']),
   subject: z.enum(['khmer', 'math']),
   level: z.enum(['beginner', 'letter', 'word', 'paragraph', 'story']).optional(),
   score: z.number().min(0).max(100).optional(),
@@ -124,7 +124,7 @@ export const assessmentFilterSchema = z.object({
   search: z.string().optional(),
   student_id: z.number().optional(),
   pilot_school_id: z.number().optional(),
-  assessment_type: z.enum(['baseline', 'midline', 'endline']).optional(),
+  assessment_type: z.enum(['ដើមគ្រា', 'ពាក់កណ្តាលគ្រា', 'ចុងគ្រា']).optional(),
   subject: z.enum(['khmer', 'math']).optional(),
   date_from: z.string().optional(),
   date_to: z.string().optional(),
