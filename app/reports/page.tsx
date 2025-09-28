@@ -5,6 +5,7 @@ import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { TeamOutlined, FileTextOutlined, PercentageOutlined, TrophyOutlined, BarChartOutlined, BankOutlined, UserOutlined, ClockIcon } from '@ant-design/icons';
 
 export default function SimpleReportsPage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function SimpleReportsPage() {
     averageScore: 72
   });
 
-  // Report cards matching Laravel exactly
+  // Report cards with specific icons
   const reportCards = [
     {
       title: 'លទ្ធផលសិស្ស',
@@ -27,6 +28,7 @@ export default function SimpleReportsPage() {
       path: '/reports/student-performance',
       color: 'bg-blue-50',
       iconColor: 'bg-blue-500',
+      icon: 'chart',
       description: 'មើលលទ្ធផលវាយតម្លៃរបស់សិស្ស'
     },
     {
@@ -35,6 +37,7 @@ export default function SimpleReportsPage() {
       path: '/reports/school-comparison',
       color: 'bg-green-50',
       iconColor: 'bg-green-500',
+      icon: 'school',
       description: 'ប្រៀបធៀបលទ្ធផលរវាងសាលារៀន'
     },
     {
@@ -43,6 +46,7 @@ export default function SimpleReportsPage() {
       path: '/reports/mentoring-impact',
       color: 'bg-yellow-50',
       iconColor: 'bg-yellow-500',
+      icon: 'user',
       description: 'វិភាគផលប៉ះពាល់នៃការណែនាំ'
     },
     {
@@ -51,6 +55,7 @@ export default function SimpleReportsPage() {
       path: '/reports/progress-tracking',
       color: 'bg-purple-50',
       iconColor: 'bg-purple-500',
+      icon: 'trend',
       description: 'តាមដានវឌ្ឍនភាពតាមរយៈពេល'
     },
     {
@@ -59,6 +64,7 @@ export default function SimpleReportsPage() {
       path: '/reports/class-progress',
       color: 'bg-indigo-50',
       iconColor: 'bg-indigo-500',
+      icon: 'group',
       description: 'មើលវឌ្ឍនភាពតាមថ្នាក់រៀន'
     },
     {
@@ -67,6 +73,7 @@ export default function SimpleReportsPage() {
       path: '/reports/attendance',
       color: 'bg-red-50',
       iconColor: 'bg-red-500',
+      icon: 'clock',
       description: 'តាមដានវត្តមានសិស្ស'
     }
   ];
@@ -82,67 +89,105 @@ export default function SimpleReportsPage() {
           </p>
         </div>
 
-        {/* Simple Stats Cards - Laravel style */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              សិស្សសរុប
+        {/* Statistics Cards - Dashboard style with colored backgrounds */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Students Card */}
+          <div className="bg-blue-50 rounded-lg p-6 flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <TeamOutlined className="text-white text-xl" />
+              </div>
             </div>
-            <div className="mt-1 text-3xl font-semibold text-gray-900">
-              {stats.totalStudents.toLocaleString()}
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              ការវាយតម្លៃសរុប
-            </div>
-            <div className="mt-1 text-3xl font-semibold text-gray-900">
-              {stats.totalAssessments.toLocaleString()}
+            <div className="ml-5">
+              <div className="text-xs font-medium text-blue-600 uppercase tracking-wider">សិស្សសរុប</div>
+              <div className="text-3xl font-semibold text-gray-900">{stats.totalStudents.toLocaleString()}</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              អត្រាបញ្ចប់
+
+          {/* Total Assessments Card */}
+          <div className="bg-green-50 rounded-lg p-6 flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                <FileTextOutlined className="text-white text-xl" />
+              </div>
             </div>
-            <div className="mt-1 text-3xl font-semibold text-gray-900">
-              {stats.completionRate}%
+            <div className="ml-5">
+              <div className="text-xs font-medium text-green-600 uppercase tracking-wider">ការវាយតម្លៃសរុប</div>
+              <div className="text-3xl font-semibold text-gray-900">{stats.totalAssessments.toLocaleString()}</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              ពិន្ទុមធ្យម
+
+          {/* Completion Rate Card */}
+          <div className="bg-yellow-50 rounded-lg p-6 flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center">
+                <PercentageOutlined className="text-white text-xl" />
+              </div>
             </div>
-            <div className="mt-1 text-3xl font-semibold text-gray-900">
-              {stats.averageScore}
+            <div className="ml-5">
+              <div className="text-xs font-medium text-yellow-600 uppercase tracking-wider">អត្រាបញ្ចប់</div>
+              <div className="text-3xl font-semibold text-gray-900">{stats.completionRate}%</div>
+            </div>
+          </div>
+
+          {/* Average Score Card */}
+          <div className="bg-purple-50 rounded-lg p-6 flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                <TrophyOutlined className="text-white text-xl" />
+              </div>
+            </div>
+            <div className="ml-5">
+              <div className="text-xs font-medium text-purple-600 uppercase tracking-wider">ពិន្ទុមធ្យម</div>
+              <div className="text-3xl font-semibold text-gray-900">{stats.averageScore}</div>
             </div>
           </div>
         </div>
 
-        {/* Report Cards Grid - Laravel style */}
+        {/* Clean Report Cards Grid - Following codebase patterns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reportCards.map((report, index) => (
-            <Link href={report.path} key={index}>
-              <div className={`${report.color} rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer`}>
-                <div className="flex items-start">
-                  <div className={`${report.iconColor} w-12 h-12 rounded-lg flex items-center justify-center`}>
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v7m3-2h6" />
-                    </svg>
+          {reportCards.map((report, index) => {
+            // Icon mapping function
+            const getIcon = (iconType: string) => {
+              const iconClass = "text-xl text-white";
+              switch(iconType) {
+                case 'chart': return <BarChartOutlined className={iconClass} />;
+                case 'school': return <BankOutlined className={iconClass} />;
+                case 'user': return <UserOutlined className={iconClass} />;
+                case 'trend': return <TrophyOutlined className={iconClass} />;
+                case 'group': return <TeamOutlined className={iconClass} />;
+                case 'clock': return <FileTextOutlined className={iconClass} />;
+                default: return <BarChartOutlined className={iconClass} />;
+              }
+            };
+
+            return (
+              <Link href={report.path} key={index}>
+                <div className={`${report.color} rounded-xl p-6 hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer border border-gray-100`}>
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <div className={`w-12 h-12 ${report.iconColor} rounded-lg flex items-center justify-center shadow-sm`}>
+                        {getIcon(report.icon)}
+                      </div>
+                    </div>
+                    <div className="ml-4 flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{report.title}</h3>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{report.subtitle}</p>
+                      <p className="text-sm text-gray-600 leading-relaxed">{report.description}</p>
+                    </div>
                   </div>
-                  <div className="ml-4 flex-1">
-                    <h3 className="text-lg font-medium text-gray-900">{report.title}</h3>
-                    <p className="text-sm text-gray-500">{report.subtitle}</p>
-                    <p className="mt-2 text-sm text-gray-600">{report.description}</p>
-                    <div className="mt-4">
-                      <span className="text-sm font-medium text-indigo-600">
-                        មើលរបាយការណ៍ →
-                      </span>
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="flex items-center text-sm font-medium text-indigo-600">
+                      មើលរបាយការណ៍
+                      <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Simple Recent Activity Table - Laravel style */}
