@@ -5,7 +5,7 @@ import { Card, Row, Col, Typography, Space, Button, Statistic, message, Divider 
 import { 
   UserOutlined, 
   TeamOutlined, 
-  SchoolOutlined, 
+  BankOutlined, 
   FileTextOutlined,
   SettingOutlined,
   UploadOutlined,
@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 
 const { Title, Text } = Typography;
 
@@ -116,7 +117,7 @@ function AdministrationPageContent() {
       title: 'Manage School',
       titleEn: 'School Management',
       description: 'Manage schools and geographic data',
-      icon: <SchoolOutlined />,
+      icon: <BankOutlined />,
       color: '#fa8c16',
       route: '/schools',
       items: [
@@ -283,7 +284,7 @@ function AdministrationPageContent() {
               <Statistic
                 title="សាលារៀន"
                 value={stats.total_schools}
-                prefix={<SchoolOutlined />}
+                prefix={<BankOutlined />}
                 valueStyle={{ color: '#722ed1' }}
               />
             </Col>

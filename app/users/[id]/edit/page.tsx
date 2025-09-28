@@ -1,5 +1,5 @@
 "use client";
-
+import HorizontalLayout from "@/components/layout/HorizontalLayout";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
