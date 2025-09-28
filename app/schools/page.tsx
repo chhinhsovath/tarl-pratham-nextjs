@@ -88,7 +88,7 @@ interface ApiResponse {
 const SCHOOL_TYPES = ["Primary", "Secondary", "High School", "Technical", "Vocational"];
 const LEVELS = ["Primary", "Lower Secondary", "Upper Secondary", "Mixed"];
 
-export default function SchoolsPage() {
+function SchoolsPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [schools, setSchools] = useState<School[]>([]);
@@ -472,5 +472,12 @@ export default function SchoolsPage() {
         </div>
       </Card>
     </div>
+  );
+}
+export default function SchoolsPage() {
+  return (
+    <HorizontalLayout>
+      <SchoolsPageContent />
+    </HorizontalLayout>
   );
 }

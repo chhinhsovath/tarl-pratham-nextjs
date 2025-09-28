@@ -32,7 +32,7 @@ interface AdminStats {
   total_mentoring_visits: number;
 }
 
-export default function AdministrationPage() {
+function AdministrationPageContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
@@ -415,5 +415,12 @@ export default function AdministrationPage() {
         </Text>
       </div>
     </div>
+  );
+}
+export default function AdministrationPage() {
+  return (
+    <HorizontalLayout>
+      <AdministrationPageContent />
+    </HorizontalLayout>
   );
 }

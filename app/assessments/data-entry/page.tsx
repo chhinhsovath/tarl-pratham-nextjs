@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { message, Card, Typography, Space, Tag } from 'antd';
@@ -150,10 +150,17 @@ function AssessmentDataEntryContent() {
   );
 }
 
-export default function AssessmentDataEntryPage() {
+function AssessmentDataEntryPageContent() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <AssessmentDataEntryContent />
     </Suspense>
+  );
+}
+export default function AssessmentDataEntryPage() {
+  return (
+    <HorizontalLayout>
+      <AssessmentDataEntryPageContent />
+    </HorizontalLayout>
   );
 }

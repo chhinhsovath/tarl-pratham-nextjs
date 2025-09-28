@@ -35,7 +35,7 @@ import {
 } from '@ant-design/icons';
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -305,7 +305,7 @@ function AssessmentVerificationPage() {
   };
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <Card title="ជួររង់ចាំការផ្ទៀងផ្ទាត់ការវាយតម្លៃ" style={{ marginBottom: 24 }}>
         <Row gutter={16} style={{ marginBottom: 24 }}>
           <Col span={6}>
@@ -569,7 +569,7 @@ function AssessmentVerificationPage() {
           </Form>
         )}
       </Modal>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }
 

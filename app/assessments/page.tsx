@@ -33,7 +33,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -600,8 +600,8 @@ function AssessmentsContent() {
 
 export default function AssessmentsPage() {
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <AssessmentsContent />
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

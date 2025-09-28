@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState, useEffect, Suspense } from 'react';
 import { 
   Card, 
@@ -434,10 +434,17 @@ function SelectStudentsContent() {
   );
 }
 
-export default function SelectStudentsPage() {
+function SelectStudentsPageContent() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <SelectStudentsContent />
     </Suspense>
+  );
+}
+export default function SelectStudentsPage() {
+  return (
+    <HorizontalLayout>
+      <SelectStudentsPageContent />
+    </HorizontalLayout>
   );
 }

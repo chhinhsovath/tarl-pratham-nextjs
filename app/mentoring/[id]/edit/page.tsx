@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { message, Typography, Spin, Alert, Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import ComprehensiveMentoringForm from '@/components/forms/ComprehensiveMentoringForm';
 
 const { Title } = Typography;
@@ -173,18 +173,18 @@ export default function EditMentoringVisitPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <div style={{ textAlign: 'center', padding: '50px' }}>
           <Spin size="large" />
           <div style={{ marginTop: 16 }}>កំពុងទាញយកទិន្នន័យ...</div>
         </div>
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <Alert
           message="បញ្ហាក្នុងការទាញយកទិន្នន័យ"
           description={error}
@@ -196,13 +196,13 @@ export default function EditMentoringVisitPage() {
             </Button>
           }
         />
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   if (!visit) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <Alert
           message="រកមិនឃើញការចុះអប់រំ"
           description="ការចុះអប់រំដែលអ្នកស្វែងរកមិនមានទេ"
@@ -214,14 +214,14 @@ export default function EditMentoringVisitPage() {
             </Button>
           }
         />
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   if (!canEdit) {
     const isLocked = visit?.is_locked;
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <Alert
           message={isLocked ? "ការចុះអប់រំត្រូវបានចាក់សោ" : "គ្មានសិទ្ធិកែសម្រួល"}
           description={
@@ -237,7 +237,7 @@ export default function EditMentoringVisitPage() {
             </Button>
           }
         />
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
@@ -313,7 +313,7 @@ export default function EditMentoringVisitPage() {
   };
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div>
         <Button 
           icon={<ArrowLeftOutlined />} 
@@ -333,6 +333,6 @@ export default function EditMentoringVisitPage() {
           initialValues={initialValues}
         />
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

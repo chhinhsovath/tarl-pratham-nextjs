@@ -44,7 +44,7 @@ import {
 } from '@ant-design/icons';
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -341,7 +341,7 @@ function InterventionReportsPage() {
   };
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div>
         <Row gutter={16} style={{ marginBottom: 24 }}>
           <Col span={24}>
@@ -580,7 +580,7 @@ function InterventionReportsPage() {
           </Form>
         </Modal>
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }
 

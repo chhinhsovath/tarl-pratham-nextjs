@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Form, Input, Button, Card, Select, Typography, Space, message } from 'antd';
 import { UserOutlined, PhoneOutlined, SaveOutlined } from '@ant-design/icons';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -82,7 +82,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '20px' }}>
         <Card>
           <Title level={2}>
@@ -187,6 +187,6 @@ export default function ProfilePage() {
           </Form>
         </Card>
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

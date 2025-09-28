@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import HorizontalLayout from "@/components/layout/HorizontalLayout";
 import {
   Table,
   Button,
@@ -83,7 +84,7 @@ const PROVINCES = [
   "Preah Sihanouk", "Stung Treng", "Svay Rieng", "Takeo", "Tbong Khmum"
 ];
 
-export default function UsersPage() {
+function UsersPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
@@ -427,5 +428,12 @@ export default function UsersPage() {
         </div>
       </Card>
     </div>
+  );
+}
+export default function UsersPage() {
+  return (
+    <HorizontalLayout>
+      <UsersPageContent />
+    </HorizontalLayout>
   );
 }

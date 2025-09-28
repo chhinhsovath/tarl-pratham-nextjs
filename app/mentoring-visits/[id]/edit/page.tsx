@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import {
   Form,
   Input,
@@ -318,17 +318,17 @@ export default function EditMentoringVisitPage() {
 
   if (dataLoading) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   if (!mentoringVisit || !canEdit()) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <div className="p-6">
           <Alert
             message="មិនអាចកែសម្រួលបានទេ"
@@ -337,12 +337,12 @@ export default function EditMentoringVisitPage() {
             showIcon
           />
         </div>
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-4">
@@ -803,6 +803,6 @@ export default function EditMentoringVisitPage() {
           </div>
         </Form>
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

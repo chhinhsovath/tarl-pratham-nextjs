@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import {
   Form,
   Input,
@@ -187,7 +187,7 @@ export default function CreateMentoringVisitPage() {
   ];
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
           <Button
@@ -663,6 +663,6 @@ export default function CreateMentoringVisitPage() {
           </Button>
         </div>
       </Form>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

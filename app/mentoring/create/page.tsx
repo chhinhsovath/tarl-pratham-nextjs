@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { message, Typography } from 'antd';
 import { useSession } from 'next-auth/react';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import ComprehensiveMentoringForm from '@/components/forms/ComprehensiveMentoringForm';
 const { Title } = Typography;
 
@@ -40,7 +40,7 @@ export default function CreateMentoringVisitPage() {
   };
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div>
         <Title level={2} style={{ marginBottom: 24, fontFamily: 'Hanuman, sans-serif' }}>
           បង្កើតការចុះអប់រំ និងត្រួតពិនិត្យថ្មី
@@ -50,6 +50,6 @@ export default function CreateMentoringVisitPage() {
           onSubmit={handleSubmit}
         />
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

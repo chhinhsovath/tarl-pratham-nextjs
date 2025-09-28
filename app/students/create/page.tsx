@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { message } from 'antd';
@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 import StudentForm from '@/components/forms/StudentForm';
 import { hasPermission } from '@/lib/permissions';
 
-export default function CreateStudentPage() {
+function CreateStudentPageContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
@@ -59,5 +59,12 @@ export default function CreateStudentPage() {
         pilotSchoolId={user?.pilot_school_id}
       />
     </div>
+  );
+}
+export default function CreateStudentPage() {
+  return (
+    <HorizontalLayout>
+      <CreateStudentPageContent />
+    </HorizontalLayout>
   );
 }

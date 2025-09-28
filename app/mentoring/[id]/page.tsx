@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, Descriptions, Spin, Button, Tag, Alert, Space, Divider, Typography, Row, Col } from 'antd';
 import { EditOutlined, DeleteOutlined, ArrowLeftOutlined, ExportOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 
 const { Title, Text } = Typography;
 
@@ -207,18 +207,18 @@ export default function MentoringVisitDetailPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <div style={{ textAlign: 'center', padding: '50px' }}>
           <Spin size="large" />
           <div style={{ marginTop: 16 }}>កំពុងទាញយកទិន្នន័យ...</div>
         </div>
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <Alert
           message="បញ្ហាក្នុងការទាញយកទិន្នន័យ"
           description={error}
@@ -230,13 +230,13 @@ export default function MentoringVisitDetailPage() {
             </Button>
           }
         />
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   if (!visit) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <Alert
           message="រកមិនឃើញការចុះអប់រំ"
           description="ការចុះអប់រំដែលអ្នកស្វែងរកមិនមានទេ"
@@ -248,12 +248,12 @@ export default function MentoringVisitDetailPage() {
             </Button>
           }
         />
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div>
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
@@ -501,6 +501,6 @@ export default function MentoringVisitDetailPage() {
           </Descriptions>
         </Card>
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

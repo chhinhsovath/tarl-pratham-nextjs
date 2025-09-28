@@ -30,7 +30,7 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
 import { useRouter } from 'next/navigation';
@@ -523,20 +523,20 @@ export default function TeacherDashboardPage() {
   // Laravel-style Middleware/Guard simulation
   if (!user || !hasPermission(user, 'teacher.workspace')) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <Alert 
           message="មិនមានសិទ្ធិចូលប្រើ" 
           description="អ្នកមិនមានសិទ្ធិចូលដំណើរការផ្ទាំងគ្រប់គ្រងគ្រូបង្រៀនទេ។"
           type="error" 
           showIcon 
         />
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <TeacherDashboardContent />
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

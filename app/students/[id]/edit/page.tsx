@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { message, Spin, Card } from 'antd';
@@ -11,7 +11,7 @@ interface EditStudentPageProps {
   params: { id: string };
 }
 
-export default function EditStudentPage({ params }: EditStudentPageProps) {
+function EditStudentPageContent({ params }: EditStudentPageProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
@@ -106,5 +106,12 @@ export default function EditStudentPage({ params }: EditStudentPageProps) {
         pilotSchoolId={user?.pilot_school_id}
       />
     </div>
+  );
+}
+export default function EditStudentPage() {
+  return (
+    <HorizontalLayout>
+      <EditStudentPageContent />
+    </HorizontalLayout>
   );
 }

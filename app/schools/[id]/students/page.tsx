@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -78,7 +78,7 @@ interface School {
   total_students?: number;
 }
 
-export default function SchoolStudentsPage() {
+function SchoolStudentsPageContent() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
@@ -835,5 +835,12 @@ Mary Smith, 9, female, Bob Smith, 0987654321`}
         </Form>
       </Modal>
     </div>
+  );
+}
+export default function SchoolStudentsPage() {
+  return (
+    <HorizontalLayout>
+      <SchoolStudentsPageContent />
+    </HorizontalLayout>
   );
 }

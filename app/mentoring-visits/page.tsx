@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { 
   Table, 
   Button, 
@@ -428,7 +428,7 @@ function MentoringVisitsContent() {
   );
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div className="flex justify-between items-center mb-6">
         <Title level={2} className="mb-0">
           ការចុះអប់រំ និងត្រួតពិនិត្យ
@@ -470,7 +470,7 @@ function MentoringVisitsContent() {
           size="small"
         />
       </Card>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }
 

@@ -58,7 +58,7 @@ interface ResourceStats {
   total_views: number;
 }
 
-export default function ResourcesPage() {
+function ResourcesPageContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
@@ -535,5 +535,12 @@ export default function ResourcesPage() {
         </Form>
       </Modal>
     </div>
+  );
+}
+export default function ResourcesPage() {
+  return (
+    <HorizontalLayout>
+      <ResourcesPageContent />
+    </HorizontalLayout>
   );
 }

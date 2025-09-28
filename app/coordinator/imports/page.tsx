@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -62,7 +62,7 @@ interface ValidationError {
   value: any;
 }
 
-export default function BulkImportPage() {
+function BulkImportPageContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
@@ -620,5 +620,12 @@ export default function BulkImportPage() {
         )}
       </Modal>
     </div>
+  );
+}
+export default function BulkImportPage() {
+  return (
+    <HorizontalLayout>
+      <BulkImportPageContent />
+    </HorizontalLayout>
   );
 }

@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -64,7 +64,7 @@ interface School {
   total_students?: number;
 }
 
-export default function SchoolTeachersPage() {
+function SchoolTeachersPageContent() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
@@ -539,5 +539,12 @@ export default function SchoolTeachersPage() {
         />
       </Modal>
     </div>
+  );
+}
+export default function SchoolTeachersPage() {
+  return (
+    <HorizontalLayout>
+      <SchoolTeachersPageContent />
+    </HorizontalLayout>
   );
 }

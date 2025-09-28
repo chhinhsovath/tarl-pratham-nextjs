@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -54,7 +54,7 @@ interface AssessmentPeriod {
   is_locked: boolean;
 }
 
-export default function AssessmentPeriodsPage() {
+function AssessmentPeriodsPageContent() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [periods, setPeriods] = useState<AssessmentPeriod[]>([]);
@@ -596,5 +596,12 @@ export default function AssessmentPeriodsPage() {
         </Form>
       </Modal>
     </div>
+  );
+}
+export default function AssessmentPeriodsPage() {
+  return (
+    <HorizontalLayout>
+      <AssessmentPeriodsPageContent />
+    </HorizontalLayout>
   );
 }

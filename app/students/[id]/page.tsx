@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -39,7 +39,7 @@ interface StudentDetailsPageProps {
   params: { id: string };
 }
 
-export default function StudentDetailsPage({ params }: StudentDetailsPageProps) {
+function StudentDetailsPageContent({ params }: StudentDetailsPageProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
@@ -464,5 +464,12 @@ export default function StudentDetailsPage({ params }: StudentDetailsPageProps) 
         </TabPane>
       </Tabs>
     </div>
+  );
+}
+export default function StudentDetailsPage() {
+  return (
+    <HorizontalLayout>
+      <StudentDetailsPageContent />
+    </HorizontalLayout>
   );
 }

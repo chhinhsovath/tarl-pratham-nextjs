@@ -57,7 +57,7 @@ const SUBJECTS = [
   "កីឡា", "កលាបត្ថម្ម", "ជំនាញរស់នៅ", "កុំព្យូទ័រ"
 ];
 
-export default function CreateUserPage() {
+function CreateUserPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [form] = Form.useForm();
@@ -342,5 +342,12 @@ export default function CreateUserPage() {
         </Form>
       </Card>
     </div>
+  );
+}
+export default function CreateUserPage() {
+  return (
+    <HorizontalLayout>
+      <CreateUserPageContent />
+    </HorizontalLayout>
   );
 }

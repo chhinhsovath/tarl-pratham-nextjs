@@ -42,7 +42,7 @@ import {
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -598,7 +598,7 @@ export default function AssessmentManagementPage() {
   );
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <Title level={2} className="mb-0">
@@ -659,6 +659,6 @@ export default function AssessmentManagementPage() {
           />
         </Card>
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

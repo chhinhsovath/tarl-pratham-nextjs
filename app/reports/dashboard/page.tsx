@@ -46,7 +46,7 @@ import {
   Line,
   ResponsiveContainer
 } from 'recharts';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -176,24 +176,24 @@ export default function ReportsDashboardPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   if (!stats) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <Alert message="មិនអាចទាញយកទិន្នន័យបាន" type="error" />
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <Title level={2} className="mb-0">
@@ -522,6 +522,6 @@ export default function ReportsDashboardPage() {
           </TabPane>
         </Tabs>
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

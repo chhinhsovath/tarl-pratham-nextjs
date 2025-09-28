@@ -26,7 +26,7 @@ import {
   UserOutlined,
   SearchOutlined 
 } from '@ant-design/icons';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -403,9 +403,9 @@ function StudentsContent() {
 export default function StudentsPage() {
   return (
     <App>
-      <DashboardLayout>
+      <HorizontalLayout>
         <StudentsContent />
-      </DashboardLayout>
+      </HorizontalLayout>
     </App>
   );
 }

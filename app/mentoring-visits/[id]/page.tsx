@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import {
   Card,
   Typography,
@@ -184,29 +184,29 @@ export default function MentoringVisitDetailPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   if (!mentoringVisit) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <Alert
           message="រកមិនឃើញកាត់ទុកវិជ្ជាការ"
           description="កាត់ទុកវិជ្ជាការនេះប្រហែលជាត្រូវបានលុប ឬអ្នកមិនមានសិទ្ធិមើល"
           type="error"
           showIcon
         />
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
           <Button
@@ -619,6 +619,6 @@ export default function MentoringVisitDetailPage() {
           ]}
         />
       </Card>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }

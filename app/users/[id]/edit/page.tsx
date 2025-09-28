@@ -75,7 +75,7 @@ const SUBJECTS = [
   "Physical Education", "Arts", "Life Skills", "Computer"
 ];
 
-export default function EditUserPage() {
+function EditUserPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -429,5 +429,12 @@ export default function EditUserPage() {
         </Form>
       </Card>
     </div>
+  );
+}
+export default function EditUserPage() {
+  return (
+    <HorizontalLayout>
+      <EditUserPageContent />
+    </HorizontalLayout>
   );
 }

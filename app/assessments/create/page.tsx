@@ -17,7 +17,7 @@ import {
   Spin
 } from 'antd';
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -373,7 +373,7 @@ function AssessmentCreateContent() {
   const completionRate = totalStudents > 0 ? (assessedStudents / totalStudents) * 100 : 0;
 
   return (
-    <DashboardLayout>
+    <HorizontalLayout>
       <div className="p-6">
         <Title level={2}>បង្កើតការវាយតម្លៃថ្មី</Title>
         
@@ -516,13 +516,13 @@ function AssessmentCreateContent() {
           </Spin>
         </Card>
       </div>
-    </DashboardLayout>
+    </HorizontalLayout>
   );
 }
 
 export default function AssessmentCreatePage() {
   return (
-    <Suspense fallback={<DashboardLayout><div className="flex justify-center items-center h-64"><Spin size="large" /></div></DashboardLayout>}>
+    <Suspense fallback={<HorizontalLayout><div className="flex justify-center items-center h-64"><Spin size="large" /></div></HorizontalLayout>}>
       <AssessmentCreateContent />
     </Suspense>
   );

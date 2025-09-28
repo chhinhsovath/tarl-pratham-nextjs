@@ -1,5 +1,5 @@
 'use client';
-
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -33,7 +33,7 @@ interface PreviewData {
   errors: any[];
 }
 
-export default function BulkImportStudentsPage() {
+function BulkImportStudentsPageContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const user = session?.user;
@@ -428,5 +428,12 @@ export default function BulkImportStudentsPage() {
         )}
       </Card>
     </div>
+  );
+}
+export default function BulkImportStudentsPage() {
+  return (
+    <HorizontalLayout>
+      <BulkImportStudentsPageContent />
+    </HorizontalLayout>
   );
 }

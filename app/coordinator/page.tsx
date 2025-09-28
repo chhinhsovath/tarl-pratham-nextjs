@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import {
   Card,
   Row,
@@ -65,7 +66,7 @@ interface RecentActivity {
   user?: string;
 }
 
-export default function CoordinatorWorkspacePage() {
+function CoordinatorWorkspaceContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
@@ -539,5 +540,13 @@ export default function CoordinatorWorkspacePage() {
         style={{ marginTop: 24 }}
       />
     </div>
+  );
+}
+
+export default function CoordinatorWorkspacePage() {
+  return (
+    <HorizontalLayout>
+      <CoordinatorWorkspaceContent />
+    </HorizontalLayout>
   );
 }

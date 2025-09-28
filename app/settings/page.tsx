@@ -5,6 +5,7 @@ import { Card, Form, Input, Select, Button, Space, Typography, message, Row, Col
 import { SettingOutlined, SaveOutlined, ReloadOutlined, GlobalOutlined, MailOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -32,7 +33,7 @@ const locales = [
   { value: 'en', label: 'English' },
 ];
 
-export default function SettingsPage() {
+function SettingsContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const [form] = Form.useForm();
@@ -303,5 +304,13 @@ export default function SettingsPage() {
         </Text>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <HorizontalLayout>
+      <SettingsContent />
+    </HorizontalLayout>
   );
 }
