@@ -122,7 +122,7 @@ export default function SettingsPage() {
           ការកំណត់ប្រព័ន្ធ
         </Title>
         <Title level={3} type="secondary" style={{ margin: '8px 0 16px 0' }}>
-          System Settings
+          ការកំណត់ប្រព័ន្ធ
         </Title>
         <Text type="secondary">
           កំណត់ការការពារ និងការកំណត់ប្រព័ន្ធទូទៅ
@@ -140,7 +140,7 @@ export default function SettingsPage() {
           <div style={{ marginBottom: '32px' }}>
             <Title level={4}>
               <GlobalOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
-              Application Settings
+              ការកំណត់កម្មវិធី
             </Title>
             <Divider />
 
@@ -148,14 +148,14 @@ export default function SettingsPage() {
               <Col xs={24} md={12}>
                 <Form.Item
                   name="app_name"
-                  label="Application Name"
+                  label="ឈ្មោះកម្មវិធី"
                   rules={[
-                    { required: true, message: 'Application name is required' },
-                    { max: 255, message: 'Application name must be less than 255 characters' }
+                    { required: true, message: 'ឈ្មោះកម្មវិធីត្រូវតែបំពេញ' },
+                    { max: 255, message: 'ឈ្មោះកម្មវិធីត្រូវតែតិចជាង 255 តួអក្សរ' }
                   ]}
                 >
                   <Input 
-                    placeholder="Enter application name"
+                    placeholder="បញ្ចូលឈ្មោះកម្មវិធី"
                     prefix={<GlobalOutlined />}
                   />
                 </Form.Item>
@@ -163,10 +163,10 @@ export default function SettingsPage() {
               <Col xs={24} md={12}>
                 <Form.Item
                   name="app_locale"
-                  label="Default Language"
-                  rules={[{ required: true, message: 'Language is required' }]}
+                  label="ភាសាលំនាំដើម"
+                  rules={[{ required: true, message: 'ភាសាត្រូវតែជ្រើសរើស' }]}
                 >
-                  <Select placeholder="Select default language">
+                  <Select placeholder="ជ្រើសរើសភាសាលំនាំដើម">
                     {locales.map(locale => (
                       <Option key={locale.value} value={locale.value}>
                         {locale.label}
@@ -179,11 +179,11 @@ export default function SettingsPage() {
 
             <Form.Item
               name="app_timezone"
-              label="Timezone"
-              rules={[{ required: true, message: 'Timezone is required' }]}
+              label="តំបន់ពេលវេលា"
+              rules={[{ required: true, message: 'តំបន់ពេលវេលាត្រូវតែជ្រើសរើស' }]}
             >
               <Select 
-                placeholder="Select timezone"
+                placeholder="ជ្រើសរើសតំបន់ពេលវេលា"
                 showSearch
                 filterOption={(input, option) =>
                   option?.children?.toLowerCase().includes(input.toLowerCase())
@@ -202,7 +202,7 @@ export default function SettingsPage() {
           <div style={{ marginBottom: '32px' }}>
             <Title level={4}>
               <MailOutlined style={{ marginRight: '8px', color: '#52c41a' }} />
-              Email Configuration
+ការកំណត់អ៊ីមែល
             </Title>
             <Divider />
 
@@ -210,7 +210,7 @@ export default function SettingsPage() {
               <Col xs={24} md={12}>
                 <Form.Item
                   name="mail_from_address"
-                  label="From Email Address"
+                  label="អាសយដ្ឋានអ៊ីមែល"
                   rules={[
                     { type: 'email', message: 'Please enter a valid email address' }
                   ]}
@@ -259,7 +259,7 @@ export default function SettingsPage() {
                     <Text strong>Timezone:</Text> {settings.app_timezone}
                   </Col>
                   <Col xs={24} sm={12}>
-                    <Text strong>Email:</Text> {settings.mail_from_address || 'Not set'}
+                    <Text strong>អ៊ីមែល:</Text> {settings.mail_from_address || 'មិនទាន់កំណត់'}
                   </Col>
                 </Row>
               </Card>
@@ -276,20 +276,20 @@ export default function SettingsPage() {
                 loading={saving}
                 size="large"
               >
-                Save Settings
+រក្សាទុកការកំណត់
               </Button>
               <Button 
                 icon={<ReloadOutlined />}
                 onClick={handleReset}
                 size="large"
               >
-                Reset Form
+តំរាំងផ្នែកវិញ
               </Button>
               <Button 
                 onClick={() => router.push('/administration')}
                 size="large"
               >
-                Back to Administration
+ត្រឡប់ទៅរដ្ឋបាល
               </Button>
             </Space>
           </Form.Item>

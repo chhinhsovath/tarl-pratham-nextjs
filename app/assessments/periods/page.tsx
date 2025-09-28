@@ -213,7 +213,7 @@ export default function AssessmentPeriodsPage() {
 
   const columns = [
     {
-      title: 'School',
+      title: 'សាលារៀន',
       dataIndex: 'school_name',
       key: 'school_name',
       render: (name: string, record: AssessmentPeriod) => (
@@ -226,7 +226,7 @@ export default function AssessmentPeriodsPage() {
       )
     },
     {
-      title: 'Current Period',
+      title: 'រយៈពេលបច្ចុប្បន្ន',
       key: 'current',
       render: (_: any, record: AssessmentPeriod) => {
         const current = getCurrentPeriod(record);
@@ -244,7 +244,7 @@ export default function AssessmentPeriodsPage() {
       }
     },
     {
-      title: 'Baseline',
+      title: 'មូលដ្ឋាន',
       key: 'baseline',
       render: (_: any, record: AssessmentPeriod) => (
         <div>
@@ -253,17 +253,17 @@ export default function AssessmentPeriodsPage() {
               <div>{dayjs(record.baseline_start_date).format('DD/MM/YYYY')}</div>
               <div>to {dayjs(record.baseline_end_date).format('DD/MM/YYYY')}</div>
               {getCurrentPeriod(record) === 'baseline' && (
-                <Tag color="blue" icon={<ClockCircleOutlined />}>ACTIVE</Tag>
+                <Tag color="blue" icon={<ClockCircleOutlined />}>កំពុងដំណើរការ</Tag>
               )}
             </>
           ) : (
-            <span style={{ color: '#999' }}>Not set</span>
+            <span style={{ color: '#999' }}>មិនទាន់កំណត់</span>
           )}
         </div>
       )
     },
     {
-      title: 'Midline',
+      title: 'កុលសនភាព',
       key: 'midline',
       render: (_: any, record: AssessmentPeriod) => (
         <div>
@@ -272,17 +272,17 @@ export default function AssessmentPeriodsPage() {
               <div>{dayjs(record.midline_start_date).format('DD/MM/YYYY')}</div>
               <div>to {dayjs(record.midline_end_date).format('DD/MM/YYYY')}</div>
               {getCurrentPeriod(record) === 'midline' && (
-                <Tag color="orange" icon={<ClockCircleOutlined />}>ACTIVE</Tag>
+                <Tag color="orange" icon={<ClockCircleOutlined />}>កំពុងដំណើរការ</Tag>
               )}
             </>
           ) : (
-            <span style={{ color: '#999' }}>Not set</span>
+            <span style={{ color: '#999' }}>មិនទាន់កំណត់</span>
           )}
         </div>
       )
     },
     {
-      title: 'Endline',
+      title: 'បញ្ចប់',
       key: 'endline',
       render: (_: any, record: AssessmentPeriod) => (
         <div>
@@ -291,31 +291,31 @@ export default function AssessmentPeriodsPage() {
               <div>{dayjs(record.endline_start_date).format('DD/MM/YYYY')}</div>
               <div>to {dayjs(record.endline_end_date).format('DD/MM/YYYY')}</div>
               {getCurrentPeriod(record) === 'endline' && (
-                <Tag color="green" icon={<ClockCircleOutlined />}>ACTIVE</Tag>
+                <Tag color="green" icon={<ClockCircleOutlined />}>កំពុងដំណើរការ</Tag>
               )}
             </>
           ) : (
-            <span style={{ color: '#999' }}>Not set</span>
+            <span style={{ color: '#999' }}>មិនទាន់កំណត់</span>
           )}
         </div>
       )
     },
     {
-      title: 'Status',
+      title: 'ស្ថានភាព',
       key: 'status',
       render: (_: any, record: AssessmentPeriod) => (
         <Badge
           status={record.is_locked ? 'error' : 'success'}
-          text={record.is_locked ? 'Locked' : 'Active'}
+          text={record.is_locked ? 'ជាប់សោ' : 'កំពុងដំណើរការ'}
         />
       )
     },
     {
-      title: 'Actions',
+      title: 'សកម្មភាព',
       key: 'actions',
       render: (_: any, record: AssessmentPeriod) => (
         <Space size="small">
-          <Tooltip title="Edit Periods">
+          <Tooltip title="កែសម្រួលរយៈពេល">
             <Button
               type="link"
               icon={<EditOutlined />}
@@ -341,7 +341,7 @@ export default function AssessmentPeriodsPage() {
             />
           </Tooltip>
           
-          <Tooltip title={record.is_locked ? 'Unlock' : 'Lock'}>
+          <Tooltip title={record.is_locked ? 'ដោះសោ' : 'ចាក់សោ'}>
             <Button
               type="link"
               danger={record.is_locked}
@@ -366,12 +366,12 @@ export default function AssessmentPeriodsPage() {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Card title="Assessment Period Management">
+      <Card title="ការគ្រប់ឃ្រងរយៈពេលវាយតម្លៃ">
         <Row gutter={16} style={{ marginBottom: 24 }}>
           <Col span={4}>
             <Card>
               <Statistic
-                title="Total Schools"
+                title="សាលារៀនសរុប"
                 value={stats.total_schools}
                 prefix={<CalendarOutlined />}
               />
@@ -380,7 +380,7 @@ export default function AssessmentPeriodsPage() {
           <Col span={5}>
             <Card>
               <Statistic
-                title="Baseline Active"
+                title="មូលដ្ឋានកំពុងដំណើរការ"
                 value={stats.baseline_active}
                 valueStyle={{ color: '#1890ff' }}
               />
@@ -389,7 +389,7 @@ export default function AssessmentPeriodsPage() {
           <Col span={5}>
             <Card>
               <Statistic
-                title="Midline Active"
+                title="កុលសនភាពកំពុងដំណើរការ"
                 value={stats.midline_active}
                 valueStyle={{ color: '#faad14' }}
               />
@@ -398,7 +398,7 @@ export default function AssessmentPeriodsPage() {
           <Col span={5}>
             <Card>
               <Statistic
-                title="Endline Active"
+                title="បញ្ចប់កំពុងដំណើរការ"
                 value={stats.endline_active}
                 valueStyle={{ color: '#52c41a' }}
               />
@@ -407,7 +407,7 @@ export default function AssessmentPeriodsPage() {
           <Col span={5}>
             <Card>
               <Statistic
-                title="Locked"
+                title="ជាប់សោ"
                 value={stats.locked_schools}
                 valueStyle={{ color: '#ff4d4f' }}
                 prefix={<LockOutlined />}
@@ -417,8 +417,8 @@ export default function AssessmentPeriodsPage() {
         </Row>
 
         <Alert
-          message="Assessment Period Guidelines"
-          description="Configure assessment periods for each school. Assessments can only be entered during their respective active periods. Lock periods to prevent modifications."
+          message="ឌ្បង់ការវាយតម្លៃរយៈពេល"
+          description="កំណត់រយៈពេលវាយតម្លៃសម្រាប់សាលារៀននីមួយទើទែរ។ វាយតម្លៃត្រូវបានប៉ុណ្ណោះក្នុងរយៈពេលកំពុងដំណើរការមួយទេរបស់ពួកគេ។ ជាប់សោរយៈពេលដើម្បីបង្ការកែសម្រួល។"
           type="info"
           showIcon
           style={{ marginBottom: 24 }}
@@ -437,13 +437,13 @@ export default function AssessmentPeriodsPage() {
                   icon={<SettingOutlined />}
                   onClick={() => setBulkEditModalVisible(true)}
                 >
-                  Bulk Edit Periods
+                  កែសម្រួលរយៈពេលដោយក្រុម
                 </Button>
                 <Button 
                   size="small"
                   onClick={() => setSelectedSchools([])}
                 >
-                  Clear Selection
+                  សម្រាប់ការជ្រើសរើស
                 </Button>
               </Space>
             }
@@ -459,14 +459,14 @@ export default function AssessmentPeriodsPage() {
           loading={loading}
           pagination={{
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} schools`,
+            showTotal: (total) => `សាលារៀនសរុប ${total}`,
           }}
         />
       </Card>
 
       {/* Edit Single Period Modal */}
       <Modal
-        title={`Edit Assessment Periods - ${selectedPeriod?.school_name}`}
+        title={`កែសម្រួលរយៈពេលវាយតម្លៃ - ${selectedPeriod?.school_name}`}
         open={editModalVisible}
         onCancel={() => {
           setEditModalVisible(false);
@@ -485,7 +485,7 @@ export default function AssessmentPeriodsPage() {
             <Timeline.Item color="blue">
               <Form.Item
                 name="baseline"
-                label="Baseline Assessment Period"
+                label="រយៈពេលវាយតម្លៃមូលដ្ឋាន"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -494,7 +494,7 @@ export default function AssessmentPeriodsPage() {
             <Timeline.Item color="orange">
               <Form.Item
                 name="midline"
-                label="Midline Assessment Period"
+                label="រយៈពេលវាយតម្លៃកុលសនភាព"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -503,7 +503,7 @@ export default function AssessmentPeriodsPage() {
             <Timeline.Item color="green">
               <Form.Item
                 name="endline"
-                label="Endline Assessment Period"
+                label="រយៈពេលវាយតម្លៃបញ្ចប់"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -513,14 +513,14 @@ export default function AssessmentPeriodsPage() {
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
-                Save Changes
+                រក្សាទុកការផ្លាស់ប្តូរ
               </Button>
               <Button onClick={() => {
                 setEditModalVisible(false);
                 setSelectedPeriod(null);
                 form.resetFields();
               }}>
-                Cancel
+                បោះបង់
               </Button>
             </Space>
           </Form.Item>
@@ -529,7 +529,7 @@ export default function AssessmentPeriodsPage() {
 
       {/* Bulk Edit Modal */}
       <Modal
-        title={`Bulk Edit Assessment Periods (${selectedSchools.length} schools)`}
+        title={`កែសម្រួលរយៈពេលវាយតម្លៃដោយក្រុម (${selectedSchools.length} សាលារៀន)`}
         open={bulkEditModalVisible}
         onCancel={() => {
           setBulkEditModalVisible(false);
@@ -539,8 +539,8 @@ export default function AssessmentPeriodsPage() {
         width={700}
       >
         <Alert
-          message="Bulk Update Warning"
-          description="These periods will be applied to all selected schools. Existing periods will be overwritten."
+          message="ការប្រាប់ភ្នាក់ប្រេងការធ្វើបច្រើនដោយក្រុម"
+          description="រយៈពេលទាំងនេះនឹងត្រូវបានដំណើរការចំភោះសាលារៀនទាំងអស់ដែលបានជ្រើសរើស។ រយៈពេលដែលមានរក់រ៉ាប់នឹងត្រូវបានកត់បង្កើត់។"
           type="warning"
           showIcon
           style={{ marginBottom: 24 }}
@@ -555,7 +555,7 @@ export default function AssessmentPeriodsPage() {
             <Timeline.Item color="blue">
               <Form.Item
                 name="baseline"
-                label="Baseline Assessment Period"
+                label="រយៈពេលវាយតម្លៃមូលដ្ឋាន"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -564,7 +564,7 @@ export default function AssessmentPeriodsPage() {
             <Timeline.Item color="orange">
               <Form.Item
                 name="midline"
-                label="Midline Assessment Period"
+                label="រយៈពេលវាយតម្លៃកុលសនភាព"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -573,7 +573,7 @@ export default function AssessmentPeriodsPage() {
             <Timeline.Item color="green">
               <Form.Item
                 name="endline"
-                label="Endline Assessment Period"
+                label="រយៈពេលវាយតម្លៃបញ្ចប់"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -583,13 +583,13 @@ export default function AssessmentPeriodsPage() {
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
-                Apply to All Selected
+                ដំណើរការចំភោះទាំងអស់ដែលបានជ្រើសរើស
               </Button>
               <Button onClick={() => {
                 setBulkEditModalVisible(false);
                 bulkForm.resetFields();
               }}>
-                Cancel
+                បោះបង់
               </Button>
             </Space>
           </Form.Item>

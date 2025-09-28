@@ -23,7 +23,6 @@ import {
   QuestionCircleOutlined,
   SafetyOutlined,
   FolderOutlined,
-  AreaChartOutlined,
   AppstoreOutlined,
 } from '@ant-design/icons';
 import { useRouter, usePathname } from 'next/navigation';
@@ -78,13 +77,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         icon: <DashboardOutlined />,
         label: 'ផ្ទាំងគ្រប់គ្រង',
         onClick: () => router.push('/dashboard'),
-      });
-
-      items.push({
-        key: '/analytics-dashboard',
-        icon: <AreaChartOutlined />,
-        label: 'វិភាគ ផ្ទាំងគ្រប់គ្រង',
-        onClick: () => router.push('/analytics-dashboard'),
       });
     }
 
@@ -243,7 +235,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           },
           {
             key: '/administration',
-            label: 'រដ្ឋបាលទាំងអស់',
+            label: 'រដ្ឋបាល',
             onClick: () => router.push('/administration'),
           },
         ],
@@ -321,25 +313,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           ប្រវត្តិរូបរបស់ខ្ញុំ
         </span>
       ),
-      onClick: () => router.push('/profile'),
-      style: { 
-        minHeight: isMobile ? 48 : 36,
-        padding: isMobile ? '12px 16px' : '8px 12px',
-      },
-    },
-    {
-      key: 'profile-setup',
-      icon: <SettingOutlined />,
-      label: (
-        <span style={{ 
-          padding: isMobile ? '8px 0' : '4px 0',
-          fontSize: isMobile ? '15px' : '14px',
-          lineHeight: 1.4,
-        }}>
-          កំណត់ប្រវត្តិរូប
-        </span>
-      ),
-      onClick: () => router.push('/profile-setup'),
+      onClick: () => router.push('/profile/edit'),
       style: { 
         minHeight: isMobile ? 48 : 36,
         padding: isMobile ? '12px 16px' : '8px 12px',
@@ -357,7 +331,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           ផ្លាស់ពាក្យសម្ងាត់
         </span>
       ),
-      onClick: () => router.push('/profile#password'),
+      onClick: () => router.push('/profile/edit#password-update'),
       style: { 
         minHeight: isMobile ? 48 : 36,
         padding: isMobile ? '12px 16px' : '8px 12px',

@@ -269,13 +269,13 @@ function SelectStudentsContent() {
         return (
           <Space size="small">
             <Tag color={hasBaseline ? 'green' : 'default'}>
-              Baseline {hasBaseline ? '✓' : '✗'}
+              មូលដ្ឋាន {hasBaseline ? '✓' : '✗'}
             </Tag>
             <Tag color={hasMidline ? 'green' : 'default'}>
-              Midline {hasMidline ? '✓' : '✗'}
+              កុលសនភាព {hasMidline ? '✓' : '✗'}
             </Tag>
             <Tag color={hasEndline ? 'green' : 'default'}>
-              Endline {hasEndline ? '✓' : '✗'}
+              បញ្ចប់ {hasEndline ? '✓' : '✗'}
             </Tag>
           </Space>
         );

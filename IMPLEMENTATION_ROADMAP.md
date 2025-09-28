@@ -1,3 +1,4 @@
+# ORIGINAL LARAVEL PROJECT CODE BASE URL: /Users/chhinhsovath/Documents/GitHub/tarlprathom_laravel
 # TaRL Pratham Next.js - Complete Implementation Roadmap
 
 ## 🎯 Goal: 100% Laravel Feature Parity - Production Ready

@@ -356,15 +356,15 @@ export default function StudentDetailsPage({ params }: StudentDetailsPageProps) 
                   
                   <Row gutter={16} style={{ marginTop: '16px' }}>
                     <Col span={8}>
-                      <Text type="secondary">Baseline:</Text>
+                      <Text type="secondary">មូលដ្ឋាន:</Text>
                       <div>{assessmentHistory.stats.assessment_types.baseline}</div>
                     </Col>
                     <Col span={8}>
-                      <Text type="secondary">Midline:</Text>
+                      <Text type="secondary">កុលសនភាព:</Text>
                       <div>{assessmentHistory.stats.assessment_types.midline}</div>
                     </Col>
                     <Col span={8}>
-                      <Text type="secondary">Endline:</Text>
+                      <Text type="secondary">បញ្ចប់:</Text>
                       <div>{assessmentHistory.stats.assessment_types.endline}</div>
                     </Col>
                   </Row>
@@ -374,27 +374,27 @@ export default function StudentDetailsPage({ params }: StudentDetailsPageProps) 
           </Row>
         </TabPane>
 
-        <TabPane tab="Assessment Progress" key="progress">
+        <TabPane tab="ដំណើរការវាយតម្លៃ" key="progress">
           {assessmentHistory && (
             <Row gutter={24}>
               <Col span={12}>
-                <Card title="Khmer Language Progress" style={{ marginBottom: '24px' }}>
+                <Card title="ដំណើរការភាសាខ្មែរ" style={{ marginBottom: '24px' }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <Text strong>Current Levels:</Text>
+                    <Text strong>កម្រិតបច្ចុប្បន្ន:</Text>
                     <div style={{ marginTop: '8px' }}>
-                      <div>Baseline: {assessmentHistory.levelProgression.khmer.baseline ? (
+                      <div>មូលដ្ឋាន: {assessmentHistory.levelProgression.khmer.baseline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.baseline)}>
                           {assessmentHistory.levelProgression.khmer.baseline.toUpperCase()}
                         </Tag>
                       ) : <Text type="secondary">Not assessed</Text>}</div>
                       
-                      <div>Midline: {assessmentHistory.levelProgression.khmer.midline ? (
+                      <div>កុលសនភាព: {assessmentHistory.levelProgression.khmer.midline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.midline)}>
                           {assessmentHistory.levelProgression.khmer.midline.toUpperCase()}
                         </Tag>
                       ) : <Text type="secondary">Not assessed</Text>}</div>
                       
-                      <div>Endline: {assessmentHistory.levelProgression.khmer.endline ? (
+                      <div>បញ្ចប់: {assessmentHistory.levelProgression.khmer.endline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.endline)}>
                           {assessmentHistory.levelProgression.khmer.endline.toUpperCase()}
                         </Tag>
@@ -413,23 +413,23 @@ export default function StudentDetailsPage({ params }: StudentDetailsPageProps) 
               </Col>
 
               <Col span={12}>
-                <Card title="Mathematics Progress" style={{ marginBottom: '24px' }}>
+                <Card title="ដំណើរការគណិតវិទ្យា" style={{ marginBottom: '24px' }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <Text strong>Current Levels:</Text>
+                    <Text strong>កម្រិតបច្ចុប្បន្ន:</Text>
                     <div style={{ marginTop: '8px' }}>
-                      <div>Baseline: {assessmentHistory.levelProgression.math.baseline ? (
+                      <div>មូលដ្ឋាន: {assessmentHistory.levelProgression.math.baseline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.baseline)}>
                           {assessmentHistory.levelProgression.math.baseline.toUpperCase()}
                         </Tag>
                       ) : <Text type="secondary">Not assessed</Text>}</div>
                       
-                      <div>Midline: {assessmentHistory.levelProgression.math.midline ? (
+                      <div>កុលសនភាព: {assessmentHistory.levelProgression.math.midline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.midline)}>
                           {assessmentHistory.levelProgression.math.midline.toUpperCase()}
                         </Tag>
                       ) : <Text type="secondary">Not assessed</Text>}</div>
                       
-                      <div>Endline: {assessmentHistory.levelProgression.math.endline ? (
+                      <div>បញ្ចប់: {assessmentHistory.levelProgression.math.endline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.endline)}>
                           {assessmentHistory.levelProgression.math.endline.toUpperCase()}
                         </Tag>

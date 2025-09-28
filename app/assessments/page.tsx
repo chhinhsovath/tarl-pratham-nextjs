@@ -257,13 +257,13 @@ function AssessmentsContent() {
     {
       key: 'single',
       icon: <FileTextOutlined />,
-      label: 'Single Assessment',
+      label: 'វាយតម្លៃទារ្ទិច',
       onClick: () => router.push('/assessments/create')
     },
     {
       key: 'bulk',
       icon: <TeamOutlined />,
-      label: 'Bulk Assessment',
+      label: 'វាយតម្លៃរួមកាន់',
       onClick: () => router.push('/assessments/select-students')
     }
   ];
@@ -487,21 +487,21 @@ function AssessmentsContent() {
                 allowClear
                 style={{ width: '100%' }}
               >
-                <Option value="baseline">Baseline</Option>
-                <Option value="midline">Midline</Option>
-                <Option value="endline">Endline</Option>
+                <Option value="baseline">មូលដ្ឋាន</Option>
+                <Option value="midline">កុលសនភាព</Option>
+                <Option value="endline">បញ្ចប់</Option>
               </Select>
             </Col>
             
             <Col span={4}>
               <Select
-                placeholder="Subject"
+                placeholder="មុខវិច្ឆា"
                 value={filters.subject}
                 onChange={(value) => handleFilterChange('subject', value)}
                 allowClear
                 style={{ width: '100%' }}
               >
-                <Option value="khmer">Khmer</Option>
+                <Option value="khmer">ខ្មែរ</Option>
                 <Option value="math">Math</Option>
               </Select>
             </Col>

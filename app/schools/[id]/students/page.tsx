@@ -273,12 +273,12 @@ export default function SchoolStudentsPage() {
       'Guardian Name': s.guardian_name || '',
       'Guardian Phone': s.guardian_phone || '',
       'Address': s.address || '',
-      'Baseline Khmer': s.baseline_khmer_level || '',
-      'Baseline Math': s.baseline_math_level || '',
-      'Midline Khmer': s.midline_khmer_level || '',
-      'Midline Math': s.midline_math_level || '',
-      'Endline Khmer': s.endline_khmer_level || '',
-      'Endline Math': s.endline_math_level || '',
+      'មូលដ្ឋានខ្មែរ': s.baseline_khmer_level || '',
+      'មូលដ្ឋានគណិត': s.baseline_math_level || '',
+      'កុលសនភាពខ្មែរ': s.midline_khmer_level || '',
+      'កុលសនភាពគណិត': s.midline_math_level || '',
+      'បញ្ចប់ខ្មែរ': s.endline_khmer_level || '',
+      'បញ្ចប់គណិត': s.endline_math_level || '',
       'Status': s.is_active ? 'Active' : 'Inactive',
       'Created Date': new Date(s.created_at).toLocaleDateString()
     }));
@@ -340,13 +340,13 @@ export default function SchoolStudentsPage() {
         return (
           <Space size="small">
             <Tag color={baselineComplete ? 'blue' : 'default'}>
-              Baseline
+              មូលដ្ឋាន
             </Tag>
             <Tag color={midlineComplete ? 'orange' : 'default'}>
-              Midline
+              កុលសនភាព
             </Tag>
             <Tag color={endlineComplete ? 'green' : 'default'}>
-              Endline
+              បញ្ចប់
             </Tag>
           </Space>
         );
@@ -536,7 +536,7 @@ export default function SchoolStudentsPage() {
         <Col xs={12} lg={4}>
           <Card>
             <Statistic
-              title="Baseline"
+              title="មូលដ្ឋាន"
               value={stats.assessed_baseline}
               suffix={`/ ${stats.total}`}
             />
@@ -550,7 +550,7 @@ export default function SchoolStudentsPage() {
         <Col xs={12} lg={4}>
           <Card>
             <Statistic
-              title="Midline"
+              title="កុលសនភាព"
               value={stats.assessed_midline}
               suffix={`/ ${stats.total}`}
             />
@@ -564,7 +564,7 @@ export default function SchoolStudentsPage() {
         <Col xs={12} lg={4}>
           <Card>
             <Statistic
-              title="Endline"
+              title="បញ្ចប់"
               value={stats.assessed_endline}
               suffix={`/ ${stats.total}`}
             />

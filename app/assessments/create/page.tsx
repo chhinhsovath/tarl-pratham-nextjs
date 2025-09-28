@@ -388,9 +388,9 @@ function AssessmentCreateContent() {
                 className="w-full mt-2"
                 size="large"
               >
-                <Option value="baseline">មូលដ្ឋាន (Baseline)</Option>
-                <Option value="midline">កុលសនភាព (Midline)</Option>
-                <Option value="endline">បញ្ចប់ (Endline)</Option>
+                <Option value="baseline">មូលដ្ឋាន</Option>
+                <Option value="midline">កុលសនភាព</Option>
+                <Option value="endline">បញ្ចប់</Option>
               </Select>
             </div>
             

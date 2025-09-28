@@ -1,10 +1,10 @@
 'use client';
 
 import { Typography } from 'antd';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import UnifiedDashboard from '@/components/dashboards/UnifiedDashboard';
+import SimpleDashboard from '@/components/dashboards/SimpleDashboard';
 
 const { Text } = Typography;
 
@@ -21,17 +21,17 @@ export default function DashboardPage() {
 
   if (loading || !user) {
     return (
-      <DashboardLayout>
+      <HorizontalLayout>
         <div style={{ textAlign: 'center', padding: '50px' }}>
           <Text>កំពុងដំណើរការ...</Text>
         </div>
-      </DashboardLayout>
+      </HorizontalLayout>
     );
   }
 
   return (
-    <DashboardLayout>
-      <UnifiedDashboard />
-    </DashboardLayout>
+    <HorizontalLayout>
+      <SimpleDashboard />
+    </HorizontalLayout>
   );
 }
