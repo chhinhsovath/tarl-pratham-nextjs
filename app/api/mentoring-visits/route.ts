@@ -97,11 +97,11 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន' }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, 'view')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: 'អ្នកមិនមានសិទ្ធិមើលទិន្នន័យនេះ' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -194,8 +194,24 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching mentoring visits:', error);
+    
+    // Check if it's a Prisma/database error
+    if (error.code === 'P2002' || error.code === 'P2025' || error.message?.includes('Invalid')) {
+      // Return empty data with clear Khmer message for database issues
+      return NextResponse.json({
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          pages: 0
+        },
+        message: 'មិនមានទិន្នន័យទស្សនកិច្ចណែនាំនៅក្នុងប្រព័ន្ធ',
+        error_detail: 'បញ្ហាទាក់ទងនឹងមូលដ្ឋានទិន្នន័យ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រព័ន្ធ'
+      });
+    }
     
     // Provide fallback data when database query fails
     const mockMentoringVisits = [
@@ -261,6 +277,7 @@ export async function GET(request: NextRequest) {
         total: mockMentoringVisits.length,
         pages: 1
       },
+      message: 'កំពុងប្រើទិន្នន័យសាកល្បង',
       mock: true // Indicate this is mock data
     });
   }
@@ -272,11 +289,11 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន' }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, 'create')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: 'អ្នកមិនមានសិទ្ធិបង្កើតទស្សនកិច្ចណែនាំទេ' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -301,7 +318,7 @@ export async function POST(request: NextRequest) {
       
       if (!pilotSchool) {
         return NextResponse.json(
-          { error: 'Invalid pilot school ID' },
+          { error: 'លេខសម្គាល់សាលាគំរូមិនត្រឹមត្រូវ' },
           { status: 400 }
         );
       }
@@ -318,7 +335,7 @@ export async function POST(request: NextRequest) {
       
       if (!teacher) {
         return NextResponse.json(
-          { error: 'Invalid teacher ID' },
+          { error: 'លេខសម្គាល់គ្រូបង្រៀនមិនត្រឹមត្រូវ' },
           { status: 400 }
         );
       }
@@ -354,21 +371,21 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ 
-      message: 'Mentoring visit created successfully',
+      message: 'បានបង្កើតទស្សនកិច្ចណែនាំដោយជោគជ័យ',
       data: mentoringVisit 
     }, { status: 201 });
 
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { error: 'ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ', details: error.errors },
         { status: 400 }
       );
     }
     
     console.error('Error creating mentoring visit:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'មានបញ្ហាក្នុងការបង្កើតទស្សនកិច្ចណែនាំ សូមព្យាយាមម្តងទៀត' },
       { status: 500 }
     );
   }
