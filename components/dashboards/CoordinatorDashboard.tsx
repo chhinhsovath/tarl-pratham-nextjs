@@ -78,58 +78,50 @@ export default function CoordinatorDashboard({ userId, user }: CoordinatorDashbo
         </Tag>
       </div>
 
-      {/* Primary Statistics */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderLeft: '4px solid #1890ff' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 32, fontWeight: 'bold', color: '#1890ff', marginBottom: 8 }}>
-                {stats?.total_schools || 150}
-              </div>
-              <Title level={4} style={{ color: '#1890ff', margin: 0, marginBottom: 4 }}>
-                សាលារៀន
-              </Title>
-              <Text type="secondary">ចុះបញ្ជីសរុប</Text>
-            </div>
+      {/* Primary Statistics - Using verification page pattern */}
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col xs={12} sm={6}>
+          <Card>
+            <Statistic
+              title="សាលារៀន"
+              value={stats?.total_schools || 150}
+              valueStyle={{ color: '#1890ff' }}
+              prefix={<BankOutlined />}
+              suffix={<Text type="secondary" style={{ fontSize: 12 }}>ចុះបញ្ជីសរុប</Text>}
+            />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderLeft: '4px solid #52c41a' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 32, fontWeight: 'bold', color: '#52c41a', marginBottom: 8 }}>
-                {stats?.total_teachers || 420}
-              </div>
-              <Title level={4} style={{ color: '#52c41a', margin: 0, marginBottom: 4 }}>
-                គ្រូបង្រៀន
-              </Title>
-              <Text type="secondary">គណនីសកម្ម</Text>
-            </div>
+        <Col xs={12} sm={6}>
+          <Card>
+            <Statistic
+              title="គ្រូបង្រៀន"
+              value={stats?.total_teachers || 420}
+              valueStyle={{ color: '#52c41a' }}
+              prefix={<TeamOutlined />}
+              suffix={<Text type="secondary" style={{ fontSize: 12 }}>គណនីសកម្ម</Text>}
+            />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderLeft: '4px solid #faad14' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 32, fontWeight: 'bold', color: '#faad14', marginBottom: 8 }}>
-                {stats?.total_mentors || 85}
-              </div>
-              <Title level={4} style={{ color: '#faad14', margin: 0, marginBottom: 4 }}>
-                អ្នកណែនាំ
-              </Title>
-              <Text type="secondary">គណនីសកម្ម</Text>
-            </div>
+        <Col xs={12} sm={6}>
+          <Card>
+            <Statistic
+              title="អ្នកណែនាំ"
+              value={stats?.total_mentors || 85}
+              valueStyle={{ color: '#faad14' }}
+              prefix={<UserOutlined />}
+              suffix={<Text type="secondary" style={{ fontSize: 12 }}>គណនីសកម្ម</Text>}
+            />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderLeft: '4px solid #722ed1' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 32, fontWeight: 'bold', color: '#722ed1', marginBottom: 8 }}>
-                {stats?.total_coordinators || 12}
-              </div>
-              <Title level={4} style={{ color: '#722ed1', margin: 0, marginBottom: 4 }}>
-                អ្នកសម្របសម្រួល
-              </Title>
-              <Text type="secondary">គណនីសកម្ម</Text>
-            </div>
+        <Col xs={12} sm={6}>
+          <Card>
+            <Statistic
+              title="អ្នកសម្របសម្រួល"
+              value={stats?.total_coordinators || 12}
+              valueStyle={{ color: '#722ed1' }}
+              prefix={<SwitcherOutlined />}
+              suffix={<Text type="secondary" style={{ fontSize: 12 }}>គណនីសកម្ម</Text>}
+            />
           </Card>
         </Col>
       </Row>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Select, Card, Row, Col, Button, Radio, Space, Table, Spin } from 'antd';
+import { Select, Card, Row, Col, Button, Radio, Space, Table, Spin, Statistic } from 'antd';
 import { 
   UsergroupAddOutlined, 
   CheckCircleOutlined,
@@ -360,70 +360,54 @@ export default function UnifiedDashboard() {
           </div>
         )}
 
-        {/* Summary Statistics Cards */}
-        <Row gutter={[16, 16]} className="mb-8">
-          <Col xs={24} sm={12} lg={6}>
-            <div className="bg-blue-50 rounded-lg p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <UsergroupAddOutlined className="text-4xl text-blue-600" />
-                </div>
-                <div className="ml-5">
-                  <div className="text-sm font-medium text-gray-500">និស្សិតសរុប</div>
-                  <div className="text-3xl font-semibold text-gray-900">
-                    {loading ? '—' : stats.totalStudents.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* Summary Statistics Cards - Using verification page pattern */}
+        <Row gutter={16} className="mb-8">
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="និស្សិតសរុប"
+                value={loading ? 0 : stats.totalStudents}
+                valueStyle={{ color: '#1890ff' }}
+                prefix={<UsergroupAddOutlined />}
+                loading={loading}
+              />
+            </Card>
           </Col>
 
-          <Col xs={24} sm={12} lg={6}>
-            <div className="bg-green-50 rounded-lg p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <CheckCircleOutlined className="text-4xl text-green-600" />
-                </div>
-                <div className="ml-5">
-                  <div className="text-sm font-medium text-gray-500">ការវាយតម្លៃ</div>
-                  <div className="text-3xl font-semibold text-gray-900">
-                    {loading ? '—' : stats.totalAssessments.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            </div>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="ការវាយតម្លៃ"
+                value={loading ? 0 : stats.totalAssessments}
+                valueStyle={{ color: '#52c41a' }}
+                prefix={<CheckCircleOutlined />}
+                loading={loading}
+              />
+            </Card>
           </Col>
 
-          <Col xs={24} sm={12} lg={6}>
-            <div className="bg-yellow-50 rounded-lg p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <BankOutlined className="text-4xl text-yellow-600" />
-                </div>
-                <div className="ml-5">
-                  <div className="text-sm font-medium text-gray-500">សាលារៀន</div>
-                  <div className="text-3xl font-semibold text-gray-900">
-                    {loading ? '—' : stats.totalSchools.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            </div>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="សាលារៀន"
+                value={loading ? 0 : stats.totalSchools}
+                valueStyle={{ color: '#faad14' }}
+                prefix={<BankOutlined />}
+                loading={loading}
+              />
+            </Card>
           </Col>
 
-          <Col xs={24} sm={12} lg={6}>
-            <div className="bg-purple-50 rounded-lg p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <TeamOutlined className="text-4xl text-purple-600" />
-                </div>
-                <div className="ml-5">
-                  <div className="text-sm font-medium text-gray-500">ដំណើរទស្សនកិច្ច</div>
-                  <div className="text-3xl font-semibold text-gray-900">
-                    {loading ? '—' : stats.totalMentoringVisits.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            </div>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="ដំណើរទស្សនកិច្ច"
+                value={loading ? 0 : stats.totalMentoringVisits}
+                valueStyle={{ color: '#722ed1' }}
+                prefix={<TeamOutlined />}
+                loading={loading}
+              />
+            </Card>
           </Col>
         </Row>
 

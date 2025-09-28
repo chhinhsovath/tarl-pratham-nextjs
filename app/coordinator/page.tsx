@@ -307,8 +307,9 @@ function CoordinatorWorkspaceContent() {
       </Card>
 
       {/* Stats Overview */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} lg={6}>
+      {/* Statistics Cards - Using verification page pattern */}
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col xs={12} sm={6}>
           <Card>
             <Statistic
               title="Total Schools"
@@ -318,7 +319,7 @@ function CoordinatorWorkspaceContent() {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={12} sm={6}>
           <Card>
             <Statistic
               title="Total Teachers"
@@ -328,7 +329,7 @@ function CoordinatorWorkspaceContent() {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={12} sm={6}>
           <Card>
             <Statistic
               title="Total Students"
@@ -338,7 +339,7 @@ function CoordinatorWorkspaceContent() {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={12} sm={6}>
           <Card>
             <Statistic
               title="Pending Verifications"
@@ -347,9 +348,9 @@ function CoordinatorWorkspaceContent() {
               valueStyle={{ color: stats.pending_verifications > 0 ? '#faad14' : '#52c41a' }}
             />
             {stats.pending_verifications > 0 && (
-              <Button 
-                type="link" 
-                size="small" 
+              <Button
+                type="link"
+                size="small"
                 onClick={() => router.push('/assessments/verify')}
                 style={{ padding: 0, marginTop: 8 }}
               >
