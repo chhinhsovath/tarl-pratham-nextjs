@@ -202,57 +202,81 @@ export default function SimpleDashboard() {
       </h1>
 
       <Spin spinning={loading}>
-        {/* Statistics Cards - Laravel style with colored backgrounds */}
+        {/* Statistics Cards - Refined style following verification page design */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           {/* Total Students Card */}
-          <div className="bg-blue-50 rounded-lg p-6 flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <TeamOutlined className="text-white text-xl" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                    <TeamOutlined className="text-blue-600 text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-0">និស្សិតសរុប</p>
+                    <p className="text-2xl font-bold text-gray-900 mb-0" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
+                      {stats.totalStudents.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="ml-5">
-              <div className="text-xs font-medium text-blue-600 uppercase tracking-wider">និស្សិតសរុប</div>
-              <div className="text-3xl font-semibold text-gray-900">{stats.totalStudents}</div>
             </div>
           </div>
 
           {/* Total Assessments Card */}
-          <div className="bg-green-50 rounded-lg p-6 flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                <FileTextOutlined className="text-white text-xl" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                    <FileTextOutlined className="text-green-600 text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-0">ការវាយតម្លៃសរុប</p>
+                    <p className="text-2xl font-bold text-gray-900 mb-0" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
+                      {stats.totalAssessments.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="ml-5">
-              <div className="text-xs font-medium text-green-600 uppercase tracking-wider">ការវាយតម្លៃ</div>
-              <div className="text-3xl font-semibold text-gray-900">{stats.totalAssessments}</div>
             </div>
           </div>
 
           {/* Total Schools Card */}
-          <div className="bg-yellow-50 rounded-lg p-6 flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center">
-                <BankOutlined className="text-white text-xl" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                    <BankOutlined className="text-yellow-600 text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-0">សាលារៀន</p>
+                    <p className="text-2xl font-bold text-gray-900 mb-0" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
+                      {stats.totalSchools.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="ml-5">
-              <div className="text-xs font-medium text-yellow-600 uppercase tracking-wider">សាលារៀន</div>
-              <div className="text-3xl font-semibold text-gray-900">{stats.totalSchools}</div>
             </div>
           </div>
 
           {/* Total Mentoring Visits Card */}
-          <div className="bg-purple-50 rounded-lg p-6 flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
-                <SolutionOutlined className="text-white text-xl" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                    <SolutionOutlined className="text-purple-600 text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-0">ដំណើរទស្សនកិច្ច</p>
+                    <p className="text-2xl font-bold text-gray-900 mb-0" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
+                      {stats.totalMentoringVisits.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="ml-5">
-              <div className="text-xs font-medium text-purple-600 uppercase tracking-wider">ដំណើរទស្សនកិច្ច</div>
-              <div className="text-3xl font-semibold text-gray-900">{stats.totalMentoringVisits}</div>
             </div>
           </div>
         </div>

@@ -90,57 +90,81 @@ export default function SimpleReportsPage() {
           </p>
         </div>
 
-        {/* Statistics Cards - Dashboard style with colored backgrounds */}
+        {/* Statistics Cards - Clean white design following verification page */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total Students Card */}
-          <div className="bg-blue-50 rounded-lg p-6 flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <TeamOutlined className="text-white text-xl" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                    <TeamOutlined className="text-blue-600 text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-0">សិស្សសរុប</p>
+                    <p className="text-2xl font-bold text-gray-900 mb-0">
+                      {stats.totalStudents.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="ml-5">
-              <div className="text-xs font-medium text-blue-600 uppercase tracking-wider">សិស្សសរុប</div>
-              <div className="text-3xl font-semibold text-gray-900">{stats.totalStudents.toLocaleString()}</div>
             </div>
           </div>
 
           {/* Total Assessments Card */}
-          <div className="bg-green-50 rounded-lg p-6 flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                <FileTextOutlined className="text-white text-xl" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                    <FileTextOutlined className="text-green-600 text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-0">ការវាយតម្លៃសរុប</p>
+                    <p className="text-2xl font-bold text-gray-900 mb-0">
+                      {stats.totalAssessments.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="ml-5">
-              <div className="text-xs font-medium text-green-600 uppercase tracking-wider">ការវាយតម្លៃសរុប</div>
-              <div className="text-3xl font-semibold text-gray-900">{stats.totalAssessments.toLocaleString()}</div>
             </div>
           </div>
 
           {/* Completion Rate Card */}
-          <div className="bg-yellow-50 rounded-lg p-6 flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center">
-                <PercentageOutlined className="text-white text-xl" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                    <PercentageOutlined className="text-yellow-600 text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-0">អត្រាបញ្ចប់</p>
+                    <p className="text-2xl font-bold text-gray-900 mb-0">
+                      {stats.completionRate}%
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="ml-5">
-              <div className="text-xs font-medium text-yellow-600 uppercase tracking-wider">អត្រាបញ្ចប់</div>
-              <div className="text-3xl font-semibold text-gray-900">{stats.completionRate}%</div>
             </div>
           </div>
 
           {/* Average Score Card */}
-          <div className="bg-purple-50 rounded-lg p-6 flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
-                <TrophyOutlined className="text-white text-xl" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                    <TrophyOutlined className="text-purple-600 text-lg" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-0">ពិន្ទុមធ្យម</p>
+                    <p className="text-2xl font-bold text-gray-900 mb-0">
+                      {stats.averageScore}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="ml-5">
-              <div className="text-xs font-medium text-purple-600 uppercase tracking-wider">ពិន្ទុមធ្យម</div>
-              <div className="text-3xl font-semibold text-gray-900">{stats.averageScore}</div>
             </div>
           </div>
         </div>
