@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { teacherRepository, type Student, type ClassPerformance, type PendingTask } from '@/lib/services/TeacherRepository';
 import { hasPermission } from '@/lib/permissions';
 
