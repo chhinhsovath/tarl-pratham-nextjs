@@ -6,6 +6,7 @@ import "./globals.css";
 import StyledComponentsRegistry from "@/lib/antd-registry";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
 import AntdProvider from "@/components/providers/AntdProvider";
+import WarningSuppressor from "@/components/providers/WarningSuppressor";
 
 const hanuman = Hanuman({ 
   subsets: ["khmer"],
@@ -41,13 +42,15 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png" />
       </head>
       <body className={`${hanuman.variable} font-khmer bg-white`} style={{ fontFamily: "'Hanuman', 'Khmer OS', sans-serif", backgroundColor: 'white' }}>
-        <AuthSessionProvider>
-          <StyledComponentsRegistry>
-            <AntdProvider>
-              {children}
-            </AntdProvider>
-          </StyledComponentsRegistry>
-        </AuthSessionProvider>
+        <WarningSuppressor>
+          <AuthSessionProvider>
+            <StyledComponentsRegistry>
+              <AntdProvider>
+                {children}
+              </AntdProvider>
+            </StyledComponentsRegistry>
+          </AuthSessionProvider>
+        </WarningSuppressor>
       </body>
     </html>
   );
