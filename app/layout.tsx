@@ -7,6 +7,9 @@ import StyledComponentsRegistry from "@/lib/antd-registry";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
 import AntdProvider from "@/components/providers/AntdProvider";
 import WarningSuppressor from "@/components/providers/WarningSuppressor";
+import PWAProvider from "@/components/providers/PWAProvider";
+import OfflineIndicator from "@/components/mobile/OfflineIndicator";
+import BottomNavigation from "@/components/mobile/BottomNavigation";
 
 const hanuman = Hanuman({ 
   subsets: ["khmer"],
@@ -46,7 +49,11 @@ export default function RootLayout({
           <AuthSessionProvider>
             <StyledComponentsRegistry>
               <AntdProvider>
-                {children}
+                <PWAProvider>
+                  <OfflineIndicator />
+                  {children}
+                  <BottomNavigation />
+                </PWAProvider>
               </AntdProvider>
             </StyledComponentsRegistry>
           </AuthSessionProvider>
