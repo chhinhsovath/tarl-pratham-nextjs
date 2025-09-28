@@ -32,7 +32,7 @@ export default function TestRolesPage() {
 
   return (
     <HorizontalLayout>
-      <div className="max-w-7xl mx-auto p-8">
+      <div className="w-full p-8">
         <h1 className="text-2xl font-bold mb-6">ការសាកល្បងសិទ្ធិប្រើប្រាស់តាមតួនាទី</h1>
         <div className="text-sm text-gray-500 mb-8">
           Role-Based Access Control Testing - Matching Laravel Exactly

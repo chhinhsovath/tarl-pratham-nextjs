@@ -319,7 +319,7 @@ function SchoolsPageContent() {
   };
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div className="w-full">
       {/* Breadcrumb */}
       <Breadcrumb style={{ marginBottom: "16px" }}>
         <Breadcrumb.Item>

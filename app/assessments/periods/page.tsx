@@ -365,7 +365,7 @@ function AssessmentPeriodsPageContent() {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       <Card title="ការគ្រប់ឃ្រងរយៈពេលវាយតម្លៃ">
         <Row gutter={16} style={{ marginBottom: 24 }}>
           <Col span={4}>

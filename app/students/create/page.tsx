@@ -51,7 +51,7 @@ function CreateStudentPageContent() {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       <StudentForm 
         mode="create" 
         onSubmit={handleSubmit}

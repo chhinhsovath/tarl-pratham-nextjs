@@ -582,7 +582,7 @@ function BulkImportPageContent() {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       <Card title="Bulk Data Import">
         <Steps current={currentStep} style={{ marginBottom: 32 }}>
           <Step title="Select & Upload" icon={<UploadOutlined />} />

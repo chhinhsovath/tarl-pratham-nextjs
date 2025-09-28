@@ -234,9 +234,9 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header Navigation - Matching Laravel exactly */}
+      {/* Header Navigation - Full Width */}
       <nav className="bg-white shadow h-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
@@ -326,9 +326,9 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
         )}
       </nav>
 
-      {/* Main Content Area - Matching Laravel */}
+      {/* Main Content Area - Full Width */}
       <main className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-6 lg:px-8">
           {children}
         </div>
       </main>

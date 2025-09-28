@@ -200,7 +200,7 @@ function BulkImportStudentsPageContent() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       <Card>
         <Title level={2}>Bulk Import Students</Title>
         

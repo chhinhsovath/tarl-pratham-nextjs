@@ -340,7 +340,7 @@ function SchoolTeachersPageContent() {
   }));
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       {/* School Header */}
       <Card style={{ marginBottom: 24 }}>
         <Row align="middle">

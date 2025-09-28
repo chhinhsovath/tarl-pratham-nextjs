@@ -274,7 +274,7 @@ function CoordinatorWorkspaceContent() {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       {/* Header */}
       <Card style={{ marginBottom: 24 }}>
         <Row align="middle">

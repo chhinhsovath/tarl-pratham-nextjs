@@ -104,7 +104,7 @@ function AssessmentDataEntryContent() {
 
   if (loading) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="w-full">
         <Card>
           <div style={{ textAlign: 'center', padding: '50px' }}>
             Loading student data...
@@ -115,7 +115,7 @@ function AssessmentDataEntryContent() {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       <Card style={{ marginBottom: '24px' }}>
         <Title level={2}>Bulk Assessment Data Entry</Title>
         <Space size="large">

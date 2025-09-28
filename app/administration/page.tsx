@@ -246,7 +246,7 @@ function AdministrationPageContent() {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       <div style={{ marginBottom: '32px', textAlign: 'center' }}>
         <Title level={2}>
           <SettingOutlined style={{ marginRight: '12px', color: '#1890ff' }} />

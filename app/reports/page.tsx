@@ -73,7 +73,7 @@ export default function SimpleReportsPage() {
 
   return (
     <HorizontalLayout>
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full">
         {/* Page Header - Laravel style */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">របាយការណ៍</h1>

@@ -284,7 +284,7 @@ function SelectStudentsContent() {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       <Card>
         <div style={{ marginBottom: '24px' }}>
           <Title level={2}>Select Students for Assessment</Title>

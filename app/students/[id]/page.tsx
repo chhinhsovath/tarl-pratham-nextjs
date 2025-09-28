@@ -191,7 +191,7 @@ function StudentDetailsPageContent({ params }: StudentDetailsPageProps) {
 
   if (loading) {
     return (
-      <div style={{ padding: '24px' }}>
+      <div className="w-full">
         <Card>
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <Spin size="large" />
@@ -207,7 +207,7 @@ function StudentDetailsPageContent({ params }: StudentDetailsPageProps) {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       {/* Header */}
       <Card style={{ marginBottom: '24px' }}>
         <Row gutter={24} align="middle">

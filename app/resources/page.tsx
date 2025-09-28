@@ -335,7 +335,7 @@ function ResourcesPageContent() {
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="w-full">
       <div style={{ marginBottom: '24px' }}>
         <Title level={2}>
           <FolderOutlined style={{ marginRight: '8px' }} />
