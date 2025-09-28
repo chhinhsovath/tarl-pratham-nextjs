@@ -5,6 +5,7 @@ import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import SimpleDashboard from '@/components/dashboards/SimpleDashboard';
+import OnboardingTour from '@/components/tour/OnboardingTour';
 
 const { Text } = Typography;
 
@@ -32,6 +33,8 @@ export default function DashboardPage() {
   return (
     <HorizontalLayout>
       <SimpleDashboard />
+      {/* Dashboard-specific tour */}
+      <OnboardingTour page="dashboard" autoStart={true} showStartButton={false} />
     </HorizontalLayout>
   );
 }

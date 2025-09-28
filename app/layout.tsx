@@ -8,6 +8,7 @@ import AuthSessionProvider from "@/components/providers/SessionProvider";
 import AntdProvider from "@/components/providers/AntdProvider";
 import WarningSuppressor from "@/components/providers/WarningSuppressor";
 import PWAProvider from "@/components/providers/PWAProvider";
+import TourProvider from "@/components/tour/TourProvider";
 import OfflineIndicator from "@/components/mobile/OfflineIndicator";
 import BottomNavigation from "@/components/mobile/BottomNavigation";
 
@@ -50,9 +51,11 @@ export default function RootLayout({
             <StyledComponentsRegistry>
               <AntdProvider>
                 <PWAProvider>
-                  <OfflineIndicator />
-                  {children}
-                  <BottomNavigation />
+                  <TourProvider>
+                    <OfflineIndicator />
+                    {children}
+                    <BottomNavigation />
+                  </TourProvider>
                 </PWAProvider>
               </AntdProvider>
             </StyledComponentsRegistry>

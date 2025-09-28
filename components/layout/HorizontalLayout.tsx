@@ -15,6 +15,7 @@ import {
 import { useRouter, usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
+import OnboardingTour from '@/components/tour/OnboardingTour';
 
 interface HorizontalLayoutProps {
   children: React.ReactNode;
@@ -332,6 +333,9 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
           {children}
         </div>
       </main>
+
+      {/* Onboarding Tour */}
+      <OnboardingTour page="navigation" autoStart={false} showStartButton={true} />
     </div>
   );
 }

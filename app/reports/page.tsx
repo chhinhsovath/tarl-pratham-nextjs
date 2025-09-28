@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { TeamOutlined, FileTextOutlined, PercentageOutlined, TrophyOutlined, BarChartOutlined, BankOutlined, UserOutlined, ClockIcon } from '@ant-design/icons';
+import OnboardingTour from '@/components/tour/OnboardingTour';
 
 export default function SimpleReportsPage() {
   const router = useRouter();
@@ -282,6 +283,9 @@ export default function SimpleReportsPage() {
           </button>
         </div>
       </div>
+
+      {/* Reports-specific tour */}
+      <OnboardingTour page="reports" autoStart={true} showStartButton={false} />
     </HorizontalLayout>
   );
 }

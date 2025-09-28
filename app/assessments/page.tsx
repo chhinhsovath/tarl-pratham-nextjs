@@ -34,6 +34,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
+import OnboardingTour from '@/components/tour/OnboardingTour';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -602,6 +603,8 @@ export default function AssessmentsPage() {
   return (
     <HorizontalLayout>
       <AssessmentsContent />
+      {/* Assessments-specific tour */}
+      <OnboardingTour page="assessments" autoStart={true} showStartButton={false} />
     </HorizontalLayout>
   );
 }

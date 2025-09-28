@@ -28,11 +28,11 @@ import {
   TeamOutlined,
   BarChartOutlined,
   CheckCircleOutlined,
+  PlayCircleOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
   SearchOutlined,
   DownloadOutlined,
-  PlayCircleOutlined,
   FileSearchOutlined,
   FormOutlined,
   SolutionOutlined,
@@ -40,6 +40,7 @@ import {
   DatabaseOutlined
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
+import TourControlPanel from '@/components/tour/TourControlPanel';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -55,6 +56,25 @@ export default function HelpPage() {
 
   // FAQ សំណួរដែលសួរញឹកញាប់
   const faqData = [
+    {
+      key: '0',
+      category: 'ការណែនាំប្រព័ន្ធ',
+      icon: <PlayCircleOutlined />,
+      questions: [
+        {
+          q: 'តើខ្ញុំអាចទទួលបានការណែនាំប្រព័ន្ធដោយរបៀបណា?',
+          a: 'ចុចលើប៊ូតុង "🎯 ការណែនាំប្រព័ន្ធ" នៅជ្រុងខាងស្តាំបាត ឬចូលទៅផ្នែក "ការណែនាំប្រព័ន្ធ" ខាងក្រោមនេះ។'
+        },
+        {
+          q: 'តើការណែនាំនឹងដំណើរការជាស្វ័យប្រវត្តិឬ?',
+          a: 'ការណែនាំនឹងដំណើរការស្វ័យប្រវត្តិនៅលើកដំបូងដែលអ្នកចូលទៅទំព័រនីមួយៗ។ អ្នកអាចបិទឬបើកមុខងារនេះនៅក្នុងការកំណត់។'
+        },
+        {
+          q: 'តើខ្ញុំអាចធ្វើការណែនាំម្តងទៀតបានទេ?',
+          a: 'បាទ/ចាស អ្នកអាចធ្វើការណែនាំម្តងទៀតនៅពេលណាក៏បាន។ ចុច "ធ្វើម្តងទៀត" នៅក្រោមការណែនាំនីមួយៗ។'
+        }
+      ]
+    },
     {
       key: '1',
       category: 'ការចូលប្រើប្រាស់',
@@ -503,6 +523,11 @@ export default function HelpPage() {
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
           </Card>
+        </div>
+
+        {/* System Tours Section */}
+        <div id="tours" className="mb-8">
+          <TourControlPanel />
         </div>
 
         <div id="mentoring" className="mb-8">
