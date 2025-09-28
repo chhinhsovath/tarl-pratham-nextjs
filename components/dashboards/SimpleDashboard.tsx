@@ -202,62 +202,49 @@ export default function SimpleDashboard() {
       </h1>
 
       <Spin spinning={loading}>
-        {/* Statistics - Single line responsive layout like verification page */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {/* Total Students */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-                  <TeamOutlined className="text-blue-600 text-xl" />
-                </div>
-                <p className="text-xs font-medium text-gray-600 mb-1">និស្សិតសរុប</p>
-                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
-                  {stats.totalStudents.toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            {/* Total Assessments */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-2">
-                  <FileTextOutlined className="text-green-600 text-xl" />
-                </div>
-                <p className="text-xs font-medium text-gray-600 mb-1">ការវាយតម្លៃសរុប</p>
-                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
-                  {stats.totalAssessments.toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            {/* Total Schools */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-2">
-                  <BankOutlined className="text-yellow-600 text-xl" />
-                </div>
-                <p className="text-xs font-medium text-gray-600 mb-1">សាលារៀន</p>
-                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
-                  {stats.totalSchools.toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            {/* Total Mentoring Visits */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
-                  <SolutionOutlined className="text-purple-600 text-xl" />
-                </div>
-                <p className="text-xs font-medium text-gray-600 mb-1">ដំណើរទស្សនកិច្ច</p>
-                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: '"Hanuman", "Khmer OS", sans-serif' }}>
-                  {stats.totalMentoringVisits.toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Statistics Cards - EXACTLY like verification page */}
+        <Row gutter={16} className="mb-6">
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="និស្សិតសរុប"
+                value={stats.totalStudents}
+                valueStyle={{ color: '#1890ff' }}
+                prefix={<TeamOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="ការវាយតម្លៃសរុប"
+                value={stats.totalAssessments}
+                valueStyle={{ color: '#52c41a' }}
+                prefix={<FileTextOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="សាលារៀន"
+                value={stats.totalSchools}
+                valueStyle={{ color: '#faad14' }}
+                prefix={<BankOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="ដំណើរទស្សនកិច្ច"
+                value={stats.totalMentoringVisits}
+                valueStyle={{ color: '#722ed1' }}
+                prefix={<SolutionOutlined />}
+              />
+            </Card>
+          </Col>
+        </Row>
 
         {/* Filters - Laravel style */}
         {showFilters && (

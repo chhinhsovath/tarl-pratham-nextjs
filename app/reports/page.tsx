@@ -5,6 +5,7 @@ import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { Card, Row, Col, Statistic } from 'antd';
 import { TeamOutlined, FileTextOutlined, PercentageOutlined, TrophyOutlined, BarChartOutlined, BankOutlined, UserOutlined, ClockIcon } from '@ant-design/icons';
 import OnboardingTour from '@/components/tour/OnboardingTour';
 
@@ -90,62 +91,50 @@ export default function SimpleReportsPage() {
           </p>
         </div>
 
-        {/* Statistics - Single line responsive layout like verification page */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {/* Total Students */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-                  <TeamOutlined className="text-blue-600 text-xl" />
-                </div>
-                <p className="text-xs font-medium text-gray-600 mb-1">សិស្សសរុប</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.totalStudents.toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            {/* Total Assessments */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-2">
-                  <FileTextOutlined className="text-green-600 text-xl" />
-                </div>
-                <p className="text-xs font-medium text-gray-600 mb-1">ការវាយតម្លៃសរុប</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.totalAssessments.toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            {/* Completion Rate */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-2">
-                  <PercentageOutlined className="text-yellow-600 text-xl" />
-                </div>
-                <p className="text-xs font-medium text-gray-600 mb-1">អត្រាបញ្ចប់</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.completionRate}%
-                </p>
-              </div>
-            </div>
-
-            {/* Average Score */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
-                  <TrophyOutlined className="text-purple-600 text-xl" />
-                </div>
-                <p className="text-xs font-medium text-gray-600 mb-1">ពិន្ទុមធ្យម</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.averageScore}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Statistics Cards - EXACTLY like verification page */}
+        <Row gutter={16} className="mb-8">
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="សិស្សសរុប"
+                value={stats.totalStudents}
+                valueStyle={{ color: '#1890ff' }}
+                prefix={<TeamOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="ការវាយតម្លៃសរុប"
+                value={stats.totalAssessments}
+                valueStyle={{ color: '#52c41a' }}
+                prefix={<FileTextOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="អត្រាបញ្ចប់"
+                value={stats.completionRate}
+                suffix="%"
+                valueStyle={{ color: '#faad14' }}
+                prefix={<PercentageOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card>
+              <Statistic
+                title="ពិន្ទុមធ្យម"
+                value={stats.averageScore}
+                valueStyle={{ color: '#722ed1' }}
+                prefix={<TrophyOutlined />}
+              />
+            </Card>
+          </Col>
+        </Row>
 
         {/* Clean Report Cards Grid - Following codebase patterns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
