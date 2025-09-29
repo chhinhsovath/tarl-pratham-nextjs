@@ -25,9 +25,9 @@ const convertSteps = (steps: TourStep[]) => {
   return steps.map(step => ({
     selector: step.target || 'body',
     content: (
-      <div className="font-khmer" style={{ minWidth: '280px' }}>
-        {step.title && <h4 className="text-lg font-semibold mb-3">{step.title}</h4>}
-        <p className="text-sm leading-relaxed">{step.content}</p>
+      <div className="font-khmer" style={{ minWidth: '320px', padding: '8px' }}>
+        {step.title && <h4 className="text-lg font-semibold mb-4" style={{ marginLeft: '4px' }}>{step.title}</h4>}
+        <p className="text-sm leading-loose" style={{ marginLeft: '4px', marginRight: '4px' }}>{step.content}</p>
       </div>
     ),
     position: step.placement || 'bottom',
@@ -257,9 +257,11 @@ export default function OnboardingTour(props: OnboardingTourProps) {
     styles: {
       popover: (base: any) => ({
         ...base,
-        borderRadius: '12px',
+        borderRadius: '16px', // Slightly more rounded
         padding: 0,
         fontFamily: '"Hanuman", "Khmer OS", sans-serif',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)', // Better shadow
+        minWidth: '360px', // Minimum width for the whole popup
       }),
       maskArea: (base: any) => ({
         ...base,
@@ -271,14 +273,16 @@ export default function OnboardingTour(props: OnboardingTourProps) {
       }),
       controls: (base: any) => ({
         ...base,
-        padding: '16px 20px',
+        padding: '20px 24px', // More padding in controls area
         borderTop: '1px solid #f0f0f0',
+        marginTop: '8px',
       }),
       content: (base: any) => ({
         ...base,
-        padding: '28px 32px', // Increased padding for better text clarity
-        fontSize: '14px',
-        lineHeight: '1.8', // Slightly increased line height
+        padding: '36px 40px', // Much more padding for better text clarity
+        fontSize: '15px', // Slightly larger font
+        lineHeight: '1.9', // Better line height for readability
+        minWidth: '320px', // Minimum width for content area
       }),
     },
     className: 'tour-popover',
@@ -334,20 +338,47 @@ export default function OnboardingTour(props: OnboardingTourProps) {
       <style jsx global>{`
         .tour-popover {
           max-width: 90vw !important;
+          min-width: 360px !important;
+        }
+
+        /* Ensure proper padding for tour content */
+        .tour-popover [data-tour-elem="content"] {
+          padding: 36px 40px !important;
+        }
+
+        /* Better text spacing */
+        .tour-popover p {
+          margin-bottom: 12px !important;
+          line-height: 1.9 !important;
+        }
+
+        .tour-popover h4 {
+          margin-bottom: 16px !important;
         }
 
         @media (max-width: 768px) {
           .tour-popover {
-            max-width: 95vw !important;
+            max-width: calc(100vw - 20px) !important;
+            min-width: calc(100vw - 20px) !important;
             margin: 10px !important;
           }
 
+          /* Adjust padding for mobile */
+          .tour-popover [data-tour-elem="content"] {
+            padding: 24px 28px !important;
+          }
+
           .tour-popover div {
-            font-size: 13px !important;
+            font-size: 14px !important;
           }
 
           .tour-popover h4 {
-            font-size: 16px !important;
+            font-size: 17px !important;
+          }
+
+          /* Better button spacing on mobile */
+          .tour-popover [data-tour-elem="controls"] {
+            padding: 16px 20px !important;
           }
         }
 
@@ -358,10 +389,17 @@ export default function OnboardingTour(props: OnboardingTourProps) {
 
         [data-tour-elem="popover"] {
           z-index: 10000 !important;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
         }
 
         [data-tour-elem="badge"] {
           z-index: 10001 !important;
+        }
+
+        /* Ensure text doesn't touch edges */
+        .tour-popover .font-khmer {
+          padding-left: 8px !important;
+          padding-right: 8px !important;
         }
       `}</style>
     </TourProvider>
