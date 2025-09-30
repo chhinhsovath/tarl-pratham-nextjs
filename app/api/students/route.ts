@@ -220,15 +220,8 @@ export async function POST(request: NextRequest) {
       session.user.test_mode_enabled || false
     );
 
-    // For mentors, automatically set their pilot school
-    if (session.user.role === "mentor") {
-      if (!session.user.pilot_school_id) {
-        return NextResponse.json(
-          { error: "Mentor must be assigned to a pilot school" },
-          { status: 400 }
-        );
-      }
-
+    // For mentors, automatically set their pilot school if they have one
+    if (session.user.role === "mentor" && session.user.pilot_school_id) {
       validatedData.pilot_school_id = session.user.pilot_school_id;
     }
 
