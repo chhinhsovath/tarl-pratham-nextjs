@@ -75,18 +75,9 @@ export async function GET(request: NextRequest) {
     
     const skip = (page - 1) * limit;
     
-    // Build where clause - exclude expired temporary records
-    const where: any = { 
-      is_active: true,
-      OR: [
-        { is_temporary: false },
-        {
-          AND: [
-            { is_temporary: true },
-            { expires_at: { gt: new Date() } }
-          ]
-        }
-      ]
+    // Build where clause
+    const where: any = {
+      is_active: true
     };
     
     if (search) {
@@ -312,10 +303,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    
+
     // Validate input
     const validatedData = studentSchema.parse(body);
-    
+
     // For mentors, automatically set their pilot school and mark as temporary
     if (session.user.role === "mentor") {
       if (!session.user.pilot_school_id) {
@@ -324,9 +315,15 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      
+
       validatedData.pilot_school_id = session.user.pilot_school_id;
       validatedData.is_temporary = true;
+    }
+
+    // For teachers, set their pilot school if they have one
+    if (session.user.role === "teacher" && session.user.pilot_school_id) {
+      validatedData.pilot_school_id = session.user.pilot_school_id;
+      validatedData.is_temporary = false;
     }
 
     // Verify school class exists if provided
@@ -363,8 +360,7 @@ export async function POST(request: NextRequest) {
         ...validatedData,
         added_by_id: parseInt(session.user.id),
         added_by_mentor: session.user.role === "mentor",
-        mentor_created_at: session.user.role === "mentor" ? new Date() : null,
-        expires_at: session.user.role === "mentor" ? new Date(Date.now() + 48 * 60 * 60 * 1000) : null
+        mentor_created_at: session.user.role === "mentor" ? new Date() : null
       },
       include: {
         school_class: {

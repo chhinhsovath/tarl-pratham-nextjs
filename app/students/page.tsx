@@ -99,20 +99,24 @@ function StudentsContent() {
   };
 
   const handleEdit = (student: Student) => {
-    setEditingStudent(student);
-    form.setFieldsValue({
-      ...student,
-      birth_date: dayjs(student.birth_date)
-    });
-    setModalVisible(true);
+    router.push(`/students/${student.id}/edit`);
   };
 
   const handleDelete = async (id: number) => {
     try {
-      // Mock delete - replace with actual API call
-      setStudents(prev => prev.filter(s => s.id !== id));
-      message.success('លុបសិស្សបានជោគជ័យ');
+      const response = await fetch(`/api/students?id=${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setStudents(prev => prev.filter(s => s.id !== id));
+        message.success('លុបសិស្សបានជោគជ័យ');
+      } else {
+        const error = await response.json();
+        message.error(error.error || 'មានបញ្ហាក្នុងការលុបសិស្ស');
+      }
     } catch (error) {
+      console.error('Delete student error:', error);
       message.error('មានបញ្ហាក្នុងការលុបសិស្ស');
     }
   };

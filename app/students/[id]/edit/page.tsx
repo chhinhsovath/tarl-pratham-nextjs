@@ -1,21 +1,19 @@
 'use client';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { message, Spin, Card } from 'antd';
 import { useSession } from 'next-auth/react';
 import StudentForm from '@/components/forms/StudentForm';
 import { hasPermission } from '@/lib/permissions';
 
-interface EditStudentPageProps {
-  params: { id: string };
-}
-
-function EditStudentPageContent({ params }: EditStudentPageProps) {
+function EditStudentPageContent() {
   const router = useRouter();
+  const params = useParams();
+  const studentId = params?.id as string;
   const { data: session } = useSession();
   const user = session?.user;
-  
+
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -27,12 +25,14 @@ function EditStudentPageContent({ params }: EditStudentPageProps) {
   }
 
   useEffect(() => {
-    fetchStudent();
-  }, [params.id]);
+    if (studentId) {
+      fetchStudent();
+    }
+  }, [studentId]);
 
   const fetchStudent = async () => {
     try {
-      const response = await fetch(`/api/students/${params.id}`);
+      const response = await fetch(`/api/students/${studentId}`);
       if (response.ok) {
         const data = await response.json();
         setStudent(data.student);
@@ -52,7 +52,7 @@ function EditStudentPageContent({ params }: EditStudentPageProps) {
   const handleSubmit = async (values: any) => {
     setSubmitting(true);
     try {
-      const response = await fetch(`/api/students/${params.id}`, {
+      const response = await fetch(`/api/students/${studentId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
