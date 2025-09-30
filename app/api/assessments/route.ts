@@ -199,12 +199,12 @@ export async function POST(request: NextRequest) {
     
     // Single assessment creation
     const validatedData = assessmentSchema.parse(body);
-    
+
     // Verify student exists and user has access
     const student = await prisma.student.findUnique({
       where: { id: validatedData.student_id }
     });
-    
+
     if (!student) {
       return NextResponse.json(
         { error: "Student not found" },
@@ -220,8 +220,26 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      
+
       validatedData.pilot_school_id = session.user.pilot_school_id;
+    }
+
+    // Auto-link to active test session for test data
+    let testSessionId = null;
+    const recordStatus = session.user.role === "mentor" ? 'test_mentor' :
+                        (session.user.role === "teacher" && session.user.test_mode_enabled) ? 'test_teacher' :
+                        'production';
+
+    if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
+      const activeSession = await prisma.testSession.findFirst({
+        where: {
+          user_id: parseInt(session.user.id),
+          status: 'active'
+        }
+      });
+      if (activeSession) {
+        testSessionId = activeSession.id;
+      }
     }
 
     // Check for duplicate assessment
@@ -247,7 +265,10 @@ export async function POST(request: NextRequest) {
         added_by_id: parseInt(session.user.id),
         assessed_by_mentor: session.user.role === "mentor",
         is_temporary: session.user.role === "mentor" ? true : false,
-        assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : new Date()
+        assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : new Date(),
+        record_status: recordStatus,
+        created_by_role: session.user.role,
+        test_session_id: testSessionId
       },
       include: {
         student: {
@@ -310,7 +331,7 @@ export async function POST(request: NextRequest) {
 async function handleBulkAssessment(body: any, session: any) {
   try {
     const validatedData = bulkAssessmentSchema.parse(body);
-    
+
     // For mentors, set pilot school automatically
     let pilot_school_id = validatedData.pilot_school_id;
     if (session.user.role === "mentor") {
@@ -321,6 +342,24 @@ async function handleBulkAssessment(body: any, session: any) {
         );
       }
       pilot_school_id = session.user.pilot_school_id;
+    }
+
+    // Auto-link to active test session for test data
+    let testSessionId = null;
+    const recordStatus = session.user.role === "mentor" ? 'test_mentor' :
+                        (session.user.role === "teacher" && session.user.test_mode_enabled) ? 'test_teacher' :
+                        'production';
+
+    if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
+      const activeSession = await prisma.testSession.findFirst({
+        where: {
+          user_id: parseInt(session.user.id),
+          status: 'active'
+        }
+      });
+      if (activeSession) {
+        testSessionId = activeSession.id;
+      }
     }
 
     const results = [];
@@ -363,7 +402,10 @@ async function handleBulkAssessment(body: any, session: any) {
             added_by_id: parseInt(session.user.id),
             assessed_by_mentor: session.user.role === "mentor",
             is_temporary: session.user.role === "mentor" ? true : false,
-            assessed_date: assessmentData.assessed_date ? new Date(assessmentData.assessed_date) : new Date()
+            assessed_date: assessmentData.assessed_date ? new Date(assessmentData.assessed_date) : new Date(),
+            record_status: recordStatus,
+            created_by_role: session.user.role,
+            test_session_id: testSessionId
           },
           include: {
             student: {

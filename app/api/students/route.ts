@@ -333,6 +333,20 @@ export async function POST(request: NextRequest) {
       validatedData.pilot_school_id = session.user.pilot_school_id;
     }
 
+    // Auto-link to active test session for test data
+    let testSessionId = null;
+    if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
+      const activeSession = await prisma.testSession.findFirst({
+        where: {
+          user_id: parseInt(session.user.id),
+          status: 'active'
+        }
+      });
+      if (activeSession) {
+        testSessionId = activeSession.id;
+      }
+    }
+
     // Verify school class exists if provided
     if (validatedData.school_class_id) {
       const schoolClass = await prisma.schoolClass.findUnique({
@@ -370,7 +384,8 @@ export async function POST(request: NextRequest) {
         is_temporary: recordStatus !== 'production', // Deprecated but keep for compatibility
         mentor_created_at: session.user.role === "mentor" ? new Date() : null,
         record_status: recordStatus,
-        created_by_role: session.user.role
+        created_by_role: session.user.role,
+        test_session_id: testSessionId
       },
       include: {
         school_class: {

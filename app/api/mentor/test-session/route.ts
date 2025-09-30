@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { getTestDataExpiryDate } from '@/lib/utils/recordStatus';
 
 /**
  * GET /api/mentor/test-session
@@ -31,83 +30,89 @@ export async function GET(request: NextRequest) {
 
     const mentorId = parseInt(session.user.id);
 
-    // Get counts of temporary data created by this mentor
+    // Get counts of test data created by this mentor
     const [
       studentCount,
       assessmentCount,
       mentoringVisitCount,
       students,
-      assessments
+      assessments,
+      activeSessions
     ] = await Promise.all([
       prisma.student.count({
         where: {
-          is_temporary: true,
-          added_by_mentor: true,
+          record_status: 'test_mentor',
           added_by_id: mentorId
         }
       }),
       prisma.assessment.count({
         where: {
-          is_temporary: true,
-          assessed_by_mentor: true,
+          record_status: 'test_mentor',
           added_by_id: mentorId
         }
       }),
       prisma.mentoringVisit.count({
         where: {
-          is_temporary: true,
+          record_status: 'test_mentor',
           mentor_id: mentorId
         }
       }),
       prisma.student.findMany({
         where: {
-          is_temporary: true,
-          added_by_mentor: true,
+          record_status: 'test_mentor',
           added_by_id: mentorId
         },
         select: {
           id: true,
           created_at: true,
-          expires_at: true
+          test_session_id: true
         },
         orderBy: { created_at: 'asc' },
         take: 1
       }),
       prisma.assessment.findMany({
         where: {
-          is_temporary: true,
-          assessed_by_mentor: true,
+          record_status: 'test_mentor',
           added_by_id: mentorId
         },
         select: {
           id: true,
-          created_at: true
+          created_at: true,
+          test_session_id: true
         },
         orderBy: { created_at: 'asc' },
         take: 1
+      }),
+      prisma.testSession.findMany({
+        where: {
+          user_id: mentorId,
+          status: 'active'
+        },
+        orderBy: { created_at: 'desc' }
       })
     ]);
 
-    // Determine session start time (earliest record creation)
-    const sessionStart = students[0]?.created_at || assessments[0]?.created_at || null;
-
-    // Calculate next reset time (midnight)
-    const now = new Date();
-    const nextReset = new Date(now);
-    nextReset.setHours(24, 0, 0, 0); // Next midnight
-
-    // Check if there's any data
+    // Get the most recent active session or create session data
+    const currentSession = activeSessions[0];
     const hasData = studentCount > 0 || assessmentCount > 0 || mentoringVisitCount > 0;
+
+    // Calculate next reset time (7 days from first record or session start)
+    const now = new Date();
+    const sessionStart = currentSession?.started_at || students[0]?.created_at || assessments[0]?.created_at || now;
+    const expiryDate = currentSession?.expires_at || getTestDataExpiryDate(7);
+    const hoursUntilExpiry = Math.max(0, Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60)));
 
     return NextResponse.json({
       success: true,
       session: {
+        id: currentSession?.id || null,
         mentor_id: mentorId,
         mentor_name: session.user.name,
-        status: hasData ? 'active' : 'no_data',
+        status: currentSession?.status || (hasData ? 'active' : 'no_data'),
         started_at: sessionStart,
-        next_reset: nextReset,
-        hours_until_reset: Math.ceil((nextReset.getTime() - now.getTime()) / (1000 * 60 * 60))
+        expires_at: expiryDate,
+        hours_until_expiry: hoursUntilExpiry,
+        days_until_expiry: Math.ceil(hoursUntilExpiry / 24)
       },
       statistics: {
         students: studentCount,

@@ -20,7 +20,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'settings.view', 'settings.edit',
     'resources.view', 'resources.create', 'resources.edit', 'resources.delete',
     'verification.view', 'verification.approve',
-    'coordinator.workspace', 'analytics.dashboard'
+    'coordinator.workspace', 'analytics.dashboard',
+    'bulk.delete_test_data', 'bulk.archive_test_data', // Phase 2: Bulk operations
+    'test_sessions.view', 'test_sessions.manage' // Phase 2: Session management
   ],
   coordinator: [
     'users.view', 'users.bulk_import',
@@ -28,7 +30,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'students.view', 'students.bulk_import',
     'reports.view', 'reports.export',
     'coordinator.workspace',
-    'language.manage'
+    'language.manage',
+    'bulk.delete_test_data', 'bulk.archive_test_data', // Phase 2: Bulk operations
+    'test_sessions.view' // Phase 2: Session viewing
   ],
   mentor: [
     'students.view', 'students.create', 'students.edit', 'students.delete', // temporary only
