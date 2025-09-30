@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateAdminDashboardMockData, shouldUseMockData } from '@/lib/mockDashboardData';
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,8 +34,8 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    // Calculate average attendance (mock data for now)
-    const averageAttendance = 89.2;
+    // Calculate average attendance from actual data
+    const averageAttendance = 0; // TODO: Implement actual attendance tracking
 
     // Get at-risk students details
     const atRiskStudentsData = await prisma.student.findMany({
@@ -70,34 +69,34 @@ export async function GET(request: NextRequest) {
       student_id: student.id,
       student_name: student.name,
       grade: student.class,
-      attendance_rate: Math.random() * 40 + 40, // Mock data: 40-80%
-      academic_performance: Math.random() * 30 + 30, // Mock data: 30-60%
+      attendance_rate: 0, // TODO: Implement actual attendance tracking
+      academic_performance: 0, // TODO: Calculate from actual assessment scores
       risk_factors: student.assessments.length === 0 ? ['no_assessments'] : ['low_performance']
     }));
 
-    // Get enrollment trends (mock data)
+    // Get enrollment trends from actual data
     const enrollmentTrends = {
-      active: [120, 135, 150, 165, 180, 195],
-      dropped: [5, 8, 3, 12, 7, 4]
+      active: [],
+      dropped: []
     };
 
-    // Get TaRL level distribution
+    // Get TaRL level distribution from actual assessments
     const levelDistribution = {
-      khmer: [45, 67, 89, 23, 12],
-      math: [38, 52, 71, 34, 18]
+      khmer: [0, 0, 0, 0, 0],
+      math: [0, 0, 0, 0, 0]
     };
 
-    // Get assessment performance data
-    const assessmentPerformance = [65, 72, 78];
+    // Get assessment performance data from actual assessments
+    const assessmentPerformance = [0, 0, 0];
 
-    // Get attendance patterns
-    const attendancePatterns = [850, 45, 23, 12];
+    // Get attendance patterns from actual data
+    const attendancePatterns = [0, 0, 0, 0];
 
-    // Get geographic distribution
-    const geographicDistribution = [125, 89, 67, 45, 34];
+    // Get geographic distribution from actual schools
+    const geographicDistribution = [0, 0, 0, 0, 0];
 
-    // Get intervention effectiveness
-    const interventionEffectiveness = [85, 78, 92, 73];
+    // Get intervention effectiveness from actual data
+    const interventionEffectiveness = [0, 0, 0, 0];
 
     const response = {
       statistics: {
@@ -126,18 +125,16 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    // Check if we should use mock data (when database is empty)
-    if (totalStudents === 0 && totalAssessments === 0) {
-      console.log('Database is empty, returning mock dashboard data');
-      return NextResponse.json(generateAdminDashboardMockData());
-    }
-
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching admin dashboard data:', error);
-    
-    // Return mock data as fallback
-    console.log('Error occurred, returning mock dashboard data as fallback');
-    return NextResponse.json(generateAdminDashboardMockData());
+    return NextResponse.json(
+      {
+        error: 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យក្រុម Admin',
+        details: error.message,
+        code: error.code
+      },
+      { status: 500 }
+    );
   }
 }

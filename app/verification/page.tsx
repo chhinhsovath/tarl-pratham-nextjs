@@ -86,80 +86,25 @@ export default function VerificationPage() {
   const fetchAssessments = async () => {
     setLoading(true);
     try {
-      // Mock data for verification matching Laravel
-      const mockData = [
-        {
-          id: 1,
-          student_name: 'សុខ សុវណ្ណ',
-          student_id: 'STU001',
-          assessment_type: 'baseline',
-          subject: 'khmer',
-          level: 'word',
-          score: 75,
-          assessed_by: 'ចាន់ សុភា',
-          assessed_date: '2024-01-15',
-          school: 'សាលាបឋមសិក្សាភ្នំពេញ',
-          status: 'pending',
-          class: 'ថ្នាក់ទី១ក'
-        },
-        {
-          id: 2,
-          student_name: 'លី សុផល',
-          student_id: 'STU002',
-          assessment_type: 'midline',
-          subject: 'math',
-          level: 'beginner',
-          score: 68,
-          assessed_by: 'ពៅ ចន្ធា',
-          assessed_date: '2024-01-16',
-          school: 'សាលាបឋមសិក្សាសៀមរាប',
-          status: activeTab === 'verified' ? 'verified' : 'pending',
-          verified_by: activeTab === 'verified' ? 'មាស សុខា' : null,
-          verified_date: activeTab === 'verified' ? '2024-01-17' : null,
-          class: 'ថ្នាក់ទី២ខ'
-        },
-        {
-          id: 3,
-          student_name: 'កែវ បញ្ញា',
-          student_id: 'STU003',
-          assessment_type: 'endline',
-          subject: 'khmer',
-          level: 'paragraph',
-          score: 82,
-          assessed_by: 'សុខ ចន្ទ្រា',
-          assessed_date: '2024-01-18',
-          school: 'សាលាបឋមសិក្សាកំពត',
-          status: activeTab === 'rejected' ? 'rejected' : 'pending',
-          rejected_by: activeTab === 'rejected' ? 'មាស សុខា' : null,
-          rejected_reason: activeTab === 'rejected' ? 'ពិន្ទុមិនត្រឹមត្រូវ' : null,
-          class: 'ថ្នាក់ទី៣គ'
-        }
-      ];
-
-      // Filter based on active tab
-      const filteredData = mockData.filter(item => {
-        if (activeTab === 'pending') return item.status === 'pending';
-        if (activeTab === 'verified') return item.status === 'verified';
-        if (activeTab === 'rejected') return item.status === 'rejected';
-        return true;
-      });
-
-      setAssessments(filteredData);
+      // TODO: Create verification API endpoint
+      // For now, return empty array until API is implemented
+      setAssessments([]);
     } catch (error) {
       console.error('Error fetching assessments:', error);
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យ');
+      setAssessments([]);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchStats = async () => {
-    // Mock statistics
+    // TODO: Fetch real statistics from API
     setStats({
-      pending: 15,
-      verified: 45,
-      rejected: 3,
-      total: 63
+      pending: 0,
+      verified: 0,
+      rejected: 0,
+      total: 0
     });
   };
 

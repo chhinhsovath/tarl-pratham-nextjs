@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,107 +18,130 @@ export async function GET(request: NextRequest) {
     const district = searchParams.get('district');
     const cluster = searchParams.get('cluster');
 
-    // Mock school names matching Laravel format
-    const schools = [
-      'សាលាបឋមសិក្សាអង្គរវត្ត',
-      'សាលាបឋមសិក្សាពោធិ៍បាត់',
-      'សាលាបឋមសិក្សាភ្នំព្រះ',
-      'សាលាបឋមសិក្សាទឹកថ្លា',
-      'សាលាបឋមសិក្សាមង្គលបុរី',
-      'សាលាបឋមសិក្សាអូររុស្សី',
-      'សាលាបឋមសិក្សាព្រះវិហារ',
-      'សាលាបឋមសិក្សាចំការលើ'
-    ];
-
-    // Generate mock data based on cycle and subject
-    const generateData = () => {
-      const baseValues = {
-        baseline: { beginner: 45, letter: 30, word: 20, paragraph: 5, story: 0 },
-        midline: { beginner: 25, letter: 35, word: 30, paragraph: 8, story: 2 },
-        endline: { beginner: 15, letter: 25, word: 35, paragraph: 15, story: 10 }
-      };
-
-      const values = baseValues[cycle as keyof typeof baseValues];
-      
-      return schools.map(school => {
-        // Add some variation to each school
-        const variation = Math.random() * 10 - 5;
-        return {
-          school,
-          beginner: Math.max(0, values.beginner + variation),
-          letter: Math.max(0, values.letter + variation),
-          word: Math.max(0, values.word + variation),
-          paragraph: Math.max(0, values.paragraph + variation / 2),
-          story: Math.max(0, values.story + variation / 3)
-        };
-      });
+    // Build where clause for filtering
+    const where: any = {
+      subject: subject,
+      assessment_type: cycle
     };
 
-    const schoolData = generateData();
-    
-    // Filter schools based on selection
-    let filteredSchools = schoolData;
     if (school_id) {
-      filteredSchools = schoolData.slice(0, 1);
-    } else if (cluster) {
-      filteredSchools = schoolData.slice(0, 3);
-    } else if (district) {
-      filteredSchools = schoolData.slice(0, 5);
-    } else if (province) {
-      filteredSchools = schoolData.slice(0, 6);
+      where.student = {
+        pilot_school_id: parseInt(school_id)
+      };
     }
+
+    // Get assessments grouped by school
+    const assessments = await prisma.assessment.findMany({
+      where,
+      include: {
+        student: {
+          include: {
+            pilot_school: {
+              select: {
+                id: true,
+                school_name: true,
+                province: true,
+                district: true,
+                cluster: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Group assessments by school and level
+    const schoolStats: Record<string, {
+      school_name: string;
+      school_id: number;
+      levels: Record<string, number>;
+      total: number;
+    }> = {};
+
+    assessments.forEach(assessment => {
+      const schoolId = assessment.student?.pilot_school?.id;
+      const schoolName = assessment.student?.pilot_school?.school_name || 'Unknown School';
+      const level = assessment.level || 'beginner';
+
+      if (!schoolId) return;
+
+      if (!schoolStats[schoolId]) {
+        schoolStats[schoolId] = {
+          school_name: schoolName,
+          school_id: schoolId,
+          levels: {
+            beginner: 0,
+            letter: 0,
+            word: 0,
+            paragraph: 0,
+            story: 0
+          },
+          total: 0
+        };
+      }
+
+      schoolStats[schoolId].levels[level] = (schoolStats[schoolId].levels[level] || 0) + 1;
+      schoolStats[schoolId].total += 1;
+    });
+
+    // Convert counts to percentages
+    const schoolData = Object.values(schoolStats).map(school => ({
+      school: school.school_name,
+      school_id: school.school_id,
+      beginner: school.total > 0 ? (school.levels.beginner / school.total) * 100 : 0,
+      letter: school.total > 0 ? (school.levels.letter / school.total) * 100 : 0,
+      word: school.total > 0 ? (school.levels.word / school.total) * 100 : 0,
+      paragraph: school.total > 0 ? (school.levels.paragraph / school.total) * 100 : 0,
+      story: school.total > 0 ? (school.levels.story / school.total) * 100 : 0,
+      total_students: school.total
+    }));
 
     // Format data for horizontal bar chart (Chart.js format)
     const chartData = {
-      labels: filteredSchools.map(s => s.school),
+      labels: schoolData.map(s => s.school),
       datasets: [
         {
-          label: 'ដំណាក់កាលដើម',
+          label: subject === 'khmer' ? 'ដំណាក់កាលដើម' : 'លេខ 1-9',
           backgroundColor: 'rgba(239, 68, 68, 0.8)',
-          data: filteredSchools.map(s => s.beginner),
-          counts: filteredSchools.map(s => Math.round(s.beginner * 2))
+          data: schoolData.map(s => s.beginner),
+          counts: schoolData.map(s => Math.round((s.beginner / 100) * s.total_students))
         },
         {
-          label: 'អក្សរ',
+          label: subject === 'khmer' ? 'អក្សរ' : 'លេខ 10-99',
           backgroundColor: 'rgba(245, 158, 11, 0.8)',
-          data: filteredSchools.map(s => s.letter),
-          counts: filteredSchools.map(s => Math.round(s.letter * 2))
+          data: schoolData.map(s => s.letter),
+          counts: schoolData.map(s => Math.round((s.letter / 100) * s.total_students))
         },
         {
-          label: 'ពាក្យ',
+          label: subject === 'khmer' ? 'ពាក្យ' : 'បូក/ដក',
           backgroundColor: 'rgba(59, 130, 246, 0.8)',
-          data: filteredSchools.map(s => s.word),
-          counts: filteredSchools.map(s => Math.round(s.word * 2))
+          data: schoolData.map(s => s.word),
+          counts: schoolData.map(s => Math.round((s.word / 100) * s.total_students))
         },
         {
-          label: 'កថាខណ្ឌ',
+          label: subject === 'khmer' ? 'កថាខណ្ឌ' : 'គុណ/ចែក',
           backgroundColor: 'rgba(34, 197, 94, 0.8)',
-          data: filteredSchools.map(s => s.paragraph),
-          counts: filteredSchools.map(s => Math.round(s.paragraph * 2))
+          data: schoolData.map(s => s.paragraph),
+          counts: schoolData.map(s => Math.round((s.paragraph / 100) * s.total_students))
         },
         {
-          label: 'សាច់រឿង',
+          label: subject === 'khmer' ? 'សាច់រឿង' : 'ចម្រុះ',
           backgroundColor: 'rgba(168, 85, 247, 0.8)',
-          data: filteredSchools.map(s => s.story),
-          counts: filteredSchools.map(s => Math.round(s.story * 2))
+          data: schoolData.map(s => s.story),
+          counts: schoolData.map(s => Math.round((s.story / 100) * s.total_students))
         }
       ]
     };
 
-    // Adjust data based on subject
-    if (subject === 'math') {
-      chartData.datasets[0].label = 'លេខ 1-9';
-      chartData.datasets[1].label = 'លេខ 10-99';
-      chartData.datasets[2].label = 'បូក/ដក';
-      chartData.datasets[3].label = 'គុណ/ចែក';
-      chartData.datasets[4].label = 'ចម្រុះ';
-    }
-
     return NextResponse.json({ chartData });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching school results:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'មានបញ្ហាក្នុងការទាញយកលទ្ធផលតាមសាលា',
+        details: error.message,
+        code: error.code
+      },
       { status: 500 }
     );
   }

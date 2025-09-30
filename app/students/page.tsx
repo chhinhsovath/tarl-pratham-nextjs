@@ -61,32 +61,16 @@ function StudentsContent() {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      // Mock data for now - replace with actual API call
-      const mockData: Student[] = [
-        {
-          id: 1,
-          student_name: 'គុណ សុវណ្ណ',
-          gender: 'male',
-          birth_date: '2014-05-15',
-          grade_level: 'grade_4',
-          student_status: 'active',
-          created_at: '2024-01-15T10:00:00Z',
-          updated_at: '2024-01-15T10:00:00Z'
-        },
-        {
-          id: 2,
-          student_name: 'ញឹម បញ្ញា',
-          gender: 'female',
-          birth_date: '2013-08-22',
-          grade_level: 'grade_5',
-          student_status: 'active',
-          created_at: '2024-01-15T10:00:00Z',
-          updated_at: '2024-01-15T10:00:00Z'
-        }
-      ];
-      setStudents(mockData);
+      const response = await fetch('/api/students?limit=100');
+      if (!response.ok) {
+        throw new Error('Failed to fetch students');
+      }
+      const data = await response.json();
+      setStudents(data.data || []);
     } catch (error) {
+      console.error('Error fetching students:', error);
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស');
+      setStudents([]);
     } finally {
       setLoading(false);
     }

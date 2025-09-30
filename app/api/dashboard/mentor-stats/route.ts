@@ -76,11 +76,11 @@ export async function GET(request: NextRequest) {
       prisma.assessment.count({ where: { cycle: 'endline' } })
     ]);
 
-    // Mock school comparison data (since we don't have actual performance data)
+    // TODO: Calculate actual school comparison data from assessments
     const schoolComparison = {
-      labels: ['School A', 'School B', 'School C', 'School D'],
-      khmer: [75, 82, 68, 91],
-      math: [68, 78, 72, 85]
+      labels: [],
+      khmer: [],
+      math: []
     };
 
     const response = {

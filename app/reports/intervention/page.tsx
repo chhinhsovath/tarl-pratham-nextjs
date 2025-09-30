@@ -87,49 +87,14 @@ function InterventionReportsPage() {
       const queryParams = new URLSearchParams(
         Object.entries(filters).filter(([_, value]) => value !== '')
       ).toString();
-      
-      // Mock data for now since API might not exist
-      const mockData = [
-        {
-          id: 1,
-          intervention_name: 'ការអន្តរាគមន៍អាន',
-          intervention_type: 'literacy',
-          target_students: 25,
-          actual_participants: 23,
-          start_date: '2024-01-15',
-          end_date: '2024-03-15',
-          status: 'completed',
-          effectiveness_score: 85,
-          school: { school_name: 'វត្តបវរនីវាស', district: 'ចំការមន' },
-          teacher: { name: 'លោកគ្រូ សុខា' },
-          description: 'កម្មវិធីអន្តរាគមន៍សម្រាប់ការអានជំនាញមូលដ្ឋាន',
-          materials_used: 'សៀវភៅអាន, កម្រងសៀវភៅរឿង, សម្ភារៈបង្រៀន',
-          outcomes: 'សិស្ស 92% បានកែលម្អការអានរបស់ពួកគេ',
-          challenges: 'ការចូលរួមរបស់ឪពុកម្តាយនៅតិច'
-        },
-        {
-          id: 2,
-          intervention_name: 'ការអន្តរាគមន៍គណិតវិទ្យា',
-          intervention_type: 'numeracy',
-          target_students: 30,
-          actual_participants: 28,
-          start_date: '2024-02-01',
-          end_date: '2024-04-01',
-          status: 'active',
-          effectiveness_score: 78,
-          school: { school_name: 'ហ៊ុនសែន តាកែវ', district: 'តាកែវ' },
-          teacher: { name: 'លោកគ្រូ រតនា' },
-          description: 'កម្មវិធីអន្តរាគមន៍សម្រាប់គណិតវិទ្យាកម្រិតមូលដ្ឋាន',
-          materials_used: 'សម្ភារៈគណិតវិទ្យា, ហ្គេមគណនា, កាតស្វាហាប់',
-          outcomes: 'សិស្ស 85% បានកែលម្អលទ្ធផលគណិតវិទ្យា',
-          challenges: 'ការខ្វះខាតសម្ភារៈបង្រៀនទំនើប'
-        }
-      ];
-      
-      setInterventions(mockData);
+
+      // TODO: Create interventions API endpoint
+      // For now, return empty array until API is implemented
+      setInterventions([]);
     } catch (error) {
       console.error('Error fetching interventions:', error);
       message.error('មិនអាចទាញយកទិន្នន័យបានទេ');
+      setInterventions([]);
     } finally {
       setLoading(false);
     }

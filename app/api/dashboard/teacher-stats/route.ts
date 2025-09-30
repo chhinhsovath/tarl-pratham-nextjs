@@ -40,22 +40,22 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Get assessment statistics by cycle
+    // TODO: Get actual assessment statistics from database
     const assessmentStats = {
       baseline: {
-        completed: Math.floor(studentCount * 0.8), // 80% completed
-        in_progress: Math.floor(studentCount * 0.1), // 10% in progress
-        not_started: Math.floor(studentCount * 0.1) // 10% not started
+        completed: 0,
+        in_progress: 0,
+        not_started: studentCount
       },
       midline: {
-        completed: Math.floor(studentCount * 0.6), // 60% completed
-        in_progress: Math.floor(studentCount * 0.2), // 20% in progress
-        not_started: Math.floor(studentCount * 0.2) // 20% not started
+        completed: 0,
+        in_progress: 0,
+        not_started: studentCount
       },
       endline: {
-        completed: Math.floor(studentCount * 0.3), // 30% completed
-        in_progress: Math.floor(studentCount * 0.1), // 10% in progress
-        not_started: Math.floor(studentCount * 0.6) // 60% not started
+        completed: 0,
+        in_progress: 0,
+        not_started: studentCount
       }
     };
 

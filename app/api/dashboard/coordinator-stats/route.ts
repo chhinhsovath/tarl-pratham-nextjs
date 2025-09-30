@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateCoordinatorDashboardMockData } from '@/lib/mockDashboardData';
 
 export async function GET(request: NextRequest) {
   try {
@@ -100,21 +99,16 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    // Check if we should use mock data (when database has minimal data)
-    const totalStudents = await prisma.student.count();
-    const totalAssessments = await prisma.assessment.count();
-    
-    if (totalStudents === 0 && totalAssessments === 0) {
-      console.log('Database is empty, returning mock coordinator dashboard data');
-      return NextResponse.json(generateCoordinatorDashboardMockData());
-    }
-
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching coordinator dashboard data:', error);
-    
-    // Return mock data as fallback
-    console.log('Error occurred, returning mock coordinator dashboard data as fallback');
-    return NextResponse.json(generateCoordinatorDashboardMockData());
+    return NextResponse.json(
+      {
+        error: 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យក្រុម Coordinator',
+        details: error.message,
+        code: error.code
+      },
+      { status: 500 }
+    );
   }
 }
