@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getMockStudentById } from '@/lib/services/mockDataService';
+import { getRecordStatus } from '@/lib/utils/recordStatus';
 
 export async function GET(
   request: NextRequest,
@@ -99,9 +100,12 @@ export async function PUT(
 
     const body = await request.json();
 
+    // Don't allow changing record_status directly via this endpoint
+    const { record_status: _, ...updateData } = body;
+
     const student = await prisma.student.update({
       where: { id: studentId },
-      data: body
+      data: updateData
     });
 
     return NextResponse.json({

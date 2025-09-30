@@ -22,6 +22,9 @@ export interface MockStudent {
   endline_math_level: string | null;
   is_temporary: boolean;
   added_by_mentor: boolean;
+  record_status: 'production' | 'test_mentor' | 'test_teacher' | 'demo' | 'archived';
+  created_by_role: string;
+  test_session_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -38,6 +41,9 @@ export interface MockAssessment {
   assessed_by: string;
   is_temporary: boolean;
   assessed_by_mentor: boolean;
+  record_status: 'production' | 'test_mentor' | 'test_teacher' | 'demo' | 'archived';
+  created_by_role: string;
+  test_session_id: string | null;
   created_at: string;
 }
 
@@ -52,6 +58,9 @@ export interface MockMentoringVisit {
   observations: string;
   action_items: string;
   is_temporary: boolean;
+  record_status: 'production' | 'test_mentor' | 'test_teacher' | 'demo' | 'archived';
+  created_by_role: string;
+  test_session_id: string | null;
 }
 
 // Khmer names for students
@@ -139,6 +148,9 @@ export function generateMockStudents(count: number = 20): MockStudent[] {
       endline_math_level: hasEndline ? LEVELS[Math.floor(Math.random() * 3) + 2] : null,
       is_temporary: true,
       added_by_mentor: true,
+      record_status: 'test_mentor',
+      created_by_role: 'mentor',
+      test_session_id: null,
       created_at: now,
       updated_at: now
     });
@@ -186,6 +198,9 @@ export function generateMockAssessments(students: MockStudent[], countPerStudent
           assessed_by: 'គ្រូ សុភា',
           is_temporary: true,
           assessed_by_mentor: true,
+          record_status: 'test_mentor',
+          created_by_role: 'mentor',
+          test_session_id: null,
           created_at: new Date().toISOString()
         });
       }
@@ -211,6 +226,9 @@ export function generateMockAssessments(students: MockStudent[], countPerStudent
           assessed_by: 'គ្រូ សុភា',
           is_temporary: true,
           assessed_by_mentor: true,
+          record_status: 'test_mentor',
+          created_by_role: 'mentor',
+          test_session_id: null,
           created_at: new Date().toISOString()
         });
       }
@@ -247,7 +265,10 @@ export function generateMockMentoringVisits(count: number = 10): MockMentoringVi
       status,
       observations: status === 'completed' ? 'សង្កេតឃើញការរីកចម្រើនល្អក្នុងការអាន និងគណិតវិទ្យា' : '',
       action_items: status === 'completed' ? '- ត្រូវការសម្ភារៈបង្រៀនបន្ថែម\n- រៀបចំ​វគ្គបណ្តុះបណ្តាលគ្រូ' : '',
-      is_temporary: true
+      is_temporary: true,
+      record_status: 'test_mentor',
+      created_by_role: 'mentor',
+      test_session_id: null
     });
   }
 

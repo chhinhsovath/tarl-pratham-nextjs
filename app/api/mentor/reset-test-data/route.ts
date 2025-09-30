@@ -39,21 +39,19 @@ export async function POST(request: NextRequest) {
     ] = await Promise.all([
       prisma.assessment.count({
         where: {
-          is_temporary: true,
-          assessed_by_mentor: true,
+          record_status: 'test_mentor',
           added_by_id: mentorId
         }
       }),
       prisma.student.count({
         where: {
-          is_temporary: true,
-          added_by_mentor: true,
+          record_status: 'test_mentor',
           added_by_id: mentorId
         }
       }),
       prisma.mentoringVisit.count({
         where: {
-          is_temporary: true,
+          record_status: 'test_mentor',
           mentor_id: mentorId
         }
       })
@@ -64,8 +62,7 @@ export async function POST(request: NextRequest) {
       // 1. Delete assessments first (they reference students)
       prisma.assessment.deleteMany({
         where: {
-          is_temporary: true,
-          assessed_by_mentor: true,
+          record_status: 'test_mentor',
           added_by_id: mentorId
         }
       }),
@@ -73,8 +70,7 @@ export async function POST(request: NextRequest) {
       // 2. Delete students
       prisma.student.deleteMany({
         where: {
-          is_temporary: true,
-          added_by_mentor: true,
+          record_status: 'test_mentor',
           added_by_id: mentorId
         }
       }),
@@ -82,7 +78,7 @@ export async function POST(request: NextRequest) {
       // 3. Delete mentoring visits
       prisma.mentoringVisit.deleteMany({
         where: {
-          is_temporary: true,
+          record_status: 'test_mentor',
           mentor_id: mentorId
         }
       })

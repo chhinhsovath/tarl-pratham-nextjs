@@ -563,10 +563,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // For mentors deleting temporary students, hard delete
-    // For others, soft delete
-    if (session.user.role === "mentor" && existingStudent.is_temporary && existingStudent.added_by_mentor) {
-      // Hard delete student and all related assessments
+    // For test data, hard delete
+    // For production data, soft delete (archive)
+    if (existingStudent.record_status === 'test_mentor' || existingStudent.record_status === 'test_teacher') {
+      // Hard delete student and all related assessments for test data
       await prisma.$transaction([
         prisma.assessment.deleteMany({
           where: { student_id: parseInt(id) }
@@ -576,10 +576,13 @@ export async function DELETE(request: NextRequest) {
         })
       ]);
     } else {
-      // Soft delete by setting is_active to false
+      // Soft delete production data by archiving
       await prisma.student.update({
         where: { id: parseInt(id) },
-        data: { is_active: false }
+        data: {
+          is_active: false,
+          record_status: 'archived'
+        }
       });
     }
 
