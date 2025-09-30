@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { generateMockStudents } from "@/lib/services/mockDataService";
 
 // Validation schema
 const studentSchema = z.object({
@@ -149,8 +150,8 @@ export async function GET(request: NextRequest) {
           pilot_school: {
             select: {
               id: true,
-              name: true,
-              code: true
+              school_name: true,
+              school_code: true
             }
           },
           added_by: {
@@ -178,6 +179,23 @@ export async function GET(request: NextRequest) {
       }),
       prisma.student.count({ where })
     ]);
+
+    // If no students and user is mentor, return mock data
+    if (students.length === 0 && session.user.role === 'mentor') {
+      const mockStudents = generateMockStudents(20);
+
+      return NextResponse.json({
+        data: mockStudents,
+        pagination: {
+          page: 1,
+          limit: mockStudents.length,
+          total: mockStudents.length,
+          pages: 1
+        },
+        is_mock: true,
+        message: '🧪 Test data - Changes will not be saved'
+      });
+    }
 
     return NextResponse.json({
       data: students,
@@ -363,8 +381,8 @@ export async function POST(request: NextRequest) {
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true
+            school_name: true,
+            school_code: true
           }
         },
         added_by: {
@@ -468,8 +486,8 @@ export async function PUT(request: NextRequest) {
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true
+            school_name: true,
+            school_code: true
           }
         },
         added_by: {

@@ -31,13 +31,15 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'language.manage'
   ],
   mentor: [
-    'students.view', 'students.create', 'students.edit', // temporary only
-    'assessments.view', 'assessments.create', 'assessments.edit', // temporary only
+    'students.view', 'students.create', 'students.edit', 'students.delete', // temporary only
+    'assessments.view', 'assessments.create', 'assessments.edit', 'assessments.delete', // temporary only
     'mentoring.view', 'mentoring.create', 'mentoring.edit', 'mentoring.delete',
     'verification.view', 'verification.approve',
     'reports.view', 'reports.my_mentoring',
     'teacher.workspace', // can access teacher features
-    'analytics.dashboard'
+    'analytics.dashboard',
+    'mentor.test_mode', // can use test environment
+    'mentor.reset_data' // can reset test data
   ],
   teacher: [
     'students.view', 'students.create', 'students.edit', // own class only

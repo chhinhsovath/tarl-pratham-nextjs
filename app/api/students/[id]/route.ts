@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getMockStudentById } from '@/lib/services/mockDataService';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
     const { id } = await params;
     const studentId = parseInt(id);
 
@@ -46,12 +50,29 @@ export async function GET(
       }
     });
 
+    // If no student found and user is mentor, return mock data
+    if (!student && session?.user?.role === 'mentor') {
+      const mockStudent = getMockStudentById(studentId);
+
+      if (!mockStudent) {
+        return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+      }
+
+      return NextResponse.json({
+        student: mockStudent,
+        is_mock: true,
+        success: true,
+        message: '🧪 Test data - Changes will not be saved'
+      });
+    }
+
     if (!student) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
     return NextResponse.json({
       student,
+      is_mock: false,
       success: true
     });
 
