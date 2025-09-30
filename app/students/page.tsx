@@ -353,7 +353,15 @@ function StudentsContent() {
                 name="age"
                 rules={[
                   { required: true, message: 'សូមបញ្ចូលអាយុ!' },
-                  { type: 'number', min: 1, max: 25, message: 'អាយុត្រូវតែនៅចន្លោះ 1-25' }
+                  {
+                    validator: (_, value) => {
+                      const num = parseInt(value);
+                      if (isNaN(num) || num < 1 || num > 25) {
+                        return Promise.reject('អាយុត្រូវតែនៅចន្លោះ 1-25');
+                      }
+                      return Promise.resolve();
+                    }
+                  }
                 ]}
               >
                 <Input type="number" placeholder="បញ្ចូលអាយុ" />
