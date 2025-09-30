@@ -115,7 +115,7 @@ function StudentsContent() {
       const studentData = {
         name: values.name,
         gender: values.gender,
-        age: values.age,
+        age: parseInt(values.age),
         guardian_name: values.guardian_name,
         guardian_phone: values.guardian_phone,
       };
@@ -351,9 +351,12 @@ function StudentsContent() {
               <Form.Item
                 label="អាយុ"
                 name="age"
-                rules={[{ required: true, message: 'សូមបញ្ចូលអាយុ!' }]}
+                rules={[
+                  { required: true, message: 'សូមបញ្ចូលអាយុ!' },
+                  { type: 'number', min: 1, max: 25, message: 'អាយុត្រូវតែនៅចន្លោះ 1-25' }
+                ]}
               >
-                <Input type="number" placeholder="បញ្ចូលអាយុ" min={1} max={25} />
+                <Input type="number" placeholder="បញ្ចូលអាយុ" />
               </Form.Item>
             </Col>
           </Row>
