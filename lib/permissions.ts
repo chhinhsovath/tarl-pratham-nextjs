@@ -22,7 +22,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'verification.view', 'verification.approve',
     'coordinator.workspace', 'analytics.dashboard',
     'bulk.delete_test_data', 'bulk.archive_test_data', // Phase 2: Bulk operations
-    'test_sessions.view', 'test_sessions.manage' // Phase 2: Session management
+    'test_sessions.view', 'test_sessions.manage', // Phase 2: Session management
+    'test_data.promote', 'test_data.manage', // Phase 3: Test data management
+    'test_mode.toggle_any', 'admin.test_dashboard' // Phase 3: Admin features
   ],
   coordinator: [
     'users.view', 'users.bulk_import',
@@ -32,7 +34,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'coordinator.workspace',
     'language.manage',
     'bulk.delete_test_data', 'bulk.archive_test_data', // Phase 2: Bulk operations
-    'test_sessions.view' // Phase 2: Session viewing
+    'test_sessions.view', // Phase 2: Session viewing
+    'test_data.promote', 'test_data.manage', // Phase 3: Test data management
+    'admin.test_dashboard' // Phase 3: Admin features
   ],
   mentor: [
     'students.view', 'students.create', 'students.edit', 'students.delete', // temporary only
@@ -48,6 +52,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   teacher: [
     'students.view', 'students.create', 'students.edit', // own class only
     'assessments.view', 'assessments.create', 'assessments.edit', // own students only
+    'test_mode.toggle_own', // Phase 3: Teacher test mode
     'reports.view', 'reports.my_students', 'reports.class_progress',
     'teacher.profile_setup',
     'analytics.dashboard'
