@@ -248,7 +248,7 @@ function SelectStudentsContent() {
             </div>
           ) : record.pilot_school ? (
             <div>
-              <div>{record.pilot_school.name}</div>
+              <div>{record.pilot_school.school_name}</div>
               <Text type="secondary">Pilot School</Text>
             </div>
           ) : (

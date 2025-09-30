@@ -316,7 +316,7 @@ export default function MentoringVisitDetailPage() {
               {new Date(visit.visit_date).toLocaleDateString('km-KH')}
             </Descriptions.Item>
             <Descriptions.Item label="ឈ្មោះសាលា">
-              {visit.pilot_school?.name} ({visit.pilot_school?.code})
+              {visit.pilot_school?.school_name} ({visit.pilot_school?.school_code})
             </Descriptions.Item>
             <Descriptions.Item label="ឈ្មោះអ្នកណែនាំ">
               {visit.mentor?.name}

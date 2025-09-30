@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
         gender: student.gender || 'male',
         pilot_school_id: student.pilot_school_id,
         pilotSchool: {
-          school_name: student.pilot_school?.school_name || student.pilot_school?.name || 'Unknown School'
+          school_name: student.pilot_school?.school_name || student.pilot_school?.school_name || 'Unknown School'
         },
         has_assessment: hasAssessment,
         assessment_level: assessment?.level || null,

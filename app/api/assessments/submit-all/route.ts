@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
               include: {
                 student: { select: { name: true } },
                 added_by: { select: { name: true, role: true } },
-                pilot_school: { select: { name: true } }
+                pilot_school: { select: { school_name: true } }
               }
             });
 
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
               include: {
                 student: { select: { name: true } },
                 added_by: { select: { name: true, role: true } },
-                pilot_school: { select: { name: true } }
+                pilot_school: { select: { school_name: true } }
               }
             });
 

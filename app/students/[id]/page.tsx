@@ -265,7 +265,7 @@ function StudentDetailsPageContent() {
                   {student.school_class ? 
                     `${student.school_class.school?.name} - ${student.school_class.name}` :
                     student.pilot_school ? 
-                      `${student.pilot_school.name} (Pilot)` :
+                      `${student.pilot_school.school_name} (Pilot)` :
                       'Not assigned'
                   }
                 </Text>

@@ -5,10 +5,11 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const studentId = parseInt(params.id);
+    const { id } = await params;
+    const studentId = parseInt(id);
     
     if (isNaN(studentId)) {
       return NextResponse.json({ error: 'Invalid student ID' }, { status: 400 });
@@ -26,7 +27,7 @@ export async function GET(
           }
         },
         pilot_school: {
-          select: { name: true }
+          select: { school_name: true }
         }
       }
     });
@@ -43,7 +44,7 @@ export async function GET(
           select: { name: true, role: true }
         },
         pilot_school: {
-          select: { name: true }
+          select: { school_name: true }
         }
       },
       orderBy: [

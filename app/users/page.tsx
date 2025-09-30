@@ -213,8 +213,8 @@ function UsersPageContent() {
       key: "pilot_school",
       render: (_, record) => (
         record.pilot_school ? (
-          <Tooltip title={record.pilot_school.name}>
-            <Tag color="blue">{record.pilot_school.code}</Tag>
+          <Tooltip title={record.pilot_school.school_name}>
+            <Tag color="blue">{record.pilot_school.school_code}</Tag>
           </Tooltip>
         ) : "-"
       ),

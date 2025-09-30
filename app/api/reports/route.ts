@@ -129,7 +129,7 @@ async function getOverviewReport(baseFilters: any, params: any) {
       where: whereAssessment,
       include: {
         student: { select: { name: true } },
-        pilot_school: { select: { name: true } }
+        pilot_school: { select: { school_name: true } }
       },
       orderBy: { assessed_date: 'desc' },
       take: 10
@@ -242,7 +242,7 @@ async function getStudentPerformanceReport(baseFilters: any, params: any) {
   const studentsWithPerformance = await prisma.student.findMany({
     where: whereStudent,
     include: {
-      pilot_school: { select: { name: true, code: true } },
+      pilot_school: { select: { school_name: true, school_code: true } },
       school_class: {
         include: {
           school: { select: { name: true, code: true } }
@@ -271,7 +271,7 @@ async function getStudentPerformanceReport(baseFilters: any, params: any) {
       student_name: student.name,
       age: student.age,
       gender: student.gender,
-      school: student.school_class?.school?.name || student.pilot_school?.name,
+      school: student.school_class?.school?.name || student.pilot_school?.school_name,
       khmer_progress: calculateProgress(khmerAssessments),
       math_progress: calculateProgress(mathAssessments),
       latest_khmer_level: khmerAssessments[0]?.level || null,
@@ -342,7 +342,7 @@ async function getMentorActivityReport(baseFilters: any, params: any) {
       where: whereMentoring,
       include: {
         mentor: { select: { name: true, email: true } },
-        pilot_school: { select: { name: true, code: true } }
+        pilot_school: { select: { school_name: true, school_code: true } }
       },
       orderBy: { visit_date: 'desc' }
     }),
@@ -360,7 +360,7 @@ async function getMentorActivityReport(baseFilters: any, params: any) {
       },
       include: {
         added_by: { select: { name: true } },
-        pilot_school: { select: { name: true } }
+        pilot_school: { select: { school_name: true } }
       }
     })
   ]);
@@ -501,7 +501,7 @@ async function getExportDataReport(baseFilters: any, params: any) {
       where: whereAssessment,
       include: {
         student: { select: { name: true } },
-        pilot_school: { select: { name: true } },
+        pilot_school: { select: { school_name: true } },
         added_by: { select: { name: true, role: true } }
       }
     })
