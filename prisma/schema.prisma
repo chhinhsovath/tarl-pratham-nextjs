@@ -7,6 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enum for record status tracking
+enum RecordStatus {
+  production    // Real production data
+  test_mentor   // Test data created by mentors
+  test_teacher  // Test data created by teachers
+  demo          // Demo/sample data
+  archived      // Archived/soft-deleted data
+}
+
 // User model with role-based access
 model User {
   id                      Int                   @id @default(autoincrement())
@@ -39,7 +48,8 @@ model User {
   commune                 String?
   village                 String?
   is_active               Boolean               @default(true)
-  
+  test_mode_enabled       Boolean               @default(false) // Phase 3: Teacher test mode toggle
+
   pilot_school            PilotSchool?          @relation(fields: [pilot_school_id], references: [id])
   students                Student[]             @relation("StudentAddedBy")
   assessments             Assessment[]          @relation("AssessmentAddedBy")
@@ -184,11 +194,14 @@ model Student {
   endline_khmer_level         String?  // ចុងគ្រា ខ្មែរ
   endline_math_level          String?  // ចុងគ្រា គណិត
   is_active                   Boolean                      @default(true)
-  is_temporary                Boolean                      @default(false)
+  is_temporary                Boolean                      @default(false) // Deprecated: Use record_status
   added_by_id                 Int?
-  added_by_mentor             Boolean                      @default(false)
+  added_by_mentor             Boolean                      @default(false) // Deprecated: Use record_status
   assessed_by_mentor          Boolean                      @default(false)
   mentor_created_at           DateTime?
+  record_status               RecordStatus                 @default(production) // Phase 1: Record status tracking
+  created_by_role             String?                      // Phase 1: Role of creator
+  test_session_id             String?                      // Phase 2: Test session grouping
   created_at                  DateTime                     @default(now())
   updated_at                  DateTime                     @updatedAt
   
@@ -204,6 +217,8 @@ model Student {
   @@index([added_by_id])
   @@index([is_temporary])
   @@index([added_by_mentor])
+  @@index([record_status]) // Phase 1: Index for filtering by status
+  @@index([test_session_id]) // Phase 2: Index for session filtering
   @@map("students")
 }
 
@@ -219,9 +234,12 @@ model Assessment {
   notes                 String?                 @db.Text
   assessed_date         DateTime?
   added_by_id           Int?
-  is_temporary          Boolean                 @default(false)
-  assessed_by_mentor    Boolean                 @default(false)
+  is_temporary          Boolean                 @default(false) // Deprecated: Use record_status
+  assessed_by_mentor    Boolean                 @default(false) // Deprecated: Use record_status
   mentor_assessment_id  String?
+  record_status         RecordStatus            @default(production) // Phase 1: Record status tracking
+  created_by_role       String?                 // Phase 1: Role of creator
+  test_session_id       String?                 // Phase 2: Test session grouping
   created_at            DateTime                @default(now())
   updated_at            DateTime                @updatedAt
   
@@ -238,6 +256,8 @@ model Assessment {
   @@index([assessed_date])
   @@index([is_temporary])
   @@index([assessed_by_mentor])
+  @@index([record_status]) // Phase 1: Index for filtering by status
+  @@index([test_session_id]) // Phase 2: Index for session filtering
   @@map("assessments")
 }
 
@@ -385,7 +405,13 @@ model MentoringVisit {
   is_locked                               Boolean      @default(false)
   locked_by                               Int?
   locked_at                               DateTime?
-  
+
+  // Test data tracking
+  is_temporary                            Boolean      @default(false) // Deprecated: Use record_status
+  record_status                           RecordStatus @default(production) // Phase 1: Record status tracking
+  created_by_role                         String?      // Phase 1: Role of creator
+  test_session_id                         String?      // Phase 2: Test session grouping
+
   created_at                              DateTime     @default(now())
   updated_at                              DateTime     @updatedAt
   
@@ -401,6 +427,8 @@ model MentoringVisit {
   @@index([class_in_session])
   @@index([subject_observed])
   @@index([is_locked])
+  @@index([record_status]) // Phase 1: Index for filtering by status
+  @@index([test_session_id]) // Phase 2: Index for session filtering
   @@map("mentoring_visits")
 }
 
@@ -647,4 +675,25 @@ model ReportExport {
   @@index([report_type])
   @@index([status])
   @@map("report_exports")
+}
+// Phase 2: Test sessions for grouping test data
+model TestSession {
+  id                    String      @id @default(uuid())
+  user_id               Int
+  user_role             String      // mentor, teacher
+  started_at            DateTime    @default(now())
+  expires_at            DateTime?   // Optional: auto-delete after this date
+  status                String      @default("active") // active, expired, archived
+  student_count         Int         @default(0)
+  assessment_count      Int         @default(0)
+  mentoring_visit_count Int         @default(0)
+  notes                 String?     @db.Text
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
+
+  @@index([user_id])
+  @@index([user_role])
+  @@index([status])
+  @@index([expires_at])
+  @@map("test_sessions")
 }

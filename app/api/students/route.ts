@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { generateMockStudents } from "@/lib/services/mockDataService";
+import { getRecordStatus, getRecordStatusFilter } from "@/lib/utils/recordStatus";
 
 // Validation schema
 const studentSchema = z.object({
@@ -72,12 +73,14 @@ export async function GET(request: NextRequest) {
     const school_class_id = searchParams.get("school_class_id") || "";
     const pilot_school_id = searchParams.get("pilot_school_id") || "";
     const is_temporary = searchParams.get("is_temporary");
-    
+    const include_test_data = searchParams.get("include_test_data") === "true";
+
     const skip = (page - 1) * limit;
-    
-    // Build where clause
+
+    // Build where clause with record_status filter
     const where: any = {
-      is_active: true
+      is_active: true,
+      ...getRecordStatusFilter(session.user.role, include_test_data)
     };
     
     if (search) {
@@ -307,7 +310,13 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validatedData = studentSchema.parse(body);
 
-    // For mentors, automatically set their pilot school and mark as temporary
+    // Determine record status based on user role
+    const recordStatus = getRecordStatus(
+      session.user.role,
+      session.user.test_mode_enabled || false
+    );
+
+    // For mentors, automatically set their pilot school
     if (session.user.role === "mentor") {
       if (!session.user.pilot_school_id) {
         return NextResponse.json(
@@ -317,13 +326,11 @@ export async function POST(request: NextRequest) {
       }
 
       validatedData.pilot_school_id = session.user.pilot_school_id;
-      validatedData.is_temporary = true;
     }
 
     // For teachers, set their pilot school if they have one
     if (session.user.role === "teacher" && session.user.pilot_school_id) {
       validatedData.pilot_school_id = session.user.pilot_school_id;
-      validatedData.is_temporary = false;
     }
 
     // Verify school class exists if provided
@@ -359,8 +366,11 @@ export async function POST(request: NextRequest) {
       data: {
         ...validatedData,
         added_by_id: parseInt(session.user.id),
-        added_by_mentor: session.user.role === "mentor",
-        mentor_created_at: session.user.role === "mentor" ? new Date() : null
+        added_by_mentor: session.user.role === "mentor", // Deprecated but keep for compatibility
+        is_temporary: recordStatus !== 'production', // Deprecated but keep for compatibility
+        mentor_created_at: session.user.role === "mentor" ? new Date() : null,
+        record_status: recordStatus,
+        created_by_role: session.user.role
       },
       include: {
         school_class: {
