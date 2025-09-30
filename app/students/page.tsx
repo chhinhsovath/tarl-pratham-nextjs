@@ -1,30 +1,31 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Table, 
-  Button, 
-  Modal, 
-  Form, 
-  Input, 
-  Select, 
-  DatePicker, 
-  Typography, 
-  Space, 
-  Card, 
+import { useRouter } from 'next/navigation';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Typography,
+  Space,
+  Card,
   Popconfirm,
   Tag,
   App,
   Row,
   Col
 } from 'antd';
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
   EyeOutlined,
   UserOutlined,
-  SearchOutlined 
+  SearchOutlined
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
@@ -44,6 +45,7 @@ interface Student {
 }
 
 function StudentsContent() {
+  const router = useRouter();
   const { message } = App.useApp();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
@@ -214,7 +216,7 @@ function StudentsContent() {
           <Button
             type="text"
             icon={<EyeOutlined />}
-            onClick={() => message.info('មុខងារមើលលម្អិតនឹងត្រូវបានអភិវឌ្ឍ')}
+            onClick={() => router.push(`/students/${record.id}`)}
           />
           <Button
             type="text"

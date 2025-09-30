@@ -17,7 +17,7 @@ import {
   Avatar,
   Divider
 } from 'antd';
-import { 
+import {
   UserOutlined,
   BookOutlined,
   TrophyOutlined,
@@ -28,7 +28,9 @@ import {
   EditOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  FileTextOutlined,
+  CheckSquareOutlined
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
@@ -265,8 +267,36 @@ function TeacherDashboardContent() {
       key: 'actions',
       render: (record: any) => (
         <Space>
-          <Button size="small" icon={<EyeOutlined />} />
-          <Button size="small" icon={<EditOutlined />} />
+          <Button
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => router.push(`/students/${record.id}`)}
+            title="មើលលម្អិតសិស្ស"
+          />
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => router.push(`/students/${record.id}/edit`)}
+            title="កែប្រែសិស្ស"
+          />
+          {user?.role === 'mentor' && (
+            <>
+              <Button
+                size="small"
+                type="primary"
+                icon={<FileTextOutlined />}
+                onClick={() => router.push(`/assessments/create?student_id=${record.id}`)}
+                title="វាយតម្លៃដោយផ្ទាល់"
+              />
+              <Button
+                size="small"
+                type="default"
+                icon={<CheckSquareOutlined />}
+                onClick={() => router.push(`/assessments/verify?student_id=${record.id}`)}
+                title="ផ្ទៀងផ្ទាត់ការវាយតម្លៃ"
+              />
+            </>
+          )}
         </Space>
       )
     }
