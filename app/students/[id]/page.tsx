@@ -28,21 +28,19 @@ import {
   TrophyOutlined,
   ClockCircleOutlined
 } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
-interface StudentDetailsPageProps {
-  params: { id: string };
-}
-
-function StudentDetailsPageContent({ params }: StudentDetailsPageProps) {
+function StudentDetailsPageContent() {
   const router = useRouter();
+  const params = useParams();
   const { data: session } = useSession();
   const user = session?.user;
+  const studentId = params?.id as string;
   
   const [student, setStudent] = useState<any>(null);
   const [assessmentHistory, setAssessmentHistory] = useState<any>(null);
@@ -55,14 +53,18 @@ function StudentDetailsPageContent({ params }: StudentDetailsPageProps) {
   }
 
   useEffect(() => {
-    fetchStudentDetails();
-  }, [params.id]);
+    if (studentId) {
+      fetchStudentDetails();
+    }
+  }, [studentId]);
 
   const fetchStudentDetails = async () => {
+    if (!studentId) return;
+
     try {
       const [studentRes, historyRes] = await Promise.all([
-        fetch(`/api/students/${params.id}`),
-        fetch(`/api/students/${params.id}/assessment-history`)
+        fetch(`/api/students/${studentId}`),
+        fetch(`/api/students/${studentId}/assessment-history`)
       ]);
 
       if (studentRes.ok) {
