@@ -196,90 +196,14 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error fetching mentoring visits:', error);
-    
-    // Check if it's a Prisma/database error
-    if (error.code === 'P2002' || error.code === 'P2025' || error.message?.includes('Invalid')) {
-      // Return empty data with clear Khmer message for database issues
-      return NextResponse.json({
-        data: [],
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 0,
-          pages: 0
-        },
-        message: 'មិនមានទិន្នន័យទស្សនកិច្ចណែនាំនៅក្នុងប្រព័ន្ធ',
-        error_detail: 'បញ្ហាទាក់ទងនឹងមូលដ្ឋានទិន្នន័យ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រព័ន្ធ'
-      });
-    }
-    
-    // Provide fallback data when database query fails
-    const mockMentoringVisits = [
+    return NextResponse.json(
       {
-        id: 1,
-        mentor_id: 1,
-        teacher_id: 3,
-        pilot_school_id: 1,
-        visit_date: new Date('2024-01-15'),
-        purpose: 'តាមដានការបង្រៀន',
-        activities: 'សង្កេតថ្នាក់រៀន និងផ្តល់មតិយោបល់',
-        observation: 'ការបង្រៀនមានប្រសិទ្ធភាពល្អ',
-        score: 85,
-        status: 'completed',
-        action_plan: 'បន្តកែលម្អវិធីសាស្ត្របង្រៀន',
-        follow_up_required: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        mentor: {
-          id: 1,
-          name: 'គ្រូ សុខា',
-          email: 'sokha@example.com'
-        },
-        pilot_school: {
-          id: 1,
-          school_name: 'សាលាបឋមសិក្សាគំរូ',
-          school_code: 'SCH001'
-        }
+        error: 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យទស្សនកិច្ចណែនាំ',
+        details: error.message,
+        code: error.code
       },
-      {
-        id: 2,
-        mentor_id: 2,
-        teacher_id: 4,
-        pilot_school_id: 2,
-        visit_date: new Date('2024-01-20'),
-        purpose: 'ផ្តល់ការណែនាំ',
-        activities: 'បង្ហាត់បង្ហាញវិធីសាស្ត្រថ្មី',
-        observation: 'គ្រូមានចំណាប់អារម្មណ៍រៀន',
-        score: 78,
-        status: 'completed',
-        action_plan: 'ដាក់ផែនការសម្រាប់ខែខាងមុខ',
-        follow_up_required: true,
-        created_at: new Date(),
-        updated_at: new Date(),
-        mentor: {
-          id: 2,
-          name: 'គ្រូ មករា',
-          email: 'makara@example.com'
-        },
-        pilot_school: {
-          id: 2,
-          school_name: 'សាលាបឋមសិក្សាទី២',
-          school_code: 'SCH002'
-        }
-      }
-    ];
-    
-    return NextResponse.json({
-      data: mockMentoringVisits,
-      pagination: {
-        page: 1,
-        limit: 10,
-        total: mockMentoringVisits.length,
-        pages: 1
-      },
-      message: 'កំពុងប្រើទិន្នន័យសាកល្បង',
-      mock: true // Indicate this is mock data
-    });
+      { status: 500 }
+    );
   }
 }
 

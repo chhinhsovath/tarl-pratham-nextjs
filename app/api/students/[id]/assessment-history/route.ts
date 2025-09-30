@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { PrismaClient } from '@prisma/client';
-import { getMockStudentById, getMockAssessmentsForStudent } from '@/lib/services/mockDataService';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
@@ -36,72 +33,8 @@ export async function GET(
       }
     });
 
-    // If no student and user is mentor, return mock data
-    if (!student && session?.user?.role === 'mentor') {
-      const mockStudent = getMockStudentById(studentId);
-      if (!mockStudent) {
-        return NextResponse.json({ error: 'Student not found' }, { status: 404 });
-      }
-
-      const mockAssessments = getMockAssessmentsForStudent(studentId);
-
-      // Process mock assessments
-      const assessmentHistory = {
-        baseline: {
-          khmer: mockAssessments.filter(a => a.assessment_type === 'baseline' && a.subject === 'khmer'),
-          math: mockAssessments.filter(a => a.assessment_type === 'baseline' && a.subject === 'math')
-        },
-        midline: {
-          khmer: mockAssessments.filter(a => a.assessment_type === 'midline' && a.subject === 'khmer'),
-          math: mockAssessments.filter(a => a.assessment_type === 'midline' && a.subject === 'math')
-        },
-        endline: {
-          khmer: mockAssessments.filter(a => a.assessment_type === 'endline' && a.subject === 'khmer'),
-          math: mockAssessments.filter(a => a.assessment_type === 'endline' && a.subject === 'math')
-        }
-      };
-
-      const levelProgression = {
-        khmer: {
-          baseline: mockStudent.baseline_khmer_level,
-          midline: mockStudent.midline_khmer_level,
-          endline: mockStudent.endline_khmer_level
-        },
-        math: {
-          baseline: mockStudent.baseline_math_level,
-          midline: mockStudent.midline_math_level,
-          endline: mockStudent.endline_math_level
-        }
-      };
-
-      const stats = {
-        total_assessments: mockAssessments.length,
-        assessment_types: {
-          baseline: mockAssessments.filter(a => a.assessment_type === 'baseline').length,
-          midline: mockAssessments.filter(a => a.assessment_type === 'midline').length,
-          endline: mockAssessments.filter(a => a.assessment_type === 'endline').length
-        },
-        subjects: {
-          khmer: mockAssessments.filter(a => a.subject === 'khmer').length,
-          math: mockAssessments.filter(a => a.subject === 'math').length
-        },
-        temporary_assessments: mockAssessments.length,
-        mentor_assessments: mockAssessments.length
-      };
-
-      return NextResponse.json({
-        student: mockStudent,
-        assessments: mockAssessments,
-        assessmentHistory,
-        levelProgression,
-        stats,
-        is_mock: true,
-        message: '🧪 Test data - Changes will not be saved'
-      });
-    }
-
     if (!student) {
-      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+      return NextResponse.json({ error: 'រកមិនឃើញសិស្ស' }, { status: 404 });
     }
 
     // Get assessment history

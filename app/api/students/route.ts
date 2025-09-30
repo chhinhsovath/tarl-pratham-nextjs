@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { generateMockStudents } from "@/lib/services/mockDataService";
 import { getRecordStatus, getRecordStatusFilter } from "@/lib/utils/recordStatus";
 
 // Validation schema
@@ -174,23 +173,6 @@ export async function GET(request: NextRequest) {
       prisma.student.count({ where })
     ]);
 
-    // If no students and user is mentor, return mock data
-    if (students.length === 0 && session.user.role === 'mentor') {
-      const mockStudents = generateMockStudents(20);
-
-      return NextResponse.json({
-        data: mockStudents,
-        pagination: {
-          page: 1,
-          limit: mockStudents.length,
-          total: mockStudents.length,
-          pages: 1
-        },
-        is_mock: true,
-        message: '🧪 Test data - Changes will not be saved'
-      });
-    }
-
     return NextResponse.json({
       data: students,
       pagination: {
@@ -203,92 +185,14 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error("Error fetching students:", error);
-    
-    // Check if it's a Prisma/database error
-    if (error.code === 'P2002' || error.code === 'P2025' || error.message?.includes('Invalid')) {
-      // Return empty data with clear Khmer message for database issues
-      return NextResponse.json({
-        data: [],
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 0,
-          pages: 0
-        },
-        message: 'មិនមានទិន្នន័យសិស្សនៅក្នុងប្រព័ន្ធ',
-        error_detail: 'បញ្ហាទាក់ទងនឹងមូលដ្ឋានទិន្នន័យ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រព័ន្ធ'
-      });
-    }
-    
-    // Provide mock data as fallback for development
-    const mockStudents = [
+    return NextResponse.json(
       {
-        id: 1,
-        name: 'សិស្ស ទី១',
-        age: 12,
-        gender: 'male',
-        guardian_name: 'អាណាព្យាបាល ទី១',
-        guardian_phone: '012345678',
-        address: 'ភូមិ ១ សង្កាត់ ១',
-        baseline_khmer_level: 'beginner',
-        baseline_math_level: 'beginner',
-        is_temporary: false,
-        is_active: true,
-        created_at: new Date(),
-        updated_at: new Date(),
-        pilot_school: {
-          id: 1,
-          name: 'សាលាបឋមសិក្សាគំរូ',
-          code: 'SCH001'
-        },
-        school_class: null,
-        added_by: {
-          id: 1,
-          name: 'គ្រូ សុខា',
-          role: 'teacher'
-        },
-        assessments: []
+        error: 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស',
+        details: error.message,
+        code: error.code
       },
-      {
-        id: 2,
-        name: 'សិស្ស ទី២',
-        age: 11,
-        gender: 'female',
-        guardian_name: 'អាណាព្យាបាល ទី២',
-        guardian_phone: '098765432',
-        address: 'ភូមិ ២ សង្កាត់ ២',
-        baseline_khmer_level: 'intermediate',
-        baseline_math_level: 'beginner',
-        is_temporary: false,
-        is_active: true,
-        created_at: new Date(),
-        updated_at: new Date(),
-        pilot_school: {
-          id: 1,
-          name: 'សាលាបឋមសិក្សាគំរូ',
-          code: 'SCH001'
-        },
-        school_class: null,
-        added_by: {
-          id: 1,
-          name: 'គ្រូ សុខា',
-          role: 'teacher'
-        },
-        assessments: []
-      }
-    ];
-    
-    return NextResponse.json({
-      data: mockStudents,
-      pagination: {
-        page: 1,
-        limit: 10,
-        total: mockStudents.length,
-        pages: 1
-      },
-      message: 'កំពុងប្រើទិន្នន័យសាកល្បង',
-      mock: true
-    });
+      { status: 500 }
+    );
   }
 }
 
