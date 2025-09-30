@@ -9,7 +9,6 @@ import {
   Form,
   Input,
   Select,
-  DatePicker,
   Typography,
   Space,
   Card,
@@ -35,11 +34,17 @@ const { Option } = Select;
 
 interface Student {
   id: number;
-  student_name: string;
-  gender: 'male' | 'female';
-  birth_date: string;
-  grade_level: 'grade_4' | 'grade_5';
-  student_status: 'active' | 'inactive' | 'transferred';
+  name: string;
+  gender: string;
+  age?: number;
+  guardian_name?: string;
+  guardian_phone?: string;
+  address?: string;
+  school_class_id?: number;
+  pilot_school_id?: number;
+  baseline_khmer_level?: string;
+  baseline_math_level?: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -108,43 +113,64 @@ function StudentsContent() {
   const handleSubmit = async (values: any) => {
     try {
       const studentData = {
-        ...values,
-        birth_date: values.birth_date.format('YYYY-MM-DD')
+        name: values.name,
+        gender: values.gender,
+        age: values.age,
+        guardian_name: values.guardian_name,
+        guardian_phone: values.guardian_phone,
       };
 
       if (editingStudent) {
-        // Mock update - replace with actual API call
-        const updated = { ...editingStudent, ...studentData, updated_at: new Date().toISOString() };
-        setStudents(prev => prev.map(s => s.id === editingStudent.id ? updated : s));
+        // Update existing student via API
+        const response = await fetch('/api/students', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editingStudent.id, ...studentData })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាពសិស្ស');
+        }
+
+        const result = await response.json();
+        setStudents(prev => prev.map(s => s.id === editingStudent.id ? result.data : s));
         message.success('ធ្វើបច្ចុប្បន្នភាពសិស្សបានជោគជ័យ');
       } else {
-        // Mock create - replace with actual API call
-        const newStudent: Student = {
-          id: Date.now(),
-          ...studentData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setStudents(prev => [newStudent, ...prev]);
+        // Create new student via API
+        const response = await fetch('/api/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(studentData)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'មានបញ្ហាក្នុងការបន្ថែមសិស្ស');
+        }
+
+        const result = await response.json();
+        setStudents(prev => [result.data, ...prev]);
         message.success('បន្ថែមសិស្សបានជោគជ័យ');
       }
 
       setModalVisible(false);
       form.resetFields();
     } catch (error) {
-      message.error('មានបញ្ហាក្នុងការរក្សាទុកទិន្នន័យ');
+      console.error('Error saving student:', error);
+      message.error(error instanceof Error ? error.message : 'មានបញ្ហាក្នុងការរក្សាទុកទិន្នន័យ');
     }
   };
 
   const filteredStudents = students.filter(student =>
-    student.student_name.toLowerCase().includes(searchText.toLowerCase())
+    student.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const columns = [
     {
       title: 'ឈ្មោះសិស្ស',
-      dataIndex: 'student_name',
-      key: 'student_name',
+      dataIndex: 'name',
+      key: 'name',
       render: (text: string, record: Student) => (
         <Space>
           <UserOutlined style={{ color: record.gender === 'male' ? '#1890ff' : '#f759ab' }} />
@@ -158,42 +184,30 @@ function StudentsContent() {
       key: 'gender',
       render: (gender: string) => (
         <Tag color={gender === 'male' ? 'blue' : 'pink'}>
-          {gender === 'male' ? 'ប្រុស' : 'ស្រី'}
+          {gender === 'male' ? 'ប្រុស' : gender === 'female' ? 'ស្រី' : gender}
         </Tag>
       ),
     },
     {
-      title: 'ថ្នាក់',
-      dataIndex: 'grade_level',
-      key: 'grade_level',
-      render: (grade: string) => (
-        <Tag color="green">
-          {grade === 'grade_4' ? 'ថ្នាក់ទី៤' : 'ថ្នាក់ទី៥'}
-        </Tag>
-      ),
+      title: 'អាយុ',
+      dataIndex: 'age',
+      key: 'age',
+      render: (age: number) => age || '-',
     },
     {
       title: 'ស្ថានភាព',
-      dataIndex: 'student_status',
-      key: 'student_status',
-      render: (status: string) => {
-        const colors = {
-          active: 'green',
-          inactive: 'orange',
-          transferred: 'red'
-        };
-        const labels = {
-          active: 'សកម្ម',
-          inactive: 'អសកម្ម',
-          transferred: 'ផ្ទេរ'
-        };
-        return <Tag color={colors[status as keyof typeof colors]}>{labels[status as keyof typeof labels]}</Tag>;
-      },
+      dataIndex: 'is_active',
+      key: 'is_active',
+      render: (is_active: boolean) => (
+        <Tag color={is_active ? 'green' : 'red'}>
+          {is_active ? 'សកម្ម' : 'អសកម្ម'}
+        </Tag>
+      ),
     },
     {
-      title: 'កាលបរិច្ឆេទកំណើត',
-      dataIndex: 'birth_date',
-      key: 'birth_date',
+      title: 'កាលបរិច្ឆេទបង្កើត',
+      dataIndex: 'created_at',
+      key: 'created_at',
       render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
     },
     {
@@ -268,12 +282,13 @@ function StudentsContent() {
               <Select placeholder="ភេទ" style={{ width: '100%' }} allowClear>
                 <Option value="male">ប្រុស</Option>
                 <Option value="female">ស្រី</Option>
+                <Option value="other">ផ្សេងទៀត</Option>
               </Select>
             </Col>
             <Col xs={24} sm={12} md={4}>
-              <Select placeholder="ថ្នាក់" style={{ width: '100%' }} allowClear>
-                <Option value="grade_4">ថ្នាក់ទី៤</Option>
-                <Option value="grade_5">ថ្នាក់ទី៥</Option>
+              <Select placeholder="ស្ថានភាព" style={{ width: '100%' }} allowClear>
+                <Option value="true">សកម្ម</Option>
+                <Option value="false">អសកម្ម</Option>
               </Select>
             </Col>
           </Row>
@@ -312,7 +327,7 @@ function StudentsContent() {
         >
           <Form.Item
             label="ឈ្មោះសិស្ស"
-            name="student_name"
+            name="name"
             rules={[{ required: true, message: 'សូមបញ្ចូលឈ្មោះសិស្ស!' }]}
           >
             <Input placeholder="បញ្ចូលឈ្មោះពេញ" />
@@ -328,19 +343,17 @@ function StudentsContent() {
                 <Select placeholder="ជ្រើសរើសភេទ">
                   <Option value="male">ប្រុស</Option>
                   <Option value="female">ស្រី</Option>
+                  <Option value="other">ផ្សេងទៀត</Option>
                 </Select>
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item
-                label="ថ្នាក់រៀន"
-                name="grade_level"
-                rules={[{ required: true, message: 'សូមជ្រើសរើសថ្នាក់!' }]}
+                label="អាយុ"
+                name="age"
+                rules={[{ required: true, message: 'សូមបញ្ចូលអាយុ!' }]}
               >
-                <Select placeholder="ជ្រើសរើសថ្នាក់">
-                  <Option value="grade_4">ថ្នាក់ទី៤</Option>
-                  <Option value="grade_5">ថ្នាក់ទី៥</Option>
-                </Select>
+                <Input type="number" placeholder="បញ្ចូលអាយុ" min={1} max={25} />
               </Form.Item>
             </Col>
           </Row>
@@ -348,28 +361,18 @@ function StudentsContent() {
           <Row gutter={16}>
             <Col xs={24} sm={12}>
               <Form.Item
-                label="កាលបរិច្ឆេទកំណើត"
-                name="birth_date"
-                rules={[{ required: true, message: 'សូមជ្រើសរើសកាលបរិច្ឆេទកំណើត!' }]}
+                label="ឈ្មោះអាណាព្យាបាល"
+                name="guardian_name"
               >
-                <DatePicker 
-                  style={{ width: '100%' }} 
-                  placeholder="ជ្រើសរើសកាលបរិច្ឆេទ"
-                  format="DD/MM/YYYY"
-                />
+                <Input placeholder="បញ្ចូលឈ្មោះអាណាព្យាបាល" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item
-                label="ស្ថានភាព"
-                name="student_status"
-                rules={[{ required: true, message: 'សូមជ្រើសរើសស្ថានភាព!' }]}
+                label="លេខទូរស័ព្ទអាណាព្យាបាល"
+                name="guardian_phone"
               >
-                <Select placeholder="ជ្រើសរើសស្ថានភាព">
-                  <Option value="active">សកម្ម</Option>
-                  <Option value="inactive">អសកម្ម</Option>
-                  <Option value="transferred">ផ្ទេរ</Option>
-                </Select>
+                <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" />
               </Form.Item>
             </Col>
           </Row>
