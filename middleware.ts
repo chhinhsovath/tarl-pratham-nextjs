@@ -100,10 +100,25 @@ export async function middleware(request: NextRequest) {
     const pilotSchoolId = token.pilot_school_id;
     const schoolRequiredPaths = ['/students', '/assessments', '/mentoring'];
 
-    if (schoolRequiredPaths.some(p => path.startsWith(p)) &&
-        !pilotSchoolId &&
-        !path.startsWith('/profile-setup')) {
+    // Check if trying to access school-required paths
+    const needsSchool = schoolRequiredPaths.some(p => path.startsWith(p));
+
+    // Allow access to onboarding and profile-setup pages
+    const allowedPaths = ['/profile-setup', '/onboarding', '/dashboard', '/help', '/reports', '/profile'];
+    const isAllowedPath = allowedPaths.some(p => path.startsWith(p));
+
+    // Check if coming from onboarding (allow first visit)
+    const referer = request.headers.get('referer');
+    const comingFromOnboarding = referer?.includes('/onboarding');
+
+    if (needsSchool && !pilotSchoolId && !isAllowedPath && !comingFromOnboarding) {
+      console.log('🚫 Blocking access to', path, '- No school assigned. Redirecting to /profile-setup');
       return NextResponse.redirect(new URL('/profile-setup', request.url));
+    }
+
+    // Debug: Log school status
+    if (needsSchool && process.env.NODE_ENV === 'development') {
+      console.log('🔍 School check:', { path, pilotSchoolId, userRole, comingFromOnboarding });
     }
   }
 
