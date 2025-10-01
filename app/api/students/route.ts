@@ -187,9 +187,16 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching students:", error);
     return NextResponse.json(
       {
-        error: 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស',
-        details: error.message,
-        code: error.code
+        success: false,
+        message: 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស',
+        error: error.message || "Unknown error occurred",
+        details: {
+          error_type: error.constructor.name,
+          error_code: error.code,
+          error_meta: error.meta,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        },
+        code: error.code || "FETCH_ERROR"
       },
       { status: 500 }
     );
@@ -318,17 +325,43 @@ export async function POST(request: NextRequest) {
       data: student 
     }, { status: 201 });
 
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ", details: error.errors },
+        {
+          success: false,
+          message: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ",
+          error: "VALIDATION_ERROR",
+          details: error.errors.map(err => ({
+            field: err.path.join('.'),
+            message: err.message,
+            code: err.code
+          })),
+          code: "VALIDATION_ERROR"
+        },
         { status: 400 }
       );
     }
-    
+
     console.error("Error creating student:", error);
+
+    // Detailed error response for debugging
     return NextResponse.json(
-      { error: "មានបញ្ហាក្នុងការបង្កើតសិស្ស សូមព្យាយាមម្តងទៀត" },
+      {
+        success: false,
+        message: "មានបញ្ហាក្នុងការបង្កើតសិស្ស",
+        error: error.message || "Unknown error occurred",
+        details: {
+          error_type: error.constructor.name,
+          error_code: error.code,
+          error_meta: error.meta,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+          user_role: session?.user?.role,
+          pilot_school_id: session?.user?.pilot_school_id || null,
+          has_permission: session?.user?.role ? hasPermission(session.user.role, "create") : false
+        },
+        code: error.code || "INTERNAL_ERROR"
+      },
       { status: 500 }
     );
   }
@@ -423,17 +456,38 @@ export async function PUT(request: NextRequest) {
       data: student 
     });
 
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ", details: error.errors },
+        {
+          success: false,
+          message: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ",
+          error: "VALIDATION_ERROR",
+          details: error.errors.map(err => ({
+            field: err.path.join('.'),
+            message: err.message,
+            code: err.code
+          })),
+          code: "VALIDATION_ERROR"
+        },
         { status: 400 }
       );
     }
-    
+
     console.error("Error updating student:", error);
     return NextResponse.json(
-      { error: "មានបញ្ហាក្នុងការកែប្រែសិស្ស សូមព្យាយាមម្តងទៀត" },
+      {
+        success: false,
+        message: "មានបញ្ហាក្នុងការកែប្រែសិស្ស",
+        error: error.message || "Unknown error occurred",
+        details: {
+          error_type: error.constructor.name,
+          error_code: error.code,
+          error_meta: error.meta,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        },
+        code: error.code || "UPDATE_ERROR"
+      },
       { status: 500 }
     );
   }
@@ -502,10 +556,21 @@ export async function DELETE(request: NextRequest) {
       message: "បានលុបសិស្សដោយជោគជ័យ" 
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting student:", error);
     return NextResponse.json(
-      { error: "មានបញ្ហាក្នុងការលុបសិស្ស សូមព្យាយាមម្តងទៀត" },
+      {
+        success: false,
+        message: "មានបញ្ហាក្នុងការលុបសិស្ស",
+        error: error.message || "Unknown error occurred",
+        details: {
+          error_type: error.constructor.name,
+          error_code: error.code,
+          error_meta: error.meta,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        },
+        code: error.code || "DELETE_ERROR"
+      },
       { status: 500 }
     );
   }
