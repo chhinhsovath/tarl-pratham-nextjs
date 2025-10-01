@@ -697,3 +697,92 @@ model TestSession {
   @@index([expires_at])
   @@map("test_sessions")
 }
+
+// Comprehensive audit logging for all CRUD operations
+model AuditLog {
+  id                Int       @id @default(autoincrement())
+  user_id           Int?      // Who performed the action
+  user_role         String?   // Role at time of action
+  user_email        String?   // Email at time of action
+  action            String    // create, update, delete, view, export, import
+  resource_type     String    // users, students, assessments, etc
+  resource_id       Int?      // ID of affected resource
+  resource_name     String?   // Human-readable name
+  old_values        Json?     // Previous values (for update/delete)
+  new_values        Json?     // New values (for create/update)
+  changed_fields    Json?     // Array of changed field names
+  ip_address        String?   // Client IP address
+  user_agent        String?   // Browser/client info
+  session_id        String?   // Session identifier
+  status            String    // success, failed, denied
+  error_message     String?   @db.Text
+  metadata          Json?     // Additional context
+  created_at        DateTime  @default(now())
+
+  @@index([user_id])
+  @@index([resource_type])
+  @@index([resource_id])
+  @@index([action])
+  @@index([status])
+  @@index([created_at])
+  @@index([user_role])
+  @@map("audit_logs")
+}
+
+// Rate limiting tracking
+model RateLimit {
+  id              Int       @id @default(autoincrement())
+  identifier      String    // IP address or user ID
+  endpoint        String    // API endpoint
+  requests_count  Int       @default(1)
+  window_start    DateTime  @default(now())
+  blocked_until   DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@unique([identifier, endpoint, window_start])
+  @@index([identifier])
+  @@index([endpoint])
+  @@index([window_start])
+  @@index([blocked_until])
+  @@map("rate_limits")
+}
+
+// Active session tracking
+model UserSession {
+  id              String    @id @default(uuid())
+  user_id         Int
+  user_role       String
+  ip_address      String?
+  user_agent      String?
+  device_info     Json?
+  started_at      DateTime  @default(now())
+  last_activity   DateTime  @default(now())
+  expires_at      DateTime
+  is_active       Boolean   @default(true)
+  terminated_at   DateTime?
+  termination_reason String?
+  created_at      DateTime  @default(now())
+
+  @@index([user_id])
+  @@index([is_active])
+  @@index([expires_at])
+  @@index([last_activity])
+  @@map("user_sessions")
+}
+
+// IP whitelist for admin access
+model IpWhitelist {
+  id              Int       @id @default(autoincrement())
+  ip_address      String    @unique
+  description     String?
+  allowed_roles   Json?     // Array of allowed roles
+  is_active       Boolean   @default(true)
+  added_by        Int?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([ip_address])
+  @@index([is_active])
+  @@map("ip_whitelist")
+}

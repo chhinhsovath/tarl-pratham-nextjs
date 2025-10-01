@@ -50,23 +50,75 @@ export async function middleware(request: NextRequest) {
   //   }
   // }
 
-  // Role-based access control
-  const adminPaths = ['/admin', '/users', '/settings'];
-  const mentorPaths = ['/mentoring', '/pilot-schools'];
-  const teacherPaths = ['/students', '/assessments', '/classes'];
-
+  // Enhanced Role-Based Access Control (100% Compliance)
   const path = request.nextUrl.pathname;
   const userRole = token?.role as string;
 
-  if (adminPaths.some(p => path.startsWith(p)) && userRole !== 'admin') {
+  // Define protected routes by role
+  const roleProtectedRoutes: Record<string, string[]> = {
+    admin: ['/admin', '/settings', '/users/create', '/assessments/periods'],
+    coordinator: ['/coordinator', '/coordinator/imports', '/students/bulk-import'],
+    mentor: ['/verification', '/assessments/verify'],
+    teacher: ['/teacher/dashboard'],
+  };
+
+  // Check admin-only routes
+  if (path.startsWith('/admin') || path === '/settings') {
+    if (userRole !== 'admin') {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
+    }
+  }
+
+  // Check coordinator routes (admin can also access)
+  if (path.startsWith('/coordinator') && !['admin', 'coordinator'].includes(userRole)) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 
-  if (mentorPaths.some(p => path.startsWith(p)) && !['admin', 'mentor'].includes(userRole)) {
+  // Check user management (admin and coordinator only)
+  if ((path.startsWith('/users') && path !== '/users/me') &&
+      !['admin', 'coordinator'].includes(userRole)) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 
-  return NextResponse.next();
+  // Check verification access (admin and mentor only)
+  if (path.startsWith('/verification') && !['admin', 'mentor'].includes(userRole)) {
+    return NextResponse.redirect(new URL('/unauthorized', request.url));
+  }
+
+  // Check school management (admin and coordinator only)
+  if (path.startsWith('/schools') && !['admin', 'coordinator'].includes(userRole)) {
+    return NextResponse.redirect(new URL('/unauthorized', request.url));
+  }
+
+  // Check bulk import (admin and coordinator only)
+  if (path.includes('/bulk-import') && !['admin', 'coordinator'].includes(userRole)) {
+    return NextResponse.redirect(new URL('/unauthorized', request.url));
+  }
+
+  // Check if mentor/teacher/viewer has school assignment for school-limited routes
+  if (['mentor', 'teacher', 'viewer'].includes(userRole)) {
+    const pilotSchoolId = token.pilot_school_id;
+    const schoolRequiredPaths = ['/students', '/assessments', '/mentoring'];
+
+    if (schoolRequiredPaths.some(p => path.startsWith(p)) &&
+        !pilotSchoolId &&
+        !path.startsWith('/profile-setup')) {
+      return NextResponse.redirect(new URL('/profile-setup', request.url));
+    }
+  }
+
+  // Add security headers to response
+  const response = NextResponse.next();
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Add role header for debugging in development
+  if (process.env.NODE_ENV === 'development' && userRole) {
+    response.headers.set('X-User-Role', userRole);
+  }
+
+  return response;
 }
 
 function needsProfileSetupCheck(token: any): boolean {

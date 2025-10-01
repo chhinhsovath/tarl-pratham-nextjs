@@ -83,27 +83,38 @@ export default function PWAProvider({ children }: { children: React.ReactNode })
 
     // Request persistent storage
     if ('storage' in navigator && 'persist' in navigator.storage) {
-      navigator.storage.persist().then((granted) => {
-        if (granted) {
-          console.log('Persistent storage granted');
-        }
-      });
+      navigator.storage.persist()
+        .then((granted) => {
+          if (granted) {
+            console.log('Persistent storage granted');
+          }
+        })
+        .catch((error) => {
+          console.log('Persistent storage request failed:', error);
+        });
     }
 
     // Handle visibility change for background sync
-    document.addEventListener('visibilitychange', () => {
+    const handleVisibilityChange = () => {
       if (!document.hidden && navigator.onLine) {
         // Trigger background sync when app becomes visible
         if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
-          navigator.serviceWorker.ready.then((registration) => {
-            return registration.sync.register('sync-assessments');
-          });
+          navigator.serviceWorker.ready
+            .then((registration) => {
+              return registration.sync.register('sync-assessments');
+            })
+            .catch((error) => {
+              console.log('Background sync registration failed:', error);
+            });
         }
       }
-    });
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [deferredPrompt, isInstallable]);
 
