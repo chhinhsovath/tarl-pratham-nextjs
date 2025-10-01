@@ -319,8 +319,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ",
-          message: error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', '),
-          details: error.errors
+          message: error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', '),
+          details: error.issues
         },
         { status: 400 }
       );
@@ -432,14 +432,23 @@ export async function PUT(request: NextRequest) {
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ", details: error.errors },
+        {
+          error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ",
+          message: error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', '),
+          details: error.issues
+        },
         { status: 400 }
       );
     }
 
     console.error("Error updating student:", error);
     return NextResponse.json(
-      { error: "មានបញ្ហាក្នុងការកែប្រែសិស្ស សូមព្យាយាមម្តងទៀត" },
+      {
+        error: "មានបញ្ហាក្នុងការកែប្រែសិស្ស សូមព្យាយាមម្តងទៀត",
+        message: error.message || String(error),
+        code: error.code || 'UNKNOWN_ERROR',
+        meta: error.meta || {}
+      },
       { status: 500 }
     );
   }
