@@ -1,11 +1,20 @@
 import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const globalForPrisma = global as unknown as { prisma: PrismaClient | undefined };
 
+// DEVELOPMENT: Always create fresh instance to avoid cached schema issues
+// PRODUCTION: Use singleton for connection pooling
 export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  });
+  process.env.NODE_ENV === 'production'
+    ? (globalForPrisma.prisma ||
+        new PrismaClient({
+          log: ['error'],
+        }))
+    : new PrismaClient({
+        log: ['query', 'error', 'warn'],
+      });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// Only cache in production
+if (process.env.NODE_ENV === 'production' && !globalForPrisma.prisma) {
+  globalForPrisma.prisma = prisma;
+}
