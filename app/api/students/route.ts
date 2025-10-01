@@ -229,14 +229,19 @@ export async function POST(request: NextRequest) {
     // Auto-link to active test session for test data
     let testSessionId = null;
     if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
-      const activeSession = await prisma.testSession.findFirst({
-        where: {
-          user_id: parseInt(session.user.id),
-          status: 'active'
+      try {
+        const activeSession = await prisma.testSession.findFirst({
+          where: {
+            user_id: parseInt(session.user.id),
+            status: 'active'
+          }
+        });
+        if (activeSession) {
+          testSessionId = activeSession.id;
         }
-      });
-      if (activeSession) {
-        testSessionId = activeSession.id;
+      } catch (err) {
+        // TestSession table may not exist in production - skip linking
+        console.warn('TestSession table not available:', err);
       }
     }
 
