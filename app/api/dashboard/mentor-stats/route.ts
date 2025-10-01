@@ -10,7 +10,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    // Get overall statistics for mentor
+    // Get mentor's user record to find assigned pilot_school_id
+    const mentorUser = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: { pilot_school_id: true, role: true }
+    });
+
+    if (!mentorUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Build filter based on mentor's assigned school
+    const schoolFilter = mentorUser.pilot_school_id
+      ? { pilot_school_id: mentorUser.pilot_school_id }
+      : {}; // If no assigned school, show nothing
+
+    // Get statistics filtered by mentor's assigned school
     const [
       totalStudents,
       temporaryStudents,
@@ -18,14 +33,23 @@ export async function GET(request: NextRequest) {
       totalAssessments,
       temporaryAssessments
     ] = await Promise.all([
-      prisma.student.count(),
-      prisma.student.count({ where: { is_temporary: true } }),
-      prisma.pilotSchool.count(),
-      prisma.assessment.count(),
-      prisma.assessment.count({ where: { is_temporary: true } })
+      prisma.student.count({ where: schoolFilter }),
+      prisma.student.count({ where: { ...schoolFilter, is_temporary: true } }),
+      mentorUser.pilot_school_id ? 1 : 0, // Mentor assigned to 1 school or 0
+      prisma.assessment.count({
+        where: {
+          student: schoolFilter
+        }
+      }),
+      prisma.assessment.count({
+        where: {
+          is_temporary: true,
+          student: schoolFilter
+        }
+      })
     ]);
 
-    // Get recent assessments (last 7 days)
+    // Get recent assessments (last 7 days) filtered by mentor's school
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -33,7 +57,8 @@ export async function GET(request: NextRequest) {
       where: {
         assessed_date: {
           gte: sevenDaysAgo
-        }
+        },
+        student: schoolFilter
       },
       take: 10,
       orderBy: {
@@ -60,20 +85,27 @@ export async function GET(request: NextRequest) {
       assessed_date: assessment.assessed_date?.toISOString() || null
     }));
 
-    // Get recent activity count
+    // Get recent activity count filtered by school
     const assessmentsLast7Days = await prisma.assessment.count({
       where: {
         assessed_date: {
           gte: sevenDaysAgo
-        }
+        },
+        student: schoolFilter
       }
     });
 
-    // Assessment distribution data
+    // Assessment distribution data filtered by school and using assessment_type field
     const [baselineCount, midlineCount, endlineCount] = await Promise.all([
-      prisma.assessment.count({ where: { cycle: 'baseline' } }),
-      prisma.assessment.count({ where: { cycle: 'midline' } }),
-      prisma.assessment.count({ where: { cycle: 'endline' } })
+      prisma.assessment.count({
+        where: { assessment_type: 'baseline', student: schoolFilter }
+      }),
+      prisma.assessment.count({
+        where: { assessment_type: 'midline', student: schoolFilter }
+      }),
+      prisma.assessment.count({
+        where: { assessment_type: 'endline', student: schoolFilter }
+      })
     ]);
 
     // TODO: Calculate actual school comparison data from assessments

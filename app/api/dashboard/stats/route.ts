@@ -30,16 +30,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('Dashboard stats error:', error);
-    
-    // Return demo data if database not ready - matching Laravel's fallback
+
     return NextResponse.json({
-      success: true,
-      data: {
-        totalStudents: 1250,
-        totalAssessments: 3750,
-        totalSchools: 45,
-        totalMentoringVisits: 128
-      }
-    });
+      error: 'Failed to fetch dashboard statistics',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      details: 'Check database connection and table structure'
+    }, { status: 500 });
   }
 }
