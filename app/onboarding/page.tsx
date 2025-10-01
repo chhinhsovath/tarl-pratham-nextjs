@@ -387,6 +387,27 @@ export default function OnboardingPage() {
     router.push(step.route);
   };
 
+  const markStepComplete = async (stepId: string) => {
+    try {
+      const response = await fetch('/api/onboarding/complete-step', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ stepId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Step marked complete:', data);
+        // Refresh completed steps
+        await getCompletedSteps();
+      }
+    } catch (error) {
+      console.error('Error marking step complete:', error);
+    }
+  };
+
   const isStepCompleted = (stepId: string) => completedSteps.includes(stepId);
   
   const isStepNext = (index: number) => {
@@ -547,19 +568,32 @@ export default function OnboardingPage() {
                         <Tag color="success" icon={<CheckCircleOutlined />}>
                           បានបញ្ចប់
                         </Tag>
-                        <Button type="link" size="small">
+                        <Button
+                          type="link"
+                          size="small"
+                          onClick={() => handleStepClick(step)}
+                        >
                           មើលម្តងទៀត →
                         </Button>
                       </div>
                     ) : (
                       <Space direction="vertical" style={{ width: '100%' }}>
-                        <Button 
-                          type="primary" 
+                        <Button
+                          type="primary"
                           icon={<PlayCircleOutlined />}
                           block
                           onClick={() => handleStepClick(step)}
                         >
                           ចាប់ផ្តើម
+                        </Button>
+                        <Button
+                          type="default"
+                          icon={<CheckCircleOutlined />}
+                          block
+                          size="small"
+                          onClick={() => markStepComplete(step.id)}
+                        >
+                          សម្គាល់ថាបានបញ្ចប់
                         </Button>
                       </Space>
                     )}
