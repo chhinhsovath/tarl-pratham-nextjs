@@ -111,14 +111,27 @@ export async function middleware(request: NextRequest) {
     const referer = request.headers.get('referer');
     const comingFromOnboarding = referer?.includes('/onboarding');
 
+    // Debug logging in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 [MIDDLEWARE] School check:', {
+        path,
+        pilotSchoolId,
+        userRole,
+        needsSchool,
+        isAllowedPath,
+        comingFromOnboarding,
+        referer: referer?.substring(referer.length - 30)
+      });
+    }
+
     if (needsSchool && !pilotSchoolId && !isAllowedPath && !comingFromOnboarding) {
-      console.log('🚫 Blocking access to', path, '- No school assigned. Redirecting to /profile-setup');
+      console.log('🚫 [MIDDLEWARE] BLOCKING access to', path, '- No school assigned (pilot_school_id:', pilotSchoolId, ')');
+      console.log('📍 [MIDDLEWARE] Redirecting to /profile-setup');
       return NextResponse.redirect(new URL('/profile-setup', request.url));
     }
 
-    // Debug: Log school status
-    if (needsSchool && process.env.NODE_ENV === 'development') {
-      console.log('🔍 School check:', { path, pilotSchoolId, userRole, comingFromOnboarding });
+    if (needsSchool && pilotSchoolId) {
+      console.log('✅ [MIDDLEWARE] ALLOWING access to', path, '- School assigned:', pilotSchoolId);
     }
   }
 

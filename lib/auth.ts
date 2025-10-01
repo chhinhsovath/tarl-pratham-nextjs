@@ -110,6 +110,7 @@ export const authOptions: NextAuthOptions = {
       
       // Handle session updates (when update() is called)
       if (trigger === "update" && session) {
+        console.log('🔄 [AUTH] Session update triggered');
         // Fetch fresh user data from database
         const userId = parseInt(token.id as string);
         const freshUser = await prisma.user.findUnique({
@@ -125,8 +126,9 @@ export const authOptions: NextAuthOptions = {
             profile_expires_at: true
           }
         });
-        
+
         if (freshUser) {
+          console.log('✅ [AUTH] Fresh user data fetched:', { pilot_school_id: freshUser.pilot_school_id, subject: freshUser.subject });
           token.pilot_school_id = freshUser.pilot_school_id;
           token.subject = freshUser.subject;
           token.holding_classes = freshUser.holding_classes;
@@ -135,6 +137,9 @@ export const authOptions: NextAuthOptions = {
           token.onboarding_completed = freshUser.onboarding_completed;
           token.show_onboarding = freshUser.show_onboarding;
           token.profile_expires_at = freshUser.profile_expires_at;
+          console.log('✅ [AUTH] Token updated with pilot_school_id:', token.pilot_school_id);
+        } else {
+          console.error('❌ [AUTH] Fresh user not found for userId:', userId);
         }
       }
       

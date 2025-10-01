@@ -118,27 +118,31 @@ function ProfileSetupContent() {
       console.log('✅ Parsed response data:', data);
 
       // Update the session with new data - this triggers the JWT callback to fetch fresh data
-      console.log('🔄 Updating session...');
+      console.log('🔄 Updating session with fresh data...');
+      const updatedSession = await update();
+      console.log('📦 Updated session:', updatedSession);
+
+      // Force a second update to ensure token is refreshed
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await update();
-      
-      // Wait a bit for session to propagate
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      console.log('🔄 Second session update completed');
+
+      // Wait for session to fully propagate through middleware
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       const successMessage = isMentor && isFirstTime
         ? 'ប្រវត្តិរូបបានបំពេញដោយជោគជ័យ! ការកំណត់ប្រវត្តិរូបរបស់អ្នកនឹងត្រូវកំណត់ឡើងវិញបន្ទាប់ពី 48 ម៉ោង។'
         : 'ប្រវត្តិរូបបានបំពេញដោយជោគជ័យ!';
-      
+
       message.success(successMessage);
-      
+
       // Navigate based on user role and whether this was first-time setup
       console.log('🚀 Navigating...', { isFirstTime, isMentor, role: session?.user?.role });
-      setTimeout(() => {
-        if (isFirstTime && (session?.user?.role === 'teacher' || session?.user?.role === 'mentor')) {
-          router.push('/onboarding');
-        } else {
-          router.push('/dashboard');
-        }
-      }, 1000);
+      if (isFirstTime && (session?.user?.role === 'teacher' || session?.user?.role === 'mentor')) {
+        router.push('/onboarding');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error) {
       console.error('💥 Profile update error:', error);
       message.error('An error occurred while updating profile');
