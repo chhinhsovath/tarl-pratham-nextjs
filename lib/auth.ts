@@ -107,6 +107,38 @@ export const authOptions: NextAuthOptions = {
         token.holding_classes = user.holding_classes;
         token.profile_expires_at = user.profile_expires_at;
       }
+
+      // CRITICAL: Always refresh token data from database to prevent stale data
+      // This prevents "profile-setup redirect loop" caused by cached null pilot_school_id
+      if (!user && token.id) {
+        const userId = parseInt(token.id as string);
+        const freshUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            role: true,
+            pilot_school_id: true,
+            subject: true,
+            holding_classes: true,
+            province: true,
+            district: true,
+            onboarding_completed: true,
+            show_onboarding: true,
+            profile_expires_at: true
+          }
+        });
+
+        if (freshUser) {
+          token.role = freshUser.role;
+          token.pilot_school_id = freshUser.pilot_school_id;
+          token.subject = freshUser.subject;
+          token.holding_classes = freshUser.holding_classes;
+          token.province = freshUser.province;
+          token.district = freshUser.district;
+          token.onboarding_completed = freshUser.onboarding_completed;
+          token.show_onboarding = freshUser.show_onboarding;
+          token.profile_expires_at = freshUser.profile_expires_at;
+        }
+      }
       
       // Handle session updates (when update() is called)
       if (trigger === "update" && session) {
