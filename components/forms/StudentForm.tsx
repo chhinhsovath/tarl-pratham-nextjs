@@ -119,12 +119,17 @@ const StudentForm: React.FC<StudentFormProps> = ({
       if (imageUrl && imageUrl !== student?.photo) {
         values.photo = imageUrl;
       }
-      
-      // Set pilot school for mentors
-      if (userRole === 'mentor' && pilotSchoolId) {
+
+      // Set pilot school for mentors and teachers
+      if ((userRole === 'mentor' || userRole === 'teacher') && pilotSchoolId) {
         values.pilot_school_id = pilotSchoolId;
+        console.log('✅ [StudentForm] Added pilot_school_id to values:', pilotSchoolId);
+      } else {
+        console.warn('⚠️ [StudentForm] No pilot_school_id available:', { userRole, pilotSchoolId });
       }
-      
+
+      console.log('📋 [StudentForm] Final form values:', values);
+
       await onSubmit(values);
       if (mode === 'create') {
         form.resetFields();

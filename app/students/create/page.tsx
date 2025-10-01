@@ -20,6 +20,14 @@ function CreateStudentPageContent() {
 
   const handleSubmit = async (values: any) => {
     try {
+      // Ensure pilot_school_id is included for mentors and teachers
+      if ((user?.role === 'mentor' || user?.role === 'teacher') && user?.pilot_school_id) {
+        values.pilot_school_id = user.pilot_school_id;
+      }
+
+      console.log('📤 Submitting student data:', values);
+      console.log('👤 User session:', { role: user?.role, pilot_school_id: user?.pilot_school_id });
+
       const response = await fetch('/api/students', {
         method: 'POST',
         headers: {
@@ -31,22 +39,39 @@ function CreateStudentPageContent() {
         body: JSON.stringify(values)
       });
 
+      // Read response body only once
+      const contentType = response.headers.get('content-type');
+      let responseData;
+
+      if (contentType && contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('❌ Non-JSON response:', text.substring(0, 200));
+        responseData = { error: 'Invalid response from server' };
+      }
+
       if (response.ok) {
-        const data = await response.json();
-        message.success(data.message || 'Student created successfully');
-        
+        message.success(responseData.message || 'Student created successfully');
+
         if (user?.role === 'mentor') {
           message.info('Note: This student will be automatically deleted after 48 hours unless permanently saved by an admin or teacher.');
         }
-        
+
         router.push('/students');
       } else {
-        const error = await response.json();
-        message.error(error.error || 'Failed to create student');
+        console.error('❌ API Error:', responseData);
+        const errorMsg = responseData.error || responseData.message || 'Failed to create student';
+        message.error(errorMsg);
+
+        // Show detailed error in development
+        if (process.env.NODE_ENV === 'development' && responseData.details) {
+          console.error('Error details:', responseData.details);
+        }
       }
     } catch (error) {
-      console.error('Create student error:', error);
-      message.error('Failed to create student');
+      console.error('💥 Create student error:', error);
+      message.error(`Failed to create student: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
