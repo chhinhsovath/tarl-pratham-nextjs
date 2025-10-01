@@ -8,28 +8,26 @@ export default function PWAProvider({ children }: { children: React.ReactNode })
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
-    // Register service worker
+    // UNREGISTER ALL SERVICE WORKERS - DISABLED FOR DEVELOPMENT
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/service-worker.js')
-        .then((registration) => {
-          console.log('Service Worker registered:', registration);
-          
-          // Check for updates
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  message.info('កំណែថ្មីអាចប្រើបាន។ សូមផ្ទុកទំព័រឡើងវិញ។');
-                }
-              });
-            }
-          });
-        })
-        .catch((error) => {
-          console.error('Service Worker registration failed:', error);
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          console.log('🗑️ Unregistering Service Worker:', registration);
+          registration.unregister();
         });
+      });
+
+      // Clear all caches
+      if ('caches' in window) {
+        caches.keys().then((cacheNames) => {
+          cacheNames.forEach((cacheName) => {
+            console.log('🗑️ Deleting cache:', cacheName);
+            caches.delete(cacheName);
+          });
+        });
+      }
+
+      console.log('✅ All Service Workers and caches cleared');
     }
 
     // Handle PWA install prompt
