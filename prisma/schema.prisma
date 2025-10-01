@@ -7,35 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum for record status tracking
-enum RecordStatus {
-  production    // Real production data
-  test_mentor   // Test data created by mentors
-  test_teacher  // Test data created by teachers
-  demo          // Demo/sample data
-  archived      // Archived/soft-deleted data
-}
-
-// User model with role-based access
 model User {
-  id                      Int                   @id @default(autoincrement())
+  id                      Int                @id @default(autoincrement())
   name                    String
-  email                   String                @unique
-  username                String?               @unique
+  email                   String             @unique
+  username                String?            @unique
   profile_photo           String?
-  sex                     String?               // enum('male','female')
+  sex                     String?
   phone                   String?
   holding_classes         String?
-  assigned_subject        String?               // enum('khmer','math','both')
-  role                    String                @default("teacher") // admin, coordinator, mentor, teacher, viewer
+  assigned_subject        String?
+  role                    String             @default("teacher")
   email_verified_at       DateTime?
   password                String
   remember_token          String?
   onboarding_completed    Json?
   onboarding_completed_at DateTime?
-  show_onboarding         Boolean               @default(true)
-  created_at              DateTime              @default(now())
-  updated_at              DateTime              @updatedAt
+  show_onboarding         Boolean            @default(true)
+  created_at              DateTime           @default(now())
+  updated_at              DateTime           @updatedAt
   profile_expires_at      DateTime?
   original_school_id      Int?
   original_subject        String?
@@ -47,208 +37,194 @@ model User {
   district                String?
   commune                 String?
   village                 String?
-  is_active               Boolean               @default(true)
-  test_mode_enabled       Boolean               @default(false) // Phase 3: Teacher test mode toggle
-
-  pilot_school            PilotSchool?          @relation(fields: [pilot_school_id], references: [id])
-  students                Student[]             @relation("StudentAddedBy")
-  assessments             Assessment[]          @relation("AssessmentAddedBy")
-  mentoring_visits        MentoringVisit[]
-  teaching_activities     TeachingActivity[]
+  is_active               Boolean            @default(true)
+  test_mode_enabled       Boolean            @default(false)
+  assessments             Assessment[]       @relation("AssessmentAddedBy")
   attendance_records      AttendanceRecord[]
-  
+  mentoring_visits        MentoringVisit[]
+  students                Student[]          @relation("StudentAddedBy")
+  teaching_activities     TeachingActivity[]
+  pilot_school            PilotSchool?       @relation(fields: [pilot_school_id], references: [id])
+
   @@index([email])
   @@index([role])
   @@index([pilot_school_id])
   @@map("users")
 }
 
-// Quick login users for simplified access
 model QuickLoginUser {
-  id          Int      @id @default(autoincrement())
-  username    String   @unique
-  password    String
-  role        String   @default("teacher")
-  province    String?
-  subject     String?
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  password   String
+  role       String   @default("teacher")
+  province   String?
+  subject    String?
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
   @@index([username])
   @@map("quick_login_users")
 }
 
-// Province model
 model Province {
-  id                 Int                @id @default(autoincrement())
-  name_english       String
-  name_khmer         String?
-  code               String             @unique
-  created_at         DateTime           @default(now())
-  updated_at         DateTime           @updatedAt
-  
-  schools            School[]
-  
+  id           Int      @id @default(autoincrement())
+  name_english String
+  name_khmer   String?
+  code         String   @unique
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  schools      School[]
+
   @@map("provinces")
 }
 
-// Pilot schools for mentoring program
 model PilotSchool {
-  id                  Int                  @id @default(autoincrement())
+  id                  Int              @id @default(autoincrement())
   province            String
   district            String
   cluster_id          Int?
   cluster             String
   school_name         String
-  school_code         String               @unique
-  baseline_start_date DateTime?  // ដើមគ្រា ចាប់ផ្តើម
-  baseline_end_date   DateTime?  // ដើមគ្រា បញ្ចប់
-  midline_start_date  DateTime?  // ពាក់កណ្តាលគ្រា ចាប់ផ្តើម
-  midline_end_date    DateTime?  // ពាក់កណ្តាលគ្រា បញ្ចប់
-  endline_start_date  DateTime?  // ចុងគ្រា ចាប់ផ្តើម
-  endline_end_date    DateTime?  // ចុងគ្រា បញ្ចប់
-  created_at          DateTime             @default(now())
-  updated_at          DateTime             @updatedAt
-  
-  users               User[]
-  students            Student[]
+  school_code         String           @unique
+  baseline_start_date DateTime?
+  baseline_end_date   DateTime?
+  midline_start_date  DateTime?
+  midline_end_date    DateTime?
+  endline_start_date  DateTime?
+  endline_end_date    DateTime?
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
   assessments         Assessment[]
   mentoring_visits    MentoringVisit[]
-  
+  students            Student[]
+  users               User[]
+
   @@index([school_code])
   @@index([province])
   @@index([district])
   @@index([cluster])
-  @@index([baseline_start_date])  // ដើមគ្រា ចាប់ផ្តើម
-  @@index([midline_start_date])   // ពាក់កណ្តាលគ្រា ចាប់ផ្តើម
+  @@index([baseline_start_date])
+  @@index([midline_start_date])
   @@map("pilot_schools")
 }
 
-// School model
 model School {
-  id                    Int                     @id @default(autoincrement())
-  name                  String
-  code                  String                  @unique
-  province_id           Int
-  district              String?
-  commune               String?
-  village               String?
-  school_type           String?
-  level                 String?
-  total_students        Int?
-  total_teachers        Int?
-  latitude              Float?
-  longitude             Float?
-  phone                 String?
-  email                 String?
-  is_active             Boolean                 @default(true)
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
-  
-  province              Province                @relation(fields: [province_id], references: [id])
-  classes               SchoolClass[]
-  
+  id             Int           @id @default(autoincrement())
+  name           String
+  code           String        @unique
+  province_id    Int
+  district       String?
+  commune        String?
+  village        String?
+  school_type    String?
+  level          String?
+  total_students Int?
+  total_teachers Int?
+  latitude       Float?
+  longitude      Float?
+  phone          String?
+  email          String?
+  is_active      Boolean       @default(true)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  classes        SchoolClass[]
+  province       Province      @relation(fields: [province_id], references: [id])
+
   @@index([code])
   @@index([province_id])
   @@map("schools")
 }
 
-// School classes
 model SchoolClass {
-  id              Int              @id @default(autoincrement())
-  school_id       Int
-  name            String
-  grade           Int
-  teacher_name    String?
-  student_count   Int?
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
-  
-  school          School           @relation(fields: [school_id], references: [id])
-  students        Student[]
-  
+  id            Int       @id @default(autoincrement())
+  school_id     Int
+  name          String
+  grade         Int
+  teacher_name  String?
+  student_count Int?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  school        School    @relation(fields: [school_id], references: [id])
+  students      Student[]
+
   @@index([school_id])
   @@map("school_classes")
 }
 
-// Student model
 model Student {
-  id                          Int                          @id @default(autoincrement())
-  school_class_id             Int?
-  pilot_school_id             Int?
-  name                        String
-  age                         Int?
-  gender                      String?
-  guardian_name               String?
-  guardian_phone              String?
-  address                     String?
-  photo                       String?
-  baseline_assessment         String?  // ដើមគ្រា
-  midline_assessment          String?  // ពាក់កណ្តាលគ្រា
-  endline_assessment          String?  // ចុងគ្រា
-  baseline_khmer_level        String?  // ដើមគ្រា ខ្មែរ
-  baseline_math_level         String?  // ដើមគ្រា គណិត
-  midline_khmer_level         String?  // ពាក់កណ្តាលគ្រា ខ្មែរ
-  midline_math_level          String?  // ពាក់កណ្តាលគ្រា គណិត
-  endline_khmer_level         String?  // ចុងគ្រា ខ្មែរ
-  endline_math_level          String?  // ចុងគ្រា គណិត
-  is_active                   Boolean                      @default(true)
-  is_temporary                Boolean                      @default(false) // Deprecated: Use record_status
-  added_by_id                 Int?
-  added_by_mentor             Boolean                      @default(false) // Deprecated: Use record_status
-  assessed_by_mentor          Boolean                      @default(false)
-  mentor_created_at           DateTime?
-  record_status               RecordStatus                 @default(production) // Phase 1: Record status tracking
-  created_by_role             String?                      // Phase 1: Role of creator
-  test_session_id             String?                      // Phase 2: Test session grouping
-  created_at                  DateTime                     @default(now())
-  updated_at                  DateTime                     @updatedAt
-  
-  school_class                SchoolClass?                 @relation(fields: [school_class_id], references: [id])
-  pilot_school                PilotSchool?                 @relation(fields: [pilot_school_id], references: [id])
-  added_by                    User?                        @relation("StudentAddedBy", fields: [added_by_id], references: [id])
-  assessments                 Assessment[]
-  student_interventions       StudentIntervention[]
-  assessment_eligibilities    StudentAssessmentEligibility[]
-  
+  id                       Int                            @id @default(autoincrement())
+  school_class_id          Int?
+  pilot_school_id          Int?
+  name                     String
+  age                      Int?
+  gender                   String?
+  guardian_name            String?
+  guardian_phone           String?
+  address                  String?
+  photo                    String?
+  baseline_assessment      String?
+  midline_assessment       String?
+  endline_assessment       String?
+  baseline_khmer_level     String?
+  baseline_math_level      String?
+  midline_khmer_level      String?
+  midline_math_level       String?
+  endline_khmer_level      String?
+  endline_math_level       String?
+  is_active                Boolean                        @default(true)
+  is_temporary             Boolean                        @default(false)
+  added_by_id              Int?
+  added_by_mentor          Boolean                        @default(false)
+  assessed_by_mentor       Boolean                        @default(false)
+  mentor_created_at        DateTime?
+  created_at               DateTime                       @default(now())
+  updated_at               DateTime                       @updatedAt
+  created_by_role          String?
+  record_status            RecordStatus                   @default(production)
+  test_session_id          String?
+  assessments              Assessment[]
+  assessment_eligibilities StudentAssessmentEligibility[]
+  student_interventions    StudentIntervention[]
+  added_by                 User?                          @relation("StudentAddedBy", fields: [added_by_id], references: [id])
+  pilot_school             PilotSchool?                   @relation(fields: [pilot_school_id], references: [id])
+  school_class             SchoolClass?                   @relation(fields: [school_class_id], references: [id])
+
   @@index([school_class_id])
   @@index([pilot_school_id])
   @@index([added_by_id])
   @@index([is_temporary])
   @@index([added_by_mentor])
-  @@index([record_status]) // Phase 1: Index for filtering by status
-  @@index([test_session_id]) // Phase 2: Index for session filtering
+  @@index([record_status])
+  @@index([test_session_id])
   @@map("students")
 }
 
-// Assessment model
 model Assessment {
-  id                    Int                     @id @default(autoincrement())
-  student_id            Int
-  pilot_school_id       Int?
-  assessment_type       String                  // ដើមគ្រា, ពាក់កណ្តាលគ្រា, ចុងគ្រា
-  subject               String                  // khmer, math
-  level                 String?                 // beginner, letter, word, paragraph, story
-  score                 Float?
-  notes                 String?                 @db.Text
-  assessed_date         DateTime?
-  added_by_id           Int?
-  is_temporary          Boolean                 @default(false) // Deprecated: Use record_status
-  assessed_by_mentor    Boolean                 @default(false) // Deprecated: Use record_status
-  mentor_assessment_id  String?
-  record_status         RecordStatus            @default(production) // Phase 1: Record status tracking
-  created_by_role       String?                 // Phase 1: Role of creator
-  test_session_id       String?                 // Phase 2: Test session grouping
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
-  
-  student               Student                 @relation(fields: [student_id], references: [id])
-  pilot_school          PilotSchool?            @relation(fields: [pilot_school_id], references: [id])
-  added_by              User?                   @relation("AssessmentAddedBy", fields: [added_by_id], references: [id])
-  assessment_histories  AssessmentHistory[]
-  assessment_lock       AssessmentLock?
-  
+  id                   Int                 @id @default(autoincrement())
+  student_id           Int
+  pilot_school_id      Int?
+  assessment_type      String
+  subject              String
+  level                String?
+  score                Float?
+  notes                String?
+  assessed_date        DateTime?
+  added_by_id          Int?
+  is_temporary         Boolean             @default(false)
+  assessed_by_mentor   Boolean             @default(false)
+  mentor_assessment_id String?
+  created_at           DateTime            @default(now())
+  updated_at           DateTime            @updatedAt
+  created_by_role      String?
+  record_status        RecordStatus        @default(production)
+  test_session_id      String?
+  assessment_histories AssessmentHistory[]
+  assessment_lock      AssessmentLock?
+  added_by             User?               @relation("AssessmentAddedBy", fields: [added_by_id], references: [id])
+  pilot_school         PilotSchool?        @relation(fields: [pilot_school_id], references: [id])
+  student              Student             @relation(fields: [student_id], references: [id])
+
   @@index([student_id])
   @@index([pilot_school_id])
   @@index([assessment_type])
@@ -256,168 +232,139 @@ model Assessment {
   @@index([assessed_date])
   @@index([is_temporary])
   @@index([assessed_by_mentor])
-  @@index([record_status]) // Phase 1: Index for filtering by status
-  @@index([test_session_id]) // Phase 2: Index for session filtering
+  @@index([record_status])
+  @@index([test_session_id])
   @@map("assessments")
 }
 
-// Assessment history tracking
 model AssessmentHistory {
-  id              Int         @id @default(autoincrement())
-  assessment_id   Int
-  field_name      String
-  old_value       String?
-  new_value       String?
-  changed_by      Int?
-  created_at      DateTime    @default(now())
-  
-  assessment      Assessment  @relation(fields: [assessment_id], references: [id])
-  
+  id            Int        @id @default(autoincrement())
+  assessment_id Int
+  field_name    String
+  old_value     String?
+  new_value     String?
+  changed_by    Int?
+  created_at    DateTime   @default(now())
+  assessment    Assessment @relation(fields: [assessment_id], references: [id])
+
   @@index([assessment_id])
   @@map("assessment_histories")
 }
 
-// Mentoring visits with complete Laravel fields
 model MentoringVisit {
-  id                                      Int          @id @default(autoincrement())
-  mentor_id                               Int
-  teacher_id                              Int?
-  school_id                               Int?
-  pilot_school_id                         Int?
-  visit_date                              DateTime
-  level                                   String?      // primary, secondary, etc.
-  purpose                                 String?
-  activities                              String?      @db.Text
-  observations                            String?      @db.Text
-  observation                             String?      @db.Text
-  recommendations                         String?      @db.Text
-  follow_up_actions                       String?      @db.Text
-  photos                                  Json?
-  photo                                   String?
-  participants_count                      Int?
-  duration_minutes                        Int?
-  status                                  String       @default("scheduled")
-  score                                   Int?
-  questionnaire_data                      Json?
-  region                                  String?
-  province                                String?
-  district                                String?
-  commune                                 String?
-  village                                 String?
-  program_type                            String?      @default("TaRL")
-  class_in_session                        Boolean      @default(true)
-  class_not_in_session_reason            String?      @db.Text
-  full_session_observed                   Boolean?
-  grade_group                             String?
-  grades_observed                         String?      @db.Text
-  subject_observed                        String?
-  language_levels_observed                String?      @db.Text
-  numeracy_levels_observed                String?      @db.Text
-  action_plan                             String?      @db.Text
-  follow_up_required                      Boolean      @default(false)
-  
-  // Student data fields
-  total_students_enrolled                 Int?
-  students_present                        Int?
-  students_improved                       Int?
-  classes_conducted_before                Int?
-  students_improved_from_last_week        Int?
+  id                                     Int          @id @default(autoincrement())
+  mentor_id                              Int
+  pilot_school_id                        Int?
+  visit_date                             DateTime
+  level                                  String?
+  purpose                                String?
+  activities                             String?
+  observations                           String?
+  recommendations                        String?
+  follow_up_actions                      String?
+  photos                                 Json?
+  participants_count                     Int?
+  duration_minutes                       Int?
+  status                                 String       @default("scheduled")
+  created_at                             DateTime     @default(now())
+  updated_at                             DateTime     @updatedAt
+  action_plan                            String?
+  activities_data                        Json?
+  activity1_clear_instructions           Boolean?
+  activity1_demonstrated                 Boolean?
+  activity1_duration                     Int?
+  activity1_followed_process             Boolean?
+  activity1_individual                   String?
+  activity1_name_language                String?
+  activity1_name_numeracy                String?
+  activity1_no_clear_instructions_reason String?
+  activity1_not_followed_reason          String?
+  activity1_small_groups                 String?
+  activity1_students_practice            String?
+  activity1_type                         String?
+  activity1_unclear_reason               String?
+  activity2_clear_instructions           Boolean?
+  activity2_demonstrated                 Boolean?
+  activity2_duration                     Int?
+  activity2_followed_process             Boolean?
+  activity2_individual                   String?
+  activity2_name_language                String?
+  activity2_name_numeracy                String?
+  activity2_no_clear_instructions_reason String?
+  activity2_not_followed_reason          String?
+  activity2_small_groups                 String?
+  activity2_students_practice            String?
+  activity2_type                         String?
+  activity2_unclear_reason               String?
+  activity3_clear_instructions           Boolean?
+  activity3_demonstrated                 Boolean?
+  activity3_duration                     Int?
+  activity3_individual                   String?
+  activity3_name_language                String?
+  activity3_name_numeracy                String?
+  activity3_no_clear_instructions_reason String?
+  activity3_small_groups                 String?
+  activity3_students_practice            String?
+  children_grouped_appropriately         Boolean?
+  class_in_session                       Boolean      @default(true)
+  class_not_in_session_reason            String?
+  class_started_on_time                  Boolean?
+  classes_conducted_before               Int?
   classes_conducted_before_visit         Int?
-  
-  // Delivery questions
-  class_started_on_time                   Boolean?
-  late_start_reason                       String?      @db.Text
-  
-  // Classroom materials
-  teaching_materials                      String?      @db.Text
-  materials_present                       String?      @db.Text
-  
-  // Classroom organization
-  students_grouped_by_level               Boolean?
-  students_active_participation           Boolean?
-  children_grouped_appropriately          Boolean?
-  students_fully_involved                 Boolean?
-  
-  // Teacher planning
-  teacher_has_lesson_plan                 Boolean?
-  has_session_plan                        Boolean?
-  no_lesson_plan_reason                   String?      @db.Text
-  no_session_plan_reason                  String?      @db.Text
-  followed_lesson_plan                    Boolean?
-  followed_session_plan                   Boolean?
-  not_followed_reason                     String?      @db.Text
-  no_follow_plan_reason                   String?      @db.Text
-  plan_appropriate_for_levels             Boolean?
-  session_plan_appropriate                Boolean?
-  lesson_plan_feedback                    String?      @db.Text
-  
-  // Activity tracking
-  number_of_activities                    Int?
-  num_activities_observed                 Int?
-  
-  // Activity 1 fields
-  activity1_type                          String?
-  activity1_name_language                 String?
-  activity1_name_numeracy                 String?
-  activity1_duration                      Int?
-  activity1_clear_instructions            Boolean?
-  activity1_unclear_reason                String?      @db.Text
-  activity1_no_clear_instructions_reason  String?      @db.Text
-  activity1_followed_process              Boolean?
-  activity1_not_followed_reason           String?      @db.Text
-  activity1_demonstrated                  Boolean?
-  activity1_students_practice             String?
-  activity1_small_groups                  String?
-  activity1_individual                    String?
-  
-  // Activity 2 fields
-  activity2_type                          String?
-  activity2_name_language                 String?
-  activity2_name_numeracy                 String?
-  activity2_duration                      Int?
-  activity2_clear_instructions            Boolean?
-  activity2_unclear_reason                String?      @db.Text
-  activity2_no_clear_instructions_reason  String?      @db.Text
-  activity2_followed_process              Boolean?
-  activity2_not_followed_reason           String?      @db.Text
-  activity2_demonstrated                  Boolean?
-  activity2_students_practice             String?
-  activity2_small_groups                  String?
-  activity2_individual                    String?
-  
-  // Activity 3 fields
-  activity3_name_language                 String?
-  activity3_name_numeracy                 String?
-  activity3_duration                      Int?
-  activity3_clear_instructions            Boolean?
-  activity3_no_clear_instructions_reason  String?      @db.Text
-  activity3_demonstrated                  Boolean?
-  activity3_students_practice             String?
-  activity3_small_groups                  String?
-  activity3_individual                    String?
-  
-  // Overall feedback
-  teacher_feedback                        String?      @db.Text
-  feedback_for_teacher                    String?      @db.Text
-  activities_data                         Json?
-  
-  // Locking system
-  is_locked                               Boolean      @default(false)
-  locked_by                               Int?
-  locked_at                               DateTime?
+  commune                                String?
+  district                               String?
+  feedback_for_teacher                   String?
+  follow_up_required                     Boolean      @default(false)
+  followed_lesson_plan                   Boolean?
+  followed_session_plan                  Boolean?
+  full_session_observed                  Boolean?
+  grade_group                            String?
+  grades_observed                        String?
+  has_session_plan                       Boolean?
+  is_locked                              Boolean      @default(false)
+  language_levels_observed               String?
+  late_start_reason                      String?
+  lesson_plan_feedback                   String?
+  locked_at                              DateTime?
+  locked_by                              Int?
+  materials_present                      String?
+  no_follow_plan_reason                  String?
+  no_lesson_plan_reason                  String?
+  no_session_plan_reason                 String?
+  not_followed_reason                    String?
+  num_activities_observed                Int?
+  number_of_activities                   Int?
+  numeracy_levels_observed               String?
+  observation                            String?
+  photo                                  String?
+  plan_appropriate_for_levels            Boolean?
+  program_type                           String?      @default("TaRL")
+  province                               String?
+  questionnaire_data                     Json?
+  region                                 String?
+  school_id                              Int?
+  score                                  Int?
+  session_plan_appropriate               Boolean?
+  students_active_participation          Boolean?
+  students_fully_involved                Boolean?
+  students_grouped_by_level              Boolean?
+  students_improved                      Int?
+  students_improved_from_last_week       Int?
+  students_present                       Int?
+  subject_observed                       String?
+  teacher_feedback                       String?
+  teacher_has_lesson_plan                Boolean?
+  teacher_id                             Int?
+  teaching_materials                     String?
+  total_students_enrolled                Int?
+  village                                String?
+  created_by_role                        String?
+  is_temporary                           Boolean      @default(false)
+  record_status                          RecordStatus @default(production)
+  test_session_id                        String?
+  mentor                                 User         @relation(fields: [mentor_id], references: [id])
+  pilot_school                           PilotSchool? @relation(fields: [pilot_school_id], references: [id])
 
-  // Test data tracking
-  is_temporary                            Boolean      @default(false) // Deprecated: Use record_status
-  record_status                           RecordStatus @default(production) // Phase 1: Record status tracking
-  created_by_role                         String?      // Phase 1: Role of creator
-  test_session_id                         String?      // Phase 2: Test session grouping
-
-  created_at                              DateTime     @default(now())
-  updated_at                              DateTime     @updatedAt
-  
-  mentor                                  User         @relation(fields: [mentor_id], references: [id])
-  pilot_school                            PilotSchool? @relation(fields: [pilot_school_id], references: [id])
-  
   @@index([mentor_id])
   @@index([teacher_id])
   @@index([school_id])
@@ -427,233 +374,214 @@ model MentoringVisit {
   @@index([class_in_session])
   @@index([subject_observed])
   @@index([is_locked])
-  @@index([record_status]) // Phase 1: Index for filtering by status
-  @@index([test_session_id]) // Phase 2: Index for session filtering
+  @@index([record_status])
+  @@index([test_session_id])
   @@map("mentoring_visits")
 }
 
-// Teaching activities
 model TeachingActivity {
-  id              Int      @id @default(autoincrement())
-  teacher_id      Int
-  activity_date   DateTime
-  subject         String
-  topic           String
-  duration        Int?
-  materials_used  String?  @db.Text
-  student_count   Int?
-  notes           String?  @db.Text
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-  
-  teacher         User     @relation(fields: [teacher_id], references: [id])
-  
+  id             Int      @id @default(autoincrement())
+  teacher_id     Int
+  activity_date  DateTime
+  subject        String
+  topic          String
+  duration       Int?
+  materials_used String?
+  student_count  Int?
+  notes          String?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  teacher        User     @relation(fields: [teacher_id], references: [id])
+
   @@index([teacher_id])
   @@index([activity_date])
   @@map("teaching_activities")
 }
 
-// Intervention programs
 model InterventionProgram {
-  id                      Int                     @id @default(autoincrement())
-  name                    String
-  description             String?                 @db.Text
-  start_date              DateTime
-  end_date                DateTime?
-  target_group            String?
-  expected_outcomes       String?                 @db.Text
-  is_active               Boolean                 @default(true)
-  created_at              DateTime                @default(now())
-  updated_at              DateTime                @updatedAt
-  
-  student_interventions   StudentIntervention[]
-  
+  id                    Int                   @id @default(autoincrement())
+  name                  String
+  description           String?
+  start_date            DateTime
+  end_date              DateTime?
+  target_group          String?
+  expected_outcomes     String?
+  is_active             Boolean               @default(true)
+  created_at            DateTime              @default(now())
+  updated_at            DateTime              @updatedAt
+  student_interventions StudentIntervention[]
+
   @@map("intervention_programs")
 }
 
-// Student interventions
 model StudentIntervention {
-  id                      Int                   @id @default(autoincrement())
+  id                      Int                 @id @default(autoincrement())
   student_id              Int
   intervention_program_id Int
   start_date              DateTime
   end_date                DateTime?
-  status                  String                @default("active") // active, completed, withdrawn
-  progress_notes          String?               @db.Text
+  status                  String              @default("active")
+  progress_notes          String?
   outcome                 String?
-  created_at              DateTime              @default(now())
-  updated_at              DateTime              @updatedAt
-  
-  student                 Student               @relation(fields: [student_id], references: [id])
-  intervention_program    InterventionProgram   @relation(fields: [intervention_program_id], references: [id])
-  
+  created_at              DateTime            @default(now())
+  updated_at              DateTime            @updatedAt
+  intervention_program    InterventionProgram @relation(fields: [intervention_program_id], references: [id])
+  student                 Student             @relation(fields: [student_id], references: [id])
+
   @@index([student_id])
   @@index([intervention_program_id])
   @@map("student_interventions")
 }
 
-// Progress tracking
 model ProgressTracking {
-  id                  Int      @id @default(autoincrement())
-  student_id          Int
-  tracking_date       DateTime
-  khmer_progress      String?
-  math_progress       String?
-  attendance_rate     Float?
-  behavior_notes      String?  @db.Text
-  teacher_comments    String?  @db.Text
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-  
+  id               Int      @id @default(autoincrement())
+  student_id       Int
+  tracking_date    DateTime
+  khmer_progress   String?
+  math_progress    String?
+  attendance_rate  Float?
+  behavior_notes   String?
+  teacher_comments String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
   @@index([student_id])
   @@index([tracking_date])
   @@map("progress_trackings")
 }
 
-// Attendance records
 model AttendanceRecord {
-  id              Int      @id @default(autoincrement())
-  student_id      Int
-  teacher_id      Int
-  date            DateTime
-  status          String   // present, absent, late, excused
-  notes           String?
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-  
-  teacher         User     @relation(fields: [teacher_id], references: [id])
-  
+  id         Int      @id @default(autoincrement())
+  student_id Int
+  teacher_id Int
+  date       DateTime
+  status     String
+  notes      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  teacher    User     @relation(fields: [teacher_id], references: [id])
+
   @@index([student_id])
   @@index([teacher_id])
   @@index([date])
   @@map("attendance_records")
 }
 
-// Student assessment eligibility
 model StudentAssessmentEligibility {
-  id                  Int      @id @default(autoincrement())
-  student_id          Int
-  assessment_type     String
-  is_eligible         Boolean  @default(true)
-  reason              String?
-  eligible_from       DateTime?
-  eligible_until      DateTime?
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-  
-  student             Student  @relation(fields: [student_id], references: [id])
-  
+  id              Int       @id @default(autoincrement())
+  student_id      Int
+  assessment_type String
+  is_eligible     Boolean   @default(true)
+  reason          String?
+  eligible_from   DateTime?
+  eligible_until  DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  student         Student   @relation(fields: [student_id], references: [id])
+
   @@unique([student_id, assessment_type])
   @@index([student_id])
   @@map("student_assessment_eligibilities")
 }
 
-// Resource views tracking
 model ResourceView {
-  id              Int      @id @default(autoincrement())
-  resource_id     Int
-  user_id         Int?
-  ip_address      String?
-  user_agent      String?
-  viewed_at       DateTime @default(now())
-  
+  id          Int      @id @default(autoincrement())
+  resource_id Int
+  user_id     Int?
+  ip_address  String?
+  user_agent  String?
+  viewed_at   DateTime @default(now())
+
   @@index([resource_id])
   @@index([user_id])
   @@map("resource_views")
 }
 
-// Cluster model
 model Cluster {
-  id              Int      @id @default(autoincrement())
-  name            String
-  code            String   @unique
-  description     String?  @db.Text
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-  
+  id          Int      @id @default(autoincrement())
+  name        String
+  code        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
   @@map("clusters")
 }
 
-// Coordinator workspace - Bulk imports tracking
 model BulkImport {
-  id                Int      @id @default(autoincrement())
-  import_type       String   // users, schools, students, assessments
-  file_name         String?
-  file_path         String?
-  total_rows        Int?
-  successful_rows   Int?
-  failed_rows       Int?
-  errors            Json?
-  imported_by       Int?
-  status            String   @default("pending") // pending, processing, completed, failed
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
-  
+  id              Int      @id @default(autoincrement())
+  import_type     String
+  file_name       String?
+  file_path       String?
+  total_rows      Int?
+  successful_rows Int?
+  failed_rows     Int?
+  errors          Json?
+  imported_by     Int?
+  status          String   @default("pending")
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
   @@index([import_type])
   @@index([status])
   @@map("bulk_imports")
 }
 
-// Assessment locks for verification workflow
 model AssessmentLock {
-  id              Int         @id @default(autoincrement())
-  assessment_id   Int         @unique
-  locked_by       Int?
-  locked_at       DateTime    @default(now())
-  reason          String?     @db.Text
-  
-  assessment      Assessment  @relation(fields: [assessment_id], references: [id])
-  
+  id            Int        @id @default(autoincrement())
+  assessment_id Int        @unique
+  locked_by     Int?
+  locked_at     DateTime   @default(now())
+  reason        String?
+  assessment    Assessment @relation(fields: [assessment_id], references: [id])
+
   @@index([assessment_id])
   @@map("assessment_locks")
 }
 
-// Resources for educational materials
 model Resource {
-  id              Int      @id @default(autoincrement())
-  title           String
-  description     String?  @db.Text
-  type            String?  // video, pdf, image, document
-  file_url        String?
-  youtube_url     String?
-  grade_levels    String?  @db.Text
-  subjects        String?  @db.Text
-  uploaded_by     Int?
-  is_public       Boolean  @default(false)
-  views_count     Int      @default(0)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-  
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  type         String?
+  file_url     String?
+  youtube_url  String?
+  grade_levels String?
+  subjects     String?
+  uploaded_by  Int?
+  is_public    Boolean  @default(false)
+  views_count  Int      @default(0)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
   @@index([type])
   @@index([is_public])
   @@map("resources")
 }
 
-// System settings
 model Setting {
-  id              Int      @id @default(autoincrement())
-  key             String   @unique
-  value           String?  @db.Text
-  type            String?  // string, number, boolean, json
-  description     String?  @db.Text
-  updated_by      Int?
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-  
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       String?
+  type        String?
+  description String?
+  updated_by  Int?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
   @@index([key])
   @@map("settings")
 }
 
-// User school assignments for multiple school access
 model UserSchool {
-  id                Int          @id @default(autoincrement())
-  user_id           Int
-  school_id         Int?
-  pilot_school_id   Int?
-  assigned_date     DateTime     @default(now())
-  assigned_by       Int?
-  is_primary        Boolean      @default(false)
-  
+  id              Int      @id @default(autoincrement())
+  user_id         Int
+  school_id       Int?
+  pilot_school_id Int?
+  assigned_date   DateTime @default(now())
+  assigned_by     Int?
+  is_primary      Boolean  @default(false)
+
   @@unique([user_id, school_id])
   @@unique([user_id, pilot_school_id])
   @@index([user_id])
@@ -661,35 +589,34 @@ model UserSchool {
   @@map("user_schools")
 }
 
-// Report exports tracking
 model ReportExport {
-  id              Int       @id @default(autoincrement())
-  report_type     String    // student_performance, school_comparison, etc
-  filters         Json?
-  file_path       String?
-  status          String    @default("processing") // processing, completed, failed
-  exported_by     Int?
-  created_at      DateTime  @default(now())
-  completed_at    DateTime?
-  
+  id           Int       @id @default(autoincrement())
+  report_type  String
+  filters      Json?
+  file_path    String?
+  status       String    @default("processing")
+  exported_by  Int?
+  created_at   DateTime  @default(now())
+  completed_at DateTime?
+
   @@index([report_type])
   @@index([status])
   @@map("report_exports")
 }
-// Phase 2: Test sessions for grouping test data
+
 model TestSession {
-  id                    String      @id @default(uuid())
+  id                    String    @id @default(uuid())
   user_id               Int
-  user_role             String      // mentor, teacher
-  started_at            DateTime    @default(now())
-  expires_at            DateTime?   // Optional: auto-delete after this date
-  status                String      @default("active") // active, expired, archived
-  student_count         Int         @default(0)
-  assessment_count      Int         @default(0)
-  mentoring_visit_count Int         @default(0)
-  notes                 String?     @db.Text
-  created_at            DateTime    @default(now())
-  updated_at            DateTime    @updatedAt
+  user_role             String
+  started_at            DateTime  @default(now())
+  expires_at            DateTime?
+  status                String    @default("active")
+  student_count         Int       @default(0)
+  assessment_count      Int       @default(0)
+  mentoring_visit_count Int       @default(0)
+  notes                 String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
 
   @@index([user_id])
   @@index([user_role])
@@ -698,26 +625,25 @@ model TestSession {
   @@map("test_sessions")
 }
 
-// Comprehensive audit logging for all CRUD operations
 model AuditLog {
-  id                Int       @id @default(autoincrement())
-  user_id           Int?      // Who performed the action
-  user_role         String?   // Role at time of action
-  user_email        String?   // Email at time of action
-  action            String    // create, update, delete, view, export, import
-  resource_type     String    // users, students, assessments, etc
-  resource_id       Int?      // ID of affected resource
-  resource_name     String?   // Human-readable name
-  old_values        Json?     // Previous values (for update/delete)
-  new_values        Json?     // New values (for create/update)
-  changed_fields    Json?     // Array of changed field names
-  ip_address        String?   // Client IP address
-  user_agent        String?   // Browser/client info
-  session_id        String?   // Session identifier
-  status            String    // success, failed, denied
-  error_message     String?   @db.Text
-  metadata          Json?     // Additional context
-  created_at        DateTime  @default(now())
+  id             Int      @id @default(autoincrement())
+  user_id        Int?
+  user_role      String?
+  user_email     String?
+  action         String
+  resource_type  String
+  resource_id    Int?
+  resource_name  String?
+  old_values     Json?
+  new_values     Json?
+  changed_fields Json?
+  ip_address     String?
+  user_agent     String?
+  session_id     String?
+  status         String
+  error_message  String?
+  metadata       Json?
+  created_at     DateTime @default(now())
 
   @@index([user_id])
   @@index([resource_type])
@@ -729,16 +655,15 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-// Rate limiting tracking
 model RateLimit {
-  id              Int       @id @default(autoincrement())
-  identifier      String    // IP address or user ID
-  endpoint        String    // API endpoint
-  requests_count  Int       @default(1)
-  window_start    DateTime  @default(now())
-  blocked_until   DateTime?
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  id             Int       @id @default(autoincrement())
+  identifier     String
+  endpoint       String
+  requests_count Int       @default(1)
+  window_start   DateTime  @default(now())
+  blocked_until  DateTime?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
 
   @@unique([identifier, endpoint, window_start])
   @@index([identifier])
@@ -748,21 +673,20 @@ model RateLimit {
   @@map("rate_limits")
 }
 
-// Active session tracking
 model UserSession {
-  id              String    @id @default(uuid())
-  user_id         Int
-  user_role       String
-  ip_address      String?
-  user_agent      String?
-  device_info     Json?
-  started_at      DateTime  @default(now())
-  last_activity   DateTime  @default(now())
-  expires_at      DateTime
-  is_active       Boolean   @default(true)
-  terminated_at   DateTime?
+  id                 String    @id @default(uuid())
+  user_id            Int
+  user_role          String
+  ip_address         String?
+  user_agent         String?
+  device_info        Json?
+  started_at         DateTime  @default(now())
+  last_activity      DateTime  @default(now())
+  expires_at         DateTime
+  is_active          Boolean   @default(true)
+  terminated_at      DateTime?
   termination_reason String?
-  created_at      DateTime  @default(now())
+  created_at         DateTime  @default(now())
 
   @@index([user_id])
   @@index([is_active])
@@ -771,18 +695,25 @@ model UserSession {
   @@map("user_sessions")
 }
 
-// IP whitelist for admin access
 model IpWhitelist {
-  id              Int       @id @default(autoincrement())
-  ip_address      String    @unique
-  description     String?
-  allowed_roles   Json?     // Array of allowed roles
-  is_active       Boolean   @default(true)
-  added_by        Int?
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  id            Int      @id @default(autoincrement())
+  ip_address    String   @unique
+  description   String?
+  allowed_roles Json?
+  is_active     Boolean  @default(true)
+  added_by      Int?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
   @@index([ip_address])
   @@index([is_active])
   @@map("ip_whitelist")
+}
+
+enum RecordStatus {
+  production
+  test_mentor
+  test_teacher
+  demo
+  archived
 }
