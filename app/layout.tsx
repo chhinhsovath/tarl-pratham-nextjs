@@ -41,9 +41,10 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#667eea" />
         <meta name="msapplication-config" content="none" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png?v=2" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png?v=2" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png?v=2" />
+        <link rel="shortcut icon" href="/favicon.ico?v=2" />
       </head>
       <body className={`${hanuman.variable} font-khmer bg-white`} style={{ fontFamily: "'Hanuman', 'Khmer OS', sans-serif", backgroundColor: 'white' }}>
         <WarningSuppressor>
