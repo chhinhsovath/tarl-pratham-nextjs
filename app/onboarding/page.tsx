@@ -326,8 +326,25 @@ export default function OnboardingPage() {
     setLoading(false);
   };
 
-  const getCompletedSteps = () => {
-    // Mock completed steps - in real implementation, this would come from the session or API
+  const getCompletedSteps = async () => {
+    // Fetch fresh session data from the API
+    try {
+      const response = await fetch('/api/profile');
+      if (response.ok) {
+        const data = await response.json();
+        const completed = data.user?.onboarding_completed;
+        if (completed) {
+          const parsed = typeof completed === 'string' ? JSON.parse(completed) : completed;
+          setCompletedSteps(Array.isArray(parsed) ? parsed : []);
+          console.log('✅ Loaded completed steps:', parsed);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching onboarding status:', e);
+    }
+
+    // Fallback to session if API fails
     const completed = session?.user?.onboarding_completed;
     if (completed) {
       try {
@@ -429,15 +446,24 @@ export default function OnboardingPage() {
           description={
             <div>
               <Text>{onboardingData.description} សូមធ្វើតាមជំហានទាំងនេះដើម្បីចាប់ផ្តើមប្រើប្រាស់ប្រព័ន្ធ។</Text>
-              <div style={{ marginTop: 8, display: 'flex', gap: 16 }}>
-                <Text type="secondary">
-                  <ClockCircleOutlined style={{ marginRight: 4 }} />
-                  ប្រមាណ {totalMinutes} នាទី សរុប
-                </Text>
-                <Text type="secondary">
-                  <CheckCircleOutlined style={{ marginRight: 4 }} />
-                  {progress.completed} ពី {progress.total} ជំហាន
-                </Text>
+              <div style={{ marginTop: 8, display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <Text type="secondary">
+                    <ClockCircleOutlined style={{ marginRight: 4 }} />
+                    ប្រមាណ {totalMinutes} នាទី សរុប
+                  </Text>
+                  <Text type="secondary">
+                    <CheckCircleOutlined style={{ marginRight: 4 }} />
+                    {progress.completed} ពី {progress.total} ជំហាន
+                  </Text>
+                </div>
+                <Button
+                  type="default"
+                  onClick={() => router.push('/dashboard')}
+                  size="small"
+                >
+                  រំលងទៅ Dashboard →
+                </Button>
               </div>
             </div>
           }
