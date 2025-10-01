@@ -40,109 +40,69 @@ import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
-// Laravel-style Service Layer
+// Service Layer - Connects to real API endpoints
 class TeacherDashboardService {
   static async getDashboardStats(teacherId: string) {
-    // Mock data simulating Laravel Controller -> Service -> Repository pattern
-    return {
-      my_students: 28,
-      pending_assessments: 5,
-      completed_assessments: 45,
-      class_average: 74.5,
-      improvement_rate: 18.2
-    };
+    try {
+      const response = await fetch(`/api/dashboard/teacher-stats?userId=${teacherId}`);
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      const data = await response.json();
+
+      // Transform API response to match dashboard expectations
+      const stats = data.statistics || {};
+      return {
+        my_students: stats.student_count || 0,
+        pending_assessments: stats.assessment_stats?.baseline?.not_started || 0,
+        completed_assessments: (
+          (stats.assessment_stats?.baseline?.completed || 0) +
+          (stats.assessment_stats?.midline?.completed || 0) +
+          (stats.assessment_stats?.endline?.completed || 0)
+        ),
+        class_average: 0, // TODO: Calculate from actual assessment scores
+        improvement_rate: 0 // TODO: Calculate from baseline vs current
+      };
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      return {
+        my_students: 0,
+        pending_assessments: 0,
+        completed_assessments: 0,
+        class_average: 0,
+        improvement_rate: 0
+      };
+    }
   }
 
   static async getRecentStudents(teacherId: string) {
-    return [
-      {
-        id: 1,
-        student_name: 'គុណ សុវណ្ណ',
-        grade_level: 'grade_4',
-        last_assessment: '2024-01-20',
-        recent_score: 78,
-        status: 'active'
-      },
-      {
-        id: 2,
-        student_name: 'ញឹម បញ្ញា',
-        grade_level: 'grade_5',
-        last_assessment: '2024-01-18',
-        recent_score: 82,
-        status: 'active'
-      },
-      {
-        id: 3,
-        student_name: 'ចន្ទ ព្រេង',
-        grade_level: 'grade_4',
-        last_assessment: '2024-01-15',
-        recent_score: 65,
-        status: 'needs_attention'
-      },
-      {
-        id: 4,
-        student_name: 'វន្នី ស្រេង',
-        grade_level: 'grade_5',
-        last_assessment: '2024-01-17',
-        recent_score: 88,
-        status: 'excellent'
-      }
-    ];
+    try {
+      const response = await fetch(`/api/students?teacher_id=${teacherId}&limit=5&with_latest_assessment=true`);
+      if (!response.ok) return [];
+      const data = await response.json();
+
+      return (data.students || []).map((student: any) => ({
+        id: student.id,
+        student_name: student.name,
+        grade_level: `grade_${student.class || 4}`,
+        last_assessment: student.latest_assessment?.assessed_date || null,
+        recent_score: student.latest_assessment?.score || 0,
+        status: student.latest_assessment ? 'active' : 'needs_attention'
+      }));
+    } catch (error) {
+      console.error('Error fetching recent students:', error);
+      return [];
+    }
   }
 
   static async getPendingTasks(teacherId: string) {
-    return [
-      {
-        id: 1,
-        type: 'assessment',
-        title: 'ការវាយតម្លៃមូលដ្ឋានសម្រាប់ថ្នាក់ទី៤',
-        due_date: '2024-01-25',
-        priority: 'high',
-        students_count: 12
-      },
-      {
-        id: 2,
-        type: 'report',
-        title: 'របាយការណ៍ការបង្រៀនប្រចាំខែ',
-        due_date: '2024-01-30',
-        priority: 'medium',
-        status: 'draft'
-      },
-      {
-        id: 3,
-        type: 'mentoring',
-        title: 'ការពិគ្រោះយោបល់ជាមួយអ្នកណែនាំ',
-        due_date: '2024-01-23',
-        priority: 'high',
-        mentor_name: 'សោភ័ណ រតន៍'
-      }
-    ];
+    // TODO: Implement pending tasks from mentoring visits API
+    return [];
   }
 
   static async getProgressData(teacherId: string) {
+    // TODO: Implement progress tracking from assessments API
     return {
-      subjects: [
-        {
-          subject: 'ភាសាខ្មែរ',
-          baseline: 45,
-          current: 68,
-          target: 75,
-          improvement: 23
-        },
-        {
-          subject: 'គណិតវិទ្យា',
-          baseline: 52,
-          current: 71,
-          target: 80,
-          improvement: 19
-        }
-      ],
-      weekly_progress: [
-        { week: 'សប្តាហ៍ទី១', score: 45 },
-        { week: 'សប្តាហ៍ទី២', score: 52 },
-        { week: 'សប្តាហ៍ទី៣', score: 58 },
-        { week: 'សប្តាហ៍ទី៤', score: 68 }
-      ]
+      subjects: [],
+      weekly_progress: []
     };
   }
 }
@@ -529,19 +489,30 @@ function TeacherDashboardContent() {
         </Row>
       </Card>
 
-      {/* Daily Insights */}
-      <Alert
-        message="ការវិភាគប្រចាំថ្ងៃ"
-        description={
-          <div>
-            <p>• <strong>ការកែលម្អល្អ:</strong> សិស្សរបស់អ្នកបានកែលម្អពិន្ទុមធ្យម {dashboardStats.improvement_rate}% ក្នុងខែនេះ</p>
-            <p>• <strong>ការយកចិត្តទុកដាក់:</strong> សិស្ស {recentStudents.filter(s => s.status === 'needs_attention').length} នាក់ត្រូវការការយកចិត្តទុកដាក់បន្ថែម</p>
-            <p>• <strong>កិច្ចការបន្ទាន់:</strong> អ្នកមានកិច្ចការបន្ទាន់ចំនួន {pendingTasks.filter(t => t.priority === 'high').length} ក្នុងសប្តាហ៍នេះ</p>
-          </div>
-        }
-        type="info"
-        showIcon
-      />
+      {/* Daily Insights - Only show if there's data */}
+      {(dashboardStats.my_students > 0 || recentStudents.length > 0) && (
+        <Alert
+          message="ការវិភាគប្រចាំថ្ងៃ"
+          description={
+            <div>
+              {dashboardStats.my_students > 0 && (
+                <p>• <strong>សិស្សសរុប:</strong> អ្នកមានសិស្សចំនួន {dashboardStats.my_students} នាក់</p>
+              )}
+              {dashboardStats.completed_assessments > 0 && (
+                <p>• <strong>ការវាយតម្លៃបានធ្វើ:</strong> ការវាយតម្លៃសរុប {dashboardStats.completed_assessments} ដង</p>
+              )}
+              {recentStudents.filter(s => s.status === 'needs_attention').length > 0 && (
+                <p>• <strong>ការយកចិត្តទុកដាក់:</strong> សិស្ស {recentStudents.filter(s => s.status === 'needs_attention').length} នាក់ត្រូវការការយកចិត្តទុកដាក់បន្ថែម</p>
+              )}
+              {pendingTasks.filter(t => t.priority === 'high').length > 0 && (
+                <p>• <strong>កិច្ចការបន្ទាន់:</strong> អ្នកមានកិច្ចការបន្ទាន់ចំនួន {pendingTasks.filter(t => t.priority === 'high').length} ក្នុងសប្តាហ៍នេះ</p>
+              )}
+            </div>
+          }
+          type="info"
+          showIcon
+        />
+      )}
     </Space>
   );
 }

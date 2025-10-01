@@ -272,9 +272,10 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
               </Link>
 
               {/* User Dropdown */}
-              <Dropdown 
-                menu={{ items: userMenuItems }} 
+              <Dropdown
+                menu={{ items: userMenuItems }}
                 placement="bottomRight"
+                overlayStyle={{ zIndex: 1050 }}
                 overlayClassName="min-w-64"
               >
                 <button className="flex items-center space-x-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md p-2">
