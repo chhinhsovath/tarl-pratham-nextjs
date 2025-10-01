@@ -12,6 +12,9 @@ function CreateStudentPageContent() {
   const { data: session } = useSession();
   const user = session?.user;
 
+  // VERSION CHECK: v2.0 - Body stream fix deployed
+  console.log('🔵 Student Create Page Version: 2.0 (Fixed body stream error)');
+
   // Check permissions
   if (!hasPermission(user, 'students.create')) {
     router.push('/unauthorized');

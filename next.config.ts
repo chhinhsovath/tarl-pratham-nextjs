@@ -11,6 +11,24 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   output: 'standalone',
+  // Force cache bust - add unique build ID
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
+  // Add headers to prevent aggressive caching
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
