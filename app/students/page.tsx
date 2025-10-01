@@ -115,9 +115,7 @@ function StudentsContent() {
       const studentData = {
         name: values.name,
         gender: values.gender,
-        age: parseInt(values.age),
-        guardian_name: values.guardian_name,
-        guardian_phone: values.guardian_phone,
+        age: parseInt(values.age)
       };
 
       if (editingStudent) {
@@ -145,8 +143,16 @@ function StudentsContent() {
         });
 
         if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'មានបញ្ហាក្នុងការបន្ថែមសិស្ស');
+          let error;
+          try {
+            error = await response.json();
+            console.error('API Error Response:', error);
+          } catch (jsonError) {
+            const text = await response.text();
+            console.error('Non-JSON Error Response:', text);
+            throw new Error(`Server error (${response.status}): ${text.substring(0, 200)}`);
+          }
+          throw new Error(error.message || error.error || 'មានបញ្ហាក្នុងការបន្ថែមសិស្ស');
         }
 
         const result = await response.json();
@@ -365,25 +371,6 @@ function StudentsContent() {
                 ]}
               >
                 <Input type="number" placeholder="បញ្ចូលអាយុ" />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="ឈ្មោះអាណាព្យាបាល"
-                name="guardian_name"
-              >
-                <Input placeholder="បញ្ចូលឈ្មោះអាណាព្យាបាល" />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="លេខទូរស័ព្ទអាណាព្យាបាល"
-                name="guardian_phone"
-              >
-                <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" />
               </Form.Item>
             </Col>
           </Row>
