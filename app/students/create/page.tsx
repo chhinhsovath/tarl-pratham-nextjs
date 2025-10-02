@@ -55,16 +55,16 @@ function CreateStudentPageContent() {
       }
 
       if (response.ok) {
-        message.success(responseData.message || 'Student created successfully');
+        message.success(responseData.message || 'បានបន្ថែមសិស្សដោយជោគជ័យ');
 
         if (user?.role === 'mentor') {
-          message.info('Note: This student will be automatically deleted after 48 hours unless permanently saved by an admin or teacher.');
+          message.info('ចំណាំ: សិស្សនេះនឹងត្រូវបានលុបដោយស្វ័យប្រវត្តិបន្ទាប់ពី ៤៨ ម៉ោង ប្រសិនបើមិនត្រូវបានរក្សាទុកជាអចិន្ត្រៃយ៍ដោយអ្នកគ្រប់គ្រង ឬគ្រូបង្រៀន។');
         }
 
         router.push('/students');
       } else {
         console.error('❌ API Error:', responseData);
-        const errorMsg = responseData.error || responseData.message || 'Failed to create student';
+        const errorMsg = responseData.error || responseData.message || 'មិនអាចបន្ថែមសិស្ស';
         message.error(errorMsg);
 
         // Show detailed error in development
@@ -74,7 +74,7 @@ function CreateStudentPageContent() {
       }
     } catch (error) {
       console.error('💥 Create student error:', error);
-      message.error(`Failed to create student: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      message.error(`មិនអាចបន្ថែមសិស្ស: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

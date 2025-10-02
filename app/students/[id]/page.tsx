@@ -71,7 +71,7 @@ function StudentDetailsPageContent() {
         const studentData = await studentRes.json();
         setStudent(studentData.student);
       } else {
-        message.error('Student not found');
+        message.error('រកមិនឃើញសិស្ស');
         router.push('/students');
         return;
       }
@@ -82,7 +82,7 @@ function StudentDetailsPageContent() {
       }
     } catch (error) {
       console.error('Fetch student details error:', error);
-      message.error('Failed to load student details');
+      message.error('មិនអាចផ្ទុកទិន្នន័យសិស្ស');
     } finally {
       setLoading(false);
     }
@@ -127,33 +127,33 @@ function StudentDetailsPageContent() {
 
   const assessmentColumns = [
     {
-      title: 'Date',
+      title: 'កាលបរិច្ឆេទ',
       dataIndex: 'assessed_date',
       key: 'assessed_date',
       render: (date: string) => new Date(date).toLocaleDateString()
     },
     {
-      title: 'Type',
+      title: 'ប្រភេទ',
       dataIndex: 'assessment_type',
       key: 'assessment_type',
       render: (type: string) => (
         <Tag color={type === 'baseline' ? 'blue' : type === 'midline' ? 'orange' : 'green'}>
-          {type.toUpperCase()}
+          {type === 'baseline' ? 'មូលដ្ឋាន' : type === 'midline' ? 'កុលសនភាព' : 'បញ្ចប់'}
         </Tag>
       )
     },
     {
-      title: 'Subject',
+      title: 'មុខវិជ្ជា',
       dataIndex: 'subject',
       key: 'subject',
       render: (subject: string) => (
         <Tag color={subject === 'khmer' ? 'purple' : 'cyan'}>
-          {subject.toUpperCase()}
+          {subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា'}
         </Tag>
       )
     },
     {
-      title: 'Level',
+      title: 'កម្រិត',
       dataIndex: 'level',
       key: 'level',
       render: (level: string) => level ? (
@@ -163,13 +163,13 @@ function StudentDetailsPageContent() {
       ) : '-'
     },
     {
-      title: 'Score',
+      title: 'ពិន្ទុ',
       dataIndex: 'score',
       key: 'score',
       render: (score: number) => score ? `${score}%` : '-'
     },
     {
-      title: 'Assessed By',
+      title: 'វាយតម្លៃដោយ',
       dataIndex: 'added_by',
       key: 'added_by',
       render: (addedBy: any) => addedBy ? (
@@ -182,11 +182,11 @@ function StudentDetailsPageContent() {
       ) : '-'
     },
     {
-      title: 'Temporary',
+      title: 'បណ្តោះអាសន្ន',
       dataIndex: 'is_temporary',
       key: 'is_temporary',
       render: (isTemporary: boolean) => (
-        isTemporary ? <Tag color="orange">Yes</Tag> : <Tag color="green">No</Tag>
+        isTemporary ? <Tag color="orange">បាទ/ចាស</Tag> : <Tag color="green">ទេ</Tag>
       )
     }
   ];
@@ -197,7 +197,7 @@ function StudentDetailsPageContent() {
         <Card>
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <Spin size="large" />
-            <p style={{ marginTop: 16 }}>Loading student details...</p>
+            <p style={{ marginTop: 16 }}>កំពុងផ្ទុកទិន្នន័យសិស្ស...</p>
           </div>
         </Card>
       </div>
@@ -245,28 +245,28 @@ function StudentDetailsPageContent() {
               {student.name}
               {student.is_temporary && (
                 <Tag color="orange" style={{ marginLeft: '12px' }}>
-                  Temporary
+                  បណ្តោះអាសន្ន
                 </Tag>
               )}
             </Title>
-            
+
             <Row gutter={16}>
               <Col span={8}>
-                <Text type="secondary">Age: </Text>
-                <Text strong>{student.age || 'Not specified'}</Text>
+                <Text type="secondary">អាយុ: </Text>
+                <Text strong>{student.age || 'មិនបានបញ្ជាក់'}</Text>
               </Col>
               <Col span={8}>
-                <Text type="secondary">Gender: </Text>
-                <Text strong>{student.gender || 'Not specified'}</Text>
+                <Text type="secondary">ភេទ: </Text>
+                <Text strong>{student.gender || 'មិនបានបញ្ជាក់'}</Text>
               </Col>
               <Col span={8}>
-                <Text type="secondary">Class: </Text>
+                <Text type="secondary">ថ្នាក់: </Text>
                 <Text strong>
-                  {student.school_class ? 
+                  {student.school_class ?
                     `${student.school_class.school?.name} - ${student.school_class.name}` :
-                    student.pilot_school ? 
-                      `${student.pilot_school.school_name} (Pilot)` :
-                      'Not assigned'
+                    student.pilot_school ?
+                      `${student.pilot_school.school_name} (សាកល្បង)` :
+                      'មិនបានកំណត់'
                   }
                 </Text>
               </Col>
@@ -275,12 +275,12 @@ function StudentDetailsPageContent() {
           
           <Col span={4} style={{ textAlign: 'right' }}>
             {hasPermission(user, 'students.edit') && (
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 icon={<EditOutlined />}
                 onClick={() => router.push(`/students/${student.id}/edit`)}
               >
-                Edit Student
+                កែប្រែសិស្ស
               </Button>
             )}
           </Col>
@@ -290,14 +290,14 @@ function StudentDetailsPageContent() {
       {/* Temporary Student Warning */}
       {student.is_temporary && (
         <Alert
-          message="Temporary Student"
+          message="សិស្សបណ្តោះអាសន្ន"
           description={
             <div>
-              This student was created by a mentor and is marked as temporary. 
+              សិស្សនេះត្រូវបានបង្កើតដោយអ្នកណែនាំ ហើយត្រូវបានសម្គាល់ថាជាបណ្តោះអាសន្ន។
               {student.mentor_created_at && (
                 <>
-                  <br />Created on: {new Date(student.mentor_created_at).toLocaleString()}
-                  <br />Will be automatically deleted after 48 hours unless permanently saved.
+                  <br />កាលបរិច្ឆេទបង្កើត: {new Date(student.mentor_created_at).toLocaleString()}
+                  <br />នឹងត្រូវបានលុបដោយស្វ័យប្រវត្តិបន្ទាប់ពី ៤៨ ម៉ោង ប្រសិនបើមិនត្រូវបានរក្សាទុកជាអចិន្ត្រៃយ៍។
                 </>
               )}
             </div>
@@ -309,28 +309,28 @@ function StudentDetailsPageContent() {
       )}
 
       <Tabs defaultActiveKey="overview">
-        <TabPane tab="Overview" key="overview">
+        <TabPane tab="ទិដ្ឋភាពទូទៅ" key="overview">
           <Row gutter={24}>
             <Col span={12}>
-              <Card title="Personal Information" style={{ marginBottom: '24px' }}>
+              <Card title="ព័ត៌មានផ្ទាល់ខ្លួន" style={{ marginBottom: '24px' }}>
                 <Descriptions column={1}>
-                  <Descriptions.Item label="Full Name">
+                  <Descriptions.Item label="ឈ្មោះពេញ">
                     {student.name}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Age">
-                    {student.age || 'Not specified'}
+                  <Descriptions.Item label="អាយុ">
+                    {student.age || 'មិនបានបញ្ជាក់'}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Gender">
-                    {student.gender || 'Not specified'}
+                  <Descriptions.Item label="ភេទ">
+                    {student.gender || 'មិនបានបញ្ជាក់'}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Guardian Name">
-                    {student.guardian_name || 'Not specified'}
+                  <Descriptions.Item label="ឈ្មោះអាណាព្យាបាល">
+                    {student.guardian_name || 'មិនបានបញ្ជាក់'}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Guardian Phone">
-                    {student.guardian_phone || 'Not specified'}
+                  <Descriptions.Item label="លេខទូរស័ព្ទអាណាព្យាបាល">
+                    {student.guardian_phone || 'មិនបានបញ្ជាក់'}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Address">
-                    {student.address || 'Not specified'}
+                  <Descriptions.Item label="អាសយដ្ឋាន">
+                    {student.address || 'មិនបានបញ្ជាក់'}
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
@@ -338,18 +338,18 @@ function StudentDetailsPageContent() {
 
             <Col span={12}>
               {assessmentHistory && (
-                <Card title="Assessment Statistics" style={{ marginBottom: '24px' }}>
+                <Card title="ស្ថិតិការវាយតម្លៃ" style={{ marginBottom: '24px' }}>
                   <Row gutter={16}>
                     <Col span={12}>
-                      <Statistic 
-                        title="Total Assessments" 
+                      <Statistic
+                        title="ការវាយតម្លៃសរុប"
                         value={assessmentHistory.stats.total_assessments}
                         prefix={<TrophyOutlined />}
                       />
                     </Col>
                     <Col span={12}>
-                      <Statistic 
-                        title="Temporary Assessments" 
+                      <Statistic
+                        title="ការវាយតម្លៃបណ្តោះអាសន្ន"
                         value={assessmentHistory.stats.temporary_assessments}
                         prefix={<ClockCircleOutlined />}
                       />
@@ -388,19 +388,19 @@ function StudentDetailsPageContent() {
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.baseline)}>
                           {assessmentHistory.levelProgression.khmer.baseline.toUpperCase()}
                         </Tag>
-                      ) : <Text type="secondary">Not assessed</Text>}</div>
-                      
+                      ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
+
                       <div>កុលសនភាព: {assessmentHistory.levelProgression.khmer.midline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.midline)}>
                           {assessmentHistory.levelProgression.khmer.midline.toUpperCase()}
                         </Tag>
-                      ) : <Text type="secondary">Not assessed</Text>}</div>
-                      
+                      ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
+
                       <div>បញ្ចប់: {assessmentHistory.levelProgression.khmer.endline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.endline)}>
                           {assessmentHistory.levelProgression.khmer.endline.toUpperCase()}
                         </Tag>
-                      ) : <Text type="secondary">Not assessed</Text>}</div>
+                      ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
                     </div>
                   </div>
 
@@ -423,19 +423,19 @@ function StudentDetailsPageContent() {
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.baseline)}>
                           {assessmentHistory.levelProgression.math.baseline.toUpperCase()}
                         </Tag>
-                      ) : <Text type="secondary">Not assessed</Text>}</div>
-                      
+                      ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
+
                       <div>កុលសនភាព: {assessmentHistory.levelProgression.math.midline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.midline)}>
                           {assessmentHistory.levelProgression.math.midline.toUpperCase()}
                         </Tag>
-                      ) : <Text type="secondary">Not assessed</Text>}</div>
-                      
+                      ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
+
                       <div>បញ្ចប់: {assessmentHistory.levelProgression.math.endline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.endline)}>
                           {assessmentHistory.levelProgression.math.endline.toUpperCase()}
                         </Tag>
-                      ) : <Text type="secondary">Not assessed</Text>}</div>
+                      ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
                     </div>
                   </div>
 
@@ -452,9 +452,9 @@ function StudentDetailsPageContent() {
           )}
         </TabPane>
 
-        <TabPane tab="Assessment History" key="history">
+        <TabPane tab="ប្រវត្តិការវាយតម្លៃ" key="history">
           {assessmentHistory && (
-            <Card title="All Assessments">
+            <Card title="ការវាយតម្លៃទាំងអស់">
               <Table scroll={{ x: "max-content" }}
                 columns={assessmentColumns}
                 dataSource={assessmentHistory.assessments}
