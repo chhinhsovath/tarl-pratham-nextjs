@@ -692,7 +692,7 @@ const CompleteMentoringVisitForm: React.FC<CompleteMentoringVisitFormProps> = ({
                   name={`${prefix}type`}
                   label="ប្រភេទសកម្មភាព"
                 >
-                  <Select placeholder="Select activity type">
+                  <Select placeholder="ជ្រើសរើសប្រភេទសកម្មភាព">
                     <Option value="individual">ការងារក្នុងអ្នកមួយ</Option>
                     <Option value="pairs">ការងារជាកប្រាឃពីរ</Option>
                     <Option value="small_group">ក្រុមតូច</Option>
@@ -721,7 +721,7 @@ const CompleteMentoringVisitForm: React.FC<CompleteMentoringVisitFormProps> = ({
               name={`${prefix}students_practice`}
               label="តើសិស្សបានចម្រីនទេ?"
             >
-              <Select placeholder="Select practice level">
+              <Select placeholder="ជ្រើសរើសកម្រិតការចម្រីន">
                 <Option value="all">សិស្សទាំងអស់</Option>
                 <Option value="most">សិស្សផ្នែកឈ្ចើន</Option>
                 <Option value="some">សិស្សមួយចំនួន</Option>
@@ -736,7 +736,7 @@ const CompleteMentoringVisitForm: React.FC<CompleteMentoringVisitFormProps> = ({
               name={`${prefix}small_groups`}
               label="ការងារក្រុមតូច?"
             >
-              <Select placeholder="Select effectiveness">
+              <Select placeholder="ជ្រើសរើសប្រសិទ្ធភាព">
                 <Option value="very_effective">មានប្រសិទ្ធភាពក្បំបំផុត</Option>
                 <Option value="effective">មានប្រសិទ្ធភាព</Option>
                 <Option value="somewhat_effective">មានប្រសិទ្ធភាពមួយចំណែក</Option>
@@ -745,13 +745,13 @@ const CompleteMentoringVisitForm: React.FC<CompleteMentoringVisitFormProps> = ({
               </Select>
             </Form.Item>
           </Col>
-          
+
           <Col span={8}>
             <Form.Item
               name={`${prefix}individual`}
               label="ការងារធ្នាប់ក្នុងអ្នកមួយ?"
             >
-              <Select placeholder="Select effectiveness">
+              <Select placeholder="ជ្រើសរើសប្រសិទ្ធភាព">
                 <Option value="very_effective">មានប្រសិទ្ធភាពក្បំបំផុត</Option>
                 <Option value="effective">មានប្រសិទ្ធភាព</Option>
                 <Option value="somewhat_effective">មានប្រសិទ្ធភាពមួយចំណែក</Option>

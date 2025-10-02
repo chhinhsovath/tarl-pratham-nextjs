@@ -492,7 +492,7 @@ function SchoolTeachersPageContent() {
         <Select
           mode="multiple"
           style={{ width: '100%' }}
-          placeholder="Select teachers to assign"
+          placeholder="ជ្រើសរើសគ្រូដែលត្រូវចាត់តាំង"
           value={selectedTeachers}
           onChange={setSelectedTeachers}
           filterOption={(input, option) =>

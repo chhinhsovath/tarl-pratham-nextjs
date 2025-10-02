@@ -218,7 +218,7 @@ const MentoringVisitForm: React.FC<MentoringVisitFormProps> = ({
               label="Pilot School"
               rules={[{ required: true, message: 'Pilot school is required' }]}
             >
-              <Select placeholder="Select pilot school">
+              <Select placeholder="ជ្រើសរើសសាលាសាកល្បង">
                 {pilotSchools.map((school: any) => (
                   <Option key={school.id} value={school.id}>
                     {school.name} ({school.code})
@@ -248,7 +248,7 @@ const MentoringVisitForm: React.FC<MentoringVisitFormProps> = ({
               name="level"
               label="Education Level"
             >
-              <Select placeholder="Select education level" allowClear>
+              <Select placeholder="ជ្រើសរើសកម្រិតអប់រំ" allowClear>
                 {levels.map(level => (
                   <Option key={level} value={level}>
                     {level}
@@ -304,7 +304,7 @@ const MentoringVisitForm: React.FC<MentoringVisitFormProps> = ({
               label="Status"
               rules={[{ required: true, message: 'Status is required' }]}
             >
-              <Select placeholder="Select status">
+              <Select placeholder="ជ្រើសរើសស្ថានភាព">
                 {statuses.map(status => (
                   <Option key={status.value} value={status.value}>
                     <span style={{ color: status.color }}>

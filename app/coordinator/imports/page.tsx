@@ -304,7 +304,7 @@ function BulkImportPageContent() {
                 <Select
                   value={importType}
                   onChange={setImportType}
-                  placeholder="Select what you want to import"
+                  placeholder="ជ្រើសរើសអ្វីដែលអ្នកចង់នាំចូល"
                   size="large"
                 >
                   {importTypes.map(type => (

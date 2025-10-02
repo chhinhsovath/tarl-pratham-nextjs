@@ -334,7 +334,7 @@ function SelectStudentsContent() {
             {user?.role !== 'mentor' && (
               <Col span={6}>
                 <Select
-                  placeholder="Select class"
+                  placeholder="ជ្រើសរើសថ្នាក់"
                   value={filters.school_class_id}
                   onChange={(value) => handleFilterChange('school_class_id', value)}
                   allowClear
@@ -352,7 +352,7 @@ function SelectStudentsContent() {
             {(user?.role === 'mentor' || user?.role === 'admin') && (
               <Col span={6}>
                 <Select
-                  placeholder="Select pilot school"
+                  placeholder="ជ្រើសរើសសាលាសាកល្បង"
                   value={filters.pilot_school_id}
                   onChange={(value) => handleFilterChange('pilot_school_id', value)}
                   allowClear
@@ -369,7 +369,7 @@ function SelectStudentsContent() {
             
             <Col span={6}>
               <Select
-                placeholder="Select gender"
+                placeholder="ជ្រើសរើសភេទ"
                 value={filters.gender}
                 onChange={(value) => handleFilterChange('gender', value)}
                 allowClear

@@ -320,7 +320,7 @@ export default function BulkAssessmentForm() {
             value={record.khmer_level}
             onChange={(value) => handleAssessmentChange(record.student_id, 'khmer_level', value)}
             style={{ width: '100%' }}
-            placeholder="Select level"
+            placeholder="ជ្រើសរើសកម្រិត"
           >
             {khmerLevels.map(level => (
               <Option key={level} value={level}>
@@ -356,7 +356,7 @@ export default function BulkAssessmentForm() {
             value={record.math_level}
             onChange={(value) => handleAssessmentChange(record.student_id, 'math_level', value)}
             style={{ width: '100%' }}
-            placeholder="Select level"
+            placeholder="ជ្រើសរើសកម្រិត"
           >
             {mathLevels.map(level => (
               <Option key={level} value={level}>
@@ -469,7 +469,7 @@ export default function BulkAssessmentForm() {
           <Col span={6}>
             <Card>
               <Statistic
-                title="Math Assessed"
+                title="ការវាយតម្លៃគណិតវិទ្យា"
                 value={stats.assessed_math}
                 valueStyle={{ color: stats.assessed_math === stats.total ? '#52c41a' : undefined }}
               />
@@ -503,7 +503,7 @@ export default function BulkAssessmentForm() {
                 <Select
                   value={selectedSchool}
                   onChange={setSelectedSchool}
-                  placeholder="Select school"
+                  placeholder="ជ្រើសរើសសាលា"
                   showSearch
                   optionFilterProp="children"
                 >

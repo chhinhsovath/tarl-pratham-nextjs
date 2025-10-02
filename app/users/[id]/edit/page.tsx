@@ -312,7 +312,7 @@ function EditUserPageContent() {
                 ]}
               >
                 <Select 
-                  placeholder="Select role" 
+                  placeholder="ជ្រើសរើសតួនាទី" 
                   size="large"
                   onChange={handleRoleChange}
                   disabled={!canEditRole}
@@ -334,7 +334,7 @@ function EditUserPageContent() {
                 name="province"
               >
                 <Select 
-                  placeholder="Select province" 
+                  placeholder="ជ្រើសរើសខេត្ត" 
                   size="large"
                   showSearch
                   allowClear
@@ -354,7 +354,7 @@ function EditUserPageContent() {
                 name="subject"
               >
                 <Select 
-                  placeholder="Select subject" 
+                  placeholder="ជ្រើសរើសមុខវិជ្ជា" 
                   size="large"
                   allowClear
                 >
@@ -385,7 +385,7 @@ function EditUserPageContent() {
                   name="pilot_school_id"
                 >
                   <Select 
-                    placeholder="Select pilot school" 
+                    placeholder="ជ្រើសរើសសាលាសាកល្បង" 
                     size="large"
                     showSearch
                     allowClear

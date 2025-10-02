@@ -464,7 +464,7 @@ function AssessmentsContent() {
             
             <Col span={5}>
               <Select
-                placeholder="Select student"
+                placeholder="ជ្រើសរើសសិស្ស"
                 value={filters.student_id}
                 onChange={(value) => handleFilterChange('student_id', value)}
                 allowClear

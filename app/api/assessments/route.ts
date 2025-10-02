@@ -154,8 +154,8 @@ export async function GET(request: NextRequest) {
           pilot_school: {
             select: {
               id: true,
-              name: true,
-              code: true
+              school_name: true,
+              school_code: true
             }
           },
           added_by: {

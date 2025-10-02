@@ -230,7 +230,7 @@ const SchoolForm: React.FC<SchoolFormProps> = ({
               label="Province"
               rules={[{ required: true, message: 'Province is required' }]}
             >
-              <Select placeholder="Select province">
+              <Select placeholder="ជ្រើសរើសខេត្ត">
                 {provinces.map((province: any) => (
                   <Option key={province.id} value={province.id}>
                     {province.name_english} ({province.name_khmer})
@@ -276,7 +276,7 @@ const SchoolForm: React.FC<SchoolFormProps> = ({
               name="school_type"
               label="School Type"
             >
-              <Select placeholder="Select school type" allowClear>
+              <Select placeholder="ជ្រើសរើសប្រភេទសាលា" allowClear>
                 {schoolTypes.map(type => (
                   <Option key={type} value={type}>
                     {type}
@@ -291,7 +291,7 @@ const SchoolForm: React.FC<SchoolFormProps> = ({
               name="level"
               label="Education Level"
             >
-              <Select placeholder="Select education level" allowClear>
+              <Select placeholder="ជ្រើសរើសកម្រិតអប់រំ" allowClear>
                 {schoolLevels.map(level => (
                   <Option key={level} value={level}>
                     {level}

@@ -124,7 +124,7 @@ export default function ProfilePage() {
               name="pilot_school_id"
             >
               <Select
-                placeholder="Select your school"
+                placeholder="ជ្រើសរើសសាលារបស់អ្នក"
                 loading={schoolsLoading}
                 showSearch
                 allowClear
@@ -145,7 +145,7 @@ export default function ProfilePage() {
               label="Subject"
               name="subject"
             >
-              <Select placeholder="Select subject" allowClear>
+              <Select placeholder="ជ្រើសរើសមុខវិជ្ជា" allowClear>
                 <Option value="khmer">Khmer</Option>
                 <Option value="math">Mathematics</Option>
                 <Option value="both">Both</Option>
@@ -156,7 +156,7 @@ export default function ProfilePage() {
               label="Classes"
               name="holding_classes"
             >
-              <Select placeholder="Select classes" allowClear>
+              <Select placeholder="ជ្រើសរើសថ្នាក់" allowClear>
                 <Option value="grade_4">Grade 4</Option>
                 <Option value="grade_5">Grade 5</Option>
                 <Option value="both">Both</Option>

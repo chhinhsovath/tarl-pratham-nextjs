@@ -223,7 +223,7 @@ const UserForm: React.FC<UserFormProps> = ({
               label="Role"
               rules={[{ required: true, message: 'Role is required' }]}
             >
-              <Select placeholder="Select role">
+              <Select placeholder="ជ្រើសរើសតួនាទី">
                 {roles.map(role => (
                   <Option key={role.value} value={role.value}>
                     {role.label}
@@ -240,7 +240,7 @@ const UserForm: React.FC<UserFormProps> = ({
               name="province"
               label="Province"
             >
-              <Select placeholder="Select province" allowClear>
+              <Select placeholder="ជ្រើសរើសខេត្ត" allowClear>
                 {provinces.map((province: any) => (
                   <Option key={province.id} value={province.name_english}>
                     {province.name_english} ({province.name_khmer})
@@ -255,7 +255,7 @@ const UserForm: React.FC<UserFormProps> = ({
               name="subject"
               label="Teaching Subject"
             >
-              <Select placeholder="Select subject" allowClear>
+              <Select placeholder="ជ្រើសរើសមុខវិជ្ជា" allowClear>
                 {subjects.map(subject => (
                   <Option key={subject} value={subject}>
                     {subject}
@@ -287,7 +287,7 @@ const UserForm: React.FC<UserFormProps> = ({
               name="pilot_school_id"
               label="Pilot School (for Mentors/Teachers)"
             >
-              <Select placeholder="Select pilot school" allowClear>
+              <Select placeholder="ជ្រើសរើសសាលាសាកល្បង" allowClear>
                 {pilotSchools.map((school: any) => (
                   <Option key={school.id} value={school.id}>
                     {school.name} ({school.code})

@@ -670,7 +670,7 @@ function SchoolStudentsPageContent() {
             </Col>
             <Col span={12}>
               <Form.Item name="gender" label="Gender">
-                <Select placeholder="Select gender">
+                <Select placeholder="ជ្រើសរើសភេទ">
                   <Option value="male">Male</Option>
                   <Option value="female">Female</Option>
                 </Select>
@@ -738,7 +738,7 @@ function SchoolStudentsPageContent() {
             </Col>
             <Col span={12}>
               <Form.Item name="gender" label="Gender">
-                <Select placeholder="Select gender">
+                <Select placeholder="ជ្រើសរើសភេទ">
                   <Option value="male">Male</Option>
                   <Option value="female">Female</Option>
                 </Select>

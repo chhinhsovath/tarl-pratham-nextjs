@@ -270,7 +270,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   name="gender"
                   label="Gender"
                 >
-                  <Select placeholder="Select gender" allowClear>
+                  <Select placeholder="ជ្រើសរើសភេទ" allowClear>
                     <Option value="Male">Male (ប្រុស)</Option>
                     <Option value="Female">Female (ស្រី)</Option>
                   </Select>
@@ -316,7 +316,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     name="school_class_id"
                     label="School Class"
                   >
-                    <Select placeholder="Select school class" allowClear>
+                    <Select placeholder="ជ្រើសរើសថ្នាក់" allowClear>
                       {classes.map((schoolClass: any) => (
                         <Option key={schoolClass.id} value={schoolClass.id}>
                           {schoolClass.school?.name} - {schoolClass.name} (Grade {schoolClass.grade})
@@ -336,7 +336,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     name="pilot_school_id"
                     label="Pilot School"
                   >
-                    <Select placeholder="Select pilot school" allowClear>
+                    <Select placeholder="ជ្រើសរើសសាលាសាកល្បង" allowClear>
                       {pilotSchools.map((school: any) => (
                         <Option key={school.id} value={school.id}>
                           {school.name} ({school.code})
