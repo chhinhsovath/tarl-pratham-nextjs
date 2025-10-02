@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:fresh": "rm -rf .next node_modules/.cache .turbopack && prisma generate && PORT=3003 next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "playwright test",
@@ -15,7 +15,8 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.2",
