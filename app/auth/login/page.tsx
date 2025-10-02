@@ -83,11 +83,23 @@ function LoginContent() {
         loginType: 'quick'
       });
 
+      console.log('🔐 [LOGIN] SignIn result:', result);
+
       if (result?.error) {
+        console.error('❌ [LOGIN] Error:', result.error);
         message.error('ឈ្មោះអ្នកប្រើប្រាស់ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ');
-      } else {
+      } else if (result?.ok) {
+        console.log('✅ [LOGIN] Success! Redirecting to dashboard...');
         message.success(`សូមស្វាគមន៍ ${selectedUser.username}!`);
-        router.push('/dashboard');
+
+        // Give time for session to establish
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Force a hard redirect to ensure middleware runs
+        window.location.href = '/dashboard';
+      } else {
+        console.warn('⚠️ [LOGIN] Unknown result:', result);
+        message.error('កំហុសបានកើតឡើងអំឡុងពេលចូល');
       }
     } catch (error) {
       console.error('Login error:', error);
