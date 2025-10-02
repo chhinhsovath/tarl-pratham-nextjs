@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Form, Input, Button, Card, Select, Typography, Space, Row, Col, Tag, App } from 'antd';
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, LoginOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 
 const { Title, Text } = Typography;
 const { Option, OptGroup } = Select;
@@ -165,7 +166,14 @@ function LoginContent() {
         >
           <Form.Item
             name="username"
-            label="ជ្រើសអ្នកប្រើប្រាស់"
+            label={
+              <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                <span>ជ្រើសអ្នកប្រើប្រាស់</span>
+                <Link href="/auth/signup" style={{ fontSize: 12, fontWeight: 400 }}>
+                  រកមិនឃើញឈ្មោះ? ចុះឈ្មោះថ្មី →
+                </Link>
+              </Space>
+            }
             rules={[{ required: true, message: 'សូមជ្រើសអ្នកប្រើប្រាស់!' }]}
           >
             <Select
@@ -179,12 +187,24 @@ function LoginContent() {
                 const label = option?.label?.toString() || '';
                 return label.toLowerCase().includes(input.toLowerCase());
               }}
+              notFoundContent={
+                <div style={{ textAlign: 'center', padding: '20px 10px' }}>
+                  <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>
+                    រកមិនឃើញឈ្មោះអ្នកប្រើប្រាស់
+                  </Text>
+                  <Link href="/auth/signup">
+                    <Button type="link" size="small">
+                      ចុចទីនេះដើម្បីចុះឈ្មោះថ្មី
+                    </Button>
+                  </Link>
+                </div>
+              }
             >
               {Object.entries(groupedUsers).map(([role, roleUsers]) => (
                 <OptGroup key={role} label={formatRoleName(role)}>
                   {roleUsers.map(user => (
-                    <Option 
-                      key={user.username} 
+                    <Option
+                      key={user.username}
                       value={user.username}
                       label={user.username}
                     >
@@ -246,15 +266,24 @@ function LoginContent() {
           )}
         </Form>
 
-        <div style={{ 
-          textAlign: 'center', 
-          marginTop: 24, 
-          padding: '16px', 
-          background: '#fef3c7', 
-          borderRadius: '8px' 
+        <div style={{
+          textAlign: 'center',
+          marginTop: 24,
+          padding: '16px',
+          background: '#fef3c7',
+          borderRadius: '8px'
         }}>
           <Text style={{ fontSize: 13, color: '#92400e' }}>
             <strong>សម្រាប់សាកល្បង:</strong> ប្រើពាក្យសម្ងាត់ <strong>admin123</strong>
+          </Text>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <Text type="secondary">
+            មិនមានគណនីទេ? {' '}
+            <Link href="/auth/signup" style={{ fontWeight: 500 }}>
+              ចុះឈ្មោះថ្មី
+            </Link>
           </Text>
         </div>
       </Card>
