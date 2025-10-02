@@ -6,9 +6,12 @@ export async function GET(request: NextRequest) {
     let quickUsers = [];
     
     try {
-      // Try to fetch from database first
-      quickUsers = await prisma.quickLoginUser.findMany({
-        where: { is_active: true },
+      // Query unified users table for username login type
+      quickUsers = await prisma.user.findMany({
+        where: {
+          is_active: true,
+          login_type: 'username'
+        },
         select: {
           id: true,
           username: true,
@@ -22,7 +25,7 @@ export async function GET(request: NextRequest) {
         ]
       });
     } catch (dbError) {
-      console.log('QuickLoginUser table not found, using demo users');
+      console.log('User table query error, using demo users');
       // Fallback demo users if table doesn't exist
       quickUsers = [
         { id: 1, username: 'admin.demo', role: 'admin', province: null, subject: null, is_active: true },

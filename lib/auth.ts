@@ -18,36 +18,44 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Password is required");
         }
 
-        // Quick login with username
+        // Quick login with username (now using unified users table)
         if (credentials.loginType === "quick" && credentials.username) {
-          const quickUser = await prisma.quickLoginUser.findUnique({
-            where: { username: credentials.username }
+          const user = await prisma.user.findFirst({
+            where: {
+              OR: [
+                { username: credentials.username },
+                { username_login: credentials.username }
+              ],
+              login_type: 'username'
+            }
           });
 
-          if (!quickUser || !quickUser.is_active) {
+          if (!user || !user.is_active) {
             throw new Error("Invalid credentials");
           }
 
-          const isPasswordValid = await bcrypt.compare(credentials.password, quickUser.password);
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
           if (!isPasswordValid) {
             throw new Error("Invalid credentials");
           }
 
           return {
-            id: quickUser.id.toString(),
-            email: `${quickUser.username}@quick.login`,
-            name: quickUser.username,
-            role: quickUser.role,
-            pilot_school_id: null,
+            id: user.id.toString(),
+            email: user.email || `${user.username}@quick.login`,
+            name: user.name || user.username || user.username_login,
+            role: user.role,
+            pilot_school_id: user.pilot_school_id,
             teacher_profile_setup: false,
             mentor_profile_complete: false,
-            province: quickUser.province,
-            subject: quickUser.subject,
+            province: user.province,
+            subject: user.subject,
             isQuickLogin: true,
-            onboarding_completed: null,
-            show_onboarding: true,
-            holding_classes: null
+            onboarding_completed: user.onboarding_completed,
+            show_onboarding: user.show_onboarding !== false,
+            holding_classes: user.holding_classes,
+            district: user.district,
+            profile_expires_at: user.profile_expires_at
           };
         }
 
@@ -114,62 +122,35 @@ export const authOptions: NextAuthOptions = {
         try {
           const userId = parseInt(token.id as string);
 
-          // Query correct table based on login type
-          if (token.isQuickLogin) {
-            // Quick login users - query quick_login_users table
-            const freshQuickUser = await prisma.quickLoginUser.findUnique({
-              where: { id: userId },
-              select: {
-                role: true,
-                province: true,
-                subject: true,
-                pilot_school_id: true,
-                holding_classes: true,
-                district: true,
-                is_active: true,
-                onboarding_completed: true,
-                show_onboarding: true
-              }
-            });
-
-            if (freshQuickUser) {
-              token.role = freshQuickUser.role;
-              token.province = freshQuickUser.province;
-              token.subject = freshQuickUser.subject;
-              token.pilot_school_id = freshQuickUser.pilot_school_id;
-              token.holding_classes = freshQuickUser.holding_classes;
-              token.district = freshQuickUser.district;
-              token.onboarding_completed = freshQuickUser.onboarding_completed;
-              token.show_onboarding = freshQuickUser.show_onboarding;
+          // Query unified users table (no more separate tables!)
+          const freshUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+              role: true,
+              pilot_school_id: true,
+              subject: true,
+              holding_classes: true,
+              province: true,
+              district: true,
+              onboarding_completed: true,
+              show_onboarding: true,
+              profile_expires_at: true,
+              login_type: true
             }
-          } else {
-            // Regular users - query users table
-            const freshUser = await prisma.user.findUnique({
-              where: { id: userId },
-              select: {
-                role: true,
-                pilot_school_id: true,
-                subject: true,
-                holding_classes: true,
-                province: true,
-                district: true,
-                onboarding_completed: true,
-                show_onboarding: true,
-                profile_expires_at: true
-              }
-            });
+          });
 
-            if (freshUser) {
-              token.role = freshUser.role;
-              token.pilot_school_id = freshUser.pilot_school_id;
-              token.subject = freshUser.subject;
-              token.holding_classes = freshUser.holding_classes;
-              token.province = freshUser.province;
-              token.district = freshUser.district;
-              token.onboarding_completed = freshUser.onboarding_completed;
-              token.show_onboarding = freshUser.show_onboarding;
-              token.profile_expires_at = freshUser.profile_expires_at;
-            }
+          if (freshUser) {
+            token.role = freshUser.role;
+            token.pilot_school_id = freshUser.pilot_school_id;
+            token.subject = freshUser.subject;
+            token.holding_classes = freshUser.holding_classes;
+            token.province = freshUser.province;
+            token.district = freshUser.district;
+            token.onboarding_completed = freshUser.onboarding_completed;
+            token.show_onboarding = freshUser.show_onboarding;
+            token.profile_expires_at = freshUser.profile_expires_at;
+            // Update isQuickLogin based on login_type
+            token.isQuickLogin = freshUser.login_type === 'username';
           }
         } catch (error) {
           console.error('❌ [AUTH] Error refreshing token data:', error);
@@ -183,75 +164,43 @@ export const authOptions: NextAuthOptions = {
           console.log('🔄 [AUTH] Session update triggered');
           const userId = parseInt(token.id as string);
 
-          // Query correct table based on login type
-          if (token.isQuickLogin) {
-            console.log('🔍 [AUTH] Refreshing quick login user data');
-            // Quick login users - query quick_login_users table
-            const freshQuickUser = await prisma.quickLoginUser.findUnique({
-              where: { id: userId },
-              select: {
-                role: true,
-                province: true,
-                subject: true,
-                pilot_school_id: true,
-                holding_classes: true,
-                district: true,
-                is_active: true,
-                onboarding_completed: true,
-                show_onboarding: true
-              }
-            });
-
-            if (freshQuickUser) {
-              console.log('✅ [AUTH] Fresh quick login user data fetched:', {
-                pilot_school_id: freshQuickUser.pilot_school_id,
-                subject: freshQuickUser.subject,
-                holding_classes: freshQuickUser.holding_classes,
-                onboarding_completed: freshQuickUser.onboarding_completed
-              });
-              token.role = freshQuickUser.role;
-              token.province = freshQuickUser.province;
-              token.subject = freshQuickUser.subject;
-              token.pilot_school_id = freshQuickUser.pilot_school_id;
-              token.holding_classes = freshQuickUser.holding_classes;
-              token.district = freshQuickUser.district;
-              token.onboarding_completed = freshQuickUser.onboarding_completed;
-              token.show_onboarding = freshQuickUser.show_onboarding;
-              console.log('✅ [AUTH] Token updated with pilot_school_id:', token.pilot_school_id);
-            } else {
-              console.error('❌ [AUTH] Quick login user not found for userId:', userId);
+          // Query unified users table (no more separate tables!)
+          console.log('🔍 [AUTH] Refreshing user data from unified users table');
+          const freshUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+              role: true,
+              pilot_school_id: true,
+              subject: true,
+              holding_classes: true,
+              province: true,
+              district: true,
+              onboarding_completed: true,
+              show_onboarding: true,
+              profile_expires_at: true,
+              login_type: true
             }
+          });
+
+          if (freshUser) {
+            console.log('✅ [AUTH] Fresh user data fetched:', {
+              pilot_school_id: freshUser.pilot_school_id,
+              subject: freshUser.subject,
+              login_type: freshUser.login_type
+            });
+            token.role = freshUser.role;
+            token.pilot_school_id = freshUser.pilot_school_id;
+            token.subject = freshUser.subject;
+            token.holding_classes = freshUser.holding_classes;
+            token.province = freshUser.province;
+            token.district = freshUser.district;
+            token.onboarding_completed = freshUser.onboarding_completed;
+            token.show_onboarding = freshUser.show_onboarding;
+            token.profile_expires_at = freshUser.profile_expires_at;
+            token.isQuickLogin = freshUser.login_type === 'username';
+            console.log('✅ [AUTH] Token updated with pilot_school_id:', token.pilot_school_id);
           } else {
-            console.log('🔍 [AUTH] Refreshing regular user data');
-            // Regular users - query users table
-            const freshUser = await prisma.user.findUnique({
-              where: { id: userId },
-              select: {
-                pilot_school_id: true,
-                subject: true,
-                holding_classes: true,
-                province: true,
-                district: true,
-                onboarding_completed: true,
-                show_onboarding: true,
-                profile_expires_at: true
-              }
-            });
-
-            if (freshUser) {
-              console.log('✅ [AUTH] Fresh user data fetched:', { pilot_school_id: freshUser.pilot_school_id, subject: freshUser.subject });
-              token.pilot_school_id = freshUser.pilot_school_id;
-              token.subject = freshUser.subject;
-              token.holding_classes = freshUser.holding_classes;
-              token.province = freshUser.province;
-              token.district = freshUser.district;
-              token.onboarding_completed = freshUser.onboarding_completed;
-              token.show_onboarding = freshUser.show_onboarding;
-              token.profile_expires_at = freshUser.profile_expires_at;
-              console.log('✅ [AUTH] Token updated with pilot_school_id:', token.pilot_school_id);
-            } else {
-              console.error('❌ [AUTH] Fresh user not found for userId:', userId);
-            }
+            console.error('❌ [AUTH] User not found for userId:', userId);
           }
         } catch (error) {
           console.error('❌ [AUTH] Error updating session:', error);

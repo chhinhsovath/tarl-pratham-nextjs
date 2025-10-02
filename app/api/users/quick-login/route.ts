@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
     let users;
     
     try {
-      // Try to fetch from database first
-      users = await prisma.quickLoginUser.findMany({
+      // Query unified users table for username login type
+      users = await prisma.user.findMany({
         select: {
           id: true,
           username: true,
@@ -20,7 +20,8 @@ export async function GET(request: NextRequest) {
           subject: true
         },
         where: {
-          is_active: true
+          is_active: true,
+          login_type: 'username'
         },
         orderBy: [
           { role: 'asc' },

@@ -16,9 +16,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if username already exists
-    const existingUser = await prisma.quickLoginUser.findUnique({
-      where: { username }
+    // Check if username already exists in unified users table
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: username },
+          { username_login: username }
+        ]
+      }
     });
 
     if (existingUser) {
@@ -36,10 +41,13 @@ export async function POST(request: NextRequest) {
       ? holding_classes.join(', ')
       : holding_classes;
 
-    // Create new user
-    const newUser = await prisma.quickLoginUser.create({
+    // Create new user in unified users table with username login type
+    const newUser = await prisma.user.create({
       data: {
         username,
+        username_login: username,
+        name: username, // Use username as name initially
+        email: `${username}@quick.login`, // Generate email for uniqueness
         password: hashedPassword,
         role: role || "teacher",
         province,
@@ -47,6 +55,7 @@ export async function POST(request: NextRequest) {
         pilot_school_id,
         holding_classes: holdingClassesString,
         district,
+        login_type: 'username', // Mark as username login
         is_active: true,
         show_onboarding: true
       },
