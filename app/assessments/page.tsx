@@ -104,81 +104,36 @@ function AssessmentsContent() {
   const fetchAssessments = async () => {
     setLoading(true);
     try {
-      // Mock data for assessments with Khmer content
-      const mockAssessments = [
-        {
-          id: 1,
-          student: { name: 'គុណ សុវណ្ណ', is_temporary: false },
-          assessment_type: 'ដើមគ្រា',
-          subject: 'khmer',
-          level: 'word',
-          score: 75,
-          assessed_date: '2024-01-15',
-          added_by: { name: 'សុខ ចន្ទ្រា', role: 'teacher' },
-          is_temporary: false,
-          assessed_by_mentor: false
-        },
-        {
-          id: 2,
-          student: { name: 'ញឹម បញ្ញា', is_temporary: false },
-          assessment_type: 'ពាក់កណ្តាលគ្រា',
-          subject: 'math',
-          level: 'beginner',
-          score: 68,
-          assessed_date: '2024-01-18',
-          added_by: { name: 'ពេជ្រ ឈុន', role: 'mentor' },
-          is_temporary: true,
-          assessed_by_mentor: true
-        },
-        {
-          id: 3,
-          student: { name: 'ចន្ទ ព្រេង', is_temporary: false },
-          assessment_type: 'ចុងគ្រា',
-          subject: 'khmer',
-          level: 'paragraph',
-          score: 82,
-          assessed_date: '2024-01-20',
-          added_by: { name: 'សុខ ចន្ទ្រា', role: 'teacher' },
-          is_temporary: false,
-          assessed_by_mentor: false
-        },
-        {
-          id: 4,
-          student: { name: 'វន្នី ស្រេង', is_temporary: false },
-          assessment_type: 'ដើមគ្រា',
-          subject: 'math',
-          level: 'letter',
-          score: 58,
-          assessed_date: '2024-01-22',
-          added_by: { name: 'ពេជ្រ ឈុន', role: 'mentor' },
-          is_temporary: true,
-          assessed_by_mentor: true
-        },
-        {
-          id: 5,
-          student: { name: 'ធីតា មុំ', is_temporary: false },
-          assessment_type: 'ពាក់កណ្តាលគ្រា',
-          subject: 'khmer',
-          level: 'word',
-          score: 71,
-          assessed_date: '2024-01-25',
-          added_by: { name: 'សុខ ចន្ទ្រា', role: 'teacher' },
-          is_temporary: false,
-          assessed_by_mentor: false
-        }
-      ];
+      // Build query params
+      const params = new URLSearchParams({
+        page: pagination.current.toString(),
+        limit: pagination.pageSize.toString(),
+      });
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setAssessments(mockAssessments);
+      // Add filters
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          params.append(key, value);
+        }
+      });
+
+      const response = await fetch(`/api/assessments?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch assessments');
+      }
+
+      const data = await response.json();
+
+      setAssessments(data.assessments || []);
       setPagination(prev => ({
         ...prev,
-        total: mockAssessments.length
+        total: data.total || 0
       }));
     } catch (error) {
       console.error('Error fetching assessments:', error);
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យការវាយតម្លៃ');
+      setAssessments([]);
     } finally {
       setLoading(false);
     }
