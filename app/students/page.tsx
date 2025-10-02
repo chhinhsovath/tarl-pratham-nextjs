@@ -24,7 +24,8 @@ import {
   DeleteOutlined,
   EyeOutlined,
   UserOutlined,
-  SearchOutlined
+  SearchOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
@@ -225,11 +226,22 @@ function StudentsContent() {
             type="text"
             icon={<EyeOutlined />}
             onClick={() => router.push(`/students/${record.id}`)}
+            title="មើលព័ត៌មានសិស្ស"
           />
+          <Button
+            type="primary"
+            size="small"
+            icon={<FileTextOutlined />}
+            onClick={() => router.push(`/assessments/create?student_id=${record.id}`)}
+            title="បង្កើតការវាយតម្លៃ"
+          >
+            វាយតម្លៃ
+          </Button>
           <Button
             type="text"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            title="កែសម្រួលសិស្ស"
           />
           <Popconfirm
             title="លុបសិស្ស"
@@ -242,6 +254,7 @@ function StudentsContent() {
               type="text"
               danger
               icon={<DeleteOutlined />}
+              title="លុបសិស្ស"
             />
           </Popconfirm>
         </Space>
