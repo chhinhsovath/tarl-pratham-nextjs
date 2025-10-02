@@ -73,20 +73,46 @@ export async function POST(request: NextRequest) {
     });
 
     if (isQuickLogin) {
+      // Check if this is first time profile setup
+      const quickUser = await prisma.quickLoginUser.findUnique({
+        where: { id: userId }
+      });
+
+      const wasFirstTime = !quickUser?.pilot_school_id || !quickUser?.subject || !quickUser?.holding_classes;
+
+      // Prepare update data
+      let updateData: any = {
+        pilot_school_id: parseInt(pilot_school_id),
+        subject,
+        holding_classes,
+        province: school?.province || null,
+        district: school?.district || null,
+        updated_at: new Date()
+      };
+
+      // Mark onboarding complete if first time
+      if (wasFirstTime) {
+        const currentOnboarding = quickUser?.onboarding_completed
+          ? (typeof quickUser.onboarding_completed === 'string'
+              ? JSON.parse(quickUser.onboarding_completed)
+              : quickUser.onboarding_completed)
+          : [];
+
+        if (!currentOnboarding.includes('complete_profile')) {
+          currentOnboarding.push('complete_profile');
+          updateData.onboarding_completed = currentOnboarding;
+          updateData.onboarding_completed_at = new Date();
+        }
+      }
+
       // Update quick login user profile
       const updatedQuickUser = await prisma.quickLoginUser.update({
         where: { id: userId },
-        data: {
-          pilot_school_id: parseInt(pilot_school_id),
-          subject,
-          holding_classes,
-          province: school?.province || null,
-          district: school?.district || null,
-          updated_at: new Date()
-        }
+        data: updateData
       });
 
       console.log('✅ Updated quick login user successfully:', updatedQuickUser.id);
+      console.log('✅ Onboarding marked complete:', wasFirstTime);
 
       return NextResponse.json({
         success: true,
@@ -96,7 +122,8 @@ export async function POST(request: NextRequest) {
           subject: updatedQuickUser.subject,
           holding_classes: updatedQuickUser.holding_classes,
           province: updatedQuickUser.province,
-          district: updatedQuickUser.district
+          district: updatedQuickUser.district,
+          onboarding_completed: updatedQuickUser.onboarding_completed
         }
       });
     } else {

@@ -1,15 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+// Helper function to check permissions
+function hasPermission(userRole: string, action: string): boolean {
+  const permissions = {
+    admin: ["view", "create", "update", "delete"],
+    coordinator: ["view", "create", "update", "delete"],
+    mentor: ["view", "create", "update"],
+    teacher: ["view", "create", "update"],
+    viewer: ["view"]
+  };
+
+  return permissions[userRole as keyof typeof permissions]?.includes(action) || false;
+}
+
+// Helper function to check if user can access assessment data
+function canAccessAssessment(userRole: string, userPilotSchoolId: number | null, assessmentPilotSchoolId: number | null): boolean {
+  if (userRole === "admin" || userRole === "coordinator") {
+    return true;
+  }
+
+  if ((userRole === "mentor" || userRole === "teacher") && userPilotSchoolId) {
+    return assessmentPilotSchoolId === userPilotSchoolId;
+  }
+
+  return false;
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, "view")) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const assessmentId = parseInt(params.id);
-    
+
     if (isNaN(assessmentId)) {
       return NextResponse.json({ error: 'Invalid assessment ID' }, { status: 400 });
     }
@@ -27,12 +63,12 @@ export async function GET(
               }
             },
             pilot_school: {
-              select: { name: true, code: true }
+              select: { school_name: true, school_code: true }
             }
           }
         },
         pilot_school: {
-          select: { name: true, code: true }
+          select: { school_name: true, school_code: true }
         },
         added_by: {
           select: { name: true, role: true }
@@ -47,6 +83,11 @@ export async function GET(
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
 
+    // Check if user can access this assessment
+    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, assessment.pilot_school_id)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     return NextResponse.json({ assessment });
 
   } catch (error) {
@@ -55,8 +96,6 @@ export async function GET(
       { error: 'Failed to fetch assessment' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -65,9 +104,19 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, "update")) {
+      return NextResponse.json({ error: 'Forbidden - No update permission' }, { status: 403 });
+    }
+
     const assessmentId = parseInt(params.id);
     const body = await request.json();
-    
+
     if (isNaN(assessmentId)) {
       return NextResponse.json({ error: 'Invalid assessment ID' }, { status: 400 });
     }
@@ -79,16 +128,29 @@ export async function PUT(
       assessed_date
     } = body;
 
-    const addedByHeader = request.headers.get('user-id');
-    const changedBy = addedByHeader ? parseInt(addedByHeader) : null;
-
     // Check if assessment exists
     const existingAssessment = await prisma.assessment.findUnique({
-      where: { id: assessmentId }
+      where: { id: assessmentId },
+      select: {
+        id: true,
+        pilot_school_id: true,
+        level: true,
+        score: true,
+        notes: true,
+        assessed_date: true,
+        assessment_type: true,
+        subject: true,
+        student_id: true
+      }
     });
 
     if (!existingAssessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
+    }
+
+    // Check if user can access this assessment
+    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
+      return NextResponse.json({ error: 'Forbidden - Cannot update assessments from other schools' }, { status: 403 });
     }
 
     // Update assessment
@@ -131,7 +193,7 @@ export async function PUT(
           notes: updatedAssessment.notes,
           assessed_date: updatedAssessment.assessed_date
         }),
-        changed_by: changedBy
+        changed_by: parseInt(session.user.id)
       }
     });
 
@@ -158,8 +220,6 @@ export async function PUT(
       { error: 'Failed to update assessment' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -168,19 +228,38 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check permissions - only admin and coordinator can delete
+    if (!hasPermission(session.user.role, "delete")) {
+      return NextResponse.json({
+        error: 'Forbidden - Only admins and coordinators can delete assessments'
+      }, { status: 403 });
+    }
+
     const assessmentId = parseInt(params.id);
-    
+
     if (isNaN(assessmentId)) {
       return NextResponse.json({ error: 'Invalid assessment ID' }, { status: 400 });
     }
 
     // Check if assessment exists
     const existingAssessment = await prisma.assessment.findUnique({
-      where: { id: assessmentId }
+      where: { id: assessmentId },
+      select: { pilot_school_id: true }
     });
 
     if (!existingAssessment) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
+    }
+
+    // Check if user can access this assessment
+    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
+      return NextResponse.json({ error: 'Forbidden - Cannot delete assessments from other schools' }, { status: 403 });
     }
 
     // Delete assessment histories first
@@ -204,7 +283,5 @@ export async function DELETE(
       { error: 'Failed to delete assessment' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

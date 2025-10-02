@@ -126,7 +126,9 @@ export const authOptions: NextAuthOptions = {
                 pilot_school_id: true,
                 holding_classes: true,
                 district: true,
-                is_active: true
+                is_active: true,
+                onboarding_completed: true,
+                show_onboarding: true
               }
             });
 
@@ -137,6 +139,8 @@ export const authOptions: NextAuthOptions = {
               token.pilot_school_id = freshQuickUser.pilot_school_id;
               token.holding_classes = freshQuickUser.holding_classes;
               token.district = freshQuickUser.district;
+              token.onboarding_completed = freshQuickUser.onboarding_completed;
+              token.show_onboarding = freshQuickUser.show_onboarding;
             }
           } else {
             // Regular users - query users table
@@ -192,7 +196,9 @@ export const authOptions: NextAuthOptions = {
                 pilot_school_id: true,
                 holding_classes: true,
                 district: true,
-                is_active: true
+                is_active: true,
+                onboarding_completed: true,
+                show_onboarding: true
               }
             });
 
@@ -200,7 +206,8 @@ export const authOptions: NextAuthOptions = {
               console.log('✅ [AUTH] Fresh quick login user data fetched:', {
                 pilot_school_id: freshQuickUser.pilot_school_id,
                 subject: freshQuickUser.subject,
-                holding_classes: freshQuickUser.holding_classes
+                holding_classes: freshQuickUser.holding_classes,
+                onboarding_completed: freshQuickUser.onboarding_completed
               });
               token.role = freshQuickUser.role;
               token.province = freshQuickUser.province;
@@ -208,6 +215,8 @@ export const authOptions: NextAuthOptions = {
               token.pilot_school_id = freshQuickUser.pilot_school_id;
               token.holding_classes = freshQuickUser.holding_classes;
               token.district = freshQuickUser.district;
+              token.onboarding_completed = freshQuickUser.onboarding_completed;
+              token.show_onboarding = freshQuickUser.show_onboarding;
               console.log('✅ [AUTH] Token updated with pilot_school_id:', token.pilot_school_id);
             } else {
               console.error('❌ [AUTH] Quick login user not found for userId:', userId);

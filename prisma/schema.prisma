@@ -53,18 +53,21 @@ model User {
 }
 
 model QuickLoginUser {
-  id              Int      @id @default(autoincrement())
-  username        String   @unique
-  password        String
-  role            String   @default("teacher")
-  province        String?
-  subject         String?
-  pilot_school_id Int?
-  holding_classes String?
-  district        String?
-  is_active       Boolean  @default(true)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  id                      Int       @id @default(autoincrement())
+  username                String    @unique
+  password                String
+  role                    String    @default("teacher")
+  province                String?
+  subject                 String?
+  pilot_school_id         Int?
+  holding_classes         String?
+  district                String?
+  is_active               Boolean   @default(true)
+  onboarding_completed    Json?
+  onboarding_completed_at DateTime?
+  show_onboarding         Boolean   @default(true)
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
 
   @@index([username])
   @@map("quick_login_users")
