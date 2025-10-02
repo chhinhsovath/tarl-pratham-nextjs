@@ -16,18 +16,9 @@ export async function GET(request: NextRequest) {
     const cycle = searchParams.get('cycle') || 'baseline';
     const student_id = searchParams.get('student_id');
 
-    // Build where clause - exclude expired temporary records
+    // Build where clause - only active students
     const where: any = {
-      is_active: true,
-      OR: [
-        { is_temporary: false },
-        {
-          AND: [
-            { is_temporary: true },
-            { expires_at: { gt: new Date() } }
-          ]
-        }
-      ]
+      is_active: true
     };
 
     // Apply access restrictions based on user role
@@ -61,25 +52,14 @@ export async function GET(request: NextRequest) {
         assessments: {
           where: {
             subject,
-            assessment_type: cycle,
-            // Only include non-expired assessments
-            OR: [
-              { is_temporary: false },
-              {
-                AND: [
-                  { is_temporary: true },
-                  { expires_at: { gt: new Date() } }
-                ]
-              }
-            ]
+            assessment_type: cycle
           },
           select: {
             id: true,
             level: true,
             score: true,
             assessed_date: true,
-            is_temporary: true,
-            expires_at: true
+            is_temporary: true
           }
         }
       },
@@ -107,8 +87,7 @@ export async function GET(request: NextRequest) {
         assessment_level: assessment?.level || null,
         previous_assessment: null, // Could be enhanced to show previous cycle data
         is_assessment_locked: false, // Could be enhanced based on assessment periods
-        is_temporary: student.is_temporary,
-        expires_at: student.expires_at
+        is_temporary: student.is_temporary
       };
     });
 
@@ -126,7 +105,5 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch students' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
