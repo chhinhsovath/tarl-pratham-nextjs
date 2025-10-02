@@ -317,7 +317,7 @@ export default function SmartDashboard() {
         title={
           <Space>
             <FireOutlined style={{ color: '#f5222d' }} />
-            <Text strong style={{ fontSize: '18px' }}>🔥 QUICK ACTIONS</Text>
+            <Text strong style={{ fontSize: '18px' }}>🔥 ជម្រើសរហ័ស</Text>
           </Space>
         }
         style={{ marginBottom: '24px' }}
