@@ -59,7 +59,7 @@ function SignupContent() {
         body: JSON.stringify({
           username: values.username,
           password: values.password,
-          role: 'teacher',
+          role: values.role,
           province: values.province,
           district: values.district,
           subject: values.subject,
@@ -214,6 +214,41 @@ function SignupContent() {
           <Row gutter={16}>
             <Col xs={24} sm={12}>
               <Form.Item
+                name="role"
+                label="តួនាទី"
+                rules={[{ required: true, message: 'សូមជ្រើសរើសតួនាទី!' }]}
+              >
+                <Select
+                  placeholder="ជ្រើសរើសតួនាទី"
+                  size="large"
+                >
+                  <Option value="teacher">គ្រូបង្រៀន</Option>
+                  <Option value="mentor">អ្នកណែនាំ</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="subject"
+                label="មុខវិជ្ជា"
+                rules={[{ required: true, message: 'សូមជ្រើសរើសមុខវិជ្ជា!' }]}
+              >
+                <Select
+                  placeholder="ជ្រើសរើសមុខវិជ្ជា"
+                  size="large"
+                  prefix={<BookOutlined />}
+                >
+                  <Option value="គណិតវិទ្យា">គណិតវិទ្យា</Option>
+                  <Option value="ភាសាខ្មែរ">ភាសាខ្មែរ</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
                 name="province"
                 label="ខេត្ត/រាជធានី"
                 rules={[{ required: true, message: 'សូមជ្រើសរើសខេត្ត!' }]}
@@ -238,20 +273,17 @@ function SignupContent() {
 
             <Col xs={24} sm={12}>
               <Form.Item
-                name="subject"
-                label="មុខវិជ្ជា"
-                rules={[{ required: true, message: 'សូមជ្រើសរើសមុខវិជ្ជា!' }]}
+                name="holding_classes"
+                label="ថ្នាក់រៀនបង្រៀន"
+                rules={[{ required: true, message: 'សូមជ្រើសរើសថ្នាក់រៀន!' }]}
               >
                 <Select
-                  placeholder="ជ្រើសរើសមុខវិជ្ជា"
+                  placeholder="ជ្រើសរើសថ្នាក់រៀន"
                   size="large"
-                  prefix={<BookOutlined />}
+                  mode="multiple"
                 >
-                  <Option value="គណិតវិទ្យា">គណិតវិទ្យា</Option>
-                  <Option value="ភាសាខ្មែរ">ភាសាខ្មែរ</Option>
-                  <Option value="ភាសាអង់គ្លេស">ភាសាអង់គ្លេស</Option>
-                  <Option value="វិទ្យាសាស្ត្រ">វិទ្យាសាស្ត្រ</Option>
-                  <Option value="សង្គមវិទ្យា">សង្គមវិទ្យា</Option>
+                  <Option value="ថ្នាក់ទី៤">ថ្នាក់ទី៤</Option>
+                  <Option value="ថ្នាក់ទី៥">ថ្នាក់ទី៥</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -297,16 +329,6 @@ function SignupContent() {
             hidden
           >
             <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="holding_classes"
-            label="ថ្នាក់រៀនបង្រៀន (ស្រេចចិត្ត)"
-          >
-            <Input
-              placeholder="ឧទាហរណ៍៖ ថ្នាក់ទី១, ថ្នាក់ទី២"
-              size="large"
-            />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 16 }}>

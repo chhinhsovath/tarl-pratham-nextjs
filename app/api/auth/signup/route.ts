@@ -31,6 +31,11 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Convert holding_classes array to comma-separated string
+    const holdingClassesString = Array.isArray(holding_classes)
+      ? holding_classes.join(', ')
+      : holding_classes;
+
     // Create new user
     const newUser = await prisma.quickLoginUser.create({
       data: {
@@ -40,7 +45,7 @@ export async function POST(request: NextRequest) {
         province,
         subject,
         pilot_school_id,
-        holding_classes,
+        holding_classes: holdingClassesString,
         district,
         is_active: true,
         show_onboarding: true
