@@ -1,265 +1,274 @@
-# TaRL Pratham Next.js - Deployment Guide
+# TaRL Pratham Next.js - Production Deployment Guide
 
-## 🚀 Complete Implementation Status: 100%
+## 🚀 Quick Deployment Checklist
 
-This system is now production-ready with full feature parity with the Laravel system.
+After pulling latest changes, run these commands on your production server:
 
-## 📋 Pre-Deployment Checklist
+```bash
+# 1. Pull latest code
+git pull origin main
 
-### Environment Variables
-Ensure all environment variables are configured in `.env.production`:
+# 2. Install dependencies (auto-runs prisma generate via postinstall)
+npm install
 
-```env
-# Database
-DATABASE_URL="postgresql://user:password@host:5432/tarl_pratham?schema=public"
+# 3. Build the application (also runs prisma generate)
+npm run build
 
-# Authentication
-NEXTAUTH_URL=https://your-domain.com
-NEXTAUTH_SECRET=your-secret-key-here
-
-# File Upload
-UPLOAD_DIR=/uploads
-MAX_FILE_SIZE=5242880
-
-# Session
-SESSION_TIMEOUT=86400000
-
-# Cron Job Secret (for 48-hour cleanup)
-CRON_SECRET=your-cron-secret-here
+# 4. Restart the application
+pm2 restart all
+# OR if using systemd:
+# sudo systemctl restart tarl-pratham
 ```
 
-### Database Setup
+## 📋 Detailed Deployment Steps
 
-1. **Run Migrations**:
+### Prerequisites
+- Node.js 18+ installed
+- PostgreSQL database running (157.10.73.52:5432)
+- PM2 or similar process manager
+- Git configured with repository access
+
+### Step 1: Backup Current Deployment
 ```bash
+# Create backup of current build
+cp -r .next .next.backup-$(date +%Y%m%d-%H%M%S)
+
+# Optional: Backup database
+pg_dump -h 157.10.73.52 -U admin -d tarl_pratham > backup_$(date +%Y%m%d).sql
+```
+
+### Step 2: Pull Latest Changes
+```bash
+cd /path/to/tarl-pratham-nextjs
+git fetch origin
+git pull origin main
+```
+
+### Step 3: Install Dependencies
+```bash
+# This will auto-run prisma generate (defined in postinstall script)
+npm install
+
+# Verify Prisma client is generated
+ls -la node_modules/.prisma/client/
+```
+
+### Step 4: Database Migrations (if schema changed)
+```bash
+# Check for schema changes
+git diff HEAD~1 prisma/schema.prisma
+
+# If schema changed, push to database
+npx prisma db push
+
+# Or if you want to create a migration
 npx prisma migrate deploy
 ```
 
-2. **Generate Prisma Client**:
+### Step 5: Build Application
 ```bash
-npx prisma generate
-```
-
-3. **Seed Initial Data** (optional):
-```bash
-npx prisma db seed
-```
-
-### Build and Deploy
-
-1. **Build the application**:
-```bash
+# Build runs prisma generate automatically
 npm run build
+
+# Verify build succeeded
+ls -la .next/
 ```
 
-2. **Start production server**:
+### Step 6: Restart Application
 ```bash
-npm run start
+# If using PM2:
+pm2 restart tarl-pratham
+pm2 logs tarl-pratham --lines 50
+
+# If using systemd:
+sudo systemctl restart tarl-pratham
+sudo journalctl -u tarl-pratham -f
+
+# If using direct node:
+# Kill old process
+pkill -f "next start"
+# Start new process
+npm run start &
 ```
 
-## 🔧 Server Configuration
-
-### Nginx Configuration (if using)
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-### PM2 Configuration (for process management)
-```javascript
-// ecosystem.config.js
-module.exports = {
-  apps: [{
-    name: 'tarl-pratham',
-    script: 'npm',
-    args: 'start',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    }
-  }]
-}
-```
-
-## ⏰ Cron Job Setup
-
-### 48-Hour Cleanup (Critical!)
-
-Add to your crontab or use Vercel Cron Jobs:
-
+### Step 7: Verify Deployment
 ```bash
-# Run every hour
-0 * * * * curl -H "Authorization: Bearer YOUR_CRON_SECRET" https://your-domain.com/api/cron/cleanup
+# Check if app is running
+pm2 list
+# OR
+curl http://localhost:3000/api/health
+
+# Check logs for errors
+pm2 logs --lines 100
+# OR
+tail -f logs/application.log
 ```
 
-Or if using Vercel, add to `vercel.json`:
-```json
-{
-  "crons": [{
-    "path": "/api/cron/cleanup",
-    "schedule": "0 * * * *"
-  }]
-}
-```
+## 🔧 Environment Configuration
 
-## 🔒 Security Considerations
-
-1. **Set strong secrets** for:
-   - NEXTAUTH_SECRET
-   - CRON_SECRET
-   - Database password
-
-2. **Enable HTTPS** in production
-
-3. **Configure CORS** if needed:
-```javascript
-// next.config.js
-module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          { key: 'Access-Control-Allow-Origin', value: 'https://your-domain.com' },
-        ],
-      },
-    ]
-  },
-}
-```
-
-4. **Rate limiting** for API endpoints (consider using middleware)
-
-## 📊 Monitoring
-
-### Application Monitoring
-- Set up error tracking (e.g., Sentry)
-- Configure performance monitoring
-- Set up uptime monitoring
-
-### Database Monitoring
-- Monitor connection pool usage
-- Track query performance
-- Set up automated backups
-
-### Log Management
+### Required Environment Variables (.env.local)
 ```bash
-# View PM2 logs
-pm2 logs tarl-pratham
+# Database
+DATABASE_URL="postgresql://admin:P@ssw0rd@157.10.73.52:5432/tarl_pratham"
 
-# Or systemd logs
-journalctl -u tarl-pratham -f
+# NextAuth
+NEXTAUTH_URL="https://tarl.openplp.com"
+NEXTAUTH_SECRET="your-secret-here"
+
+# Node Environment
+NODE_ENV="production"
 ```
-
-## 🔄 Backup Strategy
-
-### Database Backups
-```bash
-# Daily backup script
-#!/bin/bash
-pg_dump $DATABASE_URL > backup_$(date +%Y%m%d).sql
-```
-
-### File Uploads Backup
-- Backup the `/uploads` directory regularly
-- Consider using cloud storage (S3, etc.)
-
-## 🚦 Health Checks
-
-Access these endpoints to verify system health:
-
-- `/api/health` - Basic health check
-- `/api/cron/cleanup` (GET) - Check cleanup statistics
-- `/api/dashboard/stats` - System statistics
-
-## 📱 Mobile App Configuration
-
-If using with Flutter app, ensure:
-1. API endpoints are accessible
-2. CORS is configured for mobile app domain
-3. API responses maintain snake_case format
-
-## 🎯 Performance Optimization
-
-1. **Enable caching**:
-   - Use Redis for session storage
-   - Cache frequently accessed data
-   - Implement API response caching
-
-2. **Database optimization**:
-   - Ensure all indexes are created
-   - Monitor slow queries
-   - Use connection pooling
-
-3. **Asset optimization**:
-   - Enable Next.js image optimization
-   - Use CDN for static assets
-   - Enable gzip compression
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### Issue: "Unknown argument" errors from Prisma
+**Cause:** Prisma client not regenerated after schema changes
 
-1. **Database connection errors**:
-   - Check DATABASE_URL format
-   - Verify database server is accessible
-   - Check connection pool limits
+**Solution:**
+```bash
+npx prisma generate
+npm run build
+pm2 restart all
+```
 
-2. **Authentication issues**:
-   - Verify NEXTAUTH_URL matches your domain
-   - Check NEXTAUTH_SECRET is set
-   - Clear browser cookies
+### Issue: Profile setup fails with 500 error
+**Cause:** quick_login_users table missing columns
 
-3. **File upload failures**:
-   - Check UPLOAD_DIR permissions
-   - Verify MAX_FILE_SIZE setting
-   - Check disk space
+**Solution:**
+```bash
+# Push schema changes to database
+npx prisma db push
 
-4. **48-hour cleanup not working**:
-   - Verify cron job is running
-   - Check CRON_SECRET matches
-   - Review cleanup logs
+# Verify columns exist
+psql -h 157.10.73.52 -U admin -d tarl_pratham -c "\\d quick_login_users"
 
-## 📞 Support
+# Regenerate Prisma client
+npx prisma generate
 
-For deployment issues:
-1. Check application logs
-2. Review error messages in browser console
-3. Check database connectivity
-4. Verify all environment variables are set
+# Rebuild and restart
+npm run build && pm2 restart all
+```
 
-## 🎉 Launch Checklist
+### Issue: Mock data still showing in teacher dashboard
+**Cause:** Old build cached or Prisma client outdated
 
-- [ ] Database migrated and seeded
-- [ ] Environment variables configured
-- [ ] Application built successfully
-- [ ] Cron jobs configured
-- [ ] SSL certificate installed
-- [ ] Monitoring set up
-- [ ] Backup strategy implemented
-- [ ] Admin user created
-- [ ] Test all critical paths
-- [ ] Performance testing completed
+**Solution:**
+```bash
+# Clear build cache
+rm -rf .next
 
-## 📈 Post-Launch
+# Regenerate and rebuild
+npx prisma generate
+npm run build
+pm2 restart all
+```
 
-1. Monitor system for first 48 hours
-2. Check cleanup job execution
-3. Review error logs daily
-4. Gather user feedback
-5. Plan incremental improvements
+### Issue: Login redirects but page doesn't load
+**Cause:** Middleware/auth issues or session not established
+
+**Solution:**
+```bash
+# Check logs for JWT errors
+pm2 logs tarl-pratham --err
+
+# Verify session secret is set
+echo $NEXTAUTH_SECRET
+
+# Restart with fresh session
+pm2 restart tarl-pratham --update-env
+```
+
+## 📊 Health Checks
+
+### Application Health
+```bash
+# Check if Next.js is running
+curl http://localhost:3000
+
+# Check API health
+curl http://localhost:3000/api/health
+
+# Check database connection
+psql -h 157.10.73.52 -U admin -d tarl_pratham -c "SELECT 1"
+```
+
+### Performance Monitoring
+```bash
+# PM2 monitoring
+pm2 monit
+
+# Check memory usage
+pm2 show tarl-pratham
+
+# View error logs
+pm2 logs tarl-pratham --err --lines 50
+```
+
+## 🔄 Rollback Procedure
+
+If deployment fails, rollback to previous version:
+
+```bash
+# 1. Checkout previous commit
+git log --oneline -5  # Find previous commit hash
+git checkout <previous-commit-hash>
+
+# 2. Reinstall dependencies
+npm install
+
+# 3. Rebuild
+npm run build
+
+# 4. Restart
+pm2 restart all
+
+# 5. Verify
+curl http://localhost:3000
+```
+
+## 📝 Post-Deployment Verification
+
+After deployment, verify these critical flows:
+
+### ✅ Authentication
+- [ ] Quick login works (chan.kimsrorn.kam / admin123)
+- [ ] Regular email login works
+- [ ] Session persists after login
+- [ ] Redirects to correct dashboard
+
+### ✅ Profile Setup
+- [ ] Can select school from dropdown
+- [ ] Can save profile (subject, classes)
+- [ ] Profile data persists in database
+- [ ] Redirects to onboarding after save
+
+### ✅ Student Management
+- [ ] Can create student (auto-linked to teacher's school)
+- [ ] Can view student list (real data, not mock)
+- [ ] Can edit student
+- [ ] Can delete student
+
+### ✅ Dashboard
+- [ ] Teacher dashboard shows real student count
+- [ ] Assessment stats are accurate
+- [ ] No mock Khmer names showing
+- [ ] Performance charts show real data
+
+## 🔐 Security Notes
+
+- Never commit .env files to git
+- Rotate NEXTAUTH_SECRET regularly
+- Keep database credentials secure
+- Use HTTPS in production (NEXTAUTH_URL)
+- Enable rate limiting for API routes
+
+## 📞 Support Contacts
+
+- **Repository:** https://github.com/chhinhsovath/tarl-pratham-nextjs
+- **Issues:** https://github.com/chhinhsovath/tarl-pratham-nextjs/issues
+- **Database Admin:** admin@157.10.73.52:5432
 
 ---
 
-**System is ready for production deployment!** 🚀
+**Last Updated:** 2025-10-02
+**Version:** 2.0.0 (Quick Login User Support + Real Data)
