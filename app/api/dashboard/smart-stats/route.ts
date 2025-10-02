@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
     // Get recent assessments to check
     const recentAssessments = await prisma.assessment.findMany({
       where: {
-        assessed_by_id: user.id,
+        added_by_id: parseInt(user.id),
         created_at: {
           gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
         }
