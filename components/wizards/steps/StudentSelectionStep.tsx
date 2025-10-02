@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Input, Table, Space, Typography, Tag, Button, message, Alert } from 'antd';
 import { SearchOutlined, UserAddOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import QuickStudentAdd from '../QuickStudentAdd';
 
 const { Text, Title } = Typography;
@@ -25,6 +26,8 @@ interface StudentSelectionStepProps {
 
 export default function StudentSelectionStep({ selectedStudentId, onSelect }: StudentSelectionStepProps) {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const urlStudentId = searchParams.get('student_id');
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +36,7 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
 
   useEffect(() => {
     loadStudents();
-  }, []);
+  }, [urlStudentId]);
 
   useEffect(() => {
     if (searchText) {
@@ -49,11 +52,29 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
   const loadStudents = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/students');
-      if (response.ok) {
-        const result = await response.json();
-        setStudents(result.data || []);
-        setFilteredStudents(result.data || []);
+      // If student_id is in URL, fetch only that student
+      if (urlStudentId) {
+        const response = await fetch(`/api/students/${urlStudentId}`);
+        if (response.ok) {
+          const result = await response.json();
+          const student = result.student;
+          if (student) {
+            setStudents([student]);
+            setFilteredStudents([student]);
+            // Auto-select this student
+            onSelect(student);
+          }
+        } else {
+          message.error('រកមិនឃើញសិស្ស');
+        }
+      } else {
+        // Otherwise, fetch all students
+        const response = await fetch('/api/students');
+        if (response.ok) {
+          const result = await response.json();
+          setStudents(result.data || []);
+          setFilteredStudents(result.data || []);
+        }
       }
     } catch (error) {
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យ');
