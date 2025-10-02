@@ -3,21 +3,36 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import {
+  LANGUAGE_LEVELS,
+  MATH_LEVELS,
+  isValidLevel,
+  buildLevelFieldName,
+  getLevelsBySubject
+} from "@/lib/constants/assessment-levels";
 
-// Validation schema
+// Validation schema with dynamic level validation
 const assessmentSchema = z.object({
   student_id: z.number().min(1, "Student ID is required"),
   pilot_school_id: z.number().optional(),
-  assessment_type: z.enum(["ដើមគ្រា", "ពាក់កណ្តាលគ្រា", "ចុងគ្រា"], {
-    errorMap: () => ({ message: "Assessment type must be ដើមគ្រា, ពាក់កណ្តាលគ្រា, or ចុងគ្រា" })
+  assessment_type: z.enum(["baseline", "midline", "endline"], {
+    errorMap: () => ({ message: "Assessment type must be baseline, midline, or endline" })
   }),
-  subject: z.enum(["khmer", "math"], {
-    errorMap: () => ({ message: "Subject must be khmer or math" })
+  subject: z.enum(["language", "math"], {
+    errorMap: () => ({ message: "Subject must be language or math" })
   }),
-  level: z.enum(["beginner", "letter", "word", "paragraph", "story"]).optional(),
+  level: z.string().optional(),
   score: z.number().min(0).max(100).optional(),
   notes: z.string().optional(),
   assessed_date: z.string().datetime().optional(),
+}).refine((data) => {
+  // If level is provided, validate it matches the subject
+  if (!data.level) return true;
+
+  return isValidLevel(data.subject, data.level);
+}, {
+  message: "Invalid level for the selected subject",
+  path: ["level"]
 });
 
 // Bulk assessment schema
@@ -207,16 +222,58 @@ export async function POST(request: NextRequest) {
 
     if (!student) {
       return NextResponse.json(
-        { error: "Student not found" },
+        {
+          error: "រកមិនឃើញសិស្ស",
+          message: "Student not found",
+          code: "STUDENT_NOT_FOUND"
+        },
         { status: 404 }
       );
     }
 
-    // For mentors, automatically set their pilot school and mark as temporary
+    // ⚠️ CRITICAL: Permission checks - Mentors can only assess temporary students
+    if (session.user.role === "mentor" && student.record_status === 'production') {
+      return NextResponse.json(
+        {
+          error: "អ្នកណែនាំមិនអាចវាយតម្លៃសិស្សផលិតកម្មបាន",
+          message: "Mentors can only assess temporary (test) students, not production students created by teachers",
+          code: "PERMISSION_DENIED",
+          meta: {
+            student_id: student.id,
+            student_record_status: student.record_status,
+            user_role: session.user.role
+          }
+        },
+        { status: 403 }
+      );
+    }
+
+    // ⚠️ CRITICAL: Teachers can only assess production students
+    if (session.user.role === "teacher" && student.record_status !== 'production') {
+      return NextResponse.json(
+        {
+          error: "គ្រូមិនអាចវាយតម្លៃទិន្នន័យសាកល្បងបាន",
+          message: "Teachers cannot assess test/temporary students",
+          code: "PERMISSION_DENIED",
+          meta: {
+            student_id: student.id,
+            student_record_status: student.record_status,
+            user_role: session.user.role
+          }
+        },
+        { status: 403 }
+      );
+    }
+
+    // For mentors, automatically set their pilot school
     if (session.user.role === "mentor") {
       if (!session.user.pilot_school_id) {
         return NextResponse.json(
-          { error: "Mentor must be assigned to a pilot school" },
+          {
+            error: "អ្នកណែនាំត្រូវតែមានសាលាកំណត់",
+            message: "Mentor must be assigned to a pilot school",
+            code: "SCHOOL_REQUIRED"
+          },
           { status: 400 }
         );
       }
@@ -296,8 +353,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Update student assessment level
-    const levelField = `${validatedData.assessment_type}_${validatedData.subject}_level`;
+    // Update student assessment level using proper field name builder
+    const levelField = buildLevelFieldName(validatedData.assessment_type, validatedData.subject);
     await prisma.student.update({
       where: { id: validatedData.student_id },
       data: {
@@ -311,17 +368,29 @@ export async function POST(request: NextRequest) {
       data: assessment 
     }, { status: 201 });
 
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        {
+          error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ",
+          message: "Validation failed",
+          code: "VALIDATION_ERROR",
+          meta: error.errors,
+          details: error.issues
+        },
         { status: 400 }
       );
     }
-    
+
+    // ALWAYS return detailed errors (per AI_DEVELOPMENT_RULES.md)
     console.error("Error creating assessment:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "មានបញ្ហាក្នុងការបង្កើតការវាយតម្លៃ សូមព្យាយាមម្តងទៀត",
+        message: error.message || String(error),
+        code: error.code || 'UNKNOWN_ERROR',
+        meta: error.meta || {}
+      },
       { status: 500 }
     );
   }

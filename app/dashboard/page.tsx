@@ -4,7 +4,7 @@ import { Typography } from 'antd';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import SimpleDashboard from '@/components/dashboards/SimpleDashboard';
+import SmartDashboard from '@/components/dashboards/SmartDashboard';
 import OnboardingTour from '@/components/tour/OnboardingTour';
 
 const { Text } = Typography;
@@ -32,7 +32,7 @@ export default function DashboardPage() {
 
   return (
     <HorizontalLayout>
-      <SimpleDashboard />
+      <SmartDashboard />
       {/* Dashboard-specific tour */}
       <OnboardingTour page="dashboard" autoStart={true} showStartButton={false} />
     </HorizontalLayout>

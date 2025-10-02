@@ -1,72 +1,199 @@
-// Assessment Type Definitions with Correct Khmer Terminology
-// ការកំណត់ប្រភេទវាយតម្លៃដោយប្រើភាសាខ្មែរត្រឹមត្រូវ
+/**
+ * Assessment System Type Definitions
+ *
+ * Aligned with:
+ * - Database schema (Prisma)
+ * - Excel forms (Language & Math assessment sheets)
+ * - API contracts
+ * - Multi-platform consistency (Next.js + Flutter)
+ */
 
-// Assessment Phase Types - ប្រភេទដំណាក់កាលវាយតម្លៃ
-export type AssessmentPhase = 'ដើមគ្រា' | 'ពាក់កណ្តាលគ្រា' | 'ចុងគ្រា';
+import { LANGUAGE_LEVELS, MATH_LEVELS, ASSESSMENT_TYPES, SUBJECTS } from '@/lib/constants/assessment-levels';
 
-// Assessment Subject Types - ប្រភេទមុខវិជ្ជា
-export type AssessmentSubject = 'khmer' | 'math';
+// ============================================================================
+// Base Types from Constants
+// ============================================================================
 
-// Assessment Level Types - ប្រភេទកម្រិត
-export type AssessmentLevel = 'beginner' | 'letter' | 'word' | 'paragraph' | 'story';
+export type AssessmentType = typeof ASSESSMENT_TYPES[keyof typeof ASSESSMENT_TYPES];
+export type Subject = typeof SUBJECTS[keyof typeof SUBJECTS];
+export type LanguageLevel = typeof LANGUAGE_LEVELS[number];
+export type MathLevel = typeof MATH_LEVELS[number];
+export type AssessmentLevel = LanguageLevel | MathLevel;
 
-// Assessment Interface - ចំណុចប្រទាក់វាយតម្លៃ
+export type RecordStatus = 'production' | 'test_mentor' | 'test_teacher' | 'archived';
+export type Gender = 'male' | 'female' | 'other';
+export type UserRole = 'admin' | 'coordinator' | 'mentor' | 'teacher' | 'viewer';
+
+// ============================================================================
+// Student Types
+// ============================================================================
+
+export interface Student {
+  id: number;
+  name: string;
+  age?: number | null;
+  gender?: Gender | null;
+  pilot_school_id?: number | null;
+  school_class_id?: number | null;
+  guardian_name?: string | null;
+  guardian_phone?: string | null;
+  address?: string | null;
+  photo?: string | null;
+
+  // Assessment level fields - direct storage matching Excel forms
+  baseline_khmer_level?: LanguageLevel | null;
+  baseline_math_level?: MathLevel | null;
+  midline_khmer_level?: LanguageLevel | null;
+  midline_math_level?: MathLevel | null;
+  endline_khmer_level?: LanguageLevel | null;
+  endline_math_level?: MathLevel | null;
+
+  // Data ownership & temporary status
+  is_active: boolean;
+  is_temporary: boolean;
+  added_by_id?: number | null;
+  added_by_mentor: boolean;
+  assessed_by_mentor: boolean;
+  mentor_created_at?: Date | null;
+  record_status: RecordStatus;
+  created_by_role?: UserRole | null;
+  test_session_id?: string | null;
+
+  // Timestamps
+  created_at: Date;
+  updated_at: Date;
+
+  // Relations (populated when included)
+  pilot_school?: PilotSchool | null;
+  school_class?: SchoolClass | null;
+  added_by?: User | null;
+  assessments?: Assessment[];
+}
+
+export interface CreateStudentRequest {
+  name: string;
+  age?: number;
+  gender?: Gender;
+  pilot_school_id?: number;
+  school_class_id?: number;
+  guardian_name?: string;
+  guardian_phone?: string;
+  address?: string;
+  photo?: string;
+  baseline_khmer_level?: LanguageLevel;
+  baseline_math_level?: MathLevel;
+  midline_khmer_level?: LanguageLevel;
+  midline_math_level?: MathLevel;
+  endline_khmer_level?: LanguageLevel;
+  endline_math_level?: MathLevel;
+  is_temporary?: boolean;
+}
+
+export interface UpdateStudentRequest {
+  id: number;
+  name?: string;
+  age?: number;
+  gender?: Gender;
+  pilot_school_id?: number;
+  school_class_id?: number;
+  guardian_name?: string;
+  guardian_phone?: string;
+  address?: string;
+  photo?: string;
+  baseline_khmer_level?: LanguageLevel;
+  baseline_math_level?: MathLevel;
+  midline_khmer_level?: LanguageLevel;
+  midline_math_level?: MathLevel;
+  endline_khmer_level?: LanguageLevel;
+  endline_math_level?: MathLevel;
+}
+
+export interface StudentListResponse {
+  data: Student[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+// ============================================================================
+// Assessment Types
+// ============================================================================
+
 export interface Assessment {
   id: number;
   student_id: number;
-  pilot_school_id?: number;
-  assessment_type: AssessmentPhase;
-  subject: AssessmentSubject;
-  level?: AssessmentLevel;
-  score?: number;
-  notes?: string;
-  assessed_date?: Date | string;
-  added_by_id?: number;
-  is_temporary?: boolean;
-  assessed_by_mentor?: boolean;
-  mentor_assessment_id?: string;
-  created_at: Date | string;
-  updated_at: Date | string;
+  pilot_school_id?: number | null;
+
+  // Assessment classification
+  assessment_type: AssessmentType;
+  subject: Subject;
+  level?: AssessmentLevel | null;
+
+  // Assessment data
+  score?: number | null;
+  notes?: string | null;
+  assessed_date?: Date | null;
+
+  // Data ownership & temporary status
+  added_by_id?: number | null;
+  is_temporary: boolean;
+  assessed_by_mentor: boolean;
+  mentor_assessment_id?: string | null;
+  record_status: RecordStatus;
+  created_by_role?: UserRole | null;
+  test_session_id?: string | null;
+
+  // Timestamps
+  created_at: Date;
+  updated_at: Date;
+
+  // Relations (populated when included)
+  student?: Student;
+  pilot_school?: PilotSchool | null;
+  added_by?: User | null;
 }
 
-// Assessment Create/Update Data - ទិន្នន័យបង្កើត/ធ្វើបច្ចុប្បន្នភាពវាយតម្លៃ
-export interface AssessmentCreateData {
+export interface CreateAssessmentRequest {
   student_id: number;
   pilot_school_id?: number;
-  assessment_type: AssessmentPhase;
-  subject: AssessmentSubject;
+  assessment_type: AssessmentType;
+  subject: Subject;
   level?: AssessmentLevel;
   score?: number;
   notes?: string;
-  assessed_date?: string;
+  assessed_date?: string; // ISO 8601 string
 }
 
-export interface AssessmentUpdateData extends Partial<AssessmentCreateData> {
+export interface UpdateAssessmentRequest {
   id: number;
+  assessment_type?: AssessmentType;
+  subject?: Subject;
+  level?: AssessmentLevel;
+  score?: number;
+  notes?: string;
+  assessed_date?: string; // ISO 8601 string
 }
 
-// Bulk Assessment Data - ទិន្នន័យវាយតម្លៃជាដុំ
-export interface BulkAssessmentData {
-  assessments: AssessmentCreateData[];
+export interface BulkAssessmentRequest {
+  assessments: CreateAssessmentRequest[];
   pilot_school_id?: number;
 }
 
-// Assessment Filter Interface - ចំណុចប្រទាក់ត្រង
-export interface AssessmentFilter {
-  search?: string;
-  student_id?: number;
-  pilot_school_id?: number;
-  assessment_type?: AssessmentPhase;
-  subject?: AssessmentSubject;
-  date_from?: string;
-  date_to?: string;
-  is_temporary?: boolean;
-  page?: number;
-  limit?: number;
+export interface BulkAssessmentResponse {
+  message: string;
+  data: {
+    successful: Assessment[];
+    errors: string[];
+    total_processed: number;
+    successful_count: number;
+    error_count: number;
+  };
 }
 
-// Assessment Response Interface - ចំណុចប្រទាក់ចម្លើយតប
-export interface AssessmentResponse {
+export interface AssessmentListResponse {
   data: Assessment[];
   pagination: {
     page: number;
@@ -76,127 +203,181 @@ export interface AssessmentResponse {
   };
 }
 
-// Assessment Phase Labels - ស្លាកដំណាក់កាលវាយតម្លៃ
-export const ASSESSMENT_PHASE_LABELS: Record<AssessmentPhase, string> = {
-  'ដើមគ្រា': 'ដើមគ្រា',
-  'ពាក់កណ្តាលគ្រា': 'ពាក់កណ្តាលគ្រា', 
-  'ចុងគ្រា': 'ចុងគ្រា'
-};
+// ============================================================================
+// Mentoring Visit Types
+// ============================================================================
 
-// Assessment Subject Labels - ស្លាកមុខវិជ្ជា
-export const ASSESSMENT_SUBJECT_LABELS: Record<AssessmentSubject, string> = {
-  'khmer': 'ភាសាខ្មែរ',
-  'math': 'គណិតវិទ្យា'
-};
+export interface MentoringVisit {
+  id: number;
+  mentor_id: number;
+  pilot_school_id?: number | null;
+  visit_date: Date;
 
-// Assessment Level Labels - ស្លាកកម្រិត
-export const ASSESSMENT_LEVEL_LABELS: Record<AssessmentLevel, string> = {
-  'beginner': 'ចាប់ផ្តើម',
-  'letter': 'អក្សរ',
-  'word': 'ពាក្យ',
-  'paragraph': 'កថាខណ្ឌ',
-  'story': 'រឿង'
-};
+  // Observation data
+  observations?: string | null;
+  recommendations?: string | null;
+  action_plan?: string | null;
+  follow_up_actions?: string | null;
+  photos?: any | null; // JSON
 
-// Assessment Phase Colors - ពណ៌ដំណាក់កាលវាយតម្លៃ
-export const ASSESSMENT_PHASE_COLORS: Record<AssessmentPhase, string> = {
-  'ដើមគ្រា': 'blue',
-  'ពាក់កណ្តាលគ្រា': 'orange',
-  'ចុងគ្រា': 'green'
-};
+  // Visit metadata
+  participants_count?: number | null;
+  duration_minutes?: number | null;
+  status: string;
 
-// Assessment Subject Colors - ពណ៌មុខវិជ្ជា
-export const ASSESSMENT_SUBJECT_COLORS: Record<AssessmentSubject, string> = {
-  'khmer': 'purple',
-  'math': 'cyan'
-};
+  // Activity tracking
+  activities_data?: any | null; // JSON
 
-// Helper Functions - មុខងារជំនួយ
+  // Timestamps
+  created_at: Date;
+  updated_at: Date;
 
-/**
- * Check if assessment type is valid Khmer phase
- * ពិនិត្យថាតើប្រភេទវាយតម្លៃជាដំណាក់កាលខ្មែរត្រឹមត្រូវដែរឬទេ
- */
-export function isValidAssessmentPhase(phase: string): phase is AssessmentPhase {
-  return ['ដើមគ្រា', 'ពាក់កណ្តាលគ្រា', 'ចុងគ្រា'].includes(phase);
+  // Relations (populated when included)
+  mentor?: User;
+  pilot_school?: PilotSchool | null;
 }
 
-/**
- * Get assessment phase label
- * ទទួលយកស្លាកដំណាក់កាលវាយតម្លៃ
- */
-export function getAssessmentPhaseLabel(phase: AssessmentPhase): string {
-  return ASSESSMENT_PHASE_LABELS[phase];
+export interface CreateMentoringVisitRequest {
+  pilot_school_id: number;
+  visit_date: string; // ISO 8601 string
+  observations?: string;
+  recommendations?: string;
+  action_plan?: string;
+  follow_up_actions?: string;
+  photos?: any;
+  participants_count?: number;
+  duration_minutes?: number;
+  activities_data?: any;
 }
 
-/**
- * Get assessment subject label  
- * ទទួលយកស្លាកមុខវិជ្ជា
- */
-export function getAssessmentSubjectLabel(subject: AssessmentSubject): string {
-  return ASSESSMENT_SUBJECT_LABELS[subject];
+// ============================================================================
+// School & User Types
+// ============================================================================
+
+export interface PilotSchool {
+  id: number;
+  province: string;
+  district: string;
+  cluster_id?: number | null;
+  cluster: string;
+  school_name: string;
+  school_code: string;
+  baseline_start_date?: Date | null;
+  baseline_end_date?: Date | null;
+  midline_start_date?: Date | null;
+  midline_end_date?: Date | null;
+  endline_start_date?: Date | null;
+  endline_end_date?: Date | null;
+  created_at: Date;
+  updated_at: Date;
 }
 
-/**
- * Get assessment level label
- * ទទួលយកស្លាកកម្រិត
- */
-export function getAssessmentLevelLabel(level: AssessmentLevel): string {
-  return ASSESSMENT_LEVEL_LABELS[level];
+export interface SchoolClass {
+  id: number;
+  school_id: number;
+  name: string;
+  grade: number;
+  teacher_name?: string | null;
+  student_count?: number | null;
+  created_at: Date;
+  updated_at: Date;
 }
 
-/**
- * Get assessment phase color
- * ទទួលយកពណ៌ដំណាក់កាលវាយតម្លៃ
- */
-export function getAssessmentPhaseColor(phase: AssessmentPhase): string {
-  return ASSESSMENT_PHASE_COLORS[phase];
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  pilot_school_id?: number | null;
+  province?: string | null;
+  district?: string | null;
+  test_mode_enabled: boolean;
 }
 
-/**
- * Get assessment subject color
- * ទទួលយកពណ៌មុខវិជ្ជា
- */
-export function getAssessmentSubjectColor(subject: AssessmentSubject): string {
-  return ASSESSMENT_SUBJECT_COLORS[subject];
+// ============================================================================
+// API Response Types
+// ============================================================================
+
+export interface ApiSuccessResponse<T> {
+  message?: string;
+  data: T;
 }
 
-// Legacy English to Khmer mapping (for migration support)
-// ការផ្គូផ្គងភាសាអង់គ្លេសទៅខ្មែរបុរាណ (សម្រាប់ការដាក់ជំនួសដែលគាំទ្រ)
-export const LEGACY_ASSESSMENT_TYPE_MAP: Record<string, AssessmentPhase> = {
-  'baseline': 'ដើមគ្រា',
-  'midline': 'ពាក់កណ្តាលគ្រា',
-  'endline': 'ចុងគ្រា'
-};
-
-/**
- * Convert legacy English assessment type to Khmer
- * បម្លែងប្រភេទវាយតម្លៃភាសាអង់គ្លេសបុរាណទៅខ្មែរ
- */
-export function convertLegacyAssessmentType(legacyType: string): AssessmentPhase | null {
-  return LEGACY_ASSESSMENT_TYPE_MAP[legacyType] || null;
+export interface ApiErrorResponse {
+  error: string;
+  message?: string;
+  code?: string;
+  meta?: any;
+  details?: any;
 }
 
-/**
- * Get all assessment phases
- * ទទួលយកដំណាក់កាលវាយតម្លៃទាំងអស់
- */
-export function getAllAssessmentPhases(): AssessmentPhase[] {
-  return ['ដើមគ្រា', 'ពាក់កណ្តាលគ្រា', 'ចុងគ្រា'];
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
 }
 
-/**
- * Get all assessment subjects
- * ទទួលយកមុខវិជ្ជាវាយតម្លៃទាំងអស់
- */
-export function getAllAssessmentSubjects(): AssessmentSubject[] {
-  return ['khmer', 'math'];
+export interface StudentFilterParams extends PaginationParams {
+  search?: string;
+  gender?: Gender;
+  school_class_id?: number;
+  pilot_school_id?: number;
+  is_temporary?: boolean;
+  include_test_data?: boolean;
 }
 
-/**
- * Get all assessment levels
- * ទទួលយកកម្រិតវាយតម្លៃទាំងអស់
- */
-export function getAllAssessmentLevels(): AssessmentLevel[] {
-  return ['beginner', 'letter', 'word', 'paragraph', 'story'];
+export interface AssessmentFilterParams extends PaginationParams {
+  search?: string;
+  assessment_type?: AssessmentType;
+  subject?: Subject;
+  pilot_school_id?: number;
+  student_id?: number;
+  is_temporary?: boolean;
+}
+
+// ============================================================================
+// Form State Types (for frontend)
+// ============================================================================
+
+export interface StudentFormState {
+  name: string;
+  age?: number;
+  gender?: Gender;
+  guardian_name?: string;
+  guardian_phone?: string;
+  address?: string;
+  pilot_school_id?: number;
+  school_class_id?: number;
+}
+
+export interface AssessmentFormState {
+  student_id: number;
+  assessment_type: AssessmentType;
+  subject: Subject;
+  level?: AssessmentLevel;
+  score?: number;
+  notes?: string;
+  assessed_date?: Date;
+}
+
+// ============================================================================
+// Permission Helper Types
+// ============================================================================
+
+export interface PermissionCheck {
+  canCreate: boolean;
+  canRead: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  canViewTestData: boolean;
+  canModifyProductionData: boolean;
+  canModifyTestData: boolean;
+}
+
+export interface UserPermissions {
+  role: UserRole;
+  pilot_school_id?: number | null;
+  test_mode_enabled: boolean;
+  student: PermissionCheck;
+  assessment: PermissionCheck;
+  mentoring_visit: PermissionCheck;
 }

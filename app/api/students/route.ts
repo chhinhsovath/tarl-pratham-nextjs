@@ -380,11 +380,47 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!existingStudent) {
-      return NextResponse.json({ error: "Student not found" }, { status: 404 });
+      return NextResponse.json({
+        error: "រកមិនឃើញសិស្ស",
+        message: "Student not found",
+        code: "STUDENT_NOT_FOUND"
+      }, { status: 404 });
     }
 
     if (!canAccessStudent(session.user.role, session.user.pilot_school_id, existingStudent.pilot_school_id)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({
+        error: "អ្នកមិនមានសិទ្ធិចូលប្រើទិន្នន័យនេះ",
+        message: "Forbidden - cannot access student from different school",
+        code: "ACCESS_DENIED"
+      }, { status: 403 });
+    }
+
+    // ⚠️ CRITICAL: Mentors can only update temporary (test) students
+    if (session.user.role === "mentor" && existingStudent.record_status === 'production') {
+      return NextResponse.json({
+        error: "អ្នកណែនាំមិនអាចកែប្រែទិន្នន័យផលិតកម្មរបស់គ្រូបាន",
+        message: "Mentors cannot modify production student data created by teachers",
+        code: "PERMISSION_DENIED",
+        meta: {
+          student_id: existingStudent.id,
+          student_record_status: existingStudent.record_status,
+          user_role: session.user.role
+        }
+      }, { status: 403 });
+    }
+
+    // ⚠️ CRITICAL: Teachers can only update production students
+    if (session.user.role === "teacher" && existingStudent.record_status !== 'production') {
+      return NextResponse.json({
+        error: "គ្រូមិនអាចកែប្រែទិន្នន័យសាកល្បងបាន",
+        message: "Teachers cannot modify test/temporary students created by mentors",
+        code: "PERMISSION_DENIED",
+        meta: {
+          student_id: existingStudent.id,
+          student_record_status: existingStudent.record_status,
+          user_role: session.user.role
+        }
+      }, { status: 403 });
     }
 
     // Validate input

@@ -4,9 +4,9 @@ import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { Spin } from 'antd';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
-import AssessmentWizard from '@/components/wizards/AssessmentWizard';
+import BulkAssessmentWizard from '@/components/wizards/BulkAssessmentWizard';
 
-function AssessmentCreateContent() {
+function BulkAssessmentCreateContent() {
   const router = useRouter();
 
   const handleComplete = () => {
@@ -19,12 +19,12 @@ function AssessmentCreateContent() {
 
   return (
     <HorizontalLayout>
-      <AssessmentWizard onComplete={handleComplete} onCancel={handleCancel} />
+      <BulkAssessmentWizard onComplete={handleComplete} onCancel={handleCancel} />
     </HorizontalLayout>
   );
 }
 
-export default function AssessmentCreatePage() {
+export default function BulkAssessmentCreatePage() {
   return (
     <Suspense fallback={
       <HorizontalLayout>
@@ -33,7 +33,7 @@ export default function AssessmentCreatePage() {
         </div>
       </HorizontalLayout>
     }>
-      <AssessmentCreateContent />
+      <BulkAssessmentCreateContent />
     </Suspense>
   );
 }

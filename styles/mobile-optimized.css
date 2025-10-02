@@ -1,0 +1,438 @@
+/* Mobile-First Responsive Design for TaRL Assessment System */
+
+/* Touch-friendly button sizes - minimum 56px height for mobile */
+@media (max-width: 768px) {
+  .ant-btn-lg {
+    min-height: 56px !important;
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+  }
+
+  .ant-btn {
+    min-height: 48px !important;
+    padding: 10px 20px !important;
+  }
+
+  /* Touch-friendly input fields */
+  .ant-input-lg,
+  .ant-select-lg .ant-select-selector {
+    min-height: 56px !important;
+    font-size: 16px !important;
+  }
+
+  .ant-input,
+  .ant-select-selector {
+    min-height: 48px !important;
+    font-size: 16px !important;
+  }
+
+  /* Touch-friendly table rows */
+  .ant-table-tbody > tr > td {
+    padding: 16px 12px !important;
+  }
+
+  /* Touch-friendly checkboxes and radio buttons */
+  .ant-checkbox-wrapper,
+  .ant-radio-wrapper {
+    min-height: 48px !important;
+    display: flex;
+    align-items: center;
+  }
+
+  .ant-checkbox-inner,
+  .ant-radio-inner {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  /* Touch-friendly cards */
+  .ant-card-head {
+    min-height: 56px !important;
+    padding: 12px 16px !important;
+  }
+
+  .ant-card-body {
+    padding: 16px !important;
+  }
+}
+
+/* Quick Action Cards - Mobile optimized */
+.quick-action-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quick-action-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+@media (max-width: 768px) {
+  .quick-action-card {
+    min-height: 140px !important;
+  }
+
+  .quick-action-card .ant-card-body {
+    padding: 16px !important;
+  }
+}
+
+/* Steps Navigation - Mobile friendly */
+@media (max-width: 768px) {
+  .ant-steps-item-title {
+    font-size: 14px !important;
+  }
+
+  .ant-steps-item-description {
+    display: none !important;
+  }
+
+  .ant-steps-icon {
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+  }
+}
+
+/* Assessment Wizard - Mobile optimized */
+@media (max-width: 768px) {
+  .wizard-container {
+    padding: 12px !important;
+  }
+
+  .wizard-step-content {
+    padding: 16px 12px !important;
+  }
+
+  /* Student selection table - mobile */
+  .ant-table {
+    font-size: 14px !important;
+  }
+
+  .ant-table-thead > tr > th {
+    font-size: 13px !important;
+    padding: 12px 8px !important;
+  }
+
+  /* Hide less important columns on mobile */
+  .ant-table-cell.mobile-hide {
+    display: none !important;
+  }
+}
+
+/* Dashboard - Mobile optimized */
+@media (max-width: 768px) {
+  .dashboard-header-card {
+    margin-bottom: 16px !important;
+  }
+
+  .dashboard-stats-card {
+    margin-bottom: 12px !important;
+  }
+
+  /* Stack quick actions vertically on mobile */
+  .quick-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+/* Progress indicators - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-progress-text {
+    font-size: 14px !important;
+  }
+
+  .progress-summary-stats {
+    flex-direction: column;
+  }
+
+  .progress-summary-stats > div {
+    width: 100% !important;
+    margin-bottom: 12px;
+  }
+}
+
+/* Select dropdowns - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-select-dropdown {
+    max-width: 95vw !important;
+  }
+
+  .ant-select-item {
+    min-height: 48px !important;
+    padding: 12px !important;
+    font-size: 16px !important;
+  }
+
+  /* Level selection - show full labels */
+  .ant-select-item-option-content {
+    white-space: normal !important;
+    line-height: 1.4 !important;
+  }
+}
+
+/* Form fields - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-form-item {
+    margin-bottom: 20px !important;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 8px !important;
+  }
+
+  .ant-form-item-label > label {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+  }
+
+  /* Text areas */
+  .ant-input-textarea textarea {
+    min-height: 120px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* Modal dialogs - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-modal {
+    max-width: 95vw !important;
+    margin: 8px auto !important;
+  }
+
+  .ant-modal-body {
+    padding: 16px !important;
+  }
+
+  .ant-modal-footer {
+    padding: 12px 16px !important;
+  }
+
+  .ant-modal-footer .ant-btn {
+    min-height: 48px !important;
+  }
+}
+
+/* Date Picker - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-picker-panel-container {
+    max-width: 95vw !important;
+  }
+
+  .ant-picker-cell-inner {
+    min-height: 36px !important;
+    min-width: 36px !important;
+    line-height: 36px !important;
+  }
+}
+
+/* Tags - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-tag {
+    font-size: 14px !important;
+    padding: 4px 10px !important;
+    line-height: 1.5 !important;
+  }
+}
+
+/* Descriptions - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-descriptions-item-label {
+    font-size: 14px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .ant-descriptions-item-content {
+    font-size: 15px !important;
+  }
+}
+
+/* Result screen - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-result-icon > .anticon {
+    font-size: 56px !important;
+  }
+
+  .ant-result-title {
+    font-size: 20px !important;
+  }
+
+  .ant-result-subtitle {
+    font-size: 14px !important;
+  }
+}
+
+/* Alert messages - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-alert {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .ant-alert-message {
+    font-size: 15px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .ant-alert-description {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+}
+
+/* Spin (loading) - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-spin-dot-item {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .ant-spin-lg .ant-spin-dot-item {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+/* Badge - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-badge-count {
+    min-width: 24px !important;
+    height: 24px !important;
+    line-height: 24px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Tabs - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-tabs-tab {
+    min-height: 48px !important;
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+  }
+}
+
+/* List items - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-list-item {
+    padding: 16px 12px !important;
+  }
+
+  .ant-list-item-meta-title {
+    font-size: 15px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .ant-list-item-meta-description {
+    font-size: 14px !important;
+  }
+}
+
+/* Statistic - Mobile optimized */
+@media (max-width: 768px) {
+  .ant-statistic-title {
+    font-size: 13px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .ant-statistic-content {
+    font-size: 20px !important;
+  }
+}
+
+/* Space component - Mobile responsive */
+@media (max-width: 768px) {
+  .ant-space-vertical {
+    gap: 12px !important;
+  }
+}
+
+/* Typography - Mobile optimized */
+@media (max-width: 768px) {
+  h1.ant-typography,
+  .ant-typography h1 {
+    font-size: 24px !important;
+    line-height: 1.3 !important;
+  }
+
+  h2.ant-typography,
+  .ant-typography h2 {
+    font-size: 20px !important;
+    line-height: 1.3 !important;
+  }
+
+  h3.ant-typography,
+  .ant-typography h3 {
+    font-size: 18px !important;
+    line-height: 1.3 !important;
+  }
+
+  h4.ant-typography,
+  .ant-typography h4 {
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+  }
+}
+
+/* Prevent text selection on buttons (better for touch) */
+.ant-btn {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Touch feedback for interactive elements */
+@media (hover: none) and (pointer: coarse) {
+  .ant-btn:active,
+  .ant-card:active,
+  .ant-list-item:active {
+    opacity: 0.8;
+    transition: opacity 0.1s ease;
+  }
+}
+
+/* Improve tap target sizes */
+@media (max-width: 768px) {
+  a,
+  button,
+  .ant-btn,
+  .ant-checkbox-wrapper,
+  .ant-radio-wrapper {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Hide scrollbar for cleaner mobile UI */
+@media (max-width: 768px) {
+  .ant-table-body::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .ant-table-body::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+}
+
+/* Bottom navigation safe area (for iOS notch) */
+@supports (padding: max(0px)) {
+  .mobile-bottom-nav,
+  .wizard-nav-buttons {
+    padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+  }
+}

@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Form, 
-  Select, 
-  Button, 
-  Card, 
-  Row, 
-  Col, 
+import {
+  Form,
+  Select,
+  Button,
+  Card,
+  Row,
+  Col,
   InputNumber,
   Input,
   DatePicker,
@@ -23,6 +23,13 @@ import {
 import { SaveOutlined, SendOutlined } from '@ant-design/icons';
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
+import {
+  getAssessmentTypeOptions,
+  getSubjectOptions,
+  getLevelOptions,
+  getLevelLabelKM,
+  getLevelLabelEN
+} from '@/lib/constants/assessment-levels';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -77,8 +84,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
       selectedStudents.forEach(studentId => {
         initialData[studentId] = {
           student_id: studentId,
-          assessment_type: assessmentType || 'ដើមគ្រា',
-          subject: subject || 'khmer',
+          assessment_type: assessmentType || 'baseline',
+          subject: subject || 'language',
           assessed_date: dayjs().format('YYYY-MM-DD')
         };
       });
@@ -109,24 +116,21 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
     }
   };
 
-  const assessmentTypes = [
-    { value: 'ដើមគ្រា', label: 'ដើមគ្រា', color: 'blue' },
-    { value: 'ពាក់កណ្តាលគ្រា', label: 'ពាក់កណ្តាលគ្រា', color: 'orange' },
-    { value: 'ចុងគ្រា', label: 'ចុងគ្រា', color: 'green' }
-  ];
+  // Get options from constants - includes all 7 language + 6 math levels
+  const assessmentTypes = getAssessmentTypeOptions();
+  const subjects = getSubjectOptions();
 
-  const subjects = [
-    { value: 'khmer', label: 'Khmer Language', color: 'purple' },
-    { value: 'math', label: 'Mathematics', color: 'cyan' }
-  ];
+  // State for dynamically loaded levels based on subject
+  const [selectedSubject, setSelectedSubject] = useState<'language' | 'math'>('language');
+  const [availableLevels, setAvailableLevels] = useState(getLevelOptions('language'));
 
-  const levels = [
-    { value: 'beginner', label: 'Beginner', description: 'Cannot read or recognize letters' },
-    { value: 'letter', label: 'Letter Level', description: 'Can recognize individual letters' },
-    { value: 'word', label: 'Word Level', description: 'Can read simple words' },
-    { value: 'paragraph', label: 'Paragraph Level', description: 'Can read paragraphs' },
-    { value: 'story', label: 'Story Level', description: 'Can read complete stories' }
-  ];
+  // Update levels when subject changes
+  const handleSubjectChange = (value: 'language' | 'math') => {
+    setSelectedSubject(value);
+    setAvailableLevels(getLevelOptions(value));
+    // Reset level field when subject changes
+    form.setFieldValue('level', undefined);
+  };
 
   const handleSingleSubmit = async (values: any) => {
     try {
@@ -273,8 +277,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
           onFinish={mode === 'single' ? handleSingleSubmit : handleBulkNext}
           disabled={loading}
           initialValues={{
-            assessment_type: assessmentType || 'ដើមគ្រា',
-            subject: subject || 'khmer',
+            assessment_type: assessmentType || 'baseline',
+            subject: subject || 'language',
             assessed_date: dayjs()
           }}
         >
@@ -331,11 +335,11 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                 label="Subject"
                 rules={[{ required: true, message: 'Subject is required' }]}
               >
-                <Radio.Group>
+                <Radio.Group onChange={(e) => handleSubjectChange(e.target.value)}>
                   {subjects.map(subj => (
                     <Radio.Button key={subj.value} value={subj.value}>
-                      <Tag color={subj.color} style={{ margin: 0 }}>
-                        {subj.label}
+                      <Tag color={subj.value === 'language' ? 'purple' : 'cyan'} style={{ margin: 0 }}>
+                        {subj.label_km}
                       </Tag>
                     </Radio.Button>
                   ))}
@@ -348,17 +352,17 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             <Col span={12}>
               <Form.Item
                 name="level"
-                label="Reading/Math Level"
+                label={`${selectedSubject === 'language' ? 'Language' : 'Math'} Level`}
                 rules={[{ required: true, message: 'Level is required' }]}
               >
                 <Select placeholder="Select student level">
-                  {levels.map(level => (
+                  {availableLevels.map(level => (
                     <Option key={level.value} value={level.value}>
                       <div>
-                        <strong>{level.label}</strong>
+                        <strong>{level.label_km}</strong>
                         <br />
                         <Text type="secondary" style={{ fontSize: '12px' }}>
-                          {level.description}
+                          {level.label_en}
                         </Text>
                       </div>
                     </Option>

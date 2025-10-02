@@ -3,6 +3,7 @@ import '@/lib/suppress-warnings';
 import type { Metadata } from "next";
 import { Hanuman } from "next/font/google";
 import "./globals.css";
+import "@/styles/mobile-optimized.css";
 import StyledComponentsRegistry from "@/lib/antd-registry";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
 import AntdProvider from "@/components/providers/AntdProvider";
