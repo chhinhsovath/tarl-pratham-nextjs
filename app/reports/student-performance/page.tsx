@@ -58,80 +58,96 @@ interface StudentPerformance {
 export default function StudentPerformancePage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedSchool, setSelectedSchool] = useState('');
   const [dateRange, setDateRange] = useState<any[]>([]);
-
-  // Mock data for student performance
-  const [performanceData, setPerformanceData] = useState<StudentPerformance[]>([
-    {
-      id: 1,
-      student_name: 'ម៉ាលីកា ច័ន្ទ',
-      grade: 'ថ្នាក់ទី៤',
-      school: 'សាលាបឋមសិក្សាភ្នំពេញ',
-      subject: 'គណិតវិទ្យា',
-      baseline_score: 45,
-      midline_score: 62,
-      endline_score: 78,
-      improvement: 73.3,
-      status: 'excellent',
-      assessment_date: '2024-01-15',
-      teacher: 'លោកគ្រូ សុភា'
-    },
-    {
-      id: 2,
-      student_name: 'រតនា គឹម',
-      grade: 'ថ្នាក់ទី៥',
-      school: 'សាលាបឋមសិក្សាកំពត',
-      subject: 'ភាសាខ្មែរ',
-      baseline_score: 38,
-      midline_score: 55,
-      endline_score: 72,
-      improvement: 89.5,
-      status: 'excellent',
-      assessment_date: '2024-01-16',
-      teacher: 'លោកស្រី មីនា'
-    },
-    {
-      id: 3,
-      student_name: 'សុវណ្ណ ហុង',
-      grade: 'ថ្នាក់ទី៤',
-      school: 'សាលាបឋមសិក្សាសៀមរាប',
-      subject: 'គណិតវិទ្យា',
-      baseline_score: 52,
-      midline_score: 58,
-      endline_score: 65,
-      improvement: 25.0,
-      status: 'good',
-      assessment_date: '2024-01-17',
-      teacher: 'លោកគ្រូ ច័ន្ទតារា'
-    },
-    {
-      id: 4,
-      student_name: 'ញាត្តា ស៊ុន',
-      grade: 'ថ្នាក់ទី៥',
-      school: 'សាលាបឋមសិក្សាបាត់ដំបង',
-      subject: 'ភាសាខ្មែរ',
-      baseline_score: 41,
-      midline_score: 48,
-      endline_score: 53,
-      improvement: 29.3,
-      status: 'needs_improvement',
-      assessment_date: '2024-01-18',
-      teacher: 'លោកស្រី ស្រីពេជ្រ'
-    }
-  ]);
-
-  // Performance statistics
+  const [performanceData, setPerformanceData] = useState<StudentPerformance[]>([]);
   const [stats, setStats] = useState({
-    totalStudents: 1248,
-    averageImprovement: 54.2,
-    excellentPerformers: 312,
-    needsImprovement: 89
+    totalStudents: 0,
+    averageImprovement: 0,
+    excellentPerformers: 0,
+    needsImprovement: 0
   });
+  const [schools, setSchools] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchPerformanceData();
+  }, []);
+
+  const fetchPerformanceData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/reports?type=student-performance');
+      const result = await response.json();
+
+      if (result.data) {
+        const students = result.data.student_performance || [];
+
+        // Transform API data to match our interface
+        const transformedData: StudentPerformance[] = students.map((student: any, index: number) => {
+          const khmerAssessments = student.assessments?.filter((a: any) => a.subject === 'khmer') || [];
+          const mathAssessments = student.assessments?.filter((a: any) => a.subject === 'math') || [];
+
+          const getScore = (assessments: any[], type: string) => {
+            const assessment = assessments.find((a: any) => a.assessment_type === type);
+            return assessment?.score || 0;
+          };
+
+          const baselineScore = (getScore(khmerAssessments, 'baseline') + getScore(mathAssessments, 'baseline')) / 2;
+          const midlineScore = (getScore(khmerAssessments, 'midline') + getScore(mathAssessments, 'midline')) / 2;
+          const endlineScore = (getScore(khmerAssessments, 'endline') + getScore(mathAssessments, 'endline')) / 2;
+
+          const improvement = baselineScore > 0 ? ((endlineScore - baselineScore) / baselineScore) * 100 : 0;
+
+          let status: 'excellent' | 'good' | 'needs_improvement' | 'poor' = 'poor';
+          if (improvement >= 50) status = 'excellent';
+          else if (improvement >= 25) status = 'good';
+          else if (improvement >= 0) status = 'needs_improvement';
+
+          return {
+            id: student.student_id || index,
+            student_name: student.student_name || '-',
+            grade: student.grade || '-',
+            school: student.school || '-',
+            subject: khmerAssessments.length > mathAssessments.length ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
+            baseline_score: Math.round(baselineScore),
+            midline_score: Math.round(midlineScore),
+            endline_score: Math.round(endlineScore),
+            improvement: Math.round(improvement * 10) / 10,
+            status,
+            assessment_date: student.assessments?.[0]?.assessed_date || new Date().toISOString(),
+            teacher: student.teacher || '-'
+          };
+        });
+
+        setPerformanceData(transformedData);
+
+        // Extract unique schools
+        const uniqueSchools = [...new Set(transformedData.map(s => s.school))];
+        setSchools(uniqueSchools);
+
+        // Calculate statistics
+        const totalStudents = transformedData.length;
+        const avgImprovement = transformedData.reduce((sum, s) => sum + s.improvement, 0) / (totalStudents || 1);
+        const excellent = transformedData.filter(s => s.status === 'excellent').length;
+        const needsImpr = transformedData.filter(s => s.status === 'needs_improvement' || s.status === 'poor').length;
+
+        setStats({
+          totalStudents,
+          averageImprovement: Math.round(avgImprovement * 10) / 10,
+          excellentPerformers: excellent,
+          needsImprovement: needsImpr
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch performance data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -380,10 +396,9 @@ export default function StudentPerformancePage() {
                 onChange={setSelectedSchool}
                 allowClear
               >
-                <Option value="សាលាបឋមសិក្សាភ្នំពេញ">សាលាបឋមសិក្សាភ្នំពេញ</Option>
-                <Option value="សាលាបឋមសិក្សាកំពត">សាលាបឋមសិក្សាកំពត</Option>
-                <Option value="សាលាបឋមសិក្សាសៀមរាប">សាលាបឋមសិក្សាសៀមរាប</Option>
-                <Option value="សាលាបឋមសិក្សាបាត់ដំបង">សាលាបឋមសិក្សាបាត់ដំបង</Option>
+                {schools.map(school => (
+                  <Option key={school} value={school}>{school}</Option>
+                ))}
               </Select>
             </Col>
             <Col xs={24} sm={12} md={4}>
