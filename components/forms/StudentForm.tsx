@@ -94,16 +94,16 @@ const StudentForm: React.FC<StudentFormProps> = ({
       const responses = await Promise.all(requests);
       
       let responseIndex = 0;
-      
+
       if (userRole !== 'mentor' && responses[responseIndex]) {
         const classesData = await responses[responseIndex].json();
-        setClasses(classesData.classes || []);
+        setClasses(classesData.data || classesData.classes || []);
         responseIndex++;
       }
-      
+
       if ((userRole === 'mentor' || userRole === 'admin') && responses[responseIndex]) {
         const schoolsData = await responses[responseIndex].json();
-        setPilotSchools(schoolsData.schools || []);
+        setPilotSchools(schoolsData.data || schoolsData.schools || []);
       }
     } catch (error) {
       console.error('Error fetching form data:', error);
