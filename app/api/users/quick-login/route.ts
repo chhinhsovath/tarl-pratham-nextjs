@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     let users;
     
     try {
-      // Query unified users table for username login type
+      // Query unified users table - return ALL users with usernames (both email and username login types)
       users = await prisma.user.findMany({
         select: {
           id: true,
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
         },
         where: {
           is_active: true,
-          login_type: 'username'
+          username: { not: null } // Show all users that have a username
         },
         orderBy: [
           { role: 'asc' },

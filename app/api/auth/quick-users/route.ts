@@ -6,11 +6,11 @@ export async function GET(request: NextRequest) {
     let quickUsers = [];
     
     try {
-      // Query unified users table for username login type
+      // Query unified users table - return ALL users with usernames
       quickUsers = await prisma.user.findMany({
         where: {
           is_active: true,
-          login_type: 'username'
+          username: { not: null } // Show all users that have a username
         },
         select: {
           id: true,
