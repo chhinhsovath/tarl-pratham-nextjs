@@ -25,8 +25,8 @@ export const authOptions: NextAuthOptions = {
               OR: [
                 { username: credentials.username },
                 { username_login: credentials.username }
-              ],
-              login_type: 'username'
+              ]
+              // No login_type filter - accept ANY user with matching username
             }
           });
 
