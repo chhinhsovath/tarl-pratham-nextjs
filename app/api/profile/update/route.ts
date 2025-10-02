@@ -169,10 +169,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
-  } catch (error) {
-    console.error('Error updating profile:', error);
+  } catch (error: any) {
+    console.error('❌ Error updating profile:', error);
+    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error message:', error.message);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
