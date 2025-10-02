@@ -12,15 +12,38 @@ import OnboardingTour from '@/components/tour/OnboardingTour';
 export default function SimpleReportsPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [loading, setLoading] = useState(false);
-
-  // Simple stats matching Laravel
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalStudents: 1250,
-    totalAssessments: 3750,
-    completionRate: 85,
-    averageScore: 72
+    totalStudents: 0,
+    totalAssessments: 0,
+    totalMentoringVisits: 0,
+    recentActivities: []
   });
+
+  useEffect(() => {
+    fetchReportData();
+  }, []);
+
+  const fetchReportData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/reports?type=overview');
+      const result = await response.json();
+
+      if (result.data) {
+        setStats({
+          totalStudents: result.data.overview.total_students || 0,
+          totalAssessments: result.data.overview.total_assessments || 0,
+          totalMentoringVisits: result.data.overview.total_mentoring_visits || 0,
+          recentActivities: result.data.assessments?.recent || []
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch report data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Report cards with specific icons
   const reportCards = [
@@ -91,10 +114,10 @@ export default function SimpleReportsPage() {
           </p>
         </div>
 
-        {/* Statistics Cards - EXACTLY like verification page */}
+        {/* Statistics Cards */}
         <Row gutter={16} className="mb-8">
-          <Col xs={12} sm={6}>
-            <Card>
+          <Col xs={24} sm={8}>
+            <Card loading={loading}>
               <Statistic
                 title="សិស្សសរុប"
                 value={stats.totalStudents}
@@ -103,8 +126,8 @@ export default function SimpleReportsPage() {
               />
             </Card>
           </Col>
-          <Col xs={12} sm={6}>
-            <Card>
+          <Col xs={24} sm={8}>
+            <Card loading={loading}>
               <Statistic
                 title="ការវាយតម្លៃសរុប"
                 value={stats.totalAssessments}
@@ -113,24 +136,13 @@ export default function SimpleReportsPage() {
               />
             </Card>
           </Col>
-          <Col xs={12} sm={6}>
-            <Card>
+          <Col xs={24} sm={8}>
+            <Card loading={loading}>
               <Statistic
-                title="អត្រាបញ្ចប់"
-                value={stats.completionRate}
-                suffix="%"
-                valueStyle={{ color: '#faad14' }}
-                prefix={<PercentageOutlined />}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card>
-              <Statistic
-                title="ពិន្ទុមធ្យម"
-                value={stats.averageScore}
+                title="ការណែនាំសរុប"
+                value={stats.totalMentoringVisits}
                 valueStyle={{ color: '#722ed1' }}
-                prefix={<TrophyOutlined />}
+                prefix={<UserOutlined />}
               />
             </Card>
           </Col>
@@ -207,54 +219,38 @@ export default function SimpleReportsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  <tr>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date().toLocaleDateString('km-KH')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ការវាយតម្លៃ
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      សាលាបឋមសិក្សាភ្នំពេញ
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        បញ្ចប់
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(Date.now() - 86400000).toLocaleDateString('km-KH')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ការណែនាំ
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      សាលាបឋមសិក្សាសៀមរាប
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                        កំពុងដំណើរការ
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(Date.now() - 172800000).toLocaleDateString('km-KH')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      របាយការណ៍
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      សាលាបឋមសិក្សាកំពត
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        បញ្ចប់
-                      </span>
-                    </td>
-                  </tr>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
+                        កំពុងផ្ទុកទិន្នន័យ...
+                      </td>
+                    </tr>
+                  ) : stats.recentActivities.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
+                        មិនមានសកម្មភាពថ្មីៗ
+                      </td>
+                    </tr>
+                  ) : (
+                    stats.recentActivities.slice(0, 5).map((activity: any, index: number) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {activity.assessed_date ? new Date(activity.assessed_date).toLocaleDateString('km-KH') : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {activity.subject === 'khmer' ? 'ភាសាខ្មែរ' : activity.subject === 'math' ? 'គណិតវិទ្យា' : activity.subject}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {activity.pilot_school?.school_name || '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            បញ្ចប់
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
