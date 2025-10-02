@@ -216,14 +216,19 @@ export async function POST(request: NextRequest) {
       session.user.test_mode_enabled || false
     );
 
-    // For mentors, automatically set their pilot school if they have one
-    if (session.user.role === "mentor" && session.user.pilot_school_id) {
-      validatedData.pilot_school_id = session.user.pilot_school_id;
-    }
-
-    // For teachers, set their pilot school if they have one
-    if (session.user.role === "teacher" && session.user.pilot_school_id) {
-      validatedData.pilot_school_id = session.user.pilot_school_id;
+    // Auto-assign pilot_school_id from user's profile if not provided
+    // This ensures students are linked to the teacher's/mentor's school
+    if (!validatedData.pilot_school_id) {
+      if ((session.user.role === "mentor" || session.user.role === "teacher") && session.user.pilot_school_id) {
+        validatedData.pilot_school_id = session.user.pilot_school_id;
+        console.log(`✅ Auto-assigned pilot_school_id ${session.user.pilot_school_id} from ${session.user.role}'s profile`);
+      } else if (session.user.role === "mentor" || session.user.role === "teacher") {
+        // Teacher/Mentor must have a school assigned before creating students
+        return NextResponse.json(
+          { error: "សូមបំពេញប្រវត្តិរូបរបស់អ្នកជាមុនសិន (សូមជ្រើសរើសសាលារៀន)" },
+          { status: 400 }
+        );
+      }
     }
 
     // Auto-link to active test session for test data
@@ -273,10 +278,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create student
+    // Create student - extract IDs separately to avoid Prisma relation error
+    const { school_class_id, pilot_school_id, ...otherData } = validatedData;
+
     const student = await prisma.student.create({
       data: {
-        ...validatedData,
+        ...otherData,
+        school_class_id,
+        pilot_school_id,
         added_by_id: parseInt(session.user.id),
         added_by_mentor: session.user.role === "mentor", // Deprecated but keep for compatibility
         is_temporary: recordStatus !== 'production', // Deprecated but keep for compatibility
