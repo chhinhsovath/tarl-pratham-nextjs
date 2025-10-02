@@ -411,9 +411,8 @@ async function getSchoolStatisticsReport(baseFilters: any, params: any) {
       }
     }),
     prisma.pilotSchool.findMany({
-      where: { is_active: true },
+      where: {},
       include: {
-        province: { select: { name_english: true } },
         students: {
           where: { is_active: true },
           select: { id: true }
@@ -442,9 +441,9 @@ async function getSchoolStatisticsReport(baseFilters: any, params: any) {
 
   const pilotSchoolData = pilotSchoolStats.map(school => ({
     pilot_school_id: school.id,
-    school_name: school.name,
-    school_code: school.code,
-    province: school.province.name_english,
+    school_name: school.school_name,
+    school_code: school.school_code,
+    province: school.province,
     total_students: school.students.length,
     mentor_count: school.users.length,
     mentoring_visits: school.mentoring_visits.length,
