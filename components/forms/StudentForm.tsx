@@ -107,7 +107,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
       }
     } catch (error) {
       console.error('Error fetching form data:', error);
-      message.error('Failed to load form data');
+      message.error('មិនអាចផ្ទុកទិន្នន័យទម្រង់');
     } finally {
       setLoadingData(false);
     }
@@ -158,14 +158,14 @@ const StudentForm: React.FC<StudentFormProps> = ({
         const data = await response.json();
         setImageUrl(data.url);
         onSuccess?.(data);
-        message.success('Photo uploaded successfully');
+        message.success('បានផ្ទុកឡើងរូបថតដោយជោគជ័យ');
       } else {
-        throw new Error('Upload failed');
+        throw new Error('បរាជ័យក្នុងការផ្ទុកឡើង');
       }
     } catch (error) {
       console.error('Upload error:', error);
       onError?.(error as Error);
-      message.error('Failed to upload photo');
+      message.error('មិនអាចផ្ទុកឡើងរូបថត');
     }
   };
 
@@ -180,12 +180,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
     const isLt5M = file.size / 1024 / 1024 < 5;
     
     if (!isImage) {
-      message.error('You can only upload image files!');
+      message.error('អ្នកអាចផ្ទុកឡើងតែឯកសាររូបភាពប៉ុណ្ណោះ!');
       return false;
     }
     
     if (!isLt5M) {
-      message.error('Image must be smaller than 5MB!');
+      message.error('រូបភាពត្រូវតែតូចជាង ៥MB!');
       return false;
     }
     
@@ -196,7 +196,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
     if (value === undefined || value === null) return Promise.resolve();
     
     if (value < 5 || value > 20) {
-      return Promise.reject('Age must be between 5 and 20');
+      return Promise.reject('អាយុត្រូវតែចន្លោះពី ៥ ដល់ ២០');
     }
     
     return Promise.resolve();
@@ -207,7 +207,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
     
     const phoneRegex = /^[+]?[\d\s\-()]+$/;
     if (!phoneRegex.test(value) || value.length < 8) {
-      return Promise.reject('Invalid phone number format');
+      return Promise.reject('ទម្រង់លេខទូរស័ព្ទមិនត្រឹមត្រូវ');
     }
     
     return Promise.resolve();
@@ -218,14 +218,14 @@ const StudentForm: React.FC<StudentFormProps> = ({
       <Card>
         <div style={{ textAlign: 'center', padding: '50px' }}>
           <Spin size="large" />
-          <p style={{ marginTop: 16 }}>Loading form data...</p>
+          <p style={{ marginTop: 16 }}>កំពុងផ្ទុកទិន្នន័យទម្រង់...</p>
         </div>
       </Card>
     );
   }
 
   return (
-    <Card title={mode === 'create' ? 'Add New Student' : 'Edit Student'}>
+    <Card title={mode === 'create' ? 'បន្ថែមសិស្សថ្មី' : 'កែប្រែសិស្ស'}>
       <Form
         form={form}
         layout="vertical"
@@ -238,24 +238,24 @@ const StudentForm: React.FC<StudentFormProps> = ({
               <Col span={12}>
                 <Form.Item
                   name="name"
-                  label="Student Name"
+                  label="ឈ្មោះសិស្ស"
                   rules={[
-                    { required: true, message: 'Student name is required' },
-                    { min: 2, message: 'Name must be at least 2 characters' }
+                    { required: true, message: 'ត្រូវការឈ្មោះសិស្ស' },
+                    { min: 2, message: 'ឈ្មោះត្រូវមានយ៉ាងហោចណាស់ ២ តួអក្សរ' }
                   ]}
                 >
-                  <Input placeholder="Enter student name" />
+                  <Input placeholder="បញ្ចូលឈ្មោះសិស្ស" />
                 </Form.Item>
               </Col>
               
               <Col span={12}>
                 <Form.Item
                   name="age"
-                  label="Age"
+                  label="អាយុ"
                   rules={[{ validator: validateAge }]}
                 >
-                  <InputNumber 
-                    placeholder="Enter age" 
+                  <InputNumber
+                    placeholder="បញ្ចូលអាយុ"
                     style={{ width: '100%' }}
                     min={5}
                     max={20}
@@ -268,11 +268,11 @@ const StudentForm: React.FC<StudentFormProps> = ({
               <Col span={12}>
                 <Form.Item
                   name="gender"
-                  label="Gender"
+                  label="ភេទ"
                 >
                   <Select placeholder="ជ្រើសរើសភេទ" allowClear>
-                    <Option value="Male">Male (ប្រុស)</Option>
-                    <Option value="Female">Female (ស្រី)</Option>
+                    <Option value="Male">ប្រុស</Option>
+                    <Option value="Female">ស្រី</Option>
                   </Select>
                 </Form.Item>
               </Col>
@@ -280,9 +280,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
               <Col span={12}>
                 <Form.Item
                   name="guardian_name"
-                  label="Guardian Name"
+                  label="ឈ្មោះអាណាព្យាបាល"
                 >
-                  <Input placeholder="Enter guardian/parent name" />
+                  <Input placeholder="បញ្ចូលឈ្មោះអាណាព្យាបាល" />
                 </Form.Item>
               </Col>
             </Row>
@@ -291,19 +291,19 @@ const StudentForm: React.FC<StudentFormProps> = ({
               <Col span={12}>
                 <Form.Item
                   name="guardian_phone"
-                  label="Guardian Phone"
+                  label="លេខទូរស័ព្ទអាណាព្យាបាល"
                   rules={[{ validator: validatePhone }]}
                 >
-                  <Input placeholder="Enter guardian phone number" />
+                  <Input placeholder="បញ្ចូលលេខទូរស័ព្ទអាណាព្យាបាល" />
                 </Form.Item>
               </Col>
               
               <Col span={12}>
                 <Form.Item
                   name="address"
-                  label="Address"
+                  label="អាសយដ្ឋាន"
                 >
-                  <Input placeholder="Enter student address" />
+                  <Input placeholder="បញ្ចូលអាសយដ្ឋានសិស្ស" />
                 </Form.Item>
               </Col>
             </Row>
@@ -314,12 +314,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 <Col span={24}>
                   <Form.Item
                     name="school_class_id"
-                    label="School Class"
+                    label="ថ្នាក់រៀន"
                   >
                     <Select placeholder="ជ្រើសរើសថ្នាក់" allowClear>
                       {classes.map((schoolClass: any) => (
                         <Option key={schoolClass.id} value={schoolClass.id}>
-                          {schoolClass.school?.name} - {schoolClass.name} (Grade {schoolClass.grade})
+                          {schoolClass.school?.name} - {schoolClass.name} (ថ្នាក់ទី {schoolClass.grade})
                         </Option>
                       ))}
                     </Select>
@@ -334,7 +334,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 <Col span={24}>
                   <Form.Item
                     name="pilot_school_id"
-                    label="Pilot School"
+                    label="សាលាសាកល្បង"
                   >
                     <Select placeholder="ជ្រើសរើសសាលាសាកល្បង" allowClear>
                       {pilotSchools.map((school: any) => (
@@ -351,7 +351,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
 
           {/* Photo Upload Section */}
           <Col span={8}>
-            <Form.Item label="Student Photo">
+            <Form.Item label="រូបថតសិស្ស">
               {imageUrl ? (
                 <div style={{ textAlign: 'center' }}>
                   <Image
@@ -371,7 +371,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       onClick={handleRemovePhoto}
                       disabled={loading}
                     >
-                      Remove Photo
+                      លុបរូបថត
                     </Button>
                   </div>
                 </div>
@@ -387,12 +387,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 >
                   <div>
                     <PlusOutlined />
-                    <div style={{ marginTop: 8 }}>Upload Photo</div>
+                    <div style={{ marginTop: 8 }}>ផ្ទុកឡើងរូបថត</div>
                   </div>
                 </Upload>
               )}
               <div style={{ fontSize: '12px', color: '#666', marginTop: 8 }}>
-                Upload student photo (max 5MB)
+                ផ្ទុកឡើងរូបថតសិស្ស (អតិបរមា ៥MB)
               </div>
             </Form.Item>
           </Col>
@@ -408,7 +408,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 padding: '12px',
                 marginBottom: '16px'
               }}>
-                <strong>Note:</strong> As a mentor, this student will be marked as temporary and will be automatically deleted after 48 hours unless permanently saved by an admin or teacher.
+                <strong>ចំណាំ:</strong> ក្នុងនាមជាអ្នកណែនាំ សិស្សនេះនឹងត្រូវបានសម្គាល់ថាជាបណ្តោះអាសន្ន ហើយនឹងត្រូវបានលុបដោយស្វ័យប្រវត្តិបន្ទាប់ពី ៤៨ ម៉ោង ប្រសិនបើមិនត្រូវបានរក្សាទុកជាអចិន្ត្រៃយ៍ដោយអ្នកគ្រប់គ្រង ឬគ្រូបង្រៀន។
               </div>
             </Col>
           </Row>
@@ -421,7 +421,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
             loading={loading}
             style={{ marginRight: 8 }}
           >
-            {mode === 'create' ? 'Add Student' : 'Update Student'}
+            {mode === 'create' ? 'រក្សាទុក' : 'រក្សាទុក'}
           </Button>
           
           <Button 
@@ -432,7 +432,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
             }}
             disabled={loading}
           >
-            Reset
+            បោះបង់
           </Button>
         </Form.Item>
       </Form>

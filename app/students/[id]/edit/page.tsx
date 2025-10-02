@@ -37,12 +37,12 @@ function EditStudentPageContent() {
         const data = await response.json();
         setStudent(data.student);
       } else {
-        message.error('Student not found');
+        message.error('រកមិនឃើញសិស្ស');
         router.push('/students');
       }
     } catch (error) {
       console.error('Fetch student error:', error);
-      message.error('Failed to load student');
+      message.error('មិនអាចផ្ទុកទិន្នន័យសិស្ស');
       router.push('/students');
     } finally {
       setLoading(false);
@@ -64,15 +64,15 @@ function EditStudentPageContent() {
 
       if (response.ok) {
         const data = await response.json();
-        message.success(data.message || 'Student updated successfully');
+        message.success(data.message || 'បានកែប្រែសិស្សដោយជោគជ័យ');
         router.push('/students');
       } else {
         const error = await response.json();
-        message.error(error.error || 'Failed to update student');
+        message.error(error.error || 'មិនអាចកែប្រែសិស្ស');
       }
     } catch (error) {
       console.error('Update student error:', error);
-      message.error('Failed to update student');
+      message.error('មិនអាចកែប្រែសិស្ស');
     } finally {
       setSubmitting(false);
     }
@@ -84,7 +84,7 @@ function EditStudentPageContent() {
         <Card>
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <Spin size="large" />
-            <p style={{ marginTop: 16 }}>Loading student data...</p>
+            <p style={{ marginTop: 16 }}>កំពុងផ្ទុកទិន្នន័យសិស្ស...</p>
           </div>
         </Card>
       </div>
