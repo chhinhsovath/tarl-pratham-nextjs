@@ -3,7 +3,10 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET
+  });
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
   const isOnboardingPage = request.nextUrl.pathname.startsWith('/onboarding');
   const isProfileSetupPage = request.nextUrl.pathname.startsWith('/profile-setup');
@@ -107,9 +110,10 @@ export async function middleware(request: NextRequest) {
     const allowedPaths = ['/profile-setup', '/onboarding', '/dashboard', '/help', '/reports', '/profile'];
     const isAllowedPath = allowedPaths.some(p => path.startsWith(p));
 
-    // Check if coming from onboarding (allow first visit)
+    // Check if coming from onboarding or profile-setup (allow first visit after setup)
     const referer = request.headers.get('referer');
     const comingFromOnboarding = referer?.includes('/onboarding');
+    const comingFromProfileSetup = referer?.includes('/profile-setup');
 
     // Debug logging in development
     if (process.env.NODE_ENV === 'development') {
@@ -120,12 +124,20 @@ export async function middleware(request: NextRequest) {
         needsSchool,
         isAllowedPath,
         comingFromOnboarding,
+        comingFromProfileSetup,
         referer: referer?.substring(referer.length - 30)
       });
     }
 
-    if (needsSchool && !pilotSchoolId && !isAllowedPath && !comingFromOnboarding) {
-      console.log('🚫 [MIDDLEWARE] BLOCKING access to', path, '- No school assigned (pilot_school_id:', pilotSchoolId, ')');
+    if (needsSchool && !pilotSchoolId && !isAllowedPath && !comingFromOnboarding && !comingFromProfileSetup) {
+      console.log('🚫 [MIDDLEWARE] BLOCKING access to', path, '- No school assigned');
+      console.log('📊 [MIDDLEWARE] Token data:', {
+        pilot_school_id: pilotSchoolId,
+        subject: token.subject,
+        holding_classes: token.holding_classes,
+        role: userRole,
+        user_id: token.id
+      });
       console.log('📍 [MIDDLEWARE] Redirecting to /profile-setup');
       return NextResponse.redirect(new URL('/profile-setup', request.url));
     }
