@@ -80,7 +80,7 @@ export default function ViewerDashboard({ userId, user }: ViewerDashboardProps) 
   };
 
   const progressData = {
-    labels: ['Baseline', 'Midline', 'Endline'],
+    labels: ['តេស្តដើមគ្រា', 'តេស្តពាក់កណ្ដាលគ្រា', 'តេស្តចុងក្រោយគ្រា'],
     datasets: [{
       label: 'Completed Assessments',
       data: [845, 623, 234],

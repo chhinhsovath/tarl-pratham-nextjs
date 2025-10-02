@@ -95,7 +95,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
   };
 
   const assessmentProgressData = {
-    labels: ['Baseline', 'Midline', 'Endline'],
+    labels: ['តេស្តដើមគ្រា', 'តេស្តពាក់កណ្ដាលគ្រា', 'តេស្តចុងក្រោយគ្រា'],
     datasets: [{
       label: 'Average Score',
       data: chartData?.assessment_performance || [65, 72, 78],

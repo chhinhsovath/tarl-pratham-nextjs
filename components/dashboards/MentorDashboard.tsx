@@ -64,7 +64,7 @@ export default function MentorDashboard({ userId, user }: MentorDashboardProps) 
 
   // Chart data for assessment distribution
   const assessmentDistributionData = {
-    labels: ['Baseline', 'Midline', 'Endline'],
+    labels: ['តេស្តដើមគ្រា', 'តេស្តពាក់កណ្ដាលគ្រា', 'តេស្តចុងក្រោយគ្រា'],
     datasets: [{
       data: [
         chartData?.assessment_distribution?.baseline || 45,
@@ -323,15 +323,15 @@ export default function MentorDashboard({ userId, user }: MentorDashboardProps) 
             
             <div style={{ marginTop: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <Text>Baseline:</Text>
+                <Text>តេស្តដើមគ្រា:</Text>
                 <Text strong>{stats?.distributions?.assessments_by_type?.baseline || 45}</Text>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <Text>Midline:</Text>
+                <Text>តេស្តពាក់កណ្ដាលគ្រា:</Text>
                 <Text strong>{stats?.distributions?.assessments_by_type?.midline || 28}</Text>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text>Endline:</Text>
+                <Text>តេស្តចុងក្រោយគ្រា:</Text>
                 <Text strong>{stats?.distributions?.assessments_by_type?.endline || 15}</Text>
               </div>
             </div>

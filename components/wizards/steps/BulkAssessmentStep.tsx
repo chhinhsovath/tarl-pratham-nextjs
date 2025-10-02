@@ -129,13 +129,7 @@ export default function BulkAssessmentStep({
         >
           {availableLevels.map(level => (
             <Option key={level.value} value={level.value}>
-              <div style={{ padding: '4px 0' }}>
-                <Text strong>{level.label_km}</Text>
-                <br />
-                <Text type="secondary" style={{ fontSize: '12px' }}>
-                  {level.label_en}
-                </Text>
-              </div>
+              <Text strong>{level.label_km}</Text>
             </Option>
           ))}
         </Select>

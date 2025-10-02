@@ -148,9 +148,9 @@ export default function BulkAssessmentWizard({ onComplete, onCancel }: BulkAsses
                       style={{ width: '100%' }}
                       size="large"
                     >
-                      <Option value="baseline">តេស្តដើមគ្រា (Baseline)</Option>
-                      <Option value="midline">តេស្តពាក់កណ្ដាលគ្រា (Midline)</Option>
-                      <Option value="endline">តេស្តចុងក្រោយគ្រា (Endline)</Option>
+                      <Option value="baseline">តេស្តដើមគ្រា</Option>
+                      <Option value="midline">តេស្តពាក់កណ្ដាលគ្រា</Option>
+                      <Option value="endline">តេស្តចុងក្រោយគ្រា</Option>
                     </Select>
                   </Space>
                 </Col>
@@ -163,8 +163,8 @@ export default function BulkAssessmentWizard({ onComplete, onCancel }: BulkAsses
                       style={{ width: '100%' }}
                       size="large"
                     >
-                      <Option value="language">ខ្មែរ (Language)</Option>
-                      <Option value="math">គណិតវិទ្យា (Math)</Option>
+                      <Option value="language">ខ្មែរ</Option>
+                      <Option value="math">គណិតវិទ្យា</Option>
                     </Select>
                   </Space>
                 </Col>

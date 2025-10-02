@@ -352,19 +352,13 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             <Col span={12}>
               <Form.Item
                 name="level"
-                label={`${selectedSubject === 'language' ? 'Language' : 'Math'} Level`}
-                rules={[{ required: true, message: 'Level is required' }]}
+                label="កម្រិតសិស្ស"
+                rules={[{ required: true, message: 'សូមជ្រើសរើសកម្រិត' }]}
               >
-                <Select placeholder="Select student level">
+                <Select placeholder="ជ្រើសរើសកម្រិត">
                   {availableLevels.map(level => (
                     <Option key={level.value} value={level.value}>
-                      <div>
-                        <strong>{level.label_km}</strong>
-                        <br />
-                        <Text type="secondary" style={{ fontSize: '12px' }}>
-                          {level.label_en}
-                        </Text>
-                      </div>
+                      <strong>{level.label_km}</strong>
                     </Option>
                   ))}
                 </Select>

@@ -63,10 +63,6 @@ export default function AssessmentDetailsStep({ data, onChange }: AssessmentDeta
               {assessmentTypes.map(type => (
                 <Option key={type.value} value={type.value}>
                   <strong>{type.label_km}</strong>
-                  <br />
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    {type.label_en}
-                  </Text>
                 </Option>
               ))}
             </Select>
@@ -88,10 +84,6 @@ export default function AssessmentDetailsStep({ data, onChange }: AssessmentDeta
               {subjects.map(subject => (
                 <Option key={subject.value} value={subject.value}>
                   <strong>{subject.label_km}</strong>
-                  <br />
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    {subject.label_en}
-                  </Text>
                 </Option>
               ))}
             </Select>
@@ -117,15 +109,9 @@ export default function AssessmentDetailsStep({ data, onChange }: AssessmentDeta
         >
           {availableLevels.map(level => (
             <Option key={level.value} value={level.value}>
-              <div style={{ padding: '8px 0' }}>
-                <Text strong style={{ fontSize: '15px' }}>
-                  {level.label_km}
-                </Text>
-                <br />
-                <Text type="secondary" style={{ fontSize: '13px' }}>
-                  {level.label_en}
-                </Text>
-              </div>
+              <Text strong style={{ fontSize: '15px' }}>
+                {level.label_km}
+              </Text>
             </Option>
           ))}
         </Select>
