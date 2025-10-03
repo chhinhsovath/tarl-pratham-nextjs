@@ -336,20 +336,22 @@ export default function OnboardingPage() {
         const user = data.user;
         const completed = user?.onboarding_completed;
 
-        // Auto-complete step 1 if profile is set up
-        if (user && user.pilot_school_id) {
-          // User has completed profile setup
-          if (!completed || (Array.isArray(completed) && !completed.includes('complete_profile'))) {
-            // Auto-mark step 1 as complete
-            await markStepComplete('complete_profile');
-            return;
-          }
-        }
-
+        // Parse completed steps
         if (completed) {
           const parsed = typeof completed === 'string' ? JSON.parse(completed) : completed;
           setCompletedSteps(Array.isArray(parsed) ? parsed : []);
           console.log('✅ Loaded completed steps:', parsed);
+
+          // Auto-complete step 1 if profile is set up BUT not yet marked
+          if (user && user.pilot_school_id && !parsed.includes('complete_profile')) {
+            // Only mark complete if not already in the list
+            await markStepComplete('complete_profile');
+            return; // Exit to avoid duplicate API calls
+          }
+        } else if (user && user.pilot_school_id) {
+          // No completed steps yet, but profile is set up
+          await markStepComplete('complete_profile');
+          return; // Exit to avoid duplicate API calls
         }
       }
 
@@ -427,8 +429,10 @@ export default function OnboardingPage() {
         const data = await response.json();
         console.log('✅ Step marked complete:', data);
 
-        // Refresh completed steps
-        await getCompletedSteps();
+        // Update completed steps directly from response
+        if (data.completedSteps && Array.isArray(data.completedSteps)) {
+          setCompletedSteps(data.completedSteps);
+        }
 
         // Show success message with celebration
         antdMessage.success({
