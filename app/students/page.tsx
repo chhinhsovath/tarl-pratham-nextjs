@@ -60,6 +60,7 @@ function StudentsContent() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
+  const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
 
   useEffect(() => {
     fetchStudents();
@@ -177,7 +178,55 @@ function StudentsContent() {
     student.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  // Handle select all
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedStudentIds(filteredStudents.map(s => s.id));
+    } else {
+      setSelectedStudentIds([]);
+    }
+  };
+
+  // Handle individual selection
+  const handleSelectStudent = (studentId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedStudentIds(prev => [...prev, studentId]);
+    } else {
+      setSelectedStudentIds(prev => prev.filter(id => id !== studentId));
+    }
+  };
+
+  // Navigate to bulk assessment
+  const handleBulkAssessment = () => {
+    if (selectedStudentIds.length === 0) {
+      message.warning('សូមជ្រើសរើសសិស្សយ៉ាងតិច ១នាក់');
+      return;
+    }
+    const studentIdsParam = selectedStudentIds.join(',');
+    router.push(`/assessments/create-bulk?student_ids=${studentIdsParam}`);
+  };
+
   const columns = [
+    {
+      title: (
+        <input
+          type="checkbox"
+          checked={selectedStudentIds.length === filteredStudents.length && filteredStudents.length > 0}
+          onChange={(e) => handleSelectAll(e.target.checked)}
+          style={{ cursor: 'pointer' }}
+        />
+      ),
+      key: 'select',
+      width: 50,
+      render: (_: any, record: Student) => (
+        <input
+          type="checkbox"
+          checked={selectedStudentIds.includes(record.id)}
+          onChange={(e) => handleSelectStudent(record.id, e.target.checked)}
+          style={{ cursor: 'pointer' }}
+        />
+      ),
+    },
     {
       title: 'ឈ្មោះសិស្ស',
       dataIndex: 'name',
@@ -277,14 +326,26 @@ function StudentsContent() {
               <Text type="secondary">គ្រប់គ្រង និងតាមដានព័ត៌មានសិស្សរបស់អ្នក</Text>
             </Col>
             <Col>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleAdd}
-                size="large"
-              >
-                បន្ថែមសិស្សថ្មី
-              </Button>
+              <Space size="middle">
+                {selectedStudentIds.length > 0 && (
+                  <Button
+                    type="default"
+                    icon={<FileTextOutlined />}
+                    onClick={handleBulkAssessment}
+                    size="large"
+                  >
+                    វាយតម្លៃសិស្សដែលបានជ្រើសរើស ({selectedStudentIds.length})
+                  </Button>
+                )}
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={handleAdd}
+                  size="large"
+                >
+                  បន្ថែមសិស្សថ្មី
+                </Button>
+              </Space>
             </Col>
           </Row>
         </Card>
