@@ -68,12 +68,27 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
   // Fetch initial data
   useEffect(() => {
     fetchSchools();
+
+    // Auto-fill mentor name and school for create mode
+    if (mode === 'create' && user) {
+      form.setFieldsValue({
+        mentor_name: user.name,
+        pilot_school_id: user.pilot_school_id
+      });
+
+      // Auto-select school and fetch teachers
+      if (user.pilot_school_id) {
+        setSelectedSchool(user.pilot_school_id);
+        fetchTeachers(user.pilot_school_id);
+      }
+    }
+
     if (mode === 'edit' && initialValues) {
       populateFormData();
     } else if (visit && mode !== 'create') {
       populateFormData();
     }
-  }, [visit, mode, initialValues]);
+  }, [visit, mode, initialValues, user]);
 
   const fetchSchools = async () => {
     try {
@@ -298,7 +313,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
                 name="mentor_name"
                 label="ឈ្មោះទីប្រឹក្សាគរុកោសល្យ"
               >
-                <Input value={user?.name} disabled />
+                <Input disabled style={{ backgroundColor: '#f5f5f5' }} />
               </Form.Item>
             </Col>
           </Row>
@@ -312,8 +327,10 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
                 <Select
                   placeholder="ជ្រើសរើសសាលារៀន"
                   onChange={onSchoolChange}
+                  disabled={mode === 'create'}
                   showSearch
                   optionFilterProp="children"
+                  style={mode === 'create' ? { backgroundColor: '#f5f5f5' } : {}}
                 >
                   {schools.map((school: any) => (
                     <Select.Option key={school.id} value={school.id}>
