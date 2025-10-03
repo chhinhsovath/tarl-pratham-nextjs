@@ -112,11 +112,11 @@ function SelectStudentsContent() {
       const response = await fetch(`/api/students?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        setStudents(data.students || []);
+        setStudents(data.data || data.students || []);
       }
     } catch (error) {
       console.error('Error fetching students:', error);
-      message.error('Failed to load students');
+      message.error('មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យសិស្ស');
     } finally {
       setLoading(false);
     }
@@ -144,7 +144,7 @@ function SelectStudentsContent() {
 
   const handleProceed = () => {
     if (selectedStudents.length === 0) {
-      message.warning('Please select at least one student');
+      message.warning('សូមជ្រើសរើសសិស្សយ៉ាងហោចណាស់ម្នាក់');
       return;
     }
 
@@ -154,7 +154,7 @@ function SelectStudentsContent() {
       type: assessmentType,
       subject: subject
     });
-    
+
     router.push(`/assessments/data-entry?${params.toString()}`);
   };
 
@@ -166,7 +166,7 @@ function SelectStudentsContent() {
           checked={selectedStudents.length === students.length && students.length > 0}
           onChange={(e) => handleSelectAll(e.target.checked)}
         >
-          Select All
+          ជ្រើសរើសទាំងអស់
         </Checkbox>
       ),
       dataIndex: 'id',
@@ -180,14 +180,14 @@ function SelectStudentsContent() {
       )
     },
     {
-      title: 'Photo',
+      title: 'រូបថត',
       dataIndex: 'photo',
       key: 'photo',
       width: 80,
       render: (photo: string, record: any) => (
-        <div style={{ 
-          width: '40px', 
-          height: '40px', 
+        <div style={{
+          width: '40px',
+          height: '40px',
           borderRadius: '50%',
           backgroundColor: '#f5f5f5',
           display: 'flex',
@@ -196,8 +196,8 @@ function SelectStudentsContent() {
           overflow: 'hidden'
         }}>
           {photo ? (
-            <img 
-              src={photo} 
+            <img
+              src={photo}
               alt={record.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
@@ -208,7 +208,7 @@ function SelectStudentsContent() {
       )
     },
     {
-      title: 'Name',
+      title: 'ឈ្មោះ',
       dataIndex: 'name',
       key: 'name',
       render: (name: string, record: any) => (
@@ -216,28 +216,32 @@ function SelectStudentsContent() {
           <strong>{name}</strong>
           {record.is_temporary && (
             <Tag color="orange" size="small" style={{ marginLeft: 8 }}>
-              Temporary
+              បណ្តោះអាសន្ន
             </Tag>
           )}
         </div>
       )
     },
     {
-      title: 'Age',
+      title: 'អាយុ',
       dataIndex: 'age',
       key: 'age',
       width: 80,
       render: (age: number) => age || '-'
     },
     {
-      title: 'Gender',
+      title: 'ភេទ',
       dataIndex: 'gender',
       key: 'gender',
       width: 100,
-      render: (gender: string) => gender || '-'
+      render: (gender: string) => {
+        if (gender === 'male') return 'ប្រុស';
+        if (gender === 'female') return 'ស្រី';
+        return gender || '-';
+      }
     },
     {
-      title: 'Class/School',
+      title: 'ថ្នាក់/សាលា',
       key: 'assignment',
       render: (record: any) => (
         <div>
@@ -249,33 +253,33 @@ function SelectStudentsContent() {
           ) : record.pilot_school ? (
             <div>
               <div>{record.pilot_school.school_name}</div>
-              <Text type="secondary">Pilot School</Text>
+              <Text type="secondary">សាលាសាកល្បង</Text>
             </div>
           ) : (
-            <Text type="secondary">Not assigned</Text>
+            <Text type="secondary">មិនទាន់បានកំណត់</Text>
           )}
         </div>
       )
     },
     {
-      title: 'Previous Assessments',
+      title: 'ការវាយតម្លៃពីមុន',
       key: 'assessments',
       render: (record: any) => {
         const assessments = record.assessments || [];
         const hasBaseline = assessments.some((a: any) => a.assessment_type === 'baseline' && a.subject === subject);
         const hasMidline = assessments.some((a: any) => a.assessment_type === 'midline' && a.subject === subject);
         const hasEndline = assessments.some((a: any) => a.assessment_type === 'endline' && a.subject === subject);
-        
+
         return (
           <Space size="small">
             <Tag color={hasBaseline ? 'green' : 'default'}>
-              មូលដ្ឋាន {hasBaseline ? '✓' : '✗'}
+              ដើមគ្រា {hasBaseline ? '✓' : '✗'}
             </Tag>
             <Tag color={hasMidline ? 'green' : 'default'}>
-              កុលសនភាព {hasMidline ? '✓' : '✗'}
+              កណ្តាលគ្រា {hasMidline ? '✓' : '✗'}
             </Tag>
             <Tag color={hasEndline ? 'green' : 'default'}>
-              បញ្ចប់ {hasEndline ? '✓' : '✗'}
+              ចុងគ្រា {hasEndline ? '✓' : '✗'}
             </Tag>
           </Space>
         );
@@ -287,31 +291,31 @@ function SelectStudentsContent() {
     <div className="max-w-full overflow-x-hidden">
       <Card>
         <div style={{ marginBottom: '24px' }}>
-          <Title level={2}>Select Students for Assessment</Title>
+          <Title level={2}>ជ្រើសរើសសិស្សសម្រាប់ការវាយតម្លៃ</Title>
           <Space size="large">
             <div>
-              <Text strong>Assessment Type: </Text>
+              <Text strong>ប្រភេទការវាយតម្លៃ: </Text>
               <Tag color={assessmentType === 'baseline' ? 'blue' : assessmentType === 'midline' ? 'orange' : 'green'}>
-                {assessmentType.toUpperCase()}
+                {assessmentType === 'baseline' ? 'តេស្តដើមគ្រា' : assessmentType === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' : 'តេស្តចុងក្រោយគ្រា'}
               </Tag>
             </div>
             <div>
-              <Text strong>Subject: </Text>
-              <Tag color={subject === 'khmer' ? 'purple' : 'cyan'}>
-                {subject.toUpperCase()}
+              <Text strong>មុខវិជ្ជា: </Text>
+              <Tag color={subject === 'language' ? 'purple' : 'cyan'}>
+                {subject === 'language' ? 'ខ្មែរ' : 'គណិតវិទ្យា'}
               </Tag>
             </div>
             <div>
-              <Text strong>Selected: </Text>
-              <Tag color="green">{selectedStudents.length} students</Tag>
+              <Text strong>បានជ្រើសរើស: </Text>
+              <Tag color="green">{selectedStudents.length} សិស្ស</Tag>
             </div>
           </Space>
         </div>
 
         {user?.role === 'mentor' && (
           <Alert
-            message="Mentor Assessment"
-            description="Assessments created by mentors are marked as temporary and will be automatically deleted after 48 hours unless permanently saved by an admin or teacher."
+            message="ការវាយតម្លៃដោយអ្នកណែនាំ"
+            description="ការវាយតម្លៃដែលបង្កើតដោយអ្នកណែនាំត្រូវបានសម្គាល់ថាជាបណ្តោះអាសន្ន ហើយនឹងត្រូវលុបដោយស្វ័យប្រវត្តិបន្ទាប់ពី 48 ម៉ោង លុះត្រាតែត្រូវបានរក្សាទុកជាអចិន្ត្រៃយ៍ដោយអ្នកគ្រប់គ្រង ឬគ្រូបង្រៀន។"
             type="warning"
             showIcon
             style={{ marginBottom: '24px' }}
@@ -323,7 +327,7 @@ function SelectStudentsContent() {
           <Row gutter={16}>
             <Col span={6}>
               <Input
-                placeholder="Search students..."
+                placeholder="ស្វែងរកសិស្ស..."
                 prefix={<SearchOutlined />}
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
@@ -375,8 +379,8 @@ function SelectStudentsContent() {
                 allowClear
                 style={{ width: '100%' }}
               >
-                <Option value="Male">Male</Option>
-                <Option value="Female">Female</Option>
+                <Option value="male">ប្រុស</Option>
+                <Option value="female">ស្រី</Option>
               </Select>
             </Col>
           </Row>
@@ -392,15 +396,15 @@ function SelectStudentsContent() {
             total: students.length,
             pageSize: 20,
             showSizeChanger: true,
-            showTotal: (total, range) => 
-              `${range[0]}-${range[1]} of ${total} students`
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} ពី ${total} សិស្ស`
           }}
         />
 
         {/* Action Buttons */}
-        <div style={{ 
-          position: 'sticky', 
-          bottom: 0, 
+        <div style={{
+          position: 'sticky',
+          bottom: 0,
           backgroundColor: 'white',
           padding: '16px 0',
           borderTop: '1px solid #f0f0f0',
@@ -409,21 +413,21 @@ function SelectStudentsContent() {
           <Row justify="space-between" align="middle">
             <Col>
               <Text strong>
-                {selectedStudents.length} student{selectedStudents.length !== 1 ? 's' : ''} selected
+                {selectedStudents.length} សិស្សបានជ្រើសរើស
               </Text>
             </Col>
             <Col>
               <Space>
                 <Button onClick={() => router.back()}>
-                  Cancel
+                  បោះបង់
                 </Button>
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   onClick={handleProceed}
                   disabled={selectedStudents.length === 0}
                   icon={<ArrowRightOutlined />}
                 >
-                  Proceed to Assessment Entry
+                  បន្តទៅការវាយតម្លៃ
                 </Button>
               </Space>
             </Col>

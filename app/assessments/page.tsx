@@ -217,13 +217,13 @@ function AssessmentsContent() {
     {
       key: 'single',
       icon: <FileTextOutlined />,
-      label: 'វាយតម្លៃទារ្ទិច',
+      label: 'វាយតម្លៃសិស្សម្នាក់',
       onClick: () => router.push('/assessments/create')
     },
     {
       key: 'bulk',
       icon: <TeamOutlined />,
-      label: 'វាយតម្លៃរួមកាន់',
+      label: 'វាយតម្លៃសិស្សច្រើននាក់',
       onClick: () => router.push('/assessments/select-students')
     }
   ];
@@ -417,7 +417,7 @@ function AssessmentsContent() {
                 {hasPermission(user, 'assessments.create') && (
                   <Dropdown menu={{ items: createAssessmentMenuItems }} trigger={['click']}>
                     <Button type="primary" icon={<PlusOutlined />}>
-                      Create Assessment <DownOutlined />
+                      បង្កើតការវាយតម្លៃ <DownOutlined />
                     </Button>
                   </Dropdown>
                 )}
