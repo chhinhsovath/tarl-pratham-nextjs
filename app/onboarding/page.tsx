@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Card, Button, Progress, Typography, Space, Tag, Divider, Row, Col, Alert } from 'antd';
+import { Card, Button, Progress, Typography, Space, Tag, Divider, Row, Col, Alert, Modal, message as antdMessage } from 'antd';
 import { 
   CheckCircleOutlined, 
   ClockCircleOutlined, 
@@ -332,7 +332,19 @@ export default function OnboardingPage() {
       const response = await fetch('/api/profile');
       if (response.ok) {
         const data = await response.json();
-        const completed = data.user?.onboarding_completed;
+        const user = data.user;
+        const completed = user?.onboarding_completed;
+
+        // Auto-complete step 1 if profile is set up
+        if (user && user.pilot_school_id) {
+          // User has completed profile setup
+          if (!completed || (Array.isArray(completed) && !completed.includes('complete_profile'))) {
+            // Auto-mark step 1 as complete
+            await markStepComplete('complete_profile');
+            return;
+          }
+        }
+
         if (completed) {
           const parsed = typeof completed === 'string' ? JSON.parse(completed) : completed;
           setCompletedSteps(Array.isArray(parsed) ? parsed : []);
@@ -389,6 +401,9 @@ export default function OnboardingPage() {
 
   const markStepComplete = async (stepId: string) => {
     try {
+      // Show loading state
+      const loadingMessage = message.loading('កំពុងរក្សាទុក...', 0);
+
       const response = await fetch('/api/onboarding/complete-step', {
         method: 'POST',
         headers: {
@@ -397,14 +412,45 @@ export default function OnboardingPage() {
         body: JSON.stringify({ stepId }),
       });
 
+      // Close loading
+      loadingMessage();
+
       if (response.ok) {
         const data = await response.json();
         console.log('✅ Step marked complete:', data);
+
         // Refresh completed steps
         await getCompletedSteps();
+
+        // Show success message with celebration
+        message.success({
+          content: '🎉 ល្អណាស់! អ្នកបានបញ្ចប់ជំហាននេះដោយជោគជ័យ!',
+          duration: 3,
+          style: {
+            marginTop: '20vh',
+            fontSize: 16
+          }
+        });
+
+        // Check if all steps completed
+        const newProgress = calculateProgress();
+        if (newProgress.percentage === 100) {
+          setTimeout(() => {
+            Modal.success({
+              title: '🎊 អបអរសាទរ!',
+              content: 'អ្នកបានបញ្ចប់ការណែនាំទាំងអស់! ឥឡូវនេះអ្នករួចរាល់ហើយ។',
+              okText: 'ទៅផ្ទាំងគ្រប់គ្រង',
+              centered: true,
+              onOk: () => router.push('/dashboard')
+            });
+          }, 500);
+        }
+      } else {
+        message.error('មិនអាចរក្សាទុក សូមព្យាយាមម្តងទៀត');
       }
     } catch (error) {
       console.error('Error marking step complete:', error);
+      message.error('មានបញ្ហា សូមព្យាយាមម្តងទៀត');
     }
   };
 
@@ -565,35 +611,46 @@ export default function OnboardingPage() {
                   <div>
                     {isCompleted ? (
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Tag color="success" icon={<CheckCircleOutlined />}>
-                          បានបញ្ចប់
+                        <Tag color="success" icon={<CheckCircleOutlined />} style={{ fontSize: 14, padding: '4px 12px' }}>
+                          ✅ បានបញ្ចប់
                         </Tag>
                         <Button
                           type="link"
                           size="small"
                           onClick={() => handleStepClick(step)}
                         >
-                          មើលម្តងទៀត →
+                          មើលឡើងវិញ →
                         </Button>
                       </div>
                     ) : (
-                      <Space direction="vertical" style={{ width: '100%' }}>
+                      <Space direction="vertical" style={{ width: '100%' }} size="small">
                         <Button
                           type="primary"
                           icon={<PlayCircleOutlined />}
                           block
+                          size="large"
                           onClick={() => handleStepClick(step)}
+                          style={{ height: 44 }}
                         >
                           ចាប់ផ្តើម
                         </Button>
                         <Button
-                          type="default"
+                          type="dashed"
                           icon={<CheckCircleOutlined />}
                           block
-                          size="small"
-                          onClick={() => markStepComplete(step.id)}
+                          onClick={() => {
+                            Modal.confirm({
+                              title: 'បញ្ជាក់ការបញ្ចប់',
+                              content: `តើអ្នកបានបញ្ចប់ "${step.title}" ហើយមែនទេ?`,
+                              okText: 'បាទ/ចាស បានបញ្ចប់',
+                              cancelText: 'បោះបង់',
+                              onOk: () => markStepComplete(step.id),
+                              centered: true
+                            });
+                          }}
+                          style={{ borderStyle: 'dashed', color: '#52c41a' }}
                         >
-                          សម្គាល់ថាបានបញ្ចប់
+                          ✓ សម្គាល់ថាបានបញ្ចប់
                         </Button>
                       </Space>
                     )}
