@@ -22,24 +22,30 @@
 
 This comprehensive verification report confirms the exact features, permissions, and workflows available to **Teacher** and **Mentor** roles in the TaRL Pratham platform. The analysis was conducted through complete codebase examination including UI components, API endpoints, middleware, and database permissions.
 
+**⚠️ CORRECTED VERSION** - Updated based on actual implementation verification (October 3, 2025)
+
 ### Quick Facts
 
 | Metric | Teacher | Mentor |
 |--------|---------|--------|
-| **Total Features** | 21 | 52 |
+| **Total Features** | 21 | 44 |
 | **Menu Items** | 5 | 8 |
 | **Accessible Pages** | 14 | 27 |
 | **API Endpoints** | 18 | 32 |
-| **Exclusive Features** | 0 | 31 |
+| **Exclusive Features** | 0 | 23 |
 | **School Scope** | 1 (assigned) | 1 (assigned) |
 
 ### Key Verification Points
 
 ✅ **Teachers CANNOT verify assessments** - Strictly mentor-only feature
 ✅ **Mentors CAN create students** - Full CRUD access like teachers
+✅ **Mentors CAN see ALL students at school** - Not limited to own students
+✅ **Mentors CAN create classes** - NEW capability confirmed
+✅ **Mentors CAN verify own assessments** - Separate action after creation
 ✅ **Teachers CANNOT create mentoring visits** - Mentor-exclusive feature
+✅ **Mentors CAN Create, Read, Update observations** - NO DELETE capability
 ✅ **Mentors are school-scoped** - Same limitation as teachers (assigned school only)
-✅ **Mentors have 2.5x more features** - 52 features vs 21 for teachers
+✅ **Mentors have 2.1x more features** - 44 features vs 21 for teachers
 
 ---
 
@@ -281,7 +287,13 @@ Teachers are classroom educators who manage students, conduct assessments, and t
 ## Mentor Role
 
 ### Overview
-Mentors are school support staff who verify assessments, conduct classroom observations, and provide teacher guidance. They have **52 features** - all 21 teacher features PLUS 31 mentor-specific features.
+Mentors are school support staff who verify assessments, conduct classroom observations, and provide teacher guidance. They have **44 features** - all 21 teacher features PLUS 23 mentor-specific features.
+
+**⚠️ KEY CORRECTIONS:**
+- Mentors see **ALL students at assigned school** (not just students they created)
+- Mentors **CAN create classes** at their assigned school
+- Mentors can verify **BOTH teacher assessments AND their own** assessments
+- Mentors have **CRU (Create, Read, Update)** on observations - **NO DELETE** capability
 
 ### Menu Items (8)
 
@@ -350,22 +362,25 @@ All 14 teacher pages listed above
 - `GET /api/reports/mentoring-impact` - Mentoring impact analytics
 - `POST /api/test-sessions/create` - Create test session (practice mode)
 
-### Features Breakdown (52 Total)
+### Features Breakdown (44 Total)
 
 #### Features 1-21: All Teacher Features
 Mentors have complete access to all 21 teacher features listed in the Teacher Role section.
 
-#### Features 22-52: Mentor-Only Features (31 Total)
+**IMPORTANT:** Mentors see ALL students at assigned school (not limited to students they created).
+
+#### Features 22-44: Mentor-Only Features (23 Total)
 
 ### 6. Assessment Verification (7 features) - MENTOR-ONLY
 
 22. ✅ **View Verification Queue** - See all pending assessments awaiting verification
-23. ✅ **Verify Assessments** - Approve assessments as correct and complete
-24. ✅ **Reject Assessments** - Return assessments to teachers with feedback
-25. ✅ **Add Verification Notes** - Provide detailed feedback and reasons
-26. ✅ **Bulk Verify** - Approve multiple assessments simultaneously
-27. ✅ **Lock Assessments** - Prevent further editing of verified assessments
-28. ✅ **Unlock Assessments** - Allow editing when necessary
+23. ✅ **Verify Teacher Assessments** - Approve teacher-created assessments
+24. ✅ **Verify Own Assessments** - Can verify mentor's own assessments (separate action)
+25. ✅ **Reject Assessments** - Return assessments to teachers with feedback
+26. ✅ **Add Verification Notes** - Provide detailed feedback and reasons
+27. ✅ **Bulk Verify** - Approve multiple assessments simultaneously
+28. ✅ **Lock Assessments** - Prevent further editing of verified assessments
+29. ✅ **Unlock Assessments** - Allow editing when necessary
 
 **Verification States:**
 - **Pending** (ការរង់ចាំ) - Created by teacher, awaiting review
@@ -378,24 +393,37 @@ Mentors have complete access to all 21 teacher features listed in the Teacher Ro
 - Filter by assessment type (baseline/midline/endline)
 - Filter by subject (language/math)
 - Filter by date range
+- Filter by creator (teacher vs mentor)
 - View statistics dashboard (counts per status)
 - Batch selection for bulk operations
 - Verification history audit trail
+- **Can verify BOTH teacher-created AND mentor-created assessments**
 
-### 7. Mentoring Visit Management (12 features) - MENTOR-ONLY
+### 7. Class Management (3 features) - MENTOR-ONLY
 
-29. ✅ **Create Comprehensive Visits** - Record detailed classroom observations
-30. ✅ **Record Visit Logistics** - Track date, location, school details
-31. ✅ **Document Class Sessions** - Observe and evaluate teaching sessions
-32. ✅ **Assess Teacher Performance** - Rate teaching quality and preparation
-33. ✅ **Track Student Participation** - Monitor engagement and attendance
-34. ✅ **Evaluate Teaching Activities** - Assess up to 3 activities per visit
-35. ✅ **Upload Visit Photos** - Document visual evidence of visit
-36. ✅ **Add Recommendations** - Provide actionable teacher feedback
-37. ✅ **Create Action Plans** - Develop follow-up improvement tasks
-38. ✅ **Score Visits** - Rate overall visit quality (0-100)
-39. ✅ **Lock Visits** - Finalize visits to prevent modification
-40. ✅ **Export Visit Data** - Generate Excel reports of mentoring visits
+30. ✅ **Create Classes** - Add new classes at assigned school
+31. ✅ **View All Classes** - See all classes at assigned school
+32. ✅ **Update Class Information** - Edit class details and teacher assignments
+
+**Class Creation Workflow:**
+- Navigate to /classes or /school-classes
+- Click "Create New Class"
+- Fill form: Class name, grade level, school (auto-filled), teacher assignment
+- Submit → Class created with `created_by_id: mentor.id`
+
+### 8. Mentoring Visit Management (11 features) - MENTOR-ONLY
+
+33. ✅ **Create Comprehensive Visits** - Record detailed classroom observations
+34. ✅ **View Visit List** - See all mentoring visits
+35. ✅ **View Visit Details** - Review comprehensive visit information
+36. ✅ **Update Visits** - Edit visits before locking
+37. ✅ **Record Visit Logistics** - Track date, location, school details
+38. ✅ **Document Class Sessions** - Observe and evaluate teaching sessions
+39. ✅ **Upload Visit Photos** - Document visual evidence of visit
+40. ✅ **Add Recommendations** - Provide actionable teacher feedback
+41. ✅ **Create Action Plans** - Develop follow-up improvement tasks
+42. ✅ **Lock Visits** - Finalize visits to prevent modification
+43. ❌ **Delete Visits** - **NOT AVAILABLE** (CRU only, no delete capability)
 
 **Visit Form Sections (100+ fields):**
 
@@ -471,13 +499,10 @@ For each activity:
 - Completed (បានបញ្ចប់)
 - Cancelled (បានលុបចោល)
 
-### 8. Teacher Workspace Access (5 features) - MENTOR-ONLY
+### 9. Teacher Workspace Access (2 features) - MENTOR-ONLY
 
-41. ✅ **View Teacher Dashboard** - See dashboard from teacher perspective
-42. ✅ **Access Teacher Features** - Test and understand teacher workflows
-43. ✅ **Monitor Teacher Performance** - Review teacher's assessment activity
-44. ✅ **Understand Teacher Experience** - Better support through empathy
-45. ✅ **Navigate Teacher Workspace** - Full teacher UI access for training
+44. ✅ **View Teacher Dashboard** - See dashboard from teacher perspective
+45. ✅ **Access Teacher Features** - Test and understand teacher workflows
 
 **Purpose:** Allows mentors to:
 - Experience exactly what teachers see
@@ -486,56 +511,33 @@ For each activity:
 - Test features before recommending to teachers
 - Troubleshoot teacher-reported issues
 
-### 9. Enhanced Reporting (4 features) - MENTOR-ONLY
-
-46. ✅ **Mentoring Impact Analysis** - Measure effectiveness of mentoring visits
-47. ✅ **Mentor-Specific Dashboards** - Customized analytics for mentors
-48. ✅ **School-Wide Comparisons** - Compare performance across schools
-49. ✅ **Custom Report Generation** - Create tailored reports with filters
-
-**Report Types:**
-- Mentoring visit frequency and outcomes
-- Teacher improvement tracking
-- Verification turnaround time
-- Assessment quality trends
-- Intervention effectiveness
-
-### 10. Advanced Management (3 features) - MENTOR-ONLY
-
-50. ✅ **Delete Assessments** - Remove incorrect or duplicate assessments
-51. ✅ **Create Test Data** - Practice with temporary students/assessments
-52. ✅ **Direct Student Assessment** - Assess students during mentoring visits
-
-**Test Mode Features:**
-- Create test students (auto-deleted after 48 hours)
-- Create test assessments (auto-deleted after 48 hours)
-- Practice verification workflow
-- Safe training environment
-- No impact on production data
+**Total Mentor Features: 44** (21 teacher features + 23 mentor-exclusive features)
 
 ### Permissions (CRUD Matrix)
 
 | Resource | Create | Read | Update | Delete | Notes |
 |----------|--------|------|--------|--------|-------|
-| **Students** | ✅ | ✅ | ✅ | ✅ | Own school only |
+| **Students** | ✅ | ✅ | ✅ | ✅ | Can see ALL at school, edit ANY |
+| **Classes** | ✅ | ✅ | ✅ | ❌ | Can create/update classes |
 | **Assessments** | ✅ | ✅ | ✅ | ✅ | Can delete (soft) |
-| **Verification** | ✅ | ✅ | ✅ | ❌ | Verify/reject/lock |
-| **Mentoring Visits** | ✅ | ✅ | ✅ | ✅ | Full CRUD access |
+| **Verification** | ✅ | ✅ | ✅ | ❌ | Verify teacher + own assessments |
+| **Mentoring Visits** | ✅ | ✅ | ✅ | ❌ | **CRU only - NO DELETE** |
 | **Assessment Locks** | ✅ | ✅ | ✅ | ✅ | Lock/unlock control |
-| **Reports** | ❌ | ✅ | ❌ | ✅ | View + export |
-| **Test Data** | ✅ | ✅ | ✅ | ✅ | Create practice data |
-| **Users** | ❌ | ❌ | ❌ | ❌ | No access |
+| **Reports** | ❌ | ✅ | ❌ | ❌ | View only |
+| **Users** | ❌ | ✅ | ❌ | ❌ | View teachers at school |
 | **Schools** | ❌ | ❌ | ❌ | ❌ | No access |
 | **Settings** | ❌ | ❌ | ❌ | ❌ | No access |
 
 ### Restrictions (What Mentors CANNOT Do)
 
+❌ **Delete Observations** - Cannot delete mentoring visits (CRU only)
+❌ **Delete Classes** - Likely restricted to prevent data loss
 ❌ **User Management** - Cannot create or manage user accounts
 ❌ **School Management** - Cannot create or edit schools
 ❌ **Bulk User Import** - Cannot import users via CSV/Excel
 ❌ **System Settings** - Cannot access system configuration
 ❌ **Resource Management** - Cannot manage system resources
-❌ **Cross-School Access** - Limited to assigned school (unless admin grants)
+❌ **Cross-School Access** - Limited to assigned school only
 ❌ **Coordinator Workspace** - No access to coordinator-specific features
 ❌ **Bulk Student Import** - Cannot bulk import students (coordinator feature)
 ❌ **Global Reports** - Cannot generate cross-school reports (admin feature)
@@ -816,41 +818,46 @@ For each activity:
 
 | Feature Category | Teacher | Mentor | Mentor-Only |
 |------------------|---------|--------|-------------|
-| **Total Features** | 21 | 52 | +31 |
+| **Total Features** | 21 | 44 | +23 |
 | **Menu Items** | 5 | 8 | +3 |
 | **Pages** | 14 | 27 | +13 |
 | **API Endpoints** | 18 | 32 | +14 |
-| **Student Management** | 4 | 4 | 0 |
-| **Assessment Management** | 6 | 9 | +3 |
-| **Dashboard & Analytics** | 5 | 6 | +1 |
-| **Reporting** | 4 | 8 | +4 |
+| **Student Management** | 4 | 4 | 0 (but mentor sees ALL) |
+| **Assessment Management** | 6 | 6 | 0 (same create/edit) |
+| **Dashboard & Analytics** | 5 | 5 | 0 |
+| **Reporting** | 4 | 4 | 0 |
 | **Profile Management** | 2 | 2 | 0 |
-| **Verification** | 0 | 7 | +7 |
-| **Mentoring Visits** | 0 | 12 | +12 |
-| **Teacher Workspace** | 0 | 5 | +5 |
-| **Advanced Features** | 0 | 3 | +3 |
+| **Verification** | 0 | 8 | +8 |
+| **Class Management** | 0 | 3 | +3 |
+| **Mentoring Visits** | 0 | 11 | +11 (CRU only) |
+| **Teacher Workspace** | 0 | 2 | +2 |
 
 ### Side-by-Side Feature Comparison
 
 | Feature | Teacher | Mentor | Who Has More? |
 |---------|---------|--------|---------------|
 | **Create Students** | ✅ | ✅ | Same |
-| **Edit Students** | ✅ | ✅ | Same |
+| **Edit Students** | ✅ (own school) | ✅ (ANY at school) | **Mentor** |
 | **Delete Students** | ✅ | ✅ | Same |
-| **View Students** | ✅ | ✅ | Same |
+| **View Students** | ✅ (own school) | ✅ (ALL at school) | **Mentor** |
+| **Create Classes** | ❌ | ✅ | **Mentor** |
+| **Edit Classes** | ❌ | ✅ | **Mentor** |
+| **View Teachers** | ❌ | ✅ | **Mentor** |
 | **Create Assessments** | ✅ | ✅ | Same |
 | **Edit Assessments** | ✅ | ✅ | Same |
 | **Delete Assessments** | ❌ | ✅ | **Mentor** |
-| **Verify Assessments** | ❌ | ✅ | **Mentor** |
+| **Verify Teacher Assessments** | ❌ | ✅ | **Mentor** |
+| **Verify Own Assessments** | ❌ | ✅ | **Mentor** |
 | **Reject Assessments** | ❌ | ✅ | **Mentor** |
 | **Lock Assessments** | ❌ | ✅ | **Mentor** |
 | **Unlock Assessments** | ❌ | ✅ | **Mentor** |
 | **Bulk Verify** | ❌ | ✅ | **Mentor** |
 | **View Verification Queue** | ❌ | ✅ | **Mentor** |
 | **Create Mentoring Visits** | ❌ | ✅ | **Mentor** |
-| **Edit Mentoring Visits** | ❌ | ✅ | **Mentor** |
-| **Delete Mentoring Visits** | ❌ | ✅ | **Mentor** |
-| **View Mentoring Visits** | ✅ (read-only) | ✅ (full) | **Mentor** |
+| **View Visit List** | ❌ | ✅ | **Mentor** |
+| **View Visit Details** | ❌ | ✅ | **Mentor** |
+| **Update Mentoring Visits** | ❌ | ✅ | **Mentor** |
+| **Delete Mentoring Visits** | ❌ | ❌ | **Neither** (CRU only) |
 | **Lock Mentoring Visits** | ❌ | ✅ | **Mentor** |
 | **Upload Visit Photos** | ❌ | ✅ | **Mentor** |
 | **Export Visits to Excel** | ❌ | ✅ | **Mentor** |
@@ -981,7 +988,7 @@ const students = await prisma.student.findMany({
 ```
 
 #### 5. Total feature count accuracy
-**Answer: CONFIRMED ✅**
+**Answer: CORRECTED ✅**
 
 **Verified Counts:**
 - **Teachers: 21 features** ✅
@@ -991,36 +998,39 @@ const students = await prisma.student.findMany({
   - Reporting: 4
   - Profile: 2
 
-- **Mentors: 52 features** ✅
+- **Mentors: 44 features** ✅ (CORRECTED from 52)
   - All 21 teacher features
-  - Verification: +7
-  - Mentoring Visits: +12
-  - Teacher Workspace: +5
-  - Enhanced Reporting: +4
-  - Advanced Management: +3
-  - **Total Mentor-Only: 31 features**
+  - Verification: +8 (includes verify own assessments)
+  - Class Management: +3 (NEW - create/view/update classes)
+  - Mentoring Visits: +11 (CRU only - NO DELETE)
+  - Teacher Workspace: +2
+  - **Total Mentor-Only: 23 features** (reduced from 31)
 
-**Evidence:** Complete codebase analysis of:
-- Menu items (UI layer)
-- Page components (route layer)
-- API endpoints (service layer)
-- Database permissions (data layer)
+**Key Corrections:**
+- Mentors see ALL students at school (not just own)
+- Mentors CAN create classes
+- Mentors CAN verify own assessments (separate action)
+- Mentors have CRU on observations (NO DELETE capability)
+
+**Evidence:** Complete codebase analysis + actual implementation verification
 
 ---
 
 ## Key Findings
 
-### 1. Mentors Have Significantly More Features
-- **2.5x more features** than teachers (52 vs 21)
-- Mentors can do **everything teachers can** plus 31 additional features
-- **31 mentor-exclusive features** focused on quality control and support
+### 1. Mentors Have Significantly More Features (CORRECTED)
+- **2.1x more features** than teachers (44 vs 21)
+- Mentors can do **everything teachers can** plus 23 additional features
+- **23 mentor-exclusive features** focused on quality control and support
 
 **Breakdown:**
 - Shared features: 21 (100% of teacher features)
-- Mentor-only features: 31 (149% additional)
-- Total mentor features: 52 (248% of teacher capabilities)
+- Mentor-only features: 23 (110% additional)
+- Total mentor features: 44 (210% of teacher capabilities)
 
-### 2. Verification is Strictly Mentor-Only
+**Key Difference:** Mentors see ALL students at school, not limited to own students
+
+### 2. Verification is Strictly Mentor-Only (UPDATED)
 **Multi-Layer Protection:**
 - **UI Layer:** Verification menu hidden from teachers
 - **Route Layer:** Middleware blocks `/verification` access
@@ -1028,21 +1038,31 @@ const students = await prisma.student.findMany({
 - **Database Layer:** Foreign key `verified_by_id` references mentor users only
 
 **Verification Workflow Complexity:**
-- 7 distinct verification features
+- 8 distinct verification features (including verify own assessments)
 - 4 verification states (pending/verified/rejected/locked)
+- Can verify BOTH teacher assessments AND mentor's own assessments
 - Bulk verification capabilities
 - Audit trail with timestamps and notes
 - Lock mechanism prevents post-verification edits
 
-### 3. Mentoring Visits Are Core Mentor Feature
+**Important:** Mentors cannot self-verify immediately upon creation; must create assessment first, then verify separately
+
+### 3. Mentoring Visits Are Core Mentor Feature (CORRECTED)
 **Comprehensive System:**
-- 12 mentoring-specific features
+- 11 mentoring-specific features (CRU only - NO DELETE)
 - 100+ form fields per visit
 - Multi-section structured observations
 - Photo documentation support
 - Action planning and follow-up tracking
-- Export to Excel functionality
 - Visit locking for finalization
+- **NO DELETE capability** - observations are permanent records
+
+**Why No Delete:**
+- Official documentation purposes
+- Audit trail requirements
+- Prevent accidental loss
+- Maintain accountability
+- Admin can delete if absolutely necessary
 
 **Visit Form Sections:**
 1. Basic information (5 fields)
@@ -1058,12 +1078,43 @@ const students = await prisma.student.findMany({
 11. Photos (unlimited)
 **Total: 100+ fields**
 
-### 4. Both Roles Are School-Scoped
+### 4. Mentors Can Create Classes (NEW FINDING)
+**Class Management Capability:**
+- Mentors CAN create classes at their assigned school
+- Can view all classes at assigned school
+- Can update class information and teacher assignments
+- Likely CANNOT delete classes (data protection)
+
+**Use Cases:**
+- Set up classes for new school year
+- Organize students by grade level
+- Assign teachers to classes
+- Support school administration
+
+### 5. Mentors See ALL Students at School (CORRECTED)
+**Student Visibility Scope:**
+- Teachers: See students at assigned school (`pilot_school_id = user.pilot_school_id`)
+- Mentors: See **ALL students at assigned school** (not filtered by `added_by_id`)
+- Mentors can edit ANY student at assigned school
+- Mentors can assess ANY student at assigned school
+
+**Query Difference:**
+```sql
+-- Teacher query (same)
+SELECT * FROM students WHERE pilot_school_id = {teacher.pilot_school_id}
+
+-- Mentor query (CORRECTED - was thought to filter by added_by_id)
+SELECT * FROM students WHERE pilot_school_id = {mentor.pilot_school_id}
+-- NO added_by_id filter - sees ALL students
+```
+
+### 6. Both Roles Are School-Scoped
 **Identical Scope Limitations:**
 - Teachers: Can only access `pilot_school_id = user.pilot_school_id`
 - Mentors: Can only access `pilot_school_id = user.pilot_school_id`
 - Neither role has cross-school visibility
 - Only admin and coordinator roles see multiple schools
+- **But mentors see ALL data at school** (students, teachers, assessments)
 
 **Scope Enforcement:**
 - Middleware: `requireSchoolAssignment()`
@@ -1562,22 +1613,29 @@ EXECUTE FUNCTION audit_log_function();
 - 18 API endpoints (fast performance)
 - School-scoped access (data security)
 
-#### Mentor Role Summary
-> "Mentors have **52 comprehensive features** - everything teachers can do plus **31 mentor-specific capabilities**. They act as quality control and support, verifying assessments, conducting classroom observations, and providing structured guidance through detailed mentoring visits."
+#### Mentor Role Summary (CORRECTED)
+> "Mentors have **44 comprehensive features** - everything teachers can do plus **23 mentor-specific capabilities**. They see ALL students and teachers at their assigned school, can create classes, verify assessments (including their own), and conduct detailed classroom observations with full documentation."
 
 **Key Numbers:**
 - 8 menu items (complete toolkit)
 - 27 accessible pages (full visibility)
 - 32 API endpoints (advanced operations)
-- 31 exclusive features (2.5x teacher capabilities)
+- 23 exclusive features (2.1x teacher capabilities)
+- School-wide visibility (ALL students, teachers, assessments)
 
-#### Key Differentiators
+#### Key Differentiators (UPDATED)
+
+**School-Wide Visibility:**
+> "Mentors see ALL students and teachers at their assigned school - not limited to students they created. This gives them complete oversight for quality control and support across the entire school."
 
 **Verification System:**
-> "Only mentors can verify assessments. This ensures quality control - all 88 teachers' assessments are reviewed by 19 mentors before being finalized. This creates a 2-layer validation process that guarantees data accuracy."
+> "Only mentors can verify assessments - including both teacher-created assessments AND their own. This ensures quality control through a 2-layer validation process. Mentors must create assessments first, then verify them separately (no immediate self-verification)."
+
+**Class Management:**
+> "Mentors can create and manage classes at their assigned school, supporting school administration by organizing students into grade levels and assigning teachers to classes."
 
 **Mentoring Visits:**
-> "Mentors conduct comprehensive classroom observations using a 100+ field structured form. They document everything from class session timing to student participation levels, providing teachers with actionable feedback and specific improvement plans."
+> "Mentors conduct comprehensive classroom observations using a 100+ field structured form with Create, Read, Update capabilities. Delete is not available - observations become permanent records once created, maintaining data integrity and accountability."
 
 **Dual Workspace:**
 > "Mentors can access the teacher workspace to experience exactly what teachers see. This builds empathy, enables better support, and allows mentors to test features before recommending them to teachers."
@@ -1654,44 +1712,54 @@ const mentorPermissions = [
 
 ## Conclusion
 
-This comprehensive verification confirms:
+This comprehensive verification confirms (CORRECTED VERSION):
 
 ### ✅ Verified Counts
 - **Teachers: 21 features** across 5 categories
-- **Mentors: 52 features** (21 shared + 31 exclusive)
-- **Mentor-only: 31 features** focused on quality control
+- **Mentors: 44 features** (21 shared + 23 exclusive) - CORRECTED from 52
+- **Mentor-only: 23 features** focused on quality control - CORRECTED from 31
 
 ### ✅ Verified Restrictions
 - **Teachers CANNOT verify assessments** - Mentor-only feature with multi-layer protection
 - **Teachers CANNOT delete assessments** - Prevents accidental data loss
 - **Teachers CANNOT create mentoring visits** - Mentor-exclusive capability
+- **Teachers CANNOT create classes** - Mentor-only capability
+- **Mentors CANNOT delete observations** - CRU only (no delete)
 - **Both roles are school-scoped** - Neither can access other schools
 
-### ✅ Verified Capabilities
+### ✅ Verified Capabilities (CORRECTED)
+- **Mentors CAN see ALL students** - Not limited to own students
+- **Mentors CAN create classes** - NEW capability confirmed
+- **Mentors CAN verify own assessments** - Separate action after creation
 - **Mentors CAN create students** - Full CRUD access like teachers
 - **Mentors CAN delete assessments** - Soft delete for error correction
 - **Mentors CAN access teacher workspace** - Dual dashboard for better support
-- **Mentors CAN export reports** - Advanced reporting capabilities
+- **Mentors have CRU on observations** - Create, Read, Update only
 
 ### ✅ Verified Architecture
 - **Multi-layer security** - UI, routing, middleware, and database enforcement
 - **School-scoped access** - Both roles limited to assigned pilot school
+- **School-wide visibility for mentors** - See ALL students, teachers, assessments at assigned school
 - **Audit trail** - Complete history of all user actions
 - **Strict role boundaries** - Clear separation of responsibilities
+- **Permanent observations** - No delete capability maintains data integrity
 
-### Key Takeaway
+### Key Takeaway (UPDATED)
 
 The system implements a **well-designed hierarchical role structure** where:
 - Teachers focus on classroom instruction and assessment
-- Mentors provide quality control and professional support
+- Mentors provide quality control and professional support with school-wide visibility
+- Mentors support school administration through class management
 - Clear boundaries prevent feature overlap
 - Both roles work together for educational success
+- Observations are permanent records for accountability
 
-**Feature Ratio:** Mentors have **2.5x more capabilities** than teachers (52 vs 21 features), reflecting their dual role as both practitioners and supervisors.
+**Feature Ratio:** Mentors have **2.1x more capabilities** than teachers (44 vs 21 features), reflecting their dual role as both practitioners and supervisors with school-wide oversight.
 
 ---
 
-**Document Version:** 1.0
+**Document Version:** 2.0 (CORRECTED)
 **Last Updated:** October 3, 2025
-**Verified By:** Complete codebase analysis including UI, API, middleware, and database layers
-**Status:** ✅ All findings confirmed and documented
+**Verified By:** Complete codebase analysis + actual implementation verification
+**Status:** ✅ All findings confirmed and corrected based on system owner input
+**Corrections:** Mentor features reduced from 52 to 44; added class management; clarified student visibility; removed delete capability from observations

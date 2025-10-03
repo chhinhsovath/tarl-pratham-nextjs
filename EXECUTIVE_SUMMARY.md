@@ -1,7 +1,7 @@
 # TaRL Pratham Platform - Executive Summary
 ## One-Page Overview for Leadership
 
-**Version:** 2.0.0 Production Ready | **Date:** October 2025 | **Status:** ✅ Live & Deployed
+**Version:** 2.0.1 Corrected | **Date:** October 3, 2025 | **Status:** ✅ Live & Deployed
 
 ---
 
@@ -21,7 +21,7 @@ A comprehensive **Teaching at the Right Level** assessment and monitoring platfo
 |----------|---------|
 | **User Interface** | 61 pages, 100% Khmer translated |
 | **Technical Scale** | 82 API endpoints, 29 database tables, 381 TypeScript files |
-| **User Roles** | 5 hierarchical roles with granular permissions |
+| **User Roles** | 5 hierarchical roles (Teacher: 21 features, Mentor: 44 features) |
 | **Reports** | 10 comprehensive report types |
 | **Documentation** | 73,000+ words across 5 user manuals |
 | **Active Users** | 88+ production users, 100+ pilot schools |
@@ -60,12 +60,12 @@ A comprehensive **Teaching at the Right Level** assessment and monitoring platfo
 
 ## 👥 User Roles & Access
 
-| Role | Users | Key Features | Pages Accessible |
-|------|-------|--------------|------------------|
-| **Admin** | System administrators | Full access, all features, test data management | 61 pages |
+| Role | Users | Key Features | Features Count |
+|------|-------|--------------|----------------|
+| **Admin** | System admins | Full access, all features, test data management | All |
 | **Coordinator** | Regional managers | User creation, bulk imports, regional oversight | 8 pages |
-| **Mentor** | School support staff | Assessment verification, mentoring visits, teacher support | 32 pages |
-| **Teacher** | Classroom educators | Student management, assessment wizards, class reports | 24 pages |
+| **Mentor** | School support | ALL students visibility, class creation, verify assessments, CRU observations | 44 features |
+| **Teacher** | Classroom educators | Student management, assessment wizards, class reports | 21 features |
 | **Viewer** | Monitors/evaluators | Read-only access, all reports, export capabilities | 18 pages |
 
 ---
