@@ -111,9 +111,9 @@ function AssessmentsContent() {
         limit: pagination.pageSize.toString(),
       });
 
-      // Add filters
+      // Add filters (skip empty strings to avoid filtering)
       Object.entries(filters).forEach(([key, value]) => {
-        if (value) {
+        if (value !== '' && value !== null && value !== undefined) {
           params.append(key, value);
         }
       });
