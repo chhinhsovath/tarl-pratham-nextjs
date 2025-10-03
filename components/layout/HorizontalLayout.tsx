@@ -275,8 +275,8 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
               <Dropdown
                 menu={{ items: userMenuItems }}
                 placement="bottomRight"
-                overlayStyle={{ zIndex: 1050 }}
-                overlayClassName="min-w-64"
+                overlayStyle={{ zIndex: 1050, minWidth: '320px' }}
+                overlayClassName="user-dropdown-menu"
               >
                 <button className="flex items-center space-x-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md p-2">
                   <Avatar 
