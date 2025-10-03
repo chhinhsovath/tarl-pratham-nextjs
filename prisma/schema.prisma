@@ -22,6 +22,7 @@ model User {
   password                  String
   remember_token            String?
   onboarding_completed      Json?
+  onboarding_activities     Json?
   onboarding_completed_at   DateTime?
   show_onboarding           Boolean            @default(true)
   created_at                DateTime           @default(now())

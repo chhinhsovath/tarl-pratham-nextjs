@@ -410,7 +410,7 @@ export default function OnboardingPage() {
   const markStepComplete = async (stepId: string) => {
     try {
       // Show loading state
-      const loadingMessage = message.loading('កំពុងរក្សាទុក...', 0);
+      const loadingMessage = antdMessage.loading('កំពុងរក្សាទុក...', 0);
 
       const response = await fetch('/api/onboarding/complete-step', {
         method: 'POST',
@@ -431,7 +431,7 @@ export default function OnboardingPage() {
         await getCompletedSteps();
 
         // Show success message with celebration
-        message.success({
+        antdMessage.success({
           content: '🎉 ល្អណាស់! អ្នកបានបញ្ចប់ជំហាននេះដោយជោគជ័យ!',
           duration: 3,
           style: {
@@ -454,11 +454,11 @@ export default function OnboardingPage() {
           }, 500);
         }
       } else {
-        message.error('មិនអាចរក្សាទុក សូមព្យាយាមម្តងទៀត');
+        antdMessage.error('មិនអាចរក្សាទុក សូមព្យាយាមម្តងទៀត');
       }
     } catch (error) {
       console.error('Error marking step complete:', error);
-      message.error('មានបញ្ហា សូមព្យាយាមម្តងទៀត');
+      antdMessage.error('មានបញ្ហា សូមព្យាយាមម្តងទៀត');
     }
   };
 
