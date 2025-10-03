@@ -21,17 +21,41 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Validate subject values
-    if (!['khmer', 'math', 'both'].includes(subject)) {
+    // Validate and normalize subject values (accept both English and Khmer)
+    const subjectMapping: Record<string, string> = {
+      'khmer': 'khmer',
+      'ភាសាខ្មែរ': 'khmer',
+      'math': 'math',
+      'គណិតវិទ្យា': 'math',
+      'both': 'both',
+      'ទាំងពីរ': 'both'
+    };
+
+    const normalizedSubject = subjectMapping[subject];
+    if (!normalizedSubject) {
       return NextResponse.json({
-        error: 'Invalid subject value'
+        error: 'Invalid subject value. Must be: khmer/ភាសាខ្មែរ, math/គណិតវិទ្យា, or both/ទាំងពីរ',
+        received: subject
       }, { status: 400 });
     }
 
-    // Validate holding_classes values
-    if (!['grade_4', 'grade_5', 'both'].includes(holding_classes)) {
+    // Validate and normalize holding_classes values (accept both English and Khmer)
+    const classMapping: Record<string, string> = {
+      'grade_4': 'grade_4',
+      'ថ្នាក់ទី៤': 'grade_4',
+      'ថ្នាក់ទី4': 'grade_4',
+      'grade_5': 'grade_5',
+      'ថ្នាក់ទី៥': 'grade_5',
+      'ថ្នាក់ទី5': 'grade_5',
+      'both': 'both',
+      'ទាំងពីរ': 'both'
+    };
+
+    const normalizedClass = classMapping[holding_classes];
+    if (!normalizedClass) {
       return NextResponse.json({
-        error: 'Invalid holding_classes value'
+        error: 'Invalid holding_classes value. Must be: grade_4/ថ្នាក់ទី៤, grade_5/ថ្នាក់ទី៥, or both/ទាំងពីរ',
+        received: holding_classes
       }, { status: 400 });
     }
 
@@ -67,8 +91,8 @@ export async function POST(request: NextRequest) {
     // Prepare update data
     let updateData: any = {
       pilot_school_id: parseInt(pilot_school_id),
-      subject,
-      holding_classes,
+      subject: normalizedSubject,  // Use normalized English value
+      holding_classes: normalizedClass,  // Use normalized English value
       phone: phone || null,
       province: school?.province || null,
       district: school?.district || null,
