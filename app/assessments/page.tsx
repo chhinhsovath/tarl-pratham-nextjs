@@ -36,6 +36,7 @@ import { hasPermission } from '@/lib/permissions';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import OnboardingTour from '@/components/tour/OnboardingTour';
 import dayjs from 'dayjs';
+import { trackActivity } from '@/lib/trackActivity';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -130,6 +131,9 @@ function AssessmentsContent() {
         ...prev,
         total: data.total || 0
       }));
+
+      // Track activity: User viewed assessment list
+      trackActivity('assessment_view');
     } catch (error) {
       console.error('Error fetching assessments:', error);
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យការវាយតម្លៃ');

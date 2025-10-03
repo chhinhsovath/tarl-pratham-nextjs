@@ -6,6 +6,7 @@ import { message, Spin, Card } from 'antd';
 import { useSession } from 'next-auth/react';
 import StudentForm from '@/components/forms/StudentForm';
 import { hasPermission } from '@/lib/permissions';
+import { trackActivity } from '@/lib/trackActivity';
 
 function EditStudentPageContent() {
   const router = useRouter();
@@ -65,6 +66,10 @@ function EditStudentPageContent() {
       if (response.ok) {
         const data = await response.json();
         message.success(data.message || 'បានកែប្រែសិស្សដោយជោគជ័យ');
+
+        // Track activity: User edited a student
+        trackActivity('student_edit');
+
         router.push('/students');
       } else {
         const error = await response.json();

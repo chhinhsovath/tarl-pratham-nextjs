@@ -12,6 +12,7 @@ import StudentSelectionStep from './steps/StudentSelectionStep';
 import AssessmentDetailsStep from './steps/AssessmentDetailsStep';
 import ReviewStep from './steps/ReviewStep';
 import SuccessStep from './steps/SuccessStep';
+import { trackActivity } from '@/lib/trackActivity';
 
 const { Title, Text } = Typography;
 
@@ -102,6 +103,10 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
 
       setAssessmentId(result.data.id);
       message.success('បានរក្សាទុកជោគជ័យ!');
+
+      // Track activity: User created an assessment
+      trackActivity('assessment_add');
+
       setCurrentStep(3); // Move to success step
     } catch (error: any) {
       message.error(error.message || 'មានបញ្ហាក្នុងការរក្សាទុក');

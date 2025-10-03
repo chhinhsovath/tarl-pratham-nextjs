@@ -6,6 +6,7 @@ import { message } from 'antd';
 import { useSession } from 'next-auth/react';
 import StudentForm from '@/components/forms/StudentForm';
 import { hasPermission } from '@/lib/permissions';
+import { trackActivity } from '@/lib/trackActivity';
 
 function CreateStudentPageContent() {
   const router = useRouter();
@@ -56,6 +57,9 @@ function CreateStudentPageContent() {
 
       if (response.ok) {
         message.success(responseData.message || 'បានបន្ថែមសិស្សដោយជោគជ័យ');
+
+        // Track activity: User added a student
+        trackActivity('student_add');
 
         if (user?.role === 'mentor') {
           message.info('ចំណាំ: សិស្សនេះនឹងត្រូវបានលុបដោយស្វ័យប្រវត្តិបន្ទាប់ពី ៤៨ ម៉ោង ប្រសិនបើមិនត្រូវបានរក្សាទុកជាអចិន្ត្រៃយ៍ដោយអ្នកគ្រប់គ្រង ឬគ្រូបង្រៀន។');

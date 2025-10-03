@@ -29,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
+import { trackActivity } from '@/lib/trackActivity';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -73,6 +74,9 @@ function StudentsContent() {
       }
       const data = await response.json();
       setStudents(data.data || []);
+
+      // Track activity: User viewed student list
+      trackActivity('student_view');
     } catch (error) {
       console.error('Error fetching students:', error);
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស');

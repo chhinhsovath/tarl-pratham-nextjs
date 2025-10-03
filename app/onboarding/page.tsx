@@ -45,6 +45,7 @@ export default function OnboardingPage() {
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stepProgress, setStepProgress] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (session?.user) {
@@ -349,8 +350,15 @@ export default function OnboardingPage() {
           const parsed = typeof completed === 'string' ? JSON.parse(completed) : completed;
           setCompletedSteps(Array.isArray(parsed) ? parsed : []);
           console.log('✅ Loaded completed steps:', parsed);
-          return;
         }
+      }
+
+      // Fetch activity tracking status
+      const activityResponse = await fetch('/api/onboarding/track-activity');
+      if (activityResponse.ok) {
+        const activityData = await activityResponse.json();
+        setStepProgress(activityData.stepProgress || {});
+        console.log('✅ Loaded step progress:', activityData.stepProgress);
       }
     } catch (e) {
       console.error('Error fetching onboarding status:', e);
@@ -585,25 +593,60 @@ export default function OnboardingPage() {
                     </Tag>
                   </div>
 
-                  {/* Tasks List */}
+                  {/* Tasks List with Progress */}
                   <div style={{ marginBottom: 16 }}>
+                    {/* Sub-task progress bar */}
+                    {stepProgress[step.id] && !isCompleted && (
+                      <div style={{ marginBottom: 8 }}>
+                        <Progress
+                          percent={Math.round((stepProgress[step.id].completed / stepProgress[step.id].total) * 100)}
+                          size="small"
+                          strokeColor="#1890ff"
+                          format={() => `${stepProgress[step.id].completed}/${stepProgress[step.id].total}`}
+                        />
+                      </div>
+                    )}
+
                     <Space direction="vertical" size={4}>
-                      {step.tasks.map((task, taskIndex) => (
-                        <div key={taskIndex} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <CheckCircleOutlined 
-                            style={{ 
-                              color: isCompleted ? '#52c41a' : '#d9d9d9',
-                              fontSize: 12
-                            }} 
-                          />
-                          <Text 
-                            type={isCompleted ? 'success' : 'secondary'}
-                            style={{ fontSize: 14 }}
-                          >
-                            {task}
-                          </Text>
-                        </div>
-                      ))}
+                      {step.tasks.map((task, taskIndex) => {
+                        // Map task text to activity type
+                        const taskActivityMap: Record<string, string> = {
+                          'បន្ថែមសិស្សសាកល្បង': 'student_add',
+                          'កែប្រែព័ត៌មានសិស្ស': 'student_edit',
+                          'មើលបញ្ជីសិស្ស': 'student_view',
+                          'វាយតម្លៃសិស្សសាកល្បង': 'assessment_add',
+                          'បញ្ចូលពិន្ទុ': 'assessment_add',
+                          'រក្សាទុកលទ្ធផល': 'assessment_view',
+                          'វាយតម្លៃភាសាខ្មែរ': 'assessment_add',
+                          'វាយតម្លៃគណិតវិទ្យា': 'assessment_add',
+                          'មើលរបាយការណ៍សិស្សរបស់ខ្ញុំ': 'report_view',
+                          'វិភាគលទ្ធផលវាយតម្លៃ': 'report_view',
+                          'បង្កើតកាលវិភាគ': 'mentoring_add',
+                          'បន្ថែមសិស្សម្នាក់ៗ': 'student_add',
+                          'ឬបន្ថែមសិស្សច្រើននាក់ក្នុងពេលតែមួយ': 'student_add',
+                          'ពិនិត្យព័ត៌មានសិស្ស': 'student_view'
+                        };
+
+                        const activityType = taskActivityMap[task];
+                        const isTaskCompleted = stepProgress[step.id]?.completedActivities?.includes(activityType);
+
+                        return (
+                          <div key={taskIndex} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <CheckCircleOutlined
+                              style={{
+                                color: isCompleted || isTaskCompleted ? '#52c41a' : '#d9d9d9',
+                                fontSize: 12
+                              }}
+                            />
+                            <Text
+                              type={isCompleted || isTaskCompleted ? 'success' : 'secondary'}
+                              style={{ fontSize: 14 }}
+                            >
+                              {task}
+                            </Text>
+                          </div>
+                        );
+                      })}
                     </Space>
                   </div>
 

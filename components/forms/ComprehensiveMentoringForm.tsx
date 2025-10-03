@@ -21,6 +21,7 @@ import {
   Divider
 } from 'antd';
 import dayjs from 'dayjs';
+import { trackActivity } from '@/lib/trackActivity';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -180,7 +181,12 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
         pilot_school_id: parseInt(values.pilot_school_id),
         teacher_id: values.teacher_id ? parseInt(values.teacher_id) : undefined,
       };
-      
+
+      // Track activity: User created mentoring visit (only in create mode)
+      if (mode === 'create') {
+        trackActivity('mentoring_add');
+      }
+
       await onSubmit(formData);
     } catch (error) {
       console.error('Form submission error:', error);

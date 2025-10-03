@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Card, Row, Col, Statistic } from 'antd';
 import { TeamOutlined, FileTextOutlined, PercentageOutlined, TrophyOutlined, BarChartOutlined, BankOutlined, UserOutlined, ClockIcon } from '@ant-design/icons';
 import OnboardingTour from '@/components/tour/OnboardingTour';
+import { trackActivity } from '@/lib/trackActivity';
 
 export default function SimpleReportsPage() {
   const router = useRouter();
@@ -38,6 +39,9 @@ export default function SimpleReportsPage() {
           recentActivities: result.data.assessments?.recent || []
         });
       }
+
+      // Track activity: User viewed reports
+      trackActivity('report_view');
     } catch (error) {
       console.error('Failed to fetch report data:', error);
     } finally {
