@@ -50,6 +50,7 @@ export const authOptions: NextAuthOptions = {
             mentor_profile_complete: false,
             province: user.province,
             subject: user.subject,
+            phone: user.phone,
             isQuickLogin: true,
             onboarding_completed: user.onboarding_completed,
             show_onboarding: user.show_onboarding !== false,
@@ -89,6 +90,7 @@ export const authOptions: NextAuthOptions = {
           province: user.province,
           district: user.district,
           subject: user.subject,
+          phone: user.phone,
           isQuickLogin: false,
           onboarding_completed: user.onboarding_completed,
           show_onboarding: user.show_onboarding !== false,
@@ -109,6 +111,7 @@ export const authOptions: NextAuthOptions = {
         token.mentor_profile_complete = user.mentor_profile_complete;
         token.province = user.province;
         token.subject = user.subject;
+        token.phone = user.phone;
         token.isQuickLogin = user.isQuickLogin;
         token.onboarding_completed = user.onboarding_completed;
         token.show_onboarding = user.show_onboarding;
@@ -132,6 +135,7 @@ export const authOptions: NextAuthOptions = {
               holding_classes: true,
               province: true,
               district: true,
+              phone: true,
               onboarding_completed: true,
               show_onboarding: true,
               profile_expires_at: true,
@@ -146,6 +150,7 @@ export const authOptions: NextAuthOptions = {
             token.holding_classes = freshUser.holding_classes;
             token.province = freshUser.province;
             token.district = freshUser.district;
+            token.phone = freshUser.phone;
             token.onboarding_completed = freshUser.onboarding_completed;
             token.show_onboarding = freshUser.show_onboarding;
             token.profile_expires_at = freshUser.profile_expires_at;
@@ -175,6 +180,7 @@ export const authOptions: NextAuthOptions = {
               holding_classes: true,
               province: true,
               district: true,
+              phone: true,
               onboarding_completed: true,
               show_onboarding: true,
               profile_expires_at: true,
@@ -194,6 +200,7 @@ export const authOptions: NextAuthOptions = {
             token.holding_classes = freshUser.holding_classes;
             token.province = freshUser.province;
             token.district = freshUser.district;
+            token.phone = freshUser.phone;
             token.onboarding_completed = freshUser.onboarding_completed;
             token.show_onboarding = freshUser.show_onboarding;
             token.profile_expires_at = freshUser.profile_expires_at;
@@ -220,6 +227,7 @@ export const authOptions: NextAuthOptions = {
         session.user.province = token.province as string | null;
         session.user.district = token.district as string | null;
         session.user.subject = token.subject as string | null;
+        session.user.phone = token.phone as string | null;
         session.user.isQuickLogin = token.isQuickLogin as boolean;
         session.user.onboarding_completed = token.onboarding_completed;
         session.user.show_onboarding = token.show_onboarding;

@@ -12,6 +12,7 @@ declare module "next-auth" {
     province: string | null
     district?: string | null
     subject: string | null
+    phone?: string | null
     isQuickLogin?: boolean
     onboarding_completed?: any
     show_onboarding?: boolean
@@ -31,6 +32,7 @@ declare module "next-auth" {
       province: string | null
       district: string | null
       subject: string | null
+      phone: string | null
       isQuickLogin: boolean
       onboarding_completed: any
       show_onboarding: boolean
@@ -50,6 +52,7 @@ declare module "next-auth/jwt" {
     province: string | null
     district: string | null
     subject: string | null
+    phone: string | null
     isQuickLogin: boolean
     onboarding_completed: any
     show_onboarding: boolean
