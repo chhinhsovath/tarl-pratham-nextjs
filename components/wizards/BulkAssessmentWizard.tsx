@@ -83,6 +83,24 @@ export default function BulkAssessmentWizard({ onComplete, onCancel }: BulkAsses
       // Submit assessments one by one
       for (const assessment of assessments) {
         try {
+          // Update student gender if provided
+          if (assessment.gender) {
+            try {
+              await fetch('/api/students', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  id: assessment.student_id,
+                  gender: assessment.gender
+                })
+              });
+            } catch (genderError) {
+              console.error('Failed to update gender:', genderError);
+              // Continue with assessment even if gender update fails
+            }
+          }
+
+          // Create assessment
           const response = await fetch('/api/assessments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

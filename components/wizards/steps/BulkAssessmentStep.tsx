@@ -1,16 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Table, Select, InputNumber, Space, Typography, Tag, Button, message, Progress, Alert } from 'antd';
-import { CheckCircleOutlined, SaveOutlined, DeleteOutlined } from '@ant-design/icons';
-import {
-  getAssessmentTypeOptions,
-  getSubjectOptions,
-  getLevelOptions
-} from '@/lib/constants/assessment-levels';
+import { Radio, Space, Typography, Tag, Button, message, Alert, Card, Row, Col } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 
 const { Text, Title } = Typography;
-const { Option } = Select;
 
 interface Student {
   id: number;
@@ -24,6 +18,7 @@ interface BulkAssessmentData {
   student_name: string;
   assessment_type: string;
   subject: 'language' | 'math';
+  gender?: 'male' | 'female';
   level?: string;
   score?: number;
 }
@@ -36,6 +31,26 @@ interface BulkAssessmentStepProps {
   onBack: () => void;
 }
 
+// Khmer level options
+const LANGUAGE_LEVELS = [
+  { value: 'beginner', label: 'កម្រិតដំបូង' },
+  { value: 'letter', label: 'តួអក្សរ' },
+  { value: 'word', label: 'ពាក្យ' },
+  { value: 'paragraph', label: 'កថាខណ្ឌ' },
+  { value: 'story', label: 'រឿង' },
+  { value: 'comprehension_1', label: 'យល់ន័យ១' },
+  { value: 'comprehension_2', label: 'យល់ន័យ២' }
+];
+
+const MATH_LEVELS = [
+  { value: 'beginner', label: 'កម្រិតដំបូង' },
+  { value: 'number_1_digit', label: 'លេខ១ខ្ទង' },
+  { value: 'number_2_digit', label: 'លេខ២ខ្ទង' },
+  { value: 'subtraction', label: 'ប្រមាណវិធីដក' },
+  { value: 'division', label: 'ប្រមាណវិធីចែក' },
+  { value: 'problem', label: 'ចំណោទ' }
+];
+
 export default function BulkAssessmentStep({
   selectedStudents,
   assessmentType,
@@ -45,7 +60,9 @@ export default function BulkAssessmentStep({
 }: BulkAssessmentStepProps) {
   const [assessments, setAssessments] = useState<BulkAssessmentData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [availableLevels] = useState(getLevelOptions(subject));
+
+  const levelOptions = subject === 'language' ? LANGUAGE_LEVELS : MATH_LEVELS;
+  const showGenderSelection = true; // Show gender for all assessment types
 
   useEffect(() => {
     // Initialize assessments for each student
@@ -55,17 +72,28 @@ export default function BulkAssessmentStep({
         student_name: student.name,
         assessment_type: assessmentType,
         subject: subject,
+        gender: student.sex as 'male' | 'female' | undefined,
         level: undefined,
         score: undefined
       }))
     );
   }, [selectedStudents, assessmentType, subject]);
 
-  const updateAssessment = (studentId: number, field: string, value: any) => {
+  const updateGender = (studentId: number, gender: 'male' | 'female') => {
     setAssessments(prev =>
       prev.map(assessment =>
         assessment.student_id === studentId
-          ? { ...assessment, [field]: value }
+          ? { ...assessment, gender }
+          : assessment
+      )
+    );
+  };
+
+  const updateLevel = (studentId: number, level: string) => {
+    setAssessments(prev =>
+      prev.map(assessment =>
+        assessment.student_id === studentId
+          ? { ...assessment, level }
           : assessment
       )
     );
@@ -79,6 +107,15 @@ export default function BulkAssessmentStep({
       return;
     }
 
+    // Validate gender for baseline assessments
+    if (showGenderSelection) {
+      const missingGender = assessments.filter(a => !a.gender);
+      if (missingGender.length > 0) {
+        message.warning(`សូមជ្រើសរើសភេទសម្រាប់សិស្សទាំងអស់ (${missingGender.length} នៅសល់)`);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       await onSubmit(assessments);
@@ -89,142 +126,204 @@ export default function BulkAssessmentStep({
     }
   };
 
-  const completedCount = assessments.filter(a => a.level).length;
+  const completedCount = assessments.filter(a => a.level && (!showGenderSelection || a.gender)).length;
   const totalCount = assessments.length;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-
-  const columns = [
-    {
-      title: 'លេខរៀង',
-      key: 'index',
-      width: 80,
-      render: (_: any, __: any, index: number) => index + 1
-    },
-    {
-      title: 'ឈ្មោះសិស្ស',
-      dataIndex: 'student_name',
-      key: 'student_name',
-      render: (name: string, record: BulkAssessmentData) => (
-        <Space direction="vertical" size={0}>
-          <Text strong>{name}</Text>
-          {record.level && (
-            <Tag color="green" icon={<CheckCircleOutlined />}>
-              បានបញ្ចូល
-            </Tag>
-          )}
-        </Space>
-      )
-    },
-    {
-      title: 'កម្រិត',
-      key: 'level',
-      width: 250,
-      render: (_: any, record: BulkAssessmentData) => (
-        <Select
-          value={record.level}
-          onChange={(value) => updateAssessment(record.student_id, 'level', value)}
-          placeholder="ជ្រើសរើសកម្រិត"
-          style={{ width: '100%' }}
-          size="large"
-        >
-          {availableLevels.map(level => (
-            <Option key={level.value} value={level.value}>
-              <Text strong>{level.label_km}</Text>
-            </Option>
-          ))}
-        </Select>
-      )
-    },
-    {
-      title: 'ពិន្ទុ (ស្រេចចិត្ត)',
-      key: 'score',
-      width: 150,
-      render: (_: any, record: BulkAssessmentData) => (
-        <InputNumber
-          value={record.score}
-          onChange={(value) => updateAssessment(record.student_id, 'score', value || undefined)}
-          min={0}
-          max={100}
-          placeholder="0-100"
-          style={{ width: '100%' }}
-          size="large"
-        />
-      )
-    },
-    {
-      title: '',
-      key: 'action',
-      width: 60,
-      render: (_: any, record: BulkAssessmentData) => (
-        <Button
-          type="text"
-          icon={<DeleteOutlined />}
-          danger
-          onClick={() => {
-            setAssessments(prev => prev.filter(a => a.student_id !== record.student_id));
-          }}
-        />
-      )
-    }
-  ];
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <div>
         <Title level={4}>ការវាយតម្លៃច្រើននាក់ក្នុងពេលតែមួយ</Title>
         <Text type="secondary">
-          បញ្ចូលកម្រិតសម្រាប់សិស្សនីមួយៗ
+          ជ្រើសរើសកម្រិតសម្រាប់សិស្សនីមួយៗដោយប្រើប៊ូតុងវិទ្យុ
         </Text>
       </div>
 
-      {/* Progress Summary */}
-      <Alert
-        message={
-          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-            <Text strong>ការវឌ្ឍនភាព</Text>
-            <Text strong style={{ color: '#1890ff' }}>
-              {completedCount}/{totalCount} សិស្ស
-            </Text>
-          </Space>
-        }
-        description={
-          <Progress
-            percent={progressPercentage}
-            strokeColor={{
-              '0%': '#108ee9',
-              '100%': '#87d068',
-            }}
-            status={progressPercentage === 100 ? 'success' : 'active'}
-          />
-        }
-        type="info"
-        showIcon
-      />
-
       {/* Assessment Info */}
-      <Space size="middle" wrap>
-        <Tag color="blue" style={{ fontSize: '14px', padding: '8px 16px' }}>
-          {assessmentType === 'baseline' ? 'តេស្តដើមគ្រា' :
-           assessmentType === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' :
-           'តេស្តចុងក្រោយគ្រា'}
-        </Tag>
-        <Tag color="purple" style={{ fontSize: '14px', padding: '8px 16px' }}>
-          {subject === 'language' ? 'ខ្មែរ' : 'គណិតវិទ្យា'}
-        </Tag>
-        <Tag color="green" style={{ fontSize: '14px', padding: '8px 16px' }}>
-          {subject === 'language' ? '7 កម្រិត' : '6 កម្រិត'}
-        </Tag>
-      </Space>
+      <Row gutter={16}>
+        <Col>
+          <Tag color="blue" style={{ fontSize: '14px', padding: '8px 16px' }}>
+            {assessmentType === 'baseline' ? 'តេស្តដើមគ្រា' :
+             assessmentType === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' :
+             'តេស្តចុងក្រោយគ្រា'}
+          </Tag>
+        </Col>
+        <Col>
+          <Tag color="purple" style={{ fontSize: '14px', padding: '8px 16px' }}>
+            {subject === 'language' ? 'ខ្មែរ' : 'គណិតវិទ្យា'}
+          </Tag>
+        </Col>
+        <Col>
+          <Tag color={progressPercentage === 100 ? 'green' : 'orange'} style={{ fontSize: '14px', padding: '8px 16px' }}>
+            ការវឌ្ឍនភាព: {completedCount}/{totalCount} សិស្ស
+          </Tag>
+        </Col>
+      </Row>
 
-      {/* Students Table */}
-      <Table
-        columns={columns}
-        dataSource={assessments}
-        rowKey="student_id"
-        pagination={false}
-        scroll={{ x: 800, y: 400 }}
-        size="small"
-      />
+      {/* Data Entry Grid */}
+      <Card size="small">
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            fontSize: '14px'
+          }}>
+            <thead>
+              <tr style={{ backgroundColor: '#f0f0f0' }}>
+                <th style={{
+                  border: '1px solid #d9d9d9',
+                  padding: '12px 8px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  minWidth: '150px',
+                  position: 'sticky',
+                  left: 0,
+                  backgroundColor: '#f0f0f0',
+                  zIndex: 1
+                }}>
+                  ឈ្មោះសិស្ស
+                </th>
+
+                {showGenderSelection && (
+                  <th colSpan={2} style={{
+                    border: '1px solid #d9d9d9',
+                    padding: '12px 8px',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    backgroundColor: '#e6f7ff'
+                  }}>
+                    ភេទសិស្ស
+                  </th>
+                )}
+
+                <th colSpan={levelOptions.length} style={{
+                  border: '1px solid #d9d9d9',
+                  padding: '12px 8px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  backgroundColor: '#f9f0ff'
+                }}>
+                  កម្រិតសិស្ស
+                </th>
+              </tr>
+
+              <tr style={{ backgroundColor: '#fafafa' }}>
+                <th style={{
+                  border: '1px solid #d9d9d9',
+                  padding: '8px',
+                  position: 'sticky',
+                  left: 0,
+                  backgroundColor: '#fafafa',
+                  zIndex: 1
+                }}></th>
+
+                {showGenderSelection && (
+                  <>
+                    <th style={{
+                      border: '1px solid #d9d9d9',
+                      padding: '8px',
+                      textAlign: 'center',
+                      fontSize: '13px',
+                      minWidth: '80px'
+                    }}>
+                      ប្រុស
+                    </th>
+                    <th style={{
+                      border: '1px solid #d9d9d9',
+                      padding: '8px',
+                      textAlign: 'center',
+                      fontSize: '13px',
+                      minWidth: '80px'
+                    }}>
+                      ស្រី
+                    </th>
+                  </>
+                )}
+
+                {levelOptions.map(level => (
+                  <th key={level.value} style={{
+                    border: '1px solid #d9d9d9',
+                    padding: '8px',
+                    textAlign: 'center',
+                    fontSize: '13px',
+                    minWidth: '100px',
+                    maxWidth: '120px',
+                    wordWrap: 'break-word'
+                  }}>
+                    {level.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {assessments.map((assessment, index) => (
+                <tr key={assessment.student_id} style={{
+                  backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafafa'
+                }}>
+                  <td style={{
+                    border: '1px solid #d9d9d9',
+                    padding: '12px 8px',
+                    fontWeight: 'bold',
+                    position: 'sticky',
+                    left: 0,
+                    backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafafa',
+                    zIndex: 1
+                  }}>
+                    {assessment.student_name}
+                  </td>
+
+                  {showGenderSelection && (
+                    <>
+                      <td style={{
+                        border: '1px solid #d9d9d9',
+                        padding: '8px',
+                        textAlign: 'center'
+                      }}>
+                        <Radio
+                          checked={assessment.gender === 'male'}
+                          onChange={() => updateGender(assessment.student_id, 'male')}
+                        />
+                      </td>
+                      <td style={{
+                        border: '1px solid #d9d9d9',
+                        padding: '8px',
+                        textAlign: 'center'
+                      }}>
+                        <Radio
+                          checked={assessment.gender === 'female'}
+                          onChange={() => updateGender(assessment.student_id, 'female')}
+                        />
+                      </td>
+                    </>
+                  )}
+
+                  {levelOptions.map(level => (
+                    <td key={level.value} style={{
+                      border: '1px solid #d9d9d9',
+                      padding: '8px',
+                      textAlign: 'center'
+                    }}>
+                      <Radio
+                        checked={assessment.level === level.value}
+                        onChange={() => updateLevel(assessment.student_id, level.value)}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {completedCount < totalCount && (
+        <Alert
+          message={`សូមបំពេញការវាយតម្លៃសម្រាប់សិស្ស ${totalCount - completedCount} នាក់ទៀត`}
+          type="warning"
+          showIcon
+        />
+      )}
 
       {/* Action Buttons */}
       <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -241,9 +340,9 @@ export default function BulkAssessmentStep({
           onClick={handleSubmit}
           loading={loading}
           icon={<SaveOutlined />}
-          disabled={completedCount === 0}
+          disabled={completedCount < totalCount}
         >
-          រក្សាទុកការវាយតម្លៃទាំងអស់ ({completedCount})
+          រក្សាទុកការវាយតម្លៃទាំងអស់ ({completedCount}/{totalCount})
         </Button>
       </Space>
     </Space>
