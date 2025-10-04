@@ -126,10 +126,10 @@ function AssessmentsContent() {
 
       const data = await response.json();
 
-      setAssessments(data.assessments || []);
+      setAssessments(data.data || data.assessments || []);
       setPagination(prev => ({
         ...prev,
-        total: data.total || 0
+        total: data.pagination?.total || data.total || 0
       }));
 
       // Track activity: User viewed assessment list
