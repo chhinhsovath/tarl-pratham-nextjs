@@ -19,6 +19,7 @@ interface BulkAssessmentData {
   assessment_type: string;
   subject: 'language' | 'math';
   gender?: 'male' | 'female';
+  existing_gender?: string; // Track existing gender from database
   level?: string;
   score?: number;
 }
@@ -62,7 +63,6 @@ export default function BulkAssessmentStep({
   const [loading, setLoading] = useState(false);
 
   const levelOptions = subject === 'language' ? LANGUAGE_LEVELS : MATH_LEVELS;
-  const showGenderSelection = true; // Show gender for all assessment types
 
   useEffect(() => {
     // Initialize assessments for each student
@@ -73,21 +73,12 @@ export default function BulkAssessmentStep({
         assessment_type: assessmentType,
         subject: subject,
         gender: student.sex as 'male' | 'female' | undefined,
+        existing_gender: student.sex, // Track existing gender from database
         level: undefined,
         score: undefined
       }))
     );
   }, [selectedStudents, assessmentType, subject]);
-
-  const updateGender = (studentId: number, gender: 'male' | 'female') => {
-    setAssessments(prev =>
-      prev.map(assessment =>
-        assessment.student_id === studentId
-          ? { ...assessment, gender }
-          : assessment
-      )
-    );
-  };
 
   const updateLevel = (studentId: number, level: string) => {
     setAssessments(prev =>
@@ -107,15 +98,6 @@ export default function BulkAssessmentStep({
       return;
     }
 
-    // Validate gender for baseline assessments
-    if (showGenderSelection) {
-      const missingGender = assessments.filter(a => !a.gender);
-      if (missingGender.length > 0) {
-        message.warning(`សូមជ្រើសរើសភេទសម្រាប់សិស្សទាំងអស់ (${missingGender.length} នៅសល់)`);
-        return;
-      }
-    }
-
     setLoading(true);
     try {
       await onSubmit(assessments);
@@ -126,7 +108,7 @@ export default function BulkAssessmentStep({
     }
   };
 
-  const completedCount = assessments.filter(a => a.level && (!showGenderSelection || a.gender)).length;
+  const completedCount = assessments.filter(a => a.level).length;
   const totalCount = assessments.length;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
@@ -184,17 +166,16 @@ export default function BulkAssessmentStep({
                   ឈ្មោះសិស្ស
                 </th>
 
-                {showGenderSelection && (
-                  <th colSpan={2} style={{
-                    border: '1px solid #d9d9d9',
-                    padding: '12px 8px',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    backgroundColor: '#e6f7ff'
-                  }}>
-                    ភេទសិស្ស
-                  </th>
-                )}
+                <th style={{
+                  border: '1px solid #d9d9d9',
+                  padding: '12px 8px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  backgroundColor: '#e6f7ff',
+                  minWidth: '100px'
+                }}>
+                  ភេទ
+                </th>
 
                 <th colSpan={levelOptions.length} style={{
                   border: '1px solid #d9d9d9',
@@ -217,28 +198,12 @@ export default function BulkAssessmentStep({
                   zIndex: 1
                 }}></th>
 
-                {showGenderSelection && (
-                  <>
-                    <th style={{
-                      border: '1px solid #d9d9d9',
-                      padding: '8px',
-                      textAlign: 'center',
-                      fontSize: '13px',
-                      minWidth: '80px'
-                    }}>
-                      ប្រុស
-                    </th>
-                    <th style={{
-                      border: '1px solid #d9d9d9',
-                      padding: '8px',
-                      textAlign: 'center',
-                      fontSize: '13px',
-                      minWidth: '80px'
-                    }}>
-                      ស្រី
-                    </th>
-                  </>
-                )}
+                <th style={{
+                  border: '1px solid #d9d9d9',
+                  padding: '8px',
+                  textAlign: 'center',
+                  fontSize: '13px'
+                }}></th>
 
                 {levelOptions.map(level => (
                   <th key={level.value} style={{
@@ -273,30 +238,19 @@ export default function BulkAssessmentStep({
                     {assessment.student_name}
                   </td>
 
-                  {showGenderSelection && (
-                    <>
-                      <td style={{
-                        border: '1px solid #d9d9d9',
-                        padding: '8px',
-                        textAlign: 'center'
-                      }}>
-                        <Radio
-                          checked={assessment.gender === 'male'}
-                          onChange={() => updateGender(assessment.student_id, 'male')}
-                        />
-                      </td>
-                      <td style={{
-                        border: '1px solid #d9d9d9',
-                        padding: '8px',
-                        textAlign: 'center'
-                      }}>
-                        <Radio
-                          checked={assessment.gender === 'female'}
-                          onChange={() => updateGender(assessment.student_id, 'female')}
-                        />
-                      </td>
-                    </>
-                  )}
+                  <td style={{
+                    border: '1px solid #d9d9d9',
+                    padding: '8px',
+                    textAlign: 'center'
+                  }}>
+                    {assessment.existing_gender ? (
+                      <Tag color={assessment.existing_gender === 'male' ? 'blue' : 'pink'}>
+                        {assessment.existing_gender === 'male' ? 'ប្រុស' : 'ស្រី'}
+                      </Tag>
+                    ) : (
+                      <Text type="secondary">-</Text>
+                    )}
+                  </td>
 
                   {levelOptions.map(level => (
                     <td key={level.value} style={{

@@ -30,6 +30,8 @@ import {
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
 import { trackActivity } from '@/lib/trackActivity';
+import BulkClassAssignModal from '@/components/students/BulkClassAssignModal';
+import { useSession } from 'next-auth/react';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -54,6 +56,7 @@ interface Student {
 function StudentsContent() {
   const router = useRouter();
   const { message } = App.useApp();
+  const { data: session } = useSession();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -61,6 +64,7 @@ function StudentsContent() {
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
   const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
+  const [bulkClassModalVisible, setBulkClassModalVisible] = useState(false);
 
   useEffect(() => {
     fetchStudents();
@@ -328,14 +332,23 @@ function StudentsContent() {
             <Col>
               <Space size="middle">
                 {selectedStudentIds.length > 0 && (
-                  <Button
-                    type="default"
-                    icon={<FileTextOutlined />}
-                    onClick={handleBulkAssessment}
-                    size="large"
-                  >
-                    វាយតម្លៃសិស្សដែលបានជ្រើសរើស ({selectedStudentIds.length})
-                  </Button>
+                  <>
+                    <Button
+                      type="default"
+                      onClick={() => setBulkClassModalVisible(true)}
+                      size="large"
+                    >
+                      កំណត់ថ្នាក់ ({selectedStudentIds.length})
+                    </Button>
+                    <Button
+                      type="default"
+                      icon={<FileTextOutlined />}
+                      onClick={handleBulkAssessment}
+                      size="large"
+                    >
+                      វាយតម្លៃសិស្ស ({selectedStudentIds.length})
+                    </Button>
+                  </>
                 )}
                 <Button
                   type="primary"
@@ -465,6 +478,19 @@ function StudentsContent() {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Bulk Class Assignment Modal */}
+      <BulkClassAssignModal
+        visible={bulkClassModalVisible}
+        studentIds={selectedStudentIds}
+        pilotSchoolId={session?.user?.pilot_school_id || 33}
+        onSuccess={() => {
+          setBulkClassModalVisible(false);
+          setSelectedStudentIds([]);
+          fetchStudents();
+        }}
+        onCancel={() => setBulkClassModalVisible(false)}
+      />
     </>
   );
 }

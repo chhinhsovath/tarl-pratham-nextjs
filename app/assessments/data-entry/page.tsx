@@ -34,7 +34,7 @@ function AssessmentDataEntryContent() {
     const subjectParam = searchParams.get('subject');
     
     if (!studentsParam || !typeParam || !subjectParam) {
-      message.error('Missing required parameters');
+      message.error('បាត់ប៉ារ៉ាម៉ែត្រចាំបាច់');
       router.push('/assessments/select-students');
       return;
     }
@@ -62,7 +62,7 @@ function AssessmentDataEntryContent() {
       setStudents(studentData);
     } catch (error) {
       console.error('Error fetching students:', error);
-      message.error('Failed to load student data');
+      message.error('បរាជ័យក្នុងការផ្ទុកទិន្នន័យសិស្ស');
       router.push('/assessments/select-students');
     } finally {
       setLoading(false);
@@ -85,20 +85,20 @@ function AssessmentDataEntryContent() {
 
       if (response.ok) {
         const data = await response.json();
-        message.success(data.message || 'All assessments submitted successfully');
-        
+        message.success(data.message || 'រក្សាទុកការវាយតម្លៃទាំងអស់បានជោគជ័យ');
+
         if (user?.role === 'mentor') {
-          message.info('Note: These assessments are marked as temporary and will be automatically deleted after 48 hours unless permanently saved.');
+          message.info('ចំណាំ៖ ការវាយតម្លៃទាំងនេះត្រូវបានសម្គាល់ថាជាបណ្តោះអាសន្ន និងនឹងត្រូវលុបដោយស្វ័យប្រវត្តិបន្ទាប់ពី ៤៨ ម៉ោង លុះត្រាតែត្រូវបានរក្សាទុកជាអចិន្ត្រៃយ៍។');
         }
-        
+
         router.push('/assessments');
       } else {
         const error = await response.json();
-        message.error(error.error || 'Failed to submit assessments');
+        message.error(error.error || 'បរាជ័យក្នុងការដាក់ស្នើការវាយតម្លៃ');
       }
     } catch (error) {
       console.error('Assessment submission error:', error);
-      message.error('Failed to submit assessments');
+      message.error('បរាជ័យក្នុងការដាក់ស្នើការវាយតម្លៃ');
     }
   };
 
@@ -107,33 +107,51 @@ function AssessmentDataEntryContent() {
       <div className="max-w-full overflow-x-hidden">
         <Card>
           <div style={{ textAlign: 'center', padding: '50px' }}>
-            Loading student data...
+            កំពុងផ្ទុកទិន្នន័យសិស្ស...
           </div>
         </Card>
       </div>
     );
   }
 
+  const getAssessmentTypeLabel = (type: string) => {
+    switch(type) {
+      case 'baseline': return 'តេស្តដើមគ្រា';
+      case 'midline': return 'តេស្តពាក់កណ្ដាលគ្រា';
+      case 'endline': return 'តេស្តចុងក្រោយគ្រា';
+      default: return type;
+    }
+  };
+
+  const getSubjectLabel = (subj: string) => {
+    switch(subj) {
+      case 'khmer':
+      case 'language': return 'ភាសាខ្មែរ';
+      case 'math': return 'គណិតវិទ្យា';
+      default: return subj;
+    }
+  };
+
   return (
     <div className="max-w-full overflow-x-hidden">
       <Card style={{ marginBottom: '24px' }}>
-        <Title level={2}>Bulk Assessment Data Entry</Title>
+        <Title level={2}>បញ្ចូលទិន្នន័យវាយតម្លៃជាក្រុម</Title>
         <Space size="large">
           <div>
-            <Text strong>Assessment Type: </Text>
+            <Text strong>ប្រភេទតេស្ត៖ </Text>
             <Tag color={assessmentType === 'baseline' ? 'blue' : assessmentType === 'midline' ? 'orange' : 'green'}>
-              {assessmentType.toUpperCase()}
+              {getAssessmentTypeLabel(assessmentType)}
             </Tag>
           </div>
           <div>
-            <Text strong>Subject: </Text>
-            <Tag color={subject === 'khmer' ? 'purple' : 'cyan'}>
-              {subject.toUpperCase()}
+            <Text strong>មុខវិជ្ជា៖ </Text>
+            <Tag color={subject === 'khmer' || subject === 'language' ? 'purple' : 'cyan'}>
+              {getSubjectLabel(subject)}
             </Tag>
           </div>
           <div>
-            <Text strong>Students: </Text>
-            <Tag color="green">{students.length} selected</Tag>
+            <Text strong>សិស្ស៖ </Text>
+            <Tag color="green">{students.length} នាក់</Tag>
           </div>
         </Space>
       </Card>
@@ -152,7 +170,7 @@ function AssessmentDataEntryContent() {
 
 function AssessmentDataEntryPageContent() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>កំពុងផ្ទុក...</div>}>
       <AssessmentDataEntryContent />
     </Suspense>
   );

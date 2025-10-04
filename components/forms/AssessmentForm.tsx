@@ -110,7 +110,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
       }
     } catch (error) {
       console.error('Error fetching students:', error);
-      message.error('Failed to load students');
+      message.error('បរាជ័យក្នុងការផ្ទុកសិស្ស');
     } finally {
       setLoadingStudents(false);
     }
@@ -136,7 +136,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
     try {
       await onSubmit([values]);
       form.resetFields();
-      message.success('Assessment saved successfully');
+      message.success('រក្សាទុកការវាយតម្លៃបានជោគជ័យ');
     } catch (error) {
       console.error('Assessment submission error:', error);
     }
@@ -146,11 +146,18 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
     form.validateFields().then(values => {
       // Save current student's data
       const studentId = selectedStudents[currentStudentIndex];
+
+      // Format the assessed_date if it's a dayjs object
+      const formattedValues = {
+        ...values,
+        assessed_date: values.assessed_date ? dayjs(values.assessed_date).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
+      };
+
       setAssessmentData(prev => ({
         ...prev,
         [studentId]: {
           ...prev[studentId],
-          ...values
+          ...formattedValues
         }
       }));
 
@@ -158,11 +165,22 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
         setCurrentStudentIndex(prev => prev + 1);
         // Load next student's data
         const nextStudentId = selectedStudents[currentStudentIndex + 1];
-        const nextData = assessmentData[nextStudentId] || {};
-        form.setFieldsValue(nextData);
+        const nextData = assessmentData[nextStudentId] || {
+          assessment_type: assessmentType || 'baseline',
+          subject: subject || 'language',
+          assessed_date: dayjs()
+        };
+
+        // Set form values with proper dayjs conversion
+        form.setFieldsValue({
+          ...nextData,
+          assessed_date: nextData.assessed_date ? dayjs(nextData.assessed_date) : dayjs()
+        });
       } else {
         setCurrentStep(1); // Move to review step
       }
+    }).catch(error => {
+      console.error('Validation error:', error);
     });
   };
 
@@ -171,19 +189,35 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
       // Save current data
       const studentId = selectedStudents[currentStudentIndex];
       const currentValues = form.getFieldsValue();
+
+      // Format the assessed_date if it's a dayjs object
+      const formattedValues = {
+        ...currentValues,
+        assessed_date: currentValues.assessed_date ? dayjs(currentValues.assessed_date).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
+      };
+
       setAssessmentData(prev => ({
         ...prev,
         [studentId]: {
           ...prev[studentId],
-          ...currentValues
+          ...formattedValues
         }
       }));
 
       setCurrentStudentIndex(prev => prev - 1);
       // Load previous student's data
       const prevStudentId = selectedStudents[currentStudentIndex - 1];
-      const prevData = assessmentData[prevStudentId] || {};
-      form.setFieldsValue(prevData);
+      const prevData = assessmentData[prevStudentId] || {
+        assessment_type: assessmentType || 'baseline',
+        subject: subject || 'language',
+        assessed_date: dayjs()
+      };
+
+      // Set form values with proper dayjs conversion
+      form.setFieldsValue({
+        ...prevData,
+        assessed_date: prevData.assessed_date ? dayjs(prevData.assessed_date) : dayjs()
+      });
     }
   };
 
@@ -192,19 +226,26 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
       // Save current form data
       const currentValues = form.getFieldsValue();
       const studentId = selectedStudents[currentStudentIndex];
+
+      // Format the assessed_date if it's a dayjs object
+      const formattedValues = {
+        ...currentValues,
+        assessed_date: currentValues.assessed_date ? dayjs(currentValues.assessed_date).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
+      };
+
       const finalData = {
         ...assessmentData,
         [studentId]: {
           ...assessmentData[studentId],
-          ...currentValues
+          ...formattedValues
         }
       };
 
       // Convert to array
       const assessmentArray = Object.values(finalData);
       await onSubmit(assessmentArray);
-      
-      message.success('All assessments submitted successfully');
+
+      message.success('រក្សាទុកការវាយតម្លៃទាំងអស់បានជោគជ័យ');
     } catch (error) {
       console.error('Bulk assessment submission error:', error);
     }
@@ -218,11 +259,11 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
 
   const validateScore = (rule: any, value: number) => {
     if (value === undefined || value === null) return Promise.resolve();
-    
+
     if (value < 0 || value > 100) {
-      return Promise.reject('Score must be between 0 and 100');
+      return Promise.reject('ពិន្ទុត្រូវតែនៅចន្លោះ 0 និង 100');
     }
-    
+
     return Promise.resolve();
   };
 
@@ -231,7 +272,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
       <Card>
         <div style={{ textAlign: 'center', padding: '50px' }}>
           <Spin size="large" />
-          <p style={{ marginTop: 16 }}>Loading students...</p>
+          <p style={{ marginTop: 16 }}>កំពុងផ្ទុកសិស្ស...</p>
         </div>
       </Card>
     );
@@ -239,20 +280,20 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
 
   return (
     <Card title={
-      mode === 'single' ? 'Create Assessment' : 
-      `Bulk Assessment Entry (${currentStudentIndex + 1}/${selectedStudents.length})`
+      mode === 'single' ? 'បង្កើតការវាយតម្លៃ' :
+      `បញ្ចូលការវាយតម្លៃជាក្រុម (${currentStudentIndex + 1}/${selectedStudents.length})`
     }>
       {mode === 'bulk' && (
         <Steps current={currentStep} style={{ marginBottom: '24px' }}>
-          <Step title="Data Entry" />
-          <Step title="Review & Submit" />
+          <Step title="បញ្ចូលទិន្នន័យ" />
+          <Step title="ពិនិត្យ និងដាក់ស្នើ" />
         </Steps>
       )}
 
       {user?.role === 'mentor' && (
         <Alert
-          message="Mentor Assessment"
-          description="This assessment will be marked as temporary and automatically deleted after 48 hours unless permanently saved by an admin or teacher."
+          message="ការវាយតម្លៃរបស់អ្នកណែនាំ"
+          description="ការវាយតម្លៃនេះនឹងត្រូវបានសម្គាល់ថាជាបណ្តោះអាសន្ន និងនឹងត្រូវលុបដោយស្វ័យប្រវត្តិបន្ទាប់ពី ៤៨ ម៉ោង លុះត្រាតែត្រូវបានរក្សាទុកជាអចិន្ត្រៃយ៍ដោយអ្នកគ្រប់គ្រង ឬគ្រូបង្រៀន។"
           type="warning"
           showIcon
           style={{ marginBottom: '24px' }}
@@ -262,10 +303,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
       {mode === 'bulk' && currentStep === 0 && (
         <div style={{ marginBottom: '24px' }}>
           <Title level={4}>
-            Current Student: {getCurrentStudent()?.name}
+            សិស្សសព្វថ្ងៃ៖ {getCurrentStudent()?.name}
           </Title>
           <Text type="secondary">
-            Progress: {currentStudentIndex + 1} of {selectedStudents.length}
+            ដំណើរការ៖ {currentStudentIndex + 1} នៃ {selectedStudents.length}
           </Text>
         </div>
       )}
@@ -287,11 +328,11 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
               <Col span={24}>
                 <Form.Item
                   name="student_id"
-                  label="Select Student"
-                  rules={[{ required: true, message: 'Student is required' }]}
+                  label="ជ្រើសរើសសិស្ស"
+                  rules={[{ required: true, message: 'សូមជ្រើសរើសសិស្ស' }]}
                 >
                   <Select
-                    placeholder="Choose a student"
+                    placeholder="ជ្រើសរើសសិស្ស"
                     showSearch
                     filterOption={(input, option: any) =>
                       option.children.toLowerCase().includes(input.toLowerCase())
@@ -299,7 +340,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                   >
                     {availableStudents.map((student: any) => (
                       <Option key={student.id} value={student.id}>
-                        {student.name} 
+                        {student.name}
                         {student.school_class && ` - ${student.school_class.name}`}
                         {student.pilot_school && ` (${student.pilot_school.name})`}
                       </Option>
@@ -314,26 +355,26 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             <Col span={12}>
               <Form.Item
                 name="assessment_type"
-                label="Assessment Type"
-                rules={[{ required: true, message: 'Assessment type is required' }]}
+                label="ប្រភេទតេស្ត"
+                rules={[{ required: true, message: 'សូមជ្រើសរើសប្រភេទតេស្ត' }]}
               >
                 <Radio.Group>
                   {assessmentTypes.map(type => (
                     <Radio.Button key={type.value} value={type.value}>
                       <Tag color={type.color} style={{ margin: 0 }}>
-                        {type.label}
+                        {type.label_km}
                       </Tag>
                     </Radio.Button>
                   ))}
                 </Radio.Group>
               </Form.Item>
             </Col>
-            
+
             <Col span={12}>
               <Form.Item
                 name="subject"
-                label="Subject"
-                rules={[{ required: true, message: 'Subject is required' }]}
+                label="មុខវិជ្ជា"
+                rules={[{ required: true, message: 'សូមជ្រើសរើសមុខវិជ្ជា' }]}
               >
                 <Radio.Group onChange={(e) => handleSubjectChange(e.target.value)}>
                   {subjects.map(subj => (
@@ -368,11 +409,11 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             <Col span={12}>
               <Form.Item
                 name="score"
-                label="Score (%)"
+                label="ពិន្ទុ (%)"
                 rules={[{ validator: validateScore }]}
               >
-                <InputNumber 
-                  placeholder="Enter score (0-100)" 
+                <InputNumber
+                  placeholder="បញ្ចូលពិន្ទុ (0-100)"
                   style={{ width: '100%' }}
                   min={0}
                   max={100}
@@ -385,10 +426,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             <Col span={12}>
               <Form.Item
                 name="assessed_date"
-                label="Assessment Date"
-                rules={[{ required: true, message: 'Assessment date is required' }]}
+                label="កាលបរិច្ឆេទវាយតម្លៃ"
+                rules={[{ required: true, message: 'សូមជ្រើសរើសកាលបរិច្ឆេទវាយតម្លៃ' }]}
               >
-                <DatePicker 
+                <DatePicker
                   style={{ width: '100%' }}
                   disabledDate={(current) => current && current > dayjs().endOf('day')}
                 />
@@ -400,11 +441,11 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             <Col span={24}>
               <Form.Item
                 name="notes"
-                label="Notes"
+                label="កំណត់ចំណាំ"
               >
-                <TextArea 
-                  rows={4} 
-                  placeholder="Add any observations or notes about the assessment..."
+                <TextArea
+                  rows={4}
+                  placeholder="បន្ថែមសេចក្តីសម្គាល់ ឬកំណត់ចំណាំអំពីការវាយតម្លៃ..."
                 />
               </Form.Item>
             </Col>
@@ -413,39 +454,39 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
           <Form.Item>
             <Space>
               {mode === 'single' ? (
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
+                <Button
+                  type="primary"
+                  htmlType="submit"
                   loading={loading}
                   icon={<SaveOutlined />}
                 >
-                  Save Assessment
+                  រក្សាទុកការវាយតម្លៃ
                 </Button>
               ) : (
                 <>
                   {currentStudentIndex > 0 && (
                     <Button onClick={handleBulkPrevious}>
-                      Previous Student
+                      សិស្សមុន
                     </Button>
                   )}
-                  
-                  <Button 
-                    type="primary" 
+
+                  <Button
+                    type="primary"
                     htmlType="submit"
                     loading={loading}
                   >
-                    {currentStudentIndex < selectedStudents.length - 1 ? 
-                      'Next Student' : 'Review All'
+                    {currentStudentIndex < selectedStudents.length - 1 ?
+                      'សិស្សបន្ទាប់' : 'ពិនិត្យទាំងអស់'
                     }
                   </Button>
                 </>
               )}
-              
-              <Button 
+
+              <Button
                 onClick={() => form.resetFields()}
                 disabled={loading}
               >
-                Reset
+                កំណត់ឡើងវិញ
               </Button>
             </Space>
           </Form.Item>
@@ -454,13 +495,32 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
 
       {mode === 'bulk' && currentStep === 1 && (
         <div>
-          <Title level={4}>Review All Assessments</Title>
-          
+          <Title level={4}>ពិនិត្យការវាយតម្លៃទាំងអស់</Title>
+
           <div style={{ marginBottom: '24px' }}>
             {selectedStudents.map(studentId => {
               const student = students.find(s => s.id === studentId);
               const data = assessmentData[studentId];
-              
+
+              // Get Khmer labels
+              const getAssessmentTypeLabel = (type: string) => {
+                switch(type) {
+                  case 'baseline': return 'តេស្តដើមគ្រា';
+                  case 'midline': return 'តេស្តពាក់កណ្ដាលគ្រា';
+                  case 'endline': return 'តេស្តចុងក្រោយគ្រា';
+                  default: return type;
+                }
+              };
+
+              const getSubjectLabel = (subj: string) => {
+                switch(subj) {
+                  case 'khmer':
+                  case 'language': return 'ភាសាខ្មែរ';
+                  case 'math': return 'គណិតវិទ្យា';
+                  default: return subj;
+                }
+              };
+
               return (
                 <Card key={studentId} size="small" style={{ marginBottom: '8px' }}>
                   <Row gutter={16}>
@@ -468,16 +528,16 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                       <strong>{student?.name}</strong>
                     </Col>
                     <Col span={4}>
-                      <Tag color="blue">{data?.assessment_type?.toUpperCase()}</Tag>
+                      <Tag color="blue">{getAssessmentTypeLabel(data?.assessment_type)}</Tag>
                     </Col>
                     <Col span={4}>
-                      <Tag color="purple">{data?.subject?.toUpperCase()}</Tag>
+                      <Tag color="purple">{getSubjectLabel(data?.subject)}</Tag>
                     </Col>
                     <Col span={4}>
                       <Tag color="orange">{data?.level?.toUpperCase()}</Tag>
                     </Col>
                     <Col span={3}>
-                      Score: {data?.score || '-'}%
+                      ពិន្ទុ៖ {data?.score || '-'}%
                     </Col>
                     <Col span={3}>
                       {data?.assessed_date}
@@ -490,15 +550,15 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
 
           <Space>
             <Button onClick={() => setCurrentStep(0)}>
-              Back to Edit
+              ត្រឡប់ទៅកែសម្រួល
             </Button>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={handleBulkSubmit}
               loading={loading}
               icon={<SendOutlined />}
             >
-              Submit All Assessments
+              ដាក់ស្នើការវាយតម្លៃទាំងអស់
             </Button>
           </Space>
         </div>

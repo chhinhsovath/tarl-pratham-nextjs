@@ -13,7 +13,12 @@ interface Student {
   id: number;
   name: string;
   sex: string;
-  grade_level: number;
+  grade_level?: number;
+  school_class?: {
+    id: number;
+    name: string;
+    grade: number;
+  } | null;
   baseline_khmer_level?: string | null;
   baseline_math_level?: string | null;
   record_status: string;
@@ -100,9 +105,11 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
             <Text type="secondary" style={{ fontSize: '12px' }}>
               {record.sex === 'male' ? 'ប្រុស' : 'ស្រី'}
             </Text>
-            <Text type="secondary" style={{ fontSize: '12px' }}>
-              ថ្នាក់ទី{record.grade_level}
-            </Text>
+            {(record.school_class?.grade || record.grade_level) && (
+              <Text type="secondary" style={{ fontSize: '12px' }}>
+                ថ្នាក់ទី{record.school_class?.grade || record.grade_level}
+              </Text>
+            )}
           </Space>
         </Space>
       )
@@ -117,11 +124,13 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
     },
     {
       title: 'ថ្នាក់',
-      dataIndex: 'grade_level',
-      key: 'grade_level',
-      width: 80,
+      key: 'grade',
+      width: 100,
       className: 'mobile-hide',
-      render: (grade: number) => `ថ្នាក់ទី${grade}`
+      render: (_: any, record: Student) => {
+        const grade = record.school_class?.grade || record.grade_level;
+        return grade ? `ថ្នាក់ទី${grade}` : '-';
+      }
     },
     {
       title: 'ស្ថានភាព',
