@@ -9,7 +9,8 @@ const { Text, Title } = Typography;
 interface Student {
   id: number;
   name: string;
-  sex: string;
+  sex?: string;
+  gender?: string;
   grade_level: number;
 }
 
@@ -67,16 +68,20 @@ export default function BulkAssessmentStep({
   useEffect(() => {
     // Initialize assessments for each student
     setAssessments(
-      selectedStudents.map(student => ({
-        student_id: student.id,
-        student_name: student.name,
-        assessment_type: assessmentType,
-        subject: subject,
-        gender: student.sex as 'male' | 'female' | undefined,
-        existing_gender: student.sex, // Track existing gender from database
-        level: undefined,
-        score: undefined
-      }))
+      selectedStudents.map(student => {
+        // Support both 'sex' and 'gender' field names (API inconsistency)
+        const studentGender = student.sex || student.gender;
+        return {
+          student_id: student.id,
+          student_name: student.name,
+          assessment_type: assessmentType,
+          subject: subject,
+          gender: studentGender as 'male' | 'female' | undefined,
+          existing_gender: studentGender, // Track existing gender from database
+          level: undefined,
+          score: undefined
+        };
+      })
     );
   }, [selectedStudents, assessmentType, subject]);
 

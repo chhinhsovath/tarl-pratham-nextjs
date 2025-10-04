@@ -24,7 +24,8 @@ interface BulkAssessmentWizardProps {
 interface Student {
   id: number;
   name: string;
-  sex: string;
+  sex?: string;
+  gender?: string;
   grade_level: number;
 }
 

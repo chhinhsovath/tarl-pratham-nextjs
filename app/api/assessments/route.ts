@@ -231,22 +231,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ⚠️ CRITICAL: Permission checks - Mentors can only assess temporary students
-    if (session.user.role === "mentor" && student.record_status === 'production') {
-      return NextResponse.json(
-        {
-          error: "អ្នកណែនាំមិនអាចវាយតម្លៃសិស្សផលិតកម្មបាន",
-          message: "Mentors can only assess temporary (test) students, not production students created by teachers",
-          code: "PERMISSION_DENIED",
-          meta: {
-            student_id: student.id,
-            student_record_status: student.record_status,
-            user_role: session.user.role
-          }
-        },
-        { status: 403 }
-      );
-    }
+    // ⚠️ HYBRID APPROACH: Mentors can assess production students, but assessments are temporary
+    // Note: Mentor assessments on production students will be marked as temporary
+    // and require teacher/admin review before becoming permanent
 
     // ⚠️ CRITICAL: Teachers can only assess production students
     if (session.user.role === "teacher" && student.record_status !== 'production') {
