@@ -144,6 +144,7 @@ model SchoolClass {
 
 model Student {
   id                       Int                            @id @default(autoincrement())
+  student_id               String?                        @unique
   school_class_id          Int?
   pilot_school_id          Int?
   name                     String

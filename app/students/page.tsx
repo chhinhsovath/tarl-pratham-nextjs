@@ -123,9 +123,9 @@ function StudentsContent() {
   const handleSubmit = async (values: any) => {
     try {
       const studentData = {
+        student_id: values.student_id,
         name: values.name,
-        gender: values.gender,
-        age: parseInt(values.age)
+        gender: values.gender
       };
 
       if (editingStudent) {
@@ -573,48 +573,32 @@ function StudentsContent() {
           onFinish={handleSubmit}
         >
           <Form.Item
+            label="លេខសម្គាល់សិស្ស"
+            name="student_id"
+            rules={[{ required: true, message: 'សូមបញ្ចូលលេខសម្គាល់សិស្ស!' }]}
+          >
+            <Input placeholder="បញ្ចូលលេខសម្គាល់សិស្ស" size="large" />
+          </Form.Item>
+
+          <Form.Item
             label="ឈ្មោះសិស្ស"
             name="name"
             rules={[{ required: true, message: 'សូមបញ្ចូលឈ្មោះសិស្ស!' }]}
           >
-            <Input placeholder="បញ្ចូលឈ្មោះពេញ" />
+            <Input placeholder="បញ្ចូលឈ្មោះពេញ" size="large" />
           </Form.Item>
 
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="ភេទ"
-                name="gender"
-                rules={[{ required: true, message: 'សូមជ្រើសរើសភេទ!' }]}
-              >
-                <Select placeholder="ជ្រើសរើសភេទ">
-                  <Option value="male">ប្រុស</Option>
-                  <Option value="female">ស្រី</Option>
-                  <Option value="other">ផ្សេងទៀត</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="អាយុ"
-                name="age"
-                rules={[
-                  { required: true, message: 'សូមបញ្ចូលអាយុ!' },
-                  {
-                    validator: (_, value) => {
-                      const num = parseInt(value);
-                      if (isNaN(num) || num < 1 || num > 25) {
-                        return Promise.reject('អាយុត្រូវតែនៅចន្លោះ 1-25');
-                      }
-                      return Promise.resolve();
-                    }
-                  }
-                ]}
-              >
-                <Input type="number" placeholder="បញ្ចូលអាយុ" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            label="ភេទ"
+            name="gender"
+            rules={[{ required: true, message: 'សូមជ្រើសរើសភេទ!' }]}
+          >
+            <Select placeholder="ជ្រើសរើសភេទ" size="large">
+              <Option value="male">ប្រុស</Option>
+              <Option value="female">ស្រី</Option>
+              <Option value="other">ផ្សេងទៀត</Option>
+            </Select>
+          </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
             <Space>
