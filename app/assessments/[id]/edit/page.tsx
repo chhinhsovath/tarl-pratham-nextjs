@@ -29,53 +29,50 @@ export default function EditAssessmentPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [students, setStudents] = useState([]);
+  const [assessment, setAssessment] = useState<any>(null);
 
   useEffect(() => {
     if (params.id) {
-      fetchAssessment();
-      fetchStudents();
+      fetchData();
     }
   }, [params.id]);
 
-  const fetchAssessment = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/assessments/${params.id}`);
 
-      if (!response.ok) {
+      // Fetch students first
+      const studentsResponse = await fetch('/api/students');
+      if (studentsResponse.ok) {
+        const studentsData = await studentsResponse.json();
+        setStudents(studentsData.students || []);
+      }
+
+      // Then fetch assessment
+      const assessmentResponse = await fetch(`/api/assessments/${params.id}`);
+      if (!assessmentResponse.ok) {
         throw new Error('Failed to fetch assessment');
       }
 
-      const data = await response.json();
-      const assessment = data.assessment || data.data;
+      const data = await assessmentResponse.json();
+      const assessmentData = data.assessment || data.data;
+      setAssessment(assessmentData);
 
-      // Set form values
+      // Set form values after students are loaded
       form.setFieldsValue({
-        student_id: assessment.student_id,
-        assessment_type: assessment.assessment_type,
-        subject: assessment.subject,
-        level: assessment.level,
-        score: assessment.score,
-        assessed_date: assessment.assessed_date ? dayjs(assessment.assessed_date) : null,
-        notes: assessment.notes
+        student_id: assessmentData.student_id,
+        assessment_type: assessmentData.assessment_type,
+        subject: assessmentData.subject,
+        level: assessmentData.level,
+        score: assessmentData.score,
+        assessed_date: assessmentData.assessed_date ? dayjs(assessmentData.assessed_date) : null,
+        notes: assessmentData.notes
       });
     } catch (error) {
-      console.error('Error fetching assessment:', error);
-      message.error('មិនអាចទាញយកទិន្នន័យការវាយតម្លៃបានទេ');
+      console.error('Error fetching data:', error);
+      message.error('មិនអាចទាញយកទិន្នន័យបានទេ');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchStudents = async () => {
-    try {
-      const response = await fetch('/api/students');
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data.students || []);
-      }
-    } catch (error) {
-      console.error('Error fetching students:', error);
     }
   };
 
