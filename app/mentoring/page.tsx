@@ -406,53 +406,57 @@ function MentoringContent() {
         </div>
 
         {/* Filters */}
-        <Card size="small" style={{ marginBottom: '16px' }}>
-          <Row gutter={16}>
-            <Col span={6}>
+        <Card bodyStyle={{ padding: '16px' }} style={{ marginBottom: '16px' }}>
+          <Row gutter={[12, 12]}>
+            <Col xs={24} md={8}>
               <Input
                 placeholder="ស្វែងរកការចុះអប់រំ..."
                 prefix={<SearchOutlined />}
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
                 allowClear
+                size="large"
               />
             </Col>
-            
-            <Col span={6}>
+
+            <Col xs={12} md={6}>
               <Select
                 placeholder="ជ្រើសរើសសាលា"
                 value={filters.pilot_school_id}
                 onChange={(value) => handleFilterChange('pilot_school_id', value)}
                 allowClear
                 style={{ width: '100%' }}
+                size="large"
               >
                 {pilotSchools.map((school: any) => (
                   <Option key={school.id} value={school.id}>
-                    {school.name} ({school.code})
+                    {school.school_name}
                   </Option>
                 ))}
               </Select>
             </Col>
-            
-            <Col span={4}>
+
+            <Col xs={12} md={5}>
               <Select
                 placeholder="ស្ថានភាព"
                 value={filters.status}
                 onChange={(value) => handleFilterChange('status', value)}
                 allowClear
                 style={{ width: '100%' }}
+                size="large"
               >
                 <Option value="scheduled">កំពុងដំណើរការ</Option>
                 <Option value="completed">បានបញ្ចប់</Option>
                 <Option value="cancelled">បានបោះបង់</Option>
               </Select>
             </Col>
-            
-            <Col span={8}>
+
+            <Col xs={24} md={5}>
               <RangePicker
                 style={{ width: '100%' }}
                 onChange={handleDateRangeChange}
-                placeholder={['ថ្ងៃចាប់ផ្តើម', 'ថ្ងៃបញ្ចប់']}
+                placeholder={['ចាប់ពី', 'ដល់']}
+                size="large"
               />
             </Col>
           </Row>

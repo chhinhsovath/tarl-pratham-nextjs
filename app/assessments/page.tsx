@@ -428,27 +428,27 @@ function AssessmentsContent() {
         </div>
 
         {/* Filters */}
-        <Card size="small" style={{ marginBottom: '16px' }} bodyStyle={{ padding: '12px' }}>
-          <Row gutter={[8, 8]}>
-            <Col xs={24} sm={12} md={8} lg={6}>
+        <Card bodyStyle={{ padding: '16px' }} style={{ marginBottom: '16px' }}>
+          <Row gutter={[12, 12]}>
+            <Col xs={24} md={10}>
               <Input
                 placeholder="ស្វែងរក..."
                 prefix={<SearchOutlined />}
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
                 allowClear
-                size="middle"
+                size="large"
               />
             </Col>
 
-            <Col xs={12} sm={6} md={6} lg={4}>
+            <Col xs={12} md={7}>
               <Select
                 placeholder="ប្រភេទ"
                 value={filters.assessment_type}
                 onChange={(value) => handleFilterChange('assessment_type', value)}
                 allowClear
                 style={{ width: '100%' }}
-                size="middle"
+                size="large"
               >
                 <Option value="ដើមគ្រា">ដើមគ្រា</Option>
                 <Option value="ពាក់កណ្តាលគ្រា">ពាក់កណ្តាលគ្រា</Option>
@@ -456,80 +456,17 @@ function AssessmentsContent() {
               </Select>
             </Col>
 
-            <Col xs={12} sm={6} md={6} lg={4}>
+            <Col xs={12} md={7}>
               <Select
                 placeholder="មុខវិជ្ជា"
                 value={filters.subject}
                 onChange={(value) => handleFilterChange('subject', value)}
                 allowClear
                 style={{ width: '100%' }}
-                size="middle"
+                size="large"
               >
                 <Option value="khmer">ខ្មែរ</Option>
                 <Option value="math">គណិត</Option>
-              </Select>
-            </Col>
-
-            <Col xs={24} sm={12} md={12} lg={5}>
-              <Select
-                placeholder="ជ្រើសរើសសិស្ស"
-                value={filters.student_id}
-                onChange={(value) => handleFilterChange('student_id', value)}
-                allowClear
-                showSearch
-                style={{ width: '100%' }}
-                size="middle"
-                filterOption={(input: string, option: any) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-              >
-                {students.map((student: any) => (
-                  <Option key={student.id} value={student.id}>
-                    {student.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-
-            <Col xs={24} sm={12} md={12} lg={5}>
-              <RangePicker
-                style={{ width: '100%' }}
-                onChange={handleDateRangeChange}
-                placeholder={['ចាប់ពី', 'ដល់']}
-                size="middle"
-              />
-            </Col>
-
-            {(user?.role === 'mentor' || user?.role === 'admin') && (
-              <Col xs={24} sm={12} md={12} lg={6}>
-                <Select
-                  placeholder="សាលារៀន"
-                  value={filters.pilot_school_id}
-                  onChange={(value) => handleFilterChange('pilot_school_id', value)}
-                  allowClear
-                  style={{ width: '100%' }}
-                  size="middle"
-                >
-                  {pilotSchools.map((school: any) => (
-                    <Option key={school.id} value={school.id}>
-                      {school.school_name}
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
-            )}
-
-            <Col xs={12} sm={6} md={6} lg={4}>
-              <Select
-                placeholder="ស្ថានភាព"
-                value={filters.is_temporary}
-                onChange={(value) => handleFilterChange('is_temporary', value)}
-                allowClear
-                style={{ width: '100%' }}
-                size="middle"
-              >
-                <Option value="true">បណ្តោះអាសន្ន</Option>
-                <Option value="false">ស្ថិរភាព</Option>
               </Select>
             </Col>
           </Row>
