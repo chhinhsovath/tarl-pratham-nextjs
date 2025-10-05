@@ -92,21 +92,26 @@ export default function AssessmentDetailPage() {
   }
 
   const typeMap = {
-    'ដើមគ្រា': 'ដើមគ្រា',
-    'ពាក់កណ្តាលគ្រា': 'ពាក់កណ្តាលគ្រា',
-    'ចុងគ្រា': 'ចុងគ្រា'
+    'ដើមគ្រា': 'តេស្តដើមគ្រា',
+    'ពាក់កណ្តាលគ្រា': 'តេស្តពាក់កណ្ដាលគ្រា',
+    'ចុងគ្រា': 'តេស្តចុងក្រោយគ្រា',
+    'baseline': 'តេស្តដើមគ្រា',
+    'midline': 'តេស្តពាក់កណ្ដាលគ្រា',
+    'endline': 'តេស្តចុងក្រោយគ្រា'
   };
 
   const subjectMap = {
     khmer: 'ភាសាខ្មែរ',
-    math: 'គណិតវិទ្យា'
+    math: 'គណិតវិទ្យា',
+    language: 'ភាសាខ្មែរ'
   };
 
   const levelMap = {
-    beginner: 'ចាប់ផ្តើម',
-    letter: 'អក្សរ',
+    beginner: 'កម្រិតដំបូង',
+    letter: 'តួអក្សរ',
     word: 'ពាក្យ',
-    paragraph: 'កថាខណ្ឌ'
+    paragraph: 'កថាខណ្ឌ',
+    story: 'រឿង'
   };
 
   return (

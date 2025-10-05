@@ -251,13 +251,16 @@ function AssessmentsContent() {
       width: 120,
       render: (type: string) => {
         const typeMap = {
-          'ដើមគ្រា': 'ដើមគ្រា',
-          'ពាក់កណ្តាលគ្រា': 'ពាក់កណ្តាលគ្រា',
-          'ចុងគ្រា': 'ចុងគ្រា'
+          'baseline': 'តេស្តដើមគ្រា',
+          'midline': 'តេស្តពាក់កណ្ដាលគ្រា',
+          'endline': 'តេស្តចុងក្រោយគ្រា',
+          'ដើមគ្រា': 'តេស្តដើមគ្រា',
+          'ពាក់កណ្តាលគ្រា': 'តេស្តពាក់កណ្ដាលគ្រា',
+          'ចុងគ្រា': 'តេស្តចុងក្រោយគ្រា'
         };
         return (
-          <Tag color={type === 'ដើមគ្រា' ? 'blue' : type === 'ពាក់កណ្តាលគ្រា' ? 'orange' : 'green'}>
-            {typeMap[type as keyof typeof typeMap]}
+          <Tag color={type === 'baseline' || type === 'ដើមគ្រា' ? 'blue' : type === 'midline' || type === 'ពាក់កណ្តាលគ្រា' ? 'orange' : 'green'}>
+            {typeMap[type as keyof typeof typeMap] || type}
           </Tag>
         );
       }
@@ -270,11 +273,12 @@ function AssessmentsContent() {
       render: (subject: string) => {
         const subjectMap = {
           khmer: 'ភាសាខ្មែរ',
-          math: 'គណិតវិទ្យា'
+          math: 'គណិតវិទ្យា',
+          language: 'ភាសាខ្មែរ'
         };
         return (
-          <Tag color={subject === 'khmer' ? 'purple' : 'cyan'}>
-            {subjectMap[subject as keyof typeof subjectMap]}
+          <Tag color={subject === 'khmer' || subject === 'language' ? 'purple' : 'cyan'}>
+            {subjectMap[subject as keyof typeof subjectMap] || subject}
           </Tag>
         );
       }
@@ -287,19 +291,21 @@ function AssessmentsContent() {
       render: (level: string) => {
         if (!level) return '-';
         const levelMap = {
-          beginner: 'ចាប់ផ្តើម',
-          letter: 'អក្សរ',
+          beginner: 'កម្រិតដំបូង',
+          letter: 'តួអក្សរ',
           word: 'ពាក្យ',
-          paragraph: 'កថាខណ្ឌ'
+          paragraph: 'កថាខណ្ឌ',
+          story: 'រឿង'
         };
         return (
           <Tag color={
             level === 'beginner' ? 'red' :
             level === 'letter' ? 'orange' :
             level === 'word' ? 'gold' :
-            level === 'paragraph' ? 'green' : 'blue'
+            level === 'paragraph' ? 'green' :
+            level === 'story' ? 'blue' : 'blue'
           }>
-            {levelMap[level as keyof typeof levelMap]}
+            {levelMap[level as keyof typeof levelMap] || level}
           </Tag>
         );
       }
@@ -450,9 +456,9 @@ function AssessmentsContent() {
                 style={{ width: '100%' }}
                 size="large"
               >
-                <Option value="ដើមគ្រា">ដើមគ្រា</Option>
-                <Option value="ពាក់កណ្តាលគ្រា">ពាក់កណ្តាលគ្រា</Option>
-                <Option value="ចុងគ្រា">ចុងគ្រា</Option>
+                <Option value="baseline">តេស្តដើមគ្រា</Option>
+                <Option value="midline">តេស្តពាក់កណ្ដាលគ្រា</Option>
+                <Option value="endline">តេស្តចុងក្រោយគ្រា</Option>
               </Select>
             </Col>
 
@@ -465,8 +471,8 @@ function AssessmentsContent() {
                 style={{ width: '100%' }}
                 size="large"
               >
-                <Option value="khmer">ខ្មែរ</Option>
-                <Option value="math">គណិត</Option>
+                <Option value="language">ភាសាខ្មែរ</Option>
+                <Option value="math">គណិតវិទ្យា</Option>
               </Select>
             </Col>
           </Row>

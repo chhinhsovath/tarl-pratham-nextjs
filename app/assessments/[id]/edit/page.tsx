@@ -177,9 +177,9 @@ export default function EditAssessmentPage() {
               rules={[{ required: true, message: 'សូមជ្រើសរើសប្រភេទ' }]}
             >
               <Select placeholder="ជ្រើសរើសប្រភេទ" size="large">
-                <Option value="ដើមគ្រា">ដើមគ្រា (Baseline)</Option>
-                <Option value="ពាក់កណ្តាលគ្រា">ពាក់កណ្តាលគ្រា (Midline)</Option>
-                <Option value="ចុងគ្រា">ចុងគ្រា (Endline)</Option>
+                <Option value="baseline">តេស្តដើមគ្រា</Option>
+                <Option value="midline">តេស្តពាក់កណ្ដាលគ្រា</Option>
+                <Option value="endline">តេស្តចុងក្រោយគ្រា</Option>
               </Select>
             </Form.Item>
 
@@ -189,20 +189,21 @@ export default function EditAssessmentPage() {
               rules={[{ required: true, message: 'សូមជ្រើសរើសមុខវិជ្ជា' }]}
             >
               <Select placeholder="ជ្រើសរើសមុខវិជ្ជា" size="large">
-                <Option value="khmer">ភាសាខ្មែរ</Option>
+                <Option value="language">ភាសាខ្មែរ</Option>
                 <Option value="math">គណិតវិទ្យា</Option>
               </Select>
             </Form.Item>
 
             <Form.Item
               name="level"
-              label="កម្រិត"
+              label="កម្រិត TaRL"
             >
               <Select placeholder="ជ្រើសរើសកម្រិត" allowClear size="large">
-                <Option value="beginner">ចាប់ផ្តើម (Beginner)</Option>
-                <Option value="letter">អក្សរ (Letter)</Option>
-                <Option value="word">ពាក្យ (Word)</Option>
-                <Option value="paragraph">កថាខណ្ឌ (Paragraph)</Option>
+                <Option value="beginner">កម្រិតដំបូង</Option>
+                <Option value="letter">តួអក្សរ</Option>
+                <Option value="word">ពាក្យ</Option>
+                <Option value="paragraph">កថាខណ្ឌ</Option>
+                <Option value="story">រឿង</Option>
               </Select>
             </Form.Item>
 
