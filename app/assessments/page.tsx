@@ -37,6 +37,7 @@ import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import OnboardingTour from '@/components/tour/OnboardingTour';
 import dayjs from 'dayjs';
 import { trackActivity } from '@/lib/trackActivity';
+import { getLevelLabelKM, getSubjectLabelKM, getAssessmentTypeLabelKM } from '@/lib/constants/assessment-levels';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -295,24 +296,24 @@ function AssessmentsContent() {
       dataIndex: 'level',
       key: 'level',
       width: 120,
-      render: (level: string) => {
+      render: (level: string, record: any) => {
         if (!level) return '-';
-        const levelMap = {
-          beginner: 'កម្រិតដំបូង',
-          letter: 'តួអក្សរ',
-          word: 'ពាក្យ',
-          paragraph: 'កថាខណ្ឌ',
-          story: 'រឿង'
-        };
         return (
           <Tag color={
             level === 'beginner' ? 'red' :
             level === 'letter' ? 'orange' :
             level === 'word' ? 'gold' :
             level === 'paragraph' ? 'green' :
-            level === 'story' ? 'blue' : 'blue'
+            level === 'story' ? 'blue' :
+            level === 'comprehension1' ? 'purple' :
+            level === 'comprehension2' ? 'magenta' :
+            level === 'number_1digit' ? 'cyan' :
+            level === 'number_2digit' ? 'geekblue' :
+            level === 'subtraction' ? 'lime' :
+            level === 'division' ? 'volcano' :
+            level === 'word_problems' ? 'orange' : 'default'
           }>
-            {levelMap[level as keyof typeof levelMap] || level}
+            {getLevelLabelKM(record.subject, level)}
           </Tag>
         );
       }
