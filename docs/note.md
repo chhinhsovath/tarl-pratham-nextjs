@@ -15,11 +15,11 @@ endline តេស្តចុងក្រោយគ្រា
 កថាខណ្ឌ
 រឿង (យល់ន័យ១ យល់ន័យ២)
 
- គណិតវិទ្យា
+គណិតវិទ្យា
 កម្រិតដំបូង
 លេខ១ខ្ទង
 លេខ២ខ្ទង
-ប្រមាណវិធីដក                                                                                                  ប្រមាណវិធីចែក                                                                                                             
+ប្រមាណវិធីដក                                                                                                  ប្រមាណវិធីចែក                                                                                                         
 ចំណោទ
 
 
@@ -40,3 +40,11 @@ if you check comprehensive table users in field email, username,role,school_id,s
   2. Do these fields need to be added to the assessments table in the database schema? - Yes
   3. Should these fields be required or optional? - Yes
   4. What should be the Khmer labels for these fields in the UI? assessment_sample=គម្រូតេស្ត, student_consent=យល់ព្រមចូលរួម
+
+  > assessment_sample = លេខឧបករណ៍តេស្ត
+
+
+
+  ឧបករណ៍តេស្ត លេខ១
+  ឯកសារសម្រេច លេខ២
+  ឯកសារសម្រេច លេខ៣

@@ -122,10 +122,14 @@ export async function PUT(
     }
 
     const {
+      student_id,
+      assessment_type,
+      subject,
       level,
-      score,
       notes,
-      assessed_date
+      assessed_date,
+      assessment_sample,
+      student_consent
     } = body;
 
     // Check if assessment exists
@@ -134,13 +138,14 @@ export async function PUT(
       select: {
         id: true,
         pilot_school_id: true,
-        level: true,
-        score: true,
-        notes: true,
-        assessed_date: true,
+        student_id: true,
         assessment_type: true,
         subject: true,
-        student_id: true
+        level: true,
+        notes: true,
+        assessed_date: true,
+        assessment_sample: true,
+        student_consent: true
       }
     });
 
@@ -157,10 +162,14 @@ export async function PUT(
     const updatedAssessment = await prisma.assessment.update({
       where: { id: assessmentId },
       data: {
+        student_id: student_id || existingAssessment.student_id,
+        assessment_type: assessment_type || existingAssessment.assessment_type,
+        subject: subject || existingAssessment.subject,
         level: level || existingAssessment.level,
-        score: score !== undefined ? score : existingAssessment.score,
         notes: notes !== undefined ? notes : existingAssessment.notes,
         assessed_date: assessed_date ? new Date(assessed_date) : existingAssessment.assessed_date,
+        assessment_sample: assessment_sample || existingAssessment.assessment_sample,
+        student_consent: student_consent || existingAssessment.student_consent,
         updated_at: new Date()
       },
       include: {
@@ -182,16 +191,24 @@ export async function PUT(
         assessment_id: assessmentId,
         field_name: 'updated',
         old_value: JSON.stringify({
+          student_id: existingAssessment.student_id,
+          assessment_type: existingAssessment.assessment_type,
+          subject: existingAssessment.subject,
           level: existingAssessment.level,
-          score: existingAssessment.score,
           notes: existingAssessment.notes,
-          assessed_date: existingAssessment.assessed_date
+          assessed_date: existingAssessment.assessed_date,
+          assessment_sample: existingAssessment.assessment_sample,
+          student_consent: existingAssessment.student_consent
         }),
         new_value: JSON.stringify({
+          student_id: updatedAssessment.student_id,
+          assessment_type: updatedAssessment.assessment_type,
+          subject: updatedAssessment.subject,
           level: updatedAssessment.level,
-          score: updatedAssessment.score,
           notes: updatedAssessment.notes,
-          assessed_date: updatedAssessment.assessed_date
+          assessed_date: updatedAssessment.assessed_date,
+          assessment_sample: updatedAssessment.assessment_sample,
+          student_consent: updatedAssessment.student_consent
         }),
         changed_by: parseInt(session.user.id)
       }

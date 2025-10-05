@@ -223,13 +223,13 @@ export default function EditAssessmentPage() {
 
             <Form.Item
               name="assessment_sample"
-              label="គម្រូតេស្ត"
-              rules={[{ required: true, message: 'សូមជ្រើសរើសគម្រូតេស្ត' }]}
+              label="លេខឧបករណ៍តេស្ត"
+              rules={[{ required: true, message: 'សូមជ្រើសរើសលេខឧបករណ៍តេស្ត' }]}
             >
-              <Select placeholder="ជ្រើសរើសគម្រូតេស្ត" size="large">
-                <Option value="Sample 1">Sample 1</Option>
-                <Option value="Sample 2">Sample 2</Option>
-                <Option value="Sample 3">Sample 3</Option>
+              <Select placeholder="ជ្រើសរើសលេខឧបករណ៍តេស្ត" size="large">
+                <Option value="Sample 1">ឧបករណ៍តេស្ត លេខ១</Option>
+                <Option value="Sample 2">ឯកសារសម្រេច លេខ២</Option>
+                <Option value="Sample 3">ឯកសារសម្រេច លេខ៣</Option>
               </Select>
             </Form.Item>
 
@@ -239,8 +239,8 @@ export default function EditAssessmentPage() {
               rules={[{ required: true, message: 'សូមជ្រើសរើសការយល់ព្រម' }]}
             >
               <Select placeholder="ជ្រើសរើសការយល់ព្រម" size="large">
-                <Option value="Yes">Yes</Option>
-                <Option value="No">No</Option>
+                <Option value="Yes">បាទ/ចាស</Option>
+                <Option value="No">ទេ</Option>
               </Select>
             </Form.Item>
 
