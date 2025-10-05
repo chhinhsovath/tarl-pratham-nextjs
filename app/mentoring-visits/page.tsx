@@ -350,16 +350,17 @@ function MentoringVisitsContent() {
 
   // Filter section
   const filterSection = (
-    <Card className="mb-4">
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <Card className="mb-4" bodyStyle={{ padding: '16px' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
         <Input
           placeholder="ស្វែងរក..."
           value={filters.search}
           onChange={(e) => setFilters({ ...filters, search: e.target.value })}
           prefix={<SearchOutlined />}
           allowClear
+          size="middle"
         />
-        
+
         <Select
           placeholder="ជ្រើសរើសសាលា"
           value={filters.pilot_school_id || undefined}
@@ -367,6 +368,7 @@ function MentoringVisitsContent() {
           allowClear
           showSearch
           optionFilterProp="children"
+          size="middle"
         >
           {schools.map((school: any) => (
             <Select.Option key={school.id} value={school.id.toString()}>
@@ -382,6 +384,7 @@ function MentoringVisitsContent() {
           allowClear
           showSearch
           optionFilterProp="children"
+          size="middle"
         >
           {mentors.map((mentor: any) => (
             <Select.Option key={mentor.id} value={mentor.id.toString()}>
@@ -392,7 +395,7 @@ function MentoringVisitsContent() {
 
         <RangePicker
           placeholder={['ចាប់ពី', 'ដល់']}
-          value={filters.visit_date_from && filters.visit_date_to ? 
+          value={filters.visit_date_from && filters.visit_date_to ?
             [dayjs(filters.visit_date_from), dayjs(filters.visit_date_to)] : null}
           onChange={(dates) => {
             if (dates && dates[0] && dates[1]) {
@@ -409,9 +412,10 @@ function MentoringVisitsContent() {
               });
             }
           }}
+          size="middle"
         />
 
-        <Button 
+        <Button
           icon={<FilterOutlined />}
           onClick={() => setFilters({
             search: '',
@@ -420,6 +424,7 @@ function MentoringVisitsContent() {
             visit_date_from: '',
             visit_date_to: ''
           })}
+          size="middle"
         >
           សម្អាត
         </Button>
