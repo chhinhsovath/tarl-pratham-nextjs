@@ -69,38 +69,40 @@ export default function TaskList({ tasks, onTaskComplete }: TaskListProps) {
               transition: 'all 0.3s ease'
             }}
           >
-            <Space style={{ width: '100%', justifyContent: 'space-between' }} align="start">
-              <Space align="start">
-                <Checkbox
-                  checked={isCompleted}
-                  onChange={() => handleTaskToggle(task.id)}
-                  style={{ marginTop: '4px' }}
-                />
-                <Space direction="vertical" size={4}>
-                  <Text
-                    strong
-                    style={{
-                      textDecoration: isCompleted ? 'line-through' : 'none',
-                      fontSize: '15px'
-                    }}
-                  >
-                    {isCompleted && <CheckCircleOutlined style={{ color: '#52c41a', marginRight: '8px' }} />}
-                    {task.title}
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: '13px' }}>
-                    {task.description}
-                  </Text>
-                  {task.dueDate && (
-                    <Text type="secondary" style={{ fontSize: '12px' }}>
-                      <ClockCircleOutlined /> {task.dueDate}
+            <div style={{ width: '100%' }}>
+              <Space style={{ width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }} align="start">
+                <Space align="start" style={{ flex: 1, minWidth: '200px' }}>
+                  <Checkbox
+                    checked={isCompleted}
+                    onChange={() => handleTaskToggle(task.id)}
+                    style={{ marginTop: '4px', minWidth: '20px', minHeight: '20px' }}
+                  />
+                  <Space direction="vertical" size={4}>
+                    <Text
+                      strong
+                      style={{
+                        textDecoration: isCompleted ? 'line-through' : 'none',
+                        fontSize: '15px'
+                      }}
+                    >
+                      {isCompleted && <CheckCircleOutlined style={{ color: '#52c41a', marginRight: '8px' }} />}
+                      {task.title}
                     </Text>
-                  )}
+                    <Text type="secondary" style={{ fontSize: '13px' }}>
+                      {task.description}
+                    </Text>
+                    {task.dueDate && (
+                      <Text type="secondary" style={{ fontSize: '12px' }}>
+                        <ClockCircleOutlined /> {task.dueDate}
+                      </Text>
+                    )}
+                  </Space>
                 </Space>
+                <Tag color={getPriorityColor(task.priority)} style={{ marginTop: '4px' }}>
+                  {getPriorityLabel(task.priority)}
+                </Tag>
               </Space>
-              <Tag color={getPriorityColor(task.priority)}>
-                {getPriorityLabel(task.priority)}
-              </Tag>
-            </Space>
+            </div>
           </List.Item>
         );
       }}

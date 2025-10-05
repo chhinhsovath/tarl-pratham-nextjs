@@ -100,7 +100,7 @@ export default function ProgressSummary({
         </div>
 
         {/* Statistics */}
-        <Row gutter={16}>
+        <Row gutter={[12, 12]}>
           <Col xs={24} sm={8}>
             <Card
               size="small"
@@ -119,7 +119,7 @@ export default function ProgressSummary({
                 }
                 value={studentsAssessed}
                 suffix={`/ ${totalStudents}`}
-                valueStyle={{ color: '#52c41a', fontSize: '24px' }}
+                valueStyle={{ color: '#52c41a', fontSize: '20px' }}
               />
             </Card>
           </Col>
@@ -141,7 +141,7 @@ export default function ProgressSummary({
                 }
                 value={studentsRemaining}
                 suffix="នាក់"
-                valueStyle={{ color: '#fa8c16', fontSize: '24px' }}
+                valueStyle={{ color: '#fa8c16', fontSize: '20px' }}
               />
             </Card>
           </Col>
@@ -163,7 +163,7 @@ export default function ProgressSummary({
                 }
                 value={totalStudents}
                 suffix="នាក់"
-                valueStyle={{ color: periodColor, fontSize: '24px' }}
+                valueStyle={{ color: periodColor, fontSize: '20px' }}
               />
             </Card>
           </Col>

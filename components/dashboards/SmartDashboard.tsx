@@ -265,6 +265,7 @@ export default function SmartDashboard() {
             </Space>
           }
           style={{ marginBottom: '24px' }}
+          bodyStyle={{ padding: '16px' }}
           extra={
             <Badge count={stats.tasksToday.filter(t => !t.completed).length} showZero>
               <Text type="secondary">នៅសល់</Text>
@@ -276,8 +277,8 @@ export default function SmartDashboard() {
           {/* Progress Bar */}
           {stats.totalStudents > 0 && (
             <div style={{ marginTop: '24px', padding: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
-              <Row gutter={16} align="middle">
-                <Col span={18}>
+              <Row gutter={[16, 16]} align="middle">
+                <Col xs={24} sm={18}>
                   <Space direction="vertical" size={4} style={{ width: '100%' }}>
                     <Text strong>ការវឌ្ឍនភាពការវាយតម្លៃ</Text>
                     <Progress
@@ -290,7 +291,7 @@ export default function SmartDashboard() {
                     />
                   </Space>
                 </Col>
-                <Col span={6} style={{ textAlign: 'right' }}>
+                <Col xs={24} sm={6} style={{ textAlign: 'center' }}>
                   <Space direction="vertical" size={0}>
                     <Text strong style={{ fontSize: '24px', color: '#52c41a' }}>
                       {stats.studentsAssessed}/{stats.totalStudents}
@@ -321,10 +322,11 @@ export default function SmartDashboard() {
           </Space>
         }
         style={{ marginBottom: '24px' }}
+        bodyStyle={{ padding: '16px' }}
       >
-        <Row gutter={[16, 16]} className="quick-actions-grid">
+        <Row gutter={[12, 12]} className="quick-actions-grid">
           {getQuickActions().map((action, index) => (
-            <Col xs={12} sm={12} md={6} key={index}>
+            <Col xs={24} sm={12} md={6} key={index}>
               <QuickActionCard {...action} />
             </Col>
           ))}
@@ -340,6 +342,7 @@ export default function SmartDashboard() {
               <Text strong style={{ fontSize: '18px' }}>📅 ការណាត់ជួបខាងមុខ</Text>
             </Space>
           }
+          bodyStyle={{ padding: '16px' }}
         >
           <Space direction="vertical" style={{ width: '100%' }} size="middle">
             {stats.upcomingDeadlines.map(deadline => (
@@ -352,11 +355,11 @@ export default function SmartDashboard() {
                   borderLeft: '4px solid #1890ff'
                 }}
               >
-                <Row justify="space-between" align="middle">
-                  <Col>
+                <Row justify="space-between" align="middle" gutter={[8, 8]}>
+                  <Col xs={24} sm={16}>
                     <Text strong>{deadline.title}</Text>
                   </Col>
-                  <Col>
+                  <Col xs={24} sm={8} style={{ textAlign: 'right' }}>
                     <Tag color="blue">{deadline.date}</Tag>
                   </Col>
                 </Row>

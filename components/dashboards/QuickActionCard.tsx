@@ -33,13 +33,13 @@ export default function QuickActionCard({
           background: color,
           border: 'none',
           borderRadius: '12px',
-          height: '160px',
+          minHeight: '140px',
           cursor: 'pointer',
           transition: 'all 0.3s ease',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
         }}
         bodyStyle={{
-          padding: '20px',
+          padding: '16px',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -47,14 +47,14 @@ export default function QuickActionCard({
         }}
         className="quick-action-card"
       >
-        <Space direction="vertical" size={8} style={{ width: '100%' }}>
-          <div style={{ fontSize: '32px', lineHeight: 1 }}>
+        <Space direction="vertical" size={6} style={{ width: '100%' }}>
+          <div style={{ fontSize: '28px', lineHeight: 1 }}>
             {icon}
           </div>
-          <Text strong style={{ color: 'white', fontSize: '16px', display: 'block' }}>
+          <Text strong style={{ color: 'white', fontSize: '15px', display: 'block', lineHeight: '1.3' }}>
             {title}
           </Text>
-          <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '13px', display: 'block' }}>
+          <Text style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '12px', display: 'block', lineHeight: '1.4' }}>
             {description}
           </Text>
         </Space>
