@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Only admins, coordinators, and teachers can assign classes
-    if (!["admin", "coordinator", "teacher"].includes(session.user.role)) {
+    // Only admins, coordinators, teachers, and mentors can assign classes
+    if (!["admin", "coordinator", "teacher", "mentor"].includes(session.user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -33,6 +33,14 @@ export async function POST(request: NextRequest) {
     if (!grade) {
       return NextResponse.json(
         { error: "សូមជ្រើសរើសកម្រិតថ្នាក់" },
+        { status: 400 }
+      );
+    }
+
+    // Only allow Grade 4 and Grade 5
+    if (![4, 5].includes(Number(grade))) {
+      return NextResponse.json(
+        { error: "កម្រិតថ្នាក់ត្រូវតែជាថ្នាក់ទី៤ ឬថ្នាក់ទី៥ប៉ុណ្ណោះ" },
         { status: 400 }
       );
     }

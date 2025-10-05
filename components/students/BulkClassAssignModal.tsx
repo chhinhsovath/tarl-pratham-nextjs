@@ -87,12 +87,8 @@ export default function BulkClassAssignModal({
             placeholder="ជ្រើសរើសថ្នាក់"
             size="large"
           >
-            <Option value={1}>ថ្នាក់ទី១</Option>
-            <Option value={2}>ថ្នាក់ទី២</Option>
-            <Option value={3}>ថ្នាក់ទី៣</Option>
             <Option value={4}>ថ្នាក់ទី៤</Option>
             <Option value={5}>ថ្នាក់ទី៥</Option>
-            <Option value={6}>ថ្នាក់ទី៦</Option>
           </Select>
         </Form.Item>
 
