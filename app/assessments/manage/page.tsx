@@ -546,15 +546,15 @@ export default function AssessmentManagementPage() {
           <Space>
             {session?.user?.role === 'admin' && (
               <>
-                <Button 
-                  size="small" 
+                <Button
+                  size="large"
                   icon={<LockOutlined />}
                   onClick={() => handleBulkOperation('lock')}
                 >
                   ចាក់សោ
                 </Button>
-                <Button 
-                  size="small" 
+                <Button
+                  size="large"
                   icon={<UnlockOutlined />}
                   onClick={() => handleBulkOperation('unlock')}
                 >
@@ -564,15 +564,15 @@ export default function AssessmentManagementPage() {
             )}
             {(session?.user?.role === 'admin' || session?.user?.role === 'mentor') && (
               <>
-                <Button 
-                  size="small" 
+                <Button
+                  size="large"
                   icon={<CheckCircleOutlined />}
                   onClick={() => handleBulkOperation('verify')}
                 >
                   ផ្ទៀងផ្ទាត់
                 </Button>
-                <Button 
-                  size="small" 
+                <Button
+                  size="large"
                   icon={<ExclamationCircleOutlined />}
                   onClick={() => handleBulkOperation('unverify')}
                 >
@@ -580,8 +580,8 @@ export default function AssessmentManagementPage() {
                 </Button>
               </>
             )}
-            <Button 
-              size="small" 
+            <Button
+              size="large"
               danger
               icon={<DeleteOutlined />}
               onClick={() => handleBulkOperation('delete')}

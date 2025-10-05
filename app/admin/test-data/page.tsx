@@ -378,6 +378,7 @@ export default function TestDataManagementPage() {
               rowKey="record_status"
               pagination={false}
               loading={loading}
+              scroll={{ x: 'max-content' }}
             />
           </Card>
 
@@ -442,6 +443,7 @@ export default function TestDataManagementPage() {
               rowKey="id"
               loading={loading}
               pagination={{ pageSize: 10 }}
+              scroll={{ x: 'max-content' }}
             />
           </Card>
         </TabPane>

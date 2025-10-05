@@ -247,8 +247,8 @@ function StudentsContent() {
       dataIndex: 'gender',
       key: 'gender',
       render: (gender: string) => (
-        <Tag color={gender === 'male' ? 'blue' : 'pink'}>
-          {gender === 'male' ? 'ប្រុស' : gender === 'female' ? 'ស្រី' : gender}
+        <Tag color={gender === 'ប្រុស' ? 'blue' : 'pink'}>
+          {gender || '-'}
         </Tag>
       ),
     },
@@ -377,9 +377,8 @@ function StudentsContent() {
             </Col>
             <Col xs={24} sm={12} md={4}>
               <Select placeholder="ភេទ" style={{ width: '100%' }} allowClear>
-                <Option value="male">ប្រុស</Option>
-                <Option value="female">ស្រី</Option>
-                <Option value="other">ផ្សេងទៀត</Option>
+                <Option value="ប្រុស">ប្រុស</Option>
+                <Option value="ស្រី">ស្រី</Option>
               </Select>
             </Col>
             <Col xs={24} sm={12} md={4}>
@@ -438,9 +437,8 @@ function StudentsContent() {
                 rules={[{ required: true, message: 'សូមជ្រើសរើសភេទ!' }]}
               >
                 <Select placeholder="ជ្រើសរើសភេទ">
-                  <Option value="male">ប្រុស</Option>
-                  <Option value="female">ស្រី</Option>
-                  <Option value="other">ផ្សេងទៀត</Option>
+                  <Option value="ប្រុស">ប្រុស</Option>
+                  <Option value="ស្រី">ស្រី</Option>
                 </Select>
               </Form.Item>
             </Col>

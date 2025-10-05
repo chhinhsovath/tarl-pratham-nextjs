@@ -234,11 +234,7 @@ function SelectStudentsContent() {
       dataIndex: 'gender',
       key: 'gender',
       width: 100,
-      render: (gender: string) => {
-        if (gender === 'male') return 'ប្រុស';
-        if (gender === 'female') return 'ស្រី';
-        return gender || '-';
-      }
+      render: (gender: string) => gender || '-'
     },
     {
       title: 'ថ្នាក់/សាលា',
@@ -336,13 +332,14 @@ function SelectStudentsContent() {
             </Col>
             
             {user?.role !== 'mentor' && (
-              <Col span={6}>
+              <Col xs={24} sm={12} md={8} lg={6}>
                 <Select
                   placeholder="ជ្រើសរើសថ្នាក់"
                   value={filters.school_class_id}
                   onChange={(value) => handleFilterChange('school_class_id', value)}
                   allowClear
                   style={{ width: '100%' }}
+                  size="large"
                 >
                   {classes.map((schoolClass: any) => (
                     <Option key={schoolClass.id} value={schoolClass.id}>
@@ -352,15 +349,16 @@ function SelectStudentsContent() {
                 </Select>
               </Col>
             )}
-            
+
             {(user?.role === 'mentor' || user?.role === 'admin') && (
-              <Col span={6}>
+              <Col xs={24} sm={12} md={8} lg={6}>
                 <Select
                   placeholder="ជ្រើសរើសសាលាសាកល្បង"
                   value={filters.pilot_school_id}
                   onChange={(value) => handleFilterChange('pilot_school_id', value)}
                   allowClear
                   style={{ width: '100%' }}
+                  size="large"
                 >
                   {pilotSchools.map((school: any) => (
                     <Option key={school.id} value={school.id}>
@@ -370,17 +368,18 @@ function SelectStudentsContent() {
                 </Select>
               </Col>
             )}
-            
-            <Col span={6}>
+
+            <Col xs={24} sm={12} md={8} lg={6}>
               <Select
                 placeholder="ជ្រើសរើសភេទ"
                 value={filters.gender}
                 onChange={(value) => handleFilterChange('gender', value)}
                 allowClear
                 style={{ width: '100%' }}
+                size="large"
               >
-                <Option value="male">ប្រុស</Option>
-                <Option value="female">ស្រី</Option>
+                <Option value="ប្រុស">ប្រុស</Option>
+                <Option value="ស្រី">ស្រី</Option>
               </Select>
             </Col>
           </Row>

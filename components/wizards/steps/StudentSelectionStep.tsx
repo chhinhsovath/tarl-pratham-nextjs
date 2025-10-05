@@ -12,7 +12,8 @@ const { Text, Title } = Typography;
 interface Student {
   id: number;
   name: string;
-  sex: string;
+  sex?: string;
+  gender?: string;
   grade_level?: number;
   school_class?: {
     id: number;
@@ -21,7 +22,7 @@ interface Student {
   } | null;
   baseline_khmer_level?: string | null;
   baseline_math_level?: string | null;
-  record_status: string;
+  record_status?: string;
 }
 
 interface StudentSelectionStepProps {
@@ -102,9 +103,11 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
             )}
           </Space>
           <Space size={8}>
-            <Text type="secondary" style={{ fontSize: '12px' }}>
-              {record.sex === 'male' ? 'ប្រុស' : 'ស្រី'}
-            </Text>
+            {(record.sex || record.gender) && (
+              <Text type="secondary" style={{ fontSize: '12px' }}>
+                {record.sex || record.gender}
+              </Text>
+            )}
             {(record.school_class?.grade || record.grade_level) && (
               <Text type="secondary" style={{ fontSize: '12px' }}>
                 ថ្នាក់ទី{record.school_class?.grade || record.grade_level}
@@ -120,7 +123,7 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
       key: 'sex',
       width: 80,
       className: 'mobile-hide',
-      render: (sex: string) => sex === 'male' ? 'ប្រុស' : 'ស្រី'
+      render: (_: any, record: Student) => record.sex || record.gender || '-'
     },
     {
       title: 'ថ្នាក់',

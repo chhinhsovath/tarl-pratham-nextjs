@@ -85,7 +85,7 @@ export default function EnrichedStudentCard({
             </Title>
             <Text type="secondary">
               {student.age ? `អាយុ ${student.age} ឆ្នាំ` : ''}
-              {student.gender ? ` | ${student.gender === 'male' ? 'ប្រុស' : 'ស្រី'}` : ''}
+              {student.gender ? ` | ${student.gender}` : ''}
             </Text>
           </div>
         </Space>

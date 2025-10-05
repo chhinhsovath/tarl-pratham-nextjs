@@ -25,7 +25,7 @@ export default function QuickStudentAdd({ onSuccess, onCancel }: QuickStudentAdd
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: values.name,
-          sex: values.sex,
+          gender: values.gender,
           grade_level: values.grade_level,
           date_of_birth: values.date_of_birth || null,
           pilot_school_id: session?.user?.pilot_school_id || null
@@ -76,7 +76,7 @@ export default function QuickStudentAdd({ onSuccess, onCancel }: QuickStudentAdd
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
-          sex: 'male',
+          gender: 'ប្រុស',
           grade_level: 4
         }}
       >
@@ -101,12 +101,12 @@ export default function QuickStudentAdd({ onSuccess, onCancel }: QuickStudentAdd
           <Col xs={24} md={6}>
             <Form.Item
               label="ភេទ"
-              name="sex"
+              name="gender"
               rules={[{ required: true, message: 'សូមជ្រើសរើសភេទ' }]}
             >
               <Select size="large">
-                <Option value="male">ប្រុស</Option>
-                <Option value="female">ស្រី</Option>
+                <Option value="ប្រុស">ប្រុស</Option>
+                <Option value="ស្រី">ស្រី</Option>
               </Select>
             </Form.Item>
           </Col>

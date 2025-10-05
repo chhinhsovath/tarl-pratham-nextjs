@@ -11,7 +11,7 @@ interface Student {
   name: string;
   sex?: string;
   gender?: string;
-  grade_level: number;
+  grade_level?: number;
 }
 
 interface BulkAssessmentData {
@@ -249,8 +249,8 @@ export default function BulkAssessmentStep({
                     textAlign: 'center'
                   }}>
                     {assessment.existing_gender ? (
-                      <Tag color={assessment.existing_gender === 'male' ? 'blue' : 'pink'}>
-                        {assessment.existing_gender === 'male' ? 'ប្រុស' : 'ស្រី'}
+                      <Tag color={assessment.existing_gender === 'ប្រុស' ? 'blue' : 'pink'}>
+                        {assessment.existing_gender}
                       </Tag>
                     ) : (
                       <Text type="secondary">-</Text>

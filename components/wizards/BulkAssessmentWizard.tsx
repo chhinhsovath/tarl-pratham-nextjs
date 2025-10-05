@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Steps, Card, Button, Space, Typography, message, Select, Row, Col } from 'antd';
 import {
   TeamOutlined,
@@ -8,7 +8,7 @@ import {
   SaveOutlined,
   RocketOutlined
 } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import StudentSelectionStep from './steps/StudentSelectionStep';
 import BulkAssessmentStep from './steps/BulkAssessmentStep';
 import SuccessStep from './steps/SuccessStep';
@@ -26,17 +26,68 @@ interface Student {
   name: string;
   sex?: string;
   gender?: string;
-  grade_level: number;
+  grade_level?: number;
+  school_class?: {
+    id: number;
+    name: string;
+    grade: number;
+  } | null;
+  baseline_khmer_level?: string | null;
+  baseline_math_level?: string | null;
+  record_status?: string;
 }
 
 export default function BulkAssessmentWizard({ onComplete, onCancel }: BulkAssessmentWizardProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
   const [assessmentType, setAssessmentType] = useState<'baseline' | 'midline' | 'endline'>('baseline');
   const [subject, setSubject] = useState<'language' | 'math'>('language');
   const [loading, setLoading] = useState(false);
   const [successCount, setSuccessCount] = useState(0);
+
+  // Load students from URL parameter on mount
+  useEffect(() => {
+    const studentIdsParam = searchParams.get('student_ids');
+    if (studentIdsParam) {
+      const ids = studentIdsParam.split(',').map(id => parseInt(id.trim()));
+      loadStudentsByIds(ids);
+    }
+  }, [searchParams]);
+
+  const loadStudentsByIds = async (ids: number[]) => {
+    setLoading(true);
+    try {
+      const students: Student[] = [];
+
+      // Fetch each student by ID
+      for (const id of ids) {
+        try {
+          const response = await fetch(`/api/students/${id}`);
+          if (response.ok) {
+            const result = await response.json();
+            if (result.student) {
+              students.push(result.student);
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching student ${id}:`, error);
+        }
+      }
+
+      if (students.length > 0) {
+        setSelectedStudents(students);
+        message.success(`បានផ្ទុកសិស្ស ${students.length} នាក់ពី URL`);
+      } else {
+        message.warning('រកមិនឃើញសិស្សណាមួយទេ');
+      }
+    } catch (error) {
+      message.error('មានបញ្ហាក្នុងការផ្ទុកសិស្ស');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const steps = [
     {
