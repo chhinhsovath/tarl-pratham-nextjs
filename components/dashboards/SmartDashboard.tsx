@@ -225,16 +225,17 @@ export default function SmartDashboard() {
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '100%', margin: '0 auto', overflow: 'hidden' }}>
       {/* Welcome Header */}
       <Card
         style={{
           background: `linear-gradient(135deg, ${getPeriodColor(stats?.currentPeriod || 'baseline')} 0%, ${getPeriodColor(stats?.currentPeriod || 'baseline')}dd 100%)`,
           border: 'none',
           marginBottom: '24px',
-          color: 'white'
+          color: 'white',
+          width: '100%'
         }}
-        bodyStyle={{ padding: '24px' }}
+        bodyStyle={{ padding: '16px' }}
       >
         <Row align="middle" gutter={[16, 16]}>
           <Col xs={24} md={16}>
@@ -264,7 +265,7 @@ export default function SmartDashboard() {
               <Text strong style={{ fontSize: '18px' }}>🎯 ការងារថ្ងៃនេះ</Text>
             </Space>
           }
-          style={{ marginBottom: '24px' }}
+          style={{ marginBottom: '24px', width: '100%' }}
           bodyStyle={{ padding: '16px' }}
           extra={
             <Badge count={stats.tasksToday.filter(t => !t.completed).length} showZero>
@@ -321,7 +322,7 @@ export default function SmartDashboard() {
             <Text strong style={{ fontSize: '18px' }}>🔥 ជម្រើសរហ័ស</Text>
           </Space>
         }
-        style={{ marginBottom: '24px' }}
+        style={{ marginBottom: '24px', width: '100%' }}
         bodyStyle={{ padding: '16px' }}
       >
         <Row gutter={[12, 12]} className="quick-actions-grid">
@@ -342,6 +343,7 @@ export default function SmartDashboard() {
               <Text strong style={{ fontSize: '18px' }}>📅 ការណាត់ជួបខាងមុខ</Text>
             </Space>
           }
+          style={{ width: '100%' }}
           bodyStyle={{ padding: '16px' }}
         >
           <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -375,9 +377,11 @@ export default function SmartDashboard() {
           style={{
             marginTop: '24px',
             background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-            border: 'none'
+            border: 'none',
+            width: '100%',
+            maxWidth: '100%'
           }}
-          bodyStyle={{ textAlign: 'center', padding: '24px' }}
+          bodyStyle={{ textAlign: 'center', padding: '16px' }}
         >
           <Space direction="vertical" size="small">
             <TrophyOutlined style={{ fontSize: '48px', color: 'white' }} />
