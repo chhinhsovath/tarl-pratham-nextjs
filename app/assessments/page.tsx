@@ -1,34 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Table, 
-  Button, 
-  Select, 
-  Input, 
-  Row, 
-  Col, 
+import {
+  Card,
+  Table,
+  Button,
+  Select,
+  Input,
+  Row,
+  Col,
   message,
   Space,
   Typography,
   Tag,
   Modal,
   Popconfirm,
-  DatePicker,
-  Dropdown,
-  Menu
+  DatePicker
 } from 'antd';
-import { 
-  PlusOutlined, 
-  SearchOutlined, 
+import {
+  SearchOutlined,
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
-  ExportOutlined,
-  DownOutlined,
-  FileTextOutlined,
-  TeamOutlined
+  ExportOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -213,21 +207,6 @@ function AssessmentsContent() {
       message.error('Failed to export assessments');
     }
   };
-
-  const createAssessmentMenuItems = [
-    {
-      key: 'single',
-      icon: <FileTextOutlined />,
-      label: 'វាយតម្លៃសិស្សម្នាក់',
-      onClick: () => router.push('/assessments/create')
-    },
-    {
-      key: 'bulk',
-      icon: <TeamOutlined />,
-      label: 'វាយតម្លៃសិស្សច្រើននាក់',
-      onClick: () => router.push('/assessments/select-students')
-    }
-  ];
 
   const columns = [
     {
@@ -434,14 +413,6 @@ function AssessmentsContent() {
                   >
                     Export
                   </Button>
-                )}
-
-                {hasPermission(user, 'assessments.create') && (
-                  <Dropdown menu={{ items: createAssessmentMenuItems }} trigger={['click']}>
-                    <Button type="primary" icon={<PlusOutlined />} size="large">
-                      បង្កើតការវាយតម្លៃ <DownOutlined />
-                    </Button>
-                  </Dropdown>
                 )}
               </Space>
             </Col>
