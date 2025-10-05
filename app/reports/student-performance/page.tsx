@@ -34,15 +34,21 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 
 interface StudentPerformance {
-  id: number;
+  student_id: number;
   student_name: string;
   gender: string;
   school: string;
-  latest_khmer_level: string | null;
+  latest_language_level: string | null;
   latest_math_level: string | null;
   assessment_count: number;
-  status: 'active' | 'no_assessment';
-  assessment_date: string;
+  language_progress: {
+    trend: string;
+    improvement: number;
+  };
+  math_progress: {
+    trend: string;
+    improvement: number;
+  };
 }
 
 export default function StudentPerformancePage() {
@@ -72,33 +78,17 @@ export default function StudentPerformancePage() {
 
       if (result.data) {
         const students = result.data.student_performance || [];
-
-        // Transform API data to match our interface
-        const transformedData: StudentPerformance[] = students.map((student: any) => {
-          return {
-            id: student.student_id,
-            student_name: student.student_name || '-',
-            gender: student.gender || '-',
-            school: student.school || '-',
-            latest_khmer_level: student.latest_khmer_level,
-            latest_math_level: student.latest_math_level,
-            assessment_count: student.assessment_count || 0,
-            status: student.assessment_count > 0 ? 'active' : 'no_assessment',
-            assessment_date: new Date().toISOString()
-          };
-        });
-
-        setPerformanceData(transformedData);
+        setPerformanceData(students);
 
         // Extract unique schools
-        const uniqueSchools = [...new Set(transformedData.map(s => s.school).filter(s => s !== '-'))];
+        const uniqueSchools = [...new Set(students.map((s: any) => s.school).filter((s: string) => s && s !== '-'))];
         setSchools(uniqueSchools);
 
         // Calculate statistics
-        const totalStudents = transformedData.length;
-        const withAssessments = transformedData.filter(s => s.assessment_count > 0).length;
-        const female = transformedData.filter(s => s.gender === 'female').length;
-        const male = transformedData.filter(s => s.gender === 'male').length;
+        const totalStudents = students.length;
+        const withAssessments = students.filter((s: any) => s.assessment_count > 0).length;
+        const female = students.filter((s: any) => s.gender === 'female').length;
+        const male = students.filter((s: any) => s.gender === 'male').length;
 
         setStats({
           totalStudents,
@@ -114,12 +104,12 @@ export default function StudentPerformancePage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    return status === 'active' ? 'green' : 'orange';
+  const getStatusColor = (count: number) => {
+    return count > 0 ? 'green' : 'orange';
   };
 
-  const getStatusText = (status: string) => {
-    return status === 'active' ? 'មានការវាយតម្លៃ' : 'មិនទាន់វាយតម្លៃ';
+  const getStatusText = (count: number) => {
+    return count > 0 ? 'មានការវាយតម្លៃ' : 'មិនទាន់វាយតម្លៃ';
   };
 
   const getLevelText = (level: string | null) => {
@@ -163,8 +153,8 @@ export default function StudentPerformancePage() {
     },
     {
       title: 'កម្រិតភាសា',
-      dataIndex: 'latest_khmer_level',
-      key: 'latest_khmer_level',
+      dataIndex: 'latest_language_level',
+      key: 'latest_language_level',
       align: 'center',
       render: (level: string | null) => (
         <Tag color={level ? 'blue' : 'default'}>
@@ -194,11 +184,11 @@ export default function StudentPerformancePage() {
     },
     {
       title: 'ស្ថានភាព',
-      dataIndex: 'status',
+      dataIndex: 'assessment_count',
       key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>
-          {getStatusText(status)}
+      render: (count: number) => (
+        <Tag color={getStatusColor(count)}>
+          {getStatusText(count)}
         </Tag>
       ),
     }

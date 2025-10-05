@@ -180,7 +180,7 @@ export async function PUT(
           select: { name: true, role: true }
         },
         pilot_school: {
-          select: { name: true }
+          select: { school_name: true }
         }
       }
     });

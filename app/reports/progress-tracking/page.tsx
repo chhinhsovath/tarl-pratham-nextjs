@@ -35,7 +35,7 @@ interface ProgressTracking {
   student_name: string;
   gender: string;
   school: string;
-  khmer_progress: {
+  language_progress: {
     trend: string;
     improvement: number;
   };
@@ -43,7 +43,7 @@ interface ProgressTracking {
     trend: string;
     improvement: number;
   };
-  latest_khmer_level: string | null;
+  latest_language_level: string | null;
   latest_math_level: string | null;
   assessment_count: number;
 }
@@ -82,13 +82,13 @@ export default function ProgressTrackingPage() {
         // Calculate statistics
         const totalStudents = students.length;
         const improving = students.filter((s: any) =>
-          s.khmer_progress?.trend === 'improving' || s.math_progress?.trend === 'improving'
+          s.language_progress?.trend === 'improving' || s.math_progress?.trend === 'improving'
         ).length;
         const stable = students.filter((s: any) =>
-          s.khmer_progress?.trend === 'stable' || s.math_progress?.trend === 'stable'
+          s.language_progress?.trend === 'stable' || s.math_progress?.trend === 'stable'
         ).length;
         const insufficient = students.filter((s: any) =>
-          s.khmer_progress?.trend === 'insufficient_data' && s.math_progress?.trend === 'insufficient_data'
+          s.language_progress?.trend === 'insufficient_data' && s.math_progress?.trend === 'insufficient_data'
         ).length;
 
         setStats({
@@ -163,14 +163,14 @@ export default function ProgressTrackingPage() {
     },
     {
       title: 'វឌ្ឍនភាពភាសា',
-      key: 'khmer_progress',
+      key: 'language_progress',
       render: (_, record) => (
         <Space direction="vertical" size="small">
-          <Tag color={getTrendColor(record.khmer_progress?.trend || 'insufficient_data')}>
-            {getTrendText(record.khmer_progress?.trend || 'insufficient_data')}
+          <Tag color={getTrendColor(record.language_progress?.trend || 'insufficient_data')}>
+            {getTrendText(record.language_progress?.trend || 'insufficient_data')}
           </Tag>
           <Text style={{ fontSize: '12px' }}>
-            កម្រិត: {getLevelText(record.latest_khmer_level)}
+            កម្រិត: {getLevelText(record.latest_language_level)}
           </Text>
         </Space>
       ),

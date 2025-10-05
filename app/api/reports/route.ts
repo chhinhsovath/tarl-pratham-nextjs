@@ -57,21 +57,25 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error("Error generating report:", error);
-    
+    console.error("Error stack:", error.stack);
+    console.error("Error code:", error.code);
+
     // Check if it's a Prisma/database error
     if (error.code === 'P2002' || error.code === 'P2025' || error.message?.includes('Invalid')) {
       return NextResponse.json({
+        error: 'បញ្ហាទាក់ទងនឹងមូលដ្ឋានទិន្នន័យ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រព័ន្ធ',
         data: null,
         message: 'មិនមានទិន្នន័យរបាយការណ៍នៅក្នុងប្រព័ន្ធ',
-        error_detail: 'បញ្ហាទាក់ទងនឹងមូលដ្ឋានទិន្នន័យ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រព័ន្ធ'
+        error_detail: error.message
       }, { status: 500 });
     }
-    
+
     return NextResponse.json(
-      { 
-        error: 'មានបញ្ហាក្នុងការបង្កើតរបាយការណ៍ សូមព្យាយាមម្តងទៀត',
+      {
+        error: 'មានបញ្ហាក្នុងការបង្កើតរបាយការណ៍: ' + (error.message || 'Unknown error'),
         data: null,
         message: 'កំពុងប្រើទិន្នន័យសាកល្បង',
+        error_detail: error.stack,
         mock: true
       },
       { status: 500 }
@@ -263,18 +267,18 @@ async function getStudentPerformanceReport(baseFilters: any, params: any) {
 
   // Calculate performance metrics
   const performanceData = studentsWithPerformance.map(student => {
-    const khmerAssessments = student.assessments.filter(a => a.subject === 'khmer');
+    const languageAssessments = student.assessments.filter(a => a.subject === 'language');
     const mathAssessments = student.assessments.filter(a => a.subject === 'math');
-    
+
     return {
       student_id: student.id,
       student_name: student.name,
       age: student.age,
       gender: student.gender,
       school: student.school_class?.school?.name || student.pilot_school?.school_name,
-      khmer_progress: calculateProgress(khmerAssessments),
+      language_progress: calculateProgress(languageAssessments),
       math_progress: calculateProgress(mathAssessments),
-      latest_khmer_level: khmerAssessments[0]?.level || null,
+      latest_language_level: languageAssessments[0]?.level || null,
       latest_math_level: mathAssessments[0]?.level || null,
       assessment_count: student.assessments.length
     };
@@ -285,8 +289,8 @@ async function getStudentPerformanceReport(baseFilters: any, params: any) {
       student_performance: performanceData,
       summary: {
         total_students: performanceData.length,
-        avg_assessments_per_student: performanceData.reduce((sum, s) => sum + s.assessment_count, 0) / performanceData.length,
-        students_with_progress: performanceData.filter(s => s.khmer_progress.trend === 'improving' || s.math_progress.trend === 'improving').length
+        avg_assessments_per_student: performanceData.length > 0 ? performanceData.reduce((sum, s) => sum + s.assessment_count, 0) / performanceData.length : 0,
+        students_with_progress: performanceData.filter(s => s.language_progress.trend === 'improving' || s.math_progress.trend === 'improving').length
       }
     }
   });
