@@ -52,6 +52,13 @@ interface Student {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  assessments?: Array<{
+    id: number;
+    assessment_type: string;
+    subject: string;
+    level?: string;
+    assessed_date?: string;
+  }>;
 }
 
 function StudentsContent() {
@@ -289,6 +296,42 @@ function StudentsContent() {
           {is_active ? 'សកម្ម' : 'អសកម្ម'}
         </Tag>
       ),
+    },
+    {
+      title: 'ការវាយតម្លៃ',
+      key: 'assessments',
+      width: 200,
+      className: 'mobile-hide',
+      render: (_: any, record: Student) => {
+        const assessments = record.assessments || [];
+        const baselineCount = assessments.filter(a => a.assessment_type === 'baseline').length;
+        const midlineCount = assessments.filter(a => a.assessment_type === 'midline').length;
+        const endlineCount = assessments.filter(a => a.assessment_type === 'endline').length;
+
+        if (assessments.length === 0) {
+          return <Tag color="default">មិនទាន់មាន</Tag>;
+        }
+
+        return (
+          <Space size={4} wrap>
+            {baselineCount > 0 && (
+              <Tag color="blue" style={{ margin: '2px' }}>
+                ដើម: {baselineCount}
+              </Tag>
+            )}
+            {midlineCount > 0 && (
+              <Tag color="orange" style={{ margin: '2px' }}>
+                កណ្តាល: {midlineCount}
+              </Tag>
+            )}
+            {endlineCount > 0 && (
+              <Tag color="green" style={{ margin: '2px' }}>
+                ចុង: {endlineCount}
+              </Tag>
+            )}
+          </Space>
+        );
+      },
     },
     {
       title: 'កាលបរិច្ឆេទបង្កើត',

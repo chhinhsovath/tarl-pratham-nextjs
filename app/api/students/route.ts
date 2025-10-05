@@ -166,6 +166,16 @@ export async function GET(request: NextRequest) {
               name: true,
               role: true
             }
+          },
+          assessments: {
+            select: {
+              id: true,
+              assessment_type: true,
+              subject: true,
+              level: true,
+              assessed_date: true
+            },
+            orderBy: { assessed_date: "desc" }
           }
         },
         skip,
