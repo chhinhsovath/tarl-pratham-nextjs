@@ -161,7 +161,6 @@ export async function GET(request: NextRequest) {
               assessment_type: true,
               subject: true,
               level: true,
-              score: true,
               assessed_date: true
             },
             orderBy: { assessed_date: "desc" }
