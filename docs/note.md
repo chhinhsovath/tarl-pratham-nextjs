@@ -49,8 +49,8 @@ if you check comprehensive table users in field email, username,role,school_id,s
 
 
   ឧបករណ៍តេស្ត លេខ១
-  ឯកសារសម្រេច លេខ២
-  ឯកសារសម្រេច លេខ៣
+  ឧបករណ៍តេស្ត លេខ២
+  ឧបករណ៍តេស្ត លេខ៣
 
 
 
