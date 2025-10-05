@@ -27,6 +27,9 @@ Loading student data...
 
 
 
+
+
+
 if you check comprehensive table users in field email, username,role,school_id,subject,province
   that will be helpful to be smart to display student information which will be link with user
   profile information and the student. 
@@ -48,3 +51,20 @@ if you check comprehensive table users in field email, username,role,school_id,s
   ឧបករណ៍តេស្ត លេខ១
   ឯកសារសម្រេច លេខ២
   ឯកសារសម្រេច លេខ៣
+
+
+
+https://tarl.openplp.com/reports/student-performance
+GET https://tarl.openplp.com/api/reports?type=student-performance 500 (Internal Server Error)
+I @ page-a617974f8c9c9519.js?dpl=dpl_B6gz9KaHh4t3w3a6eg7vLc8wXmZ8:1
+(anonymous) @ page-a617974f8c9c9519.js?dpl=dpl_B6gz9KaHh4t3w3a6eg7vLc8wXmZ8:1
+layout-10581d63dd75547b.js?dpl=dpl_B6gz9KaHh4t3w3a6eg7vLc8wXmZ8:1 Failed to fetch performance data: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at W (page-aa9ba2b7e9338b5a.js?dpl=dpl_B6gz9KaHh4t3w3a6eg7vLc8wXmZ8:1:2604)
+
+
+  https://tarl.openplp.com/reports/progress-tracking
+  page-a617974f8c9c951…3w3a6eg7vLc8wXmZ8:1 
+ GET https://tarl.openplp.com/api/reports?type=student-performance 500 (Internal Server Error)
+layout-10581d63dd755…3w3a6eg7vLc8wXmZ8:1 Failed to fetch progress data: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at I (page-a617974f8c9c951…eg7vLc8wXmZ8:1:1387)
+﻿

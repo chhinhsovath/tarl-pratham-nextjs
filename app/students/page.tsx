@@ -251,14 +251,20 @@ function StudentsContent() {
       ),
     },
     {
+      title: 'លេខសម្គាល់សិស្ស',
+      dataIndex: 'student_id',
+      key: 'student_id',
+      width: 150,
+      render: (student_id: string) => student_id || '-',
+    },
+    {
       title: 'ឈ្មោះសិស្ស',
       dataIndex: 'name',
       key: 'name',
       width: 200,
-      fixed: 'left',
       render: (text: string, record: Student) => (
         <Space>
-          <UserOutlined style={{ color: record.gender === 'ប្រុស' ? '#1890ff' : '#f759ab' }} />
+          <UserOutlined style={{ color: record.gender === 'male' ? '#1890ff' : '#f759ab' }} />
           <strong>{text}</strong>
         </Space>
       ),
@@ -267,8 +273,7 @@ function StudentsContent() {
       title: 'ភេទ',
       dataIndex: 'gender',
       key: 'gender',
-      width: 80,
-      className: 'mobile-hide',
+      width: 100,
       render: (gender: string) => {
         const genderMap = {
           'male': 'ប្រុស',
@@ -286,67 +291,26 @@ function StudentsContent() {
       },
     },
     {
-      title: 'អាយុ',
-      dataIndex: 'age',
-      key: 'age',
-      width: 70,
-      className: 'mobile-hide',
-      render: (age: number) => age || '-',
-    },
-    {
-      title: 'ស្ថានភាព',
-      dataIndex: 'is_active',
-      key: 'is_active',
+      title: 'ថ្នាក់',
+      dataIndex: 'grade',
+      key: 'grade',
       width: 100,
-      render: (is_active: boolean) => (
-        <Tag color={is_active ? 'green' : 'red'}>
-          {is_active ? 'សកម្ម' : 'អសកម្ម'}
-        </Tag>
-      ),
+      render: (grade: number) => grade ? `ថ្នាក់ទី${grade}` : '-',
     },
     {
-      title: 'ការវាយតម្លៃ',
-      key: 'assessments',
-      width: 200,
-      className: 'mobile-hide',
+      title: 'ចំនួនការវាយតម្លៃ',
+      key: 'assessment_count',
+      width: 150,
       render: (_: any, record: Student) => {
         const assessments = record.assessments || [];
-        const baselineCount = assessments.filter(a => a.assessment_type === 'baseline').length;
-        const midlineCount = assessments.filter(a => a.assessment_type === 'midline').length;
-        const endlineCount = assessments.filter(a => a.assessment_type === 'endline').length;
-
-        if (assessments.length === 0) {
-          return <Tag color="default">មិនទាន់មាន</Tag>;
-        }
+        const count = assessments.length;
 
         return (
-          <Space size={4} wrap>
-            {baselineCount > 0 && (
-              <Tag color="blue" style={{ margin: '2px' }}>
-                ដើម: {baselineCount}
-              </Tag>
-            )}
-            {midlineCount > 0 && (
-              <Tag color="orange" style={{ margin: '2px' }}>
-                កណ្តាល: {midlineCount}
-              </Tag>
-            )}
-            {endlineCount > 0 && (
-              <Tag color="green" style={{ margin: '2px' }}>
-                ចុង: {endlineCount}
-              </Tag>
-            )}
-          </Space>
+          <Tag color={count > 0 ? 'blue' : 'default'}>
+            {count} ដង
+          </Tag>
         );
       },
-    },
-    {
-      title: 'កាលបរិច្ឆេទបង្កើត',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 120,
-      className: 'mobile-hide',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
     },
     {
       title: 'សកម្មភាព',
