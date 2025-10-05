@@ -207,20 +207,7 @@ function TourContent({ page, autoStart, showStartButton }: OnboardingTourProps) 
             className="shadow-lg hover:shadow-xl transition-shadow font-khmer"
             size="large"
           >
-            {language === 'km' ? '🎯 ការណែនាំប្រព័ន្ធ' : '🎯 Start Tour'}
-          </Button>
-
-          {/* Language Toggle */}
-          <Button
-            onClick={() => {
-              const newLang = language === 'km' ? 'en' : 'km';
-              setLanguage(newLang);
-              localStorage.setItem('tarl-tour-language', newLang);
-            }}
-            className="shadow-lg hover:shadow-xl transition-shadow font-khmer block w-full"
-            size="small"
-          >
-            {language === 'km' ? 'EN' : 'ខ្មែរ'}
+            🎯 ការណែនាំប្រព័ន្ធ
           </Button>
 
           {/* Reset Tours (Dev Helper) */}
