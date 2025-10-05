@@ -22,7 +22,12 @@ const assessmentSchema = z.object({
     errorMap: () => ({ message: "Subject must be language or math" })
   }),
   level: z.string().optional(),
-  score: z.number().min(0).max(100).optional(),
+  assessment_sample: z.enum(["Sample 1", "Sample 2", "Sample 3"], {
+    errorMap: () => ({ message: "Assessment sample must be Sample 1, Sample 2, or Sample 3" })
+  }),
+  student_consent: z.enum(["Yes", "No"], {
+    errorMap: () => ({ message: "Student consent must be Yes or No" })
+  }),
   notes: z.string().optional(),
   assessed_date: z.string().datetime().optional(),
 }).refine((data) => {
@@ -252,13 +257,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For mentors, automatically set their pilot school
-    if (session.user.role === "mentor") {
+    // For mentors and teachers, automatically set their pilot school
+    if (session.user.role === "mentor" || session.user.role === "teacher") {
       if (!session.user.pilot_school_id) {
         return NextResponse.json(
           {
-            error: "អ្នកណែនាំត្រូវតែមានសាលាកំណត់",
-            message: "Mentor must be assigned to a pilot school",
+            error: session.user.role === "mentor" ? "អ្នកណែនាំត្រូវតែមានសាលាកំណត់" : "គ្រូត្រូវតែមានសាលាកំណត់",
+            message: `${session.user.role === "mentor" ? "Mentor" : "Teacher"} must be assigned to a pilot school`,
             code: "SCHOOL_REQUIRED"
           },
           { status: 400 }
@@ -388,12 +393,12 @@ async function handleBulkAssessment(body: any, session: any) {
   try {
     const validatedData = bulkAssessmentSchema.parse(body);
 
-    // For mentors, set pilot school automatically
+    // For mentors and teachers, set pilot school automatically
     let pilot_school_id = validatedData.pilot_school_id;
-    if (session.user.role === "mentor") {
+    if (session.user.role === "mentor" || session.user.role === "teacher") {
       if (!session.user.pilot_school_id) {
         return NextResponse.json(
-          { error: "Mentor must be assigned to a pilot school" },
+          { error: `${session.user.role === "mentor" ? "Mentor" : "Teacher"} must be assigned to a pilot school` },
           { status: 400 }
         );
       }
