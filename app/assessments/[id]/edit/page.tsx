@@ -95,7 +95,7 @@ export default function EditAssessmentPage() {
         assessment_type: assessmentData.assessment_type,
         subject: currentSubject,
         level: assessmentData.level,
-        assessment_sample: assessmentData.assessment_sample || 'Sample 1',
+        assessment_sample: assessmentData.assessment_sample || 'ឧបករណ៍តេស្ត លេខ១',
         student_consent: assessmentData.student_consent || 'Yes',
         assessed_date: assessmentData.assessed_date ? dayjs(assessmentData.assessed_date) : null,
         notes: assessmentData.notes
@@ -309,9 +309,9 @@ export default function EditAssessmentPage() {
                       style={{ marginBottom: 0 }}
                     >
                       <Select placeholder="ជ្រើសរើសលេខឧបករណ៍តេស្ត" size="large">
-                        <Option value="Sample 1">Sample 1</Option>
-                        <Option value="Sample 2">Sample 2</Option>
-                        <Option value="Sample 3">Sample 3</Option>
+                        <Option value="ឧបករណ៍តេស្ត លេខ១">ឧបករណ៍តេស្ត លេខ១</Option>
+                        <Option value="ឧបករណ៍តេស្ត លេខ២">ឧបករណ៍តេស្ត លេខ២</Option>
+                        <Option value="ឧបករណ៍តេស្ត លេខ៣">ឧបករណ៍តេស្ត លេខ៣</Option>
                       </Select>
                     </Form.Item>
                   </Card>

@@ -129,9 +129,9 @@ export default function AssessmentDetailsStep({ data, onChange }: AssessmentDeta
               style={{ width: '100%' }}
               size="large"
             >
-              <Option value="Sample 1">Sample 1</Option>
-              <Option value="Sample 2">Sample 2</Option>
-              <Option value="Sample 3">Sample 3</Option>
+              <Option value="ឧបករណ៍តេស្ត លេខ១">ឧបករណ៍តេស្ត លេខ១</Option>
+              <Option value="ឧបករណ៍តេស្ត លេខ២">ឧបករណ៍តេស្ត លេខ២</Option>
+              <Option value="ឧបករណ៍តេស្ត លេខ៣">ឧបករណ៍តេស្ត លេខ៣</Option>
             </Select>
           </Card>
         </Col>
