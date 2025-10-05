@@ -312,25 +312,18 @@ function StudentDetailsPageContent() {
         <TabPane tab="ទិដ្ឋភាពទូទៅ" key="overview">
           <Row gutter={24}>
             <Col span={12}>
-              <Card title="ព័ត៌មានផ្ទាល់ខ្លួន" style={{ marginBottom: '24px' }}>
+              <Card title="ព័ត៌មានសិស្ស" style={{ marginBottom: '24px' }}>
                 <Descriptions column={1}>
-                  <Descriptions.Item label="ឈ្មោះពេញ">
+                  <Descriptions.Item label="លេខសម្គាល់សិស្ស">
+                    {student.student_id || '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="ឈ្មោះសិស្ស">
                     {student.name}
                   </Descriptions.Item>
-                  <Descriptions.Item label="អាយុ">
-                    {student.age || 'មិនបានបញ្ជាក់'}
-                  </Descriptions.Item>
                   <Descriptions.Item label="ភេទ">
-                    {student.gender || 'មិនបានបញ្ជាក់'}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="ឈ្មោះអាណាព្យាបាល">
-                    {student.guardian_name || 'មិនបានបញ្ជាក់'}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="លេខទូរស័ព្ទអាណាព្យាបាល">
-                    {student.guardian_phone || 'មិនបានបញ្ជាក់'}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="អាសយដ្ឋាន">
-                    {student.address || 'មិនបានបញ្ជាក់'}
+                    <Tag color={student.gender === 'male' ? 'blue' : student.gender === 'female' ? 'pink' : 'default'}>
+                      {student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender === 'other' ? 'ផ្សេងទៀត' : '-'}
+                    </Tag>
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
