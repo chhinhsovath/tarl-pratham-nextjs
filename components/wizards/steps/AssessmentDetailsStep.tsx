@@ -122,20 +122,37 @@ export default function AssessmentDetailsStep({ data, onChange }: AssessmentDeta
 
       <Row gutter={16}>
         <Col xs={24} md={12}>
-          <Card size="small" title="ពិន្ទុ (ស្រេចចិត្ត)">
-            <InputNumber
-              value={data.score}
-              onChange={(value) => onChange({ score: value || undefined })}
-              min={0}
-              max={100}
-              placeholder="0-100"
+          <Card size="small" title="គម្រូតេស្ត">
+            <Select
+              value={data.assessment_sample}
+              onChange={(value) => onChange({ assessment_sample: value })}
               style={{ width: '100%' }}
               size="large"
-            />
+            >
+              <Option value="Sample 1">Sample 1</Option>
+              <Option value="Sample 2">Sample 2</Option>
+              <Option value="Sample 3">Sample 3</Option>
+            </Select>
           </Card>
         </Col>
 
         <Col xs={24} md={12}>
+          <Card size="small" title="យល់ព្រមចូលរួម">
+            <Select
+              value={data.student_consent}
+              onChange={(value) => onChange({ student_consent: value })}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              <Option value="Yes">Yes</Option>
+              <Option value="No">No</Option>
+            </Select>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={16}>
+        <Col xs={24}>
           <Card size="small" title="កាលបរិច្ឆេទវាយតម្លៃ">
             <DatePicker
               value={data.assessed_date ? dayjs(data.assessed_date) : dayjs()}

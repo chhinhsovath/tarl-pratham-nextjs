@@ -27,7 +27,8 @@ export interface WizardData {
   assessment_type: 'baseline' | 'midline' | 'endline';
   subject: 'language' | 'math';
   level?: string;
-  score?: number;
+  assessment_sample: 'Sample 1' | 'Sample 2' | 'Sample 3';
+  student_consent: 'Yes' | 'No';
   assessed_date: string;
   notes?: string;
 }
@@ -37,6 +38,8 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
   const [wizardData, setWizardData] = useState<WizardData>({
     assessment_type: 'baseline',
     subject: 'language',
+    assessment_sample: 'Sample 1',
+    student_consent: 'Yes',
     assessed_date: new Date().toISOString()
   });
   const [loading, setLoading] = useState(false);
@@ -160,6 +163,8 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
               setWizardData({
                 assessment_type: 'baseline',
                 subject: 'language',
+                assessment_sample: 'Sample 1',
+                student_consent: 'Yes',
                 assessed_date: new Date().toISOString()
               });
               setAssessmentId(null);

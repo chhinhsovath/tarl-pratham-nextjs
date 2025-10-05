@@ -86,13 +86,16 @@ export default function ReviewStep({ data, onEdit }: ReviewStepProps) {
               {data.level ? getLevelLabelKM(data.subject, data.level) : 'N/A'}
             </Tag>
           </Descriptions.Item>
-          {data.score !== undefined && (
-            <Descriptions.Item label="ពិន្ទុ">
-              <Text strong style={{ fontSize: '16px', color: '#1890ff' }}>
-                {data.score}/100
-              </Text>
-            </Descriptions.Item>
-          )}
+          <Descriptions.Item label="គម្រូតេស្ត">
+            <Tag color="orange" style={{ fontSize: '14px', padding: '4px 12px' }}>
+              {data.assessment_sample}
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="យល់ព្រមចូលរួម">
+            <Tag color={data.student_consent === 'Yes' ? 'green' : 'red'} style={{ fontSize: '14px', padding: '4px 12px' }}>
+              {data.student_consent}
+            </Tag>
+          </Descriptions.Item>
           <Descriptions.Item label="កាលបរិច្ឆេទ">
             {dayjs(data.assessed_date).format('DD/MM/YYYY')}
           </Descriptions.Item>

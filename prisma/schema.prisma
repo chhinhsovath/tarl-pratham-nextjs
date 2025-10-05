@@ -198,7 +198,8 @@ model Assessment {
   assessment_type      String
   subject              String
   level                String?
-  score                Float?
+  assessment_sample    String?
+  student_consent      String?
   notes                String?
   assessed_date        DateTime?
   added_by_id          Int?

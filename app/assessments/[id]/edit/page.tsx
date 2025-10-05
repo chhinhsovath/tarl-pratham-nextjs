@@ -74,7 +74,8 @@ export default function EditAssessmentPage() {
         assessment_type: assessmentData.assessment_type,
         subject: assessmentData.subject,
         level: assessmentData.level,
-        score: assessmentData.score,
+        assessment_sample: assessmentData.assessment_sample || 'Sample 1',
+        student_consent: assessmentData.student_consent || 'Yes',
         assessed_date: assessmentData.assessed_date ? dayjs(assessmentData.assessed_date) : null,
         notes: assessmentData.notes
       });
@@ -221,20 +222,26 @@ export default function EditAssessmentPage() {
             </Form.Item>
 
             <Form.Item
-              name="score"
-              label="ពិន្ទុ (%)"
-              rules={[
-                { required: true, message: 'សូមបញ្ចូលពិន្ទុ' },
-                { type: 'number', min: 0, max: 100, message: 'ពិន្ទុត្រូវតែនៅចន្លោះ 0 និង 100' }
-              ]}
+              name="assessment_sample"
+              label="គម្រូតេស្ត"
+              rules={[{ required: true, message: 'សូមជ្រើសរើសគម្រូតេស្ត' }]}
             >
-              <InputNumber
-                min={0}
-                max={100}
-                placeholder="បញ្ចូលពិន្ទុ"
-                style={{ width: '100%' }}
-                size="large"
-              />
+              <Select placeholder="ជ្រើសរើសគម្រូតេស្ត" size="large">
+                <Option value="Sample 1">Sample 1</Option>
+                <Option value="Sample 2">Sample 2</Option>
+                <Option value="Sample 3">Sample 3</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="student_consent"
+              label="យល់ព្រមចូលរួម"
+              rules={[{ required: true, message: 'សូមជ្រើសរើសការយល់ព្រម' }]}
+            >
+              <Select placeholder="ជ្រើសរើសការយល់ព្រម" size="large">
+                <Option value="Yes">Yes</Option>
+                <Option value="No">No</Option>
+              </Select>
             </Form.Item>
 
             <Form.Item

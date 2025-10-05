@@ -7,6 +7,7 @@ import { getRecordStatus, getRecordStatusFilter } from "@/lib/utils/recordStatus
 
 // Validation schema
 const studentSchema = z.object({
+  student_id: z.string().optional(),
   school_class_id: z.number().optional(),
   pilot_school_id: z.number().optional(),
   name: z.string().min(1, "Student name is required"),
