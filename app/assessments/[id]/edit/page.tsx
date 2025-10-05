@@ -45,7 +45,9 @@ export default function EditAssessmentPage() {
       const studentsResponse = await fetch('/api/students');
       if (studentsResponse.ok) {
         const studentsData = await studentsResponse.json();
-        setStudents(studentsData.students || []);
+        const studentsList = studentsData.students || [];
+        console.log('✅ Students loaded:', studentsList.length);
+        setStudents(studentsList);
       }
 
       // Then fetch assessment
@@ -57,6 +59,10 @@ export default function EditAssessmentPage() {
       const data = await assessmentResponse.json();
       const assessmentData = data.assessment || data.data;
       setAssessment(assessmentData);
+      console.log('✅ Assessment loaded:', assessmentData);
+
+      // Small delay to ensure students state is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Set form values after students are loaded
       form.setFieldsValue({
@@ -68,6 +74,7 @@ export default function EditAssessmentPage() {
         assessed_date: assessmentData.assessed_date ? dayjs(assessmentData.assessed_date) : null,
         notes: assessmentData.notes
       });
+      console.log('✅ Form values set with student_id:', assessmentData.student_id);
     } catch (error) {
       console.error('Error fetching data:', error);
       message.error('មិនអាចទាញយកទិន្នន័យបានទេ');
@@ -158,6 +165,10 @@ export default function EditAssessmentPage() {
                 placeholder="ជ្រើសរើសសិស្ស"
                 showSearch
                 optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
+                }
+                loading={students.length === 0}
                 size="large"
               >
                 {students.map((student: any) => (
