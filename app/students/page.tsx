@@ -576,19 +576,16 @@ function StudentsContent() {
                       type="primary"
                       icon={<FileTextOutlined />}
                       onClick={() => router.push(`/assessments/create?student_id=${student.id}`)}
-                      style={{ flex: '1 1 auto', minWidth: '100px' }}
                     >
                       វាយតម្លៃ
                     </Button>
                     <Button
                       icon={<EyeOutlined />}
                       onClick={() => router.push(`/students/${student.id}`)}
-                      style={{ flex: '0 0 auto' }}
                     />
                     <Button
                       icon={<EditOutlined />}
                       onClick={() => handleEdit(student)}
-                      style={{ flex: '0 0 auto' }}
                     />
                     <Popconfirm
                       title="លុបសិស្ស"
@@ -600,7 +597,6 @@ function StudentsContent() {
                       <Button
                         danger
                         icon={<DeleteOutlined />}
-                        style={{ flex: '0 0 auto' }}
                       />
                     </Popconfirm>
                   </div>
