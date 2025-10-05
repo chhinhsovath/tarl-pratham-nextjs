@@ -271,8 +271,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   label="ភេទ"
                 >
                   <Select placeholder="ជ្រើសរើសភេទ" allowClear>
-                    <Option value="Male">ប្រុស</Option>
-                    <Option value="Female">ស្រី</Option>
+                    <Option value="male">ប្រុស</Option>
+                    <Option value="female">ស្រី</Option>
+                    <Option value="other">ផ្សេងទៀត</Option>
                   </Select>
                 </Form.Item>
               </Col>

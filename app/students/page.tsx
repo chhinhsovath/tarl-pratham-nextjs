@@ -251,11 +251,21 @@ function StudentsContent() {
       key: 'gender',
       width: 80,
       className: 'mobile-hide',
-      render: (gender: string) => (
-        <Tag color={gender === 'ប្រុស' ? 'blue' : 'pink'}>
-          {gender || '-'}
-        </Tag>
-      ),
+      render: (gender: string) => {
+        const genderMap = {
+          'male': 'ប្រុស',
+          'female': 'ស្រី',
+          'other': 'ផ្សេងទៀត',
+          'ប្រុស': 'ប្រុស',
+          'ស្រី': 'ស្រី'
+        };
+        const label = genderMap[gender as keyof typeof genderMap] || gender || '-';
+        return (
+          <Tag color={gender === 'male' || gender === 'ប្រុស' ? 'blue' : gender === 'female' || gender === 'ស្រី' ? 'pink' : 'default'}>
+            {label}
+          </Tag>
+        );
+      },
     },
     {
       title: 'អាយុ',
@@ -394,8 +404,9 @@ function StudentsContent() {
             </Col>
             <Col xs={12} md={5}>
               <Select placeholder="ភេទ" style={{ width: '100%' }} allowClear size="large">
-                <Option value="ប្រុស">ប្រុស</Option>
-                <Option value="ស្រី">ស្រី</Option>
+                <Option value="male">ប្រុស</Option>
+                <Option value="female">ស្រី</Option>
+                <Option value="other">ផ្សេងទៀត</Option>
               </Select>
             </Col>
             <Col xs={12} md={5}>
@@ -471,15 +482,15 @@ function StudentsContent() {
                         <div className="flex items-center gap-2 mb-1">
                           <UserOutlined
                             style={{
-                              color: student.gender === 'ប្រុស' ? '#1890ff' : '#f759ab',
+                              color: student.gender === 'male' || student.gender === 'ប្រុស' ? '#1890ff' : '#f759ab',
                               fontSize: '16px'
                             }}
                           />
                           <Text strong style={{ fontSize: '16px' }}>{student.name}</Text>
                         </div>
                         <div className="flex flex-wrap gap-2 mt-2">
-                          <Tag color={student.gender === 'ប្រុស' ? 'blue' : 'pink'}>
-                            {student.gender || '-'}
+                          <Tag color={student.gender === 'male' || student.gender === 'ប្រុស' ? 'blue' : student.gender === 'female' || student.gender === 'ស្រី' ? 'pink' : 'default'}>
+                            {student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender === 'other' ? 'ផ្សេងទៀត' : student.gender || '-'}
                           </Tag>
                           {student.age && (
                             <Tag>{student.age} ឆ្នាំ</Tag>
@@ -577,8 +588,9 @@ function StudentsContent() {
                 rules={[{ required: true, message: 'សូមជ្រើសរើសភេទ!' }]}
               >
                 <Select placeholder="ជ្រើសរើសភេទ">
-                  <Option value="ប្រុស">ប្រុស</Option>
-                  <Option value="ស្រី">ស្រី</Option>
+                  <Option value="male">ប្រុស</Option>
+                  <Option value="female">ស្រី</Option>
+                  <Option value="other">ផ្សេងទៀត</Option>
                 </Select>
               </Form.Item>
             </Col>
