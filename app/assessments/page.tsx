@@ -396,27 +396,28 @@ function AssessmentsContent() {
 
   return (
     <>
-      <Card>
-        <div style={{ marginBottom: '24px' }}>
-          <Row justify="space-between" align="middle">
-            <Col>
-              <Title level={2}>ការវាយតម្លៃ</Title>
+      <Card bodyStyle={{ padding: '16px' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <Row justify="space-between" align="middle" gutter={[8, 8]}>
+            <Col xs={24} md={12}>
+              <Title level={2} style={{ marginBottom: '4px' }}>ការវាយតម្លៃ</Title>
               <Text type="secondary">គ្រប់គ្រង និងតាមដានការវាយតម្លៃសិស្ស</Text>
             </Col>
-            <Col>
-              <Space>
+            <Col xs={24} md={12} style={{ textAlign: 'right' }}>
+              <Space wrap>
                 {hasPermission(user, 'assessments.export') && (
-                  <Button 
+                  <Button
                     icon={<ExportOutlined />}
                     onClick={handleExport}
+                    size="large"
                   >
                     Export
                   </Button>
                 )}
-                
+
                 {hasPermission(user, 'assessments.create') && (
                   <Dropdown menu={{ items: createAssessmentMenuItems }} trigger={['click']}>
-                    <Button type="primary" icon={<PlusOutlined />}>
+                    <Button type="primary" icon={<PlusOutlined />} size="large">
                       បង្កើតការវាយតម្លៃ <DownOutlined />
                     </Button>
                   </Dropdown>
@@ -427,46 +428,49 @@ function AssessmentsContent() {
         </div>
 
         {/* Filters */}
-        <Card size="small" style={{ marginBottom: '16px' }}>
-          <Row gutter={16}>
-            <Col span={6}>
+        <Card size="small" style={{ marginBottom: '16px' }} bodyStyle={{ padding: '12px' }}>
+          <Row gutter={[8, 8]}>
+            <Col xs={24} sm={12} md={8} lg={6}>
               <Input
-                placeholder="Search assessments..."
+                placeholder="ស្វែងរក..."
                 prefix={<SearchOutlined />}
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
                 allowClear
+                size="middle"
               />
             </Col>
-            
-            <Col span={4}>
+
+            <Col xs={12} sm={6} md={6} lg={4}>
               <Select
-                placeholder="Assessment Type"
+                placeholder="ប្រភេទ"
                 value={filters.assessment_type}
                 onChange={(value) => handleFilterChange('assessment_type', value)}
                 allowClear
                 style={{ width: '100%' }}
+                size="middle"
               >
                 <Option value="ដើមគ្រា">ដើមគ្រា</Option>
                 <Option value="ពាក់កណ្តាលគ្រា">ពាក់កណ្តាលគ្រា</Option>
                 <Option value="ចុងគ្រា">ចុងគ្រា</Option>
               </Select>
             </Col>
-            
-            <Col span={4}>
+
+            <Col xs={12} sm={6} md={6} lg={4}>
               <Select
-                placeholder="មុខវិច្ឆា"
+                placeholder="មុខវិជ្ជា"
                 value={filters.subject}
                 onChange={(value) => handleFilterChange('subject', value)}
                 allowClear
                 style={{ width: '100%' }}
+                size="middle"
               >
                 <Option value="khmer">ខ្មែរ</Option>
-                <Option value="math">Math</Option>
+                <Option value="math">គណិត</Option>
               </Select>
             </Col>
-            
-            <Col span={5}>
+
+            <Col xs={24} sm={12} md={12} lg={5}>
               <Select
                 placeholder="ជ្រើសរើសសិស្ស"
                 value={filters.student_id}
@@ -474,6 +478,7 @@ function AssessmentsContent() {
                 allowClear
                 showSearch
                 style={{ width: '100%' }}
+                size="middle"
                 filterOption={(input: string, option: any) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
                 }
@@ -485,45 +490,46 @@ function AssessmentsContent() {
                 ))}
               </Select>
             </Col>
-            
-            <Col span={5}>
+
+            <Col xs={24} sm={12} md={12} lg={5}>
               <RangePicker
                 style={{ width: '100%' }}
                 onChange={handleDateRangeChange}
-                placeholder={['Start Date', 'End Date']}
+                placeholder={['ចាប់ពី', 'ដល់']}
+                size="middle"
               />
             </Col>
-          </Row>
-          
-          <Row gutter={16} style={{ marginTop: '8px' }}>
+
             {(user?.role === 'mentor' || user?.role === 'admin') && (
-              <Col span={6}>
+              <Col xs={24} sm={12} md={12} lg={6}>
                 <Select
-                  placeholder="Pilot School"
+                  placeholder="សាលារៀន"
                   value={filters.pilot_school_id}
                   onChange={(value) => handleFilterChange('pilot_school_id', value)}
                   allowClear
                   style={{ width: '100%' }}
+                  size="middle"
                 >
                   {pilotSchools.map((school: any) => (
                     <Option key={school.id} value={school.id}>
-                      {school.name} ({school.code})
+                      {school.school_name}
                     </Option>
                   ))}
                 </Select>
               </Col>
             )}
-            
-            <Col span={4}>
+
+            <Col xs={12} sm={6} md={6} lg={4}>
               <Select
-                placeholder="Status"
+                placeholder="ស្ថានភាព"
                 value={filters.is_temporary}
                 onChange={(value) => handleFilterChange('is_temporary', value)}
                 allowClear
                 style={{ width: '100%' }}
+                size="middle"
               >
-                <Option value="true">Temporary</Option>
-                <Option value="false">Permanent</Option>
+                <Option value="true">បណ្តោះអាសន្ន</Option>
+                <Option value="false">ស្ថិរភាព</Option>
               </Select>
             </Col>
           </Row>
@@ -541,17 +547,19 @@ function AssessmentsContent() {
             total: pagination.total,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
-              `${range[0]}-${range[1]} of ${total} assessments`,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} នៃ ${total}`,
             onChange: (page, pageSize) => {
               setPagination(prev => ({
                 ...prev,
                 current: page,
                 pageSize: pageSize || 20
               }));
-            }
+            },
+            simple: typeof window !== 'undefined' && window.innerWidth < 768
           }}
-          scroll={{ x: 1200 }}
+          scroll={{ x: 1000 }}
+          size="small"
         />
       </Card>
     </>
