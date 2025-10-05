@@ -314,7 +314,18 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
 
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div
+            className="md:hidden bg-white border-t border-gray-200 shadow-lg"
+            style={{
+              position: 'fixed',
+              top: '64px',
+              left: 0,
+              right: 0,
+              zIndex: 1000,
+              maxHeight: 'calc(100vh - 64px)',
+              overflowY: 'auto'
+            }}
+          >
             <div className="px-4 pt-3 pb-4 space-y-2">
               {getMenuItems().map((item: any) => (
                 <Link
@@ -333,6 +344,15 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Backdrop overlay when menu is open */}
+        {mobileMenuOpen && (
+          <div
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50"
+            style={{ zIndex: 999, top: '64px' }}
+            onClick={() => setMobileMenuOpen(false)}
+          />
         )}
       </nav>
 
