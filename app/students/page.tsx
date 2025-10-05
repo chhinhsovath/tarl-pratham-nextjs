@@ -318,17 +318,17 @@ function StudentsContent() {
       width: 200,
       fixed: 'right',
       render: (_: any, record: Student) => (
-        <Space>
+        <Space size="small">
           <Button
             type="text"
             icon={<EyeOutlined />}
             onClick={() => router.push(`/students/${record.id}`)}
             title="មើលព័ត៌មានសិស្ស"
-            size="large"
+            size="small"
           />
           <Button
             type="primary"
-            size="large"
+            size="small"
             icon={<FileTextOutlined />}
             onClick={() => router.push(`/assessments/create?student_id=${record.id}`)}
             title="បង្កើតការវាយតម្លៃ"
@@ -340,6 +340,7 @@ function StudentsContent() {
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
             title="កែសម្រួលសិស្ស"
+            size="small"
           />
           <Popconfirm
             title="លុបសិស្ស"
@@ -353,6 +354,7 @@ function StudentsContent() {
               danger
               icon={<DeleteOutlined />}
               title="លុបសិស្ស"
+              size="small"
             />
           </Popconfirm>
         </Space>
