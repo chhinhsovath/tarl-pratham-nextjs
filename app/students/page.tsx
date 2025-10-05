@@ -336,20 +336,21 @@ function StudentsContent() {
     <>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {/* Header */}
-        <Card>
-          <Row justify="space-between" align="middle">
-            <Col>
-              <Title level={2} style={{ margin: 0 }}>គ្រប់គ្រងសិស្ស</Title>
-              <Text type="secondary">គ្រប់គ្រង និងតាមដានព័ត៌មានសិស្សរបស់អ្នក</Text>
+        <Card bodyStyle={{ padding: '16px' }}>
+          <Row gutter={[16, 16]} justify="space-between" align="middle">
+            <Col xs={24} md={12}>
+              <Title level={2} style={{ margin: 0, fontSize: '20px' }}>គ្រប់គ្រងសិស្ស</Title>
+              <Text type="secondary" className="hidden md:block">គ្រប់គ្រង និងតាមដានព័ត៌មានសិស្សរបស់អ្នក</Text>
             </Col>
-            <Col>
-              <Space size="middle">
+            <Col xs={24} md={12}>
+              <div className="flex flex-wrap gap-2 md:justify-end">
                 {selectedStudentIds.length > 0 && (
                   <>
                     <Button
                       type="default"
                       onClick={() => setBulkClassModalVisible(true)}
                       size="large"
+                      className="flex-1 md:flex-none"
                     >
                       កំណត់ថ្នាក់ ({selectedStudentIds.length})
                     </Button>
@@ -358,8 +359,9 @@ function StudentsContent() {
                       icon={<FileTextOutlined />}
                       onClick={handleBulkAssessment}
                       size="large"
+                      className="flex-1 md:flex-none"
                     >
-                      វាយតម្លៃសិស្ស ({selectedStudentIds.length})
+                      វាយតម្លៃ ({selectedStudentIds.length})
                     </Button>
                   </>
                 )}
@@ -368,34 +370,36 @@ function StudentsContent() {
                   icon={<PlusOutlined />}
                   onClick={handleAdd}
                   size="large"
+                  className="flex-1 md:flex-none"
                 >
                   បន្ថែមសិស្សថ្មី
                 </Button>
-              </Space>
+              </div>
             </Col>
           </Row>
         </Card>
 
         {/* Search and Filters */}
-        <Card>
-          <Row gutter={16} align="middle">
-            <Col xs={24} sm={12} md={8}>
+        <Card bodyStyle={{ padding: '16px' }}>
+          <Row gutter={[12, 12]} align="middle">
+            <Col xs={24} md={14}>
               <Input
                 placeholder="ស្វែងរកឈ្មោះសិស្ស..."
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 allowClear
+                size="large"
               />
             </Col>
-            <Col xs={24} sm={12} md={4}>
-              <Select placeholder="ភេទ" style={{ width: '100%' }} allowClear>
+            <Col xs={12} md={5}>
+              <Select placeholder="ភេទ" style={{ width: '100%' }} allowClear size="large">
                 <Option value="ប្រុស">ប្រុស</Option>
                 <Option value="ស្រី">ស្រី</Option>
               </Select>
             </Col>
-            <Col xs={24} sm={12} md={4}>
-              <Select placeholder="ស្ថានភាព" style={{ width: '100%' }} allowClear>
+            <Col xs={12} md={5}>
+              <Select placeholder="ស្ថានភាព" style={{ width: '100%' }} allowClear size="large">
                 <Option value="true">សកម្ម</Option>
                 <Option value="false">អសកម្ម</Option>
               </Select>
@@ -403,24 +407,145 @@ function StudentsContent() {
           </Row>
         </Card>
 
-        {/* Students Table */}
-        <Card>
-          <Table
-            scroll={{ x: 1000 }}
-            columns={columns}
-            dataSource={filteredStudents}
-            rowKey="id"
-            loading={loading}
-            pagination={{
-              total: filteredStudents.length,
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} ពី ${total} សិស្ស`,
-            }}
-            size="middle"
-          />
-        </Card>
+        {/* Students List - Mobile-First Card Design */}
+        <div className="students-list">
+          {/* Desktop: Show Table */}
+          <Card className="hidden md:block">
+            <Table
+              scroll={{ x: 1000 }}
+              columns={columns}
+              dataSource={filteredStudents}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                total: filteredStudents.length,
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} ពី ${total} សិស្ស`,
+              }}
+              size="middle"
+            />
+          </Card>
+
+          {/* Mobile: Show Cards */}
+          <div className="md:hidden space-y-3">
+            {loading ? (
+              <Card>
+                <div className="text-center py-8">
+                  <Text>កំពុងផ្ទុក...</Text>
+                </div>
+              </Card>
+            ) : filteredStudents.length === 0 ? (
+              <Card>
+                <div className="text-center py-8">
+                  <Text type="secondary">មិនមានសិស្ស</Text>
+                </div>
+              </Card>
+            ) : (
+              filteredStudents.slice(0, 50).map((student) => (
+                <Card
+                  key={student.id}
+                  className="student-card"
+                  style={{
+                    borderLeft: selectedStudentIds.includes(student.id) ? '4px solid #1890ff' : '1px solid #f0f0f0',
+                    backgroundColor: selectedStudentIds.includes(student.id) ? '#f0f7ff' : 'white'
+                  }}
+                  bodyStyle={{ padding: '16px' }}
+                >
+                  {/* Card Header - Checkbox + Name */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start gap-3 flex-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedStudentIds.includes(student.id)}
+                        onChange={(e) => handleSelectStudent(student.id, e.target.checked)}
+                        style={{
+                          cursor: 'pointer',
+                          minWidth: '20px',
+                          minHeight: '20px',
+                          marginTop: '2px'
+                        }}
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <UserOutlined
+                            style={{
+                              color: student.gender === 'ប្រុស' ? '#1890ff' : '#f759ab',
+                              fontSize: '16px'
+                            }}
+                          />
+                          <Text strong style={{ fontSize: '16px' }}>{student.name}</Text>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <Tag color={student.gender === 'ប្រុស' ? 'blue' : 'pink'}>
+                            {student.gender || '-'}
+                          </Tag>
+                          {student.age && (
+                            <Tag>{student.age} ឆ្នាំ</Tag>
+                          )}
+                          <Tag color={student.is_active ? 'green' : 'red'}>
+                            {student.is_active ? 'សកម្ម' : 'អសកម្ម'}
+                          </Tag>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Actions */}
+                  <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<FileTextOutlined />}
+                      onClick={() => router.push(`/assessments/create?student_id=${student.id}`)}
+                      style={{ flex: '1 1 auto', minWidth: '140px' }}
+                    >
+                      វាយតម្លៃ
+                    </Button>
+                    <Button
+                      size="large"
+                      icon={<EyeOutlined />}
+                      onClick={() => router.push(`/students/${student.id}`)}
+                      style={{ flex: '0 0 auto' }}
+                    />
+                    <Button
+                      size="large"
+                      icon={<EditOutlined />}
+                      onClick={() => handleEdit(student)}
+                      style={{ flex: '0 0 auto' }}
+                    />
+                    <Popconfirm
+                      title="លុបសិស្ស"
+                      description="តើអ្នកពិតជាចង់លុបសិស្សនេះមែនទេ?"
+                      onConfirm={() => handleDelete(student.id)}
+                      okText="យល់ព្រម"
+                      cancelText="បោះបង់"
+                    >
+                      <Button
+                        danger
+                        size="large"
+                        icon={<DeleteOutlined />}
+                        style={{ flex: '0 0 auto' }}
+                      />
+                    </Popconfirm>
+                  </div>
+                </Card>
+              ))
+            )}
+
+            {/* Mobile Pagination Info */}
+            {filteredStudents.length > 50 && (
+              <Card>
+                <div className="text-center">
+                  <Text type="secondary">
+                    បង្ហាញ 50 ពី {filteredStudents.length} សិស្ស
+                  </Text>
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
       </Space>
 
       {/* Add/Edit Modal */}
