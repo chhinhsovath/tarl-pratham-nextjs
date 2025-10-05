@@ -42,6 +42,7 @@ interface Student {
   name: string;
   gender: string;
   age?: number;
+  grade?: number;
   guardian_name?: string;
   guardian_phone?: string;
   address?: string;
@@ -139,7 +140,8 @@ function StudentsContent() {
       const studentData = {
         student_id: values.student_id,
         name: values.name,
-        gender: values.gender
+        gender: values.gender,
+        grade: values.grade ? parseInt(values.grade) : undefined
       };
 
       if (editingStudent) {
@@ -649,6 +651,17 @@ function StudentsContent() {
               <Option value="male">ប្រុស</Option>
               <Option value="female">ស្រី</Option>
               <Option value="other">ផ្សេងទៀត</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="ថ្នាក់"
+            name="grade"
+            rules={[{ required: true, message: 'សូមជ្រើសរើសថ្នាក់!' }]}
+          >
+            <Select placeholder="ជ្រើសរើសថ្នាក់" size="large">
+              <Option value={4}>ថ្នាក់ទី៤</Option>
+              <Option value={5}>ថ្នាក់ទី៥</Option>
             </Select>
           </Form.Item>
 

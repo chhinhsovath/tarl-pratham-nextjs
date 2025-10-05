@@ -150,6 +150,7 @@ model Student {
   name                     String
   age                      Int?
   gender                   String?
+  grade                    Int?
   guardian_name            String?
   guardian_phone           String?
   address                  String?

@@ -26,6 +26,7 @@ interface FormData {
   student_id?: string;
   name: string;
   gender?: string;
+  grade?: number;
 }
 
 const StudentForm: React.FC<StudentFormProps> = ({
@@ -41,7 +42,8 @@ const StudentForm: React.FC<StudentFormProps> = ({
       form.setFieldsValue({
         student_id: student.student_id,
         name: student.name,
-        gender: student.gender
+        gender: student.gender,
+        grade: student.grade
       });
     }
   }, [student, mode, form]);
@@ -102,6 +104,19 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 <Option value="male">ប្រុស</Option>
                 <Option value="female">ស្រី</Option>
                 <Option value="other">ផ្សេងទៀត</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={24} md={8}>
+            <Form.Item
+              name="grade"
+              label="ថ្នាក់"
+              rules={[{ required: true, message: 'សូមជ្រើសរើសថ្នាក់!' }]}
+            >
+              <Select placeholder="ជ្រើសរើសថ្នាក់" size="large">
+                <Option value={4}>ថ្នាក់ទី៤</Option>
+                <Option value={5}>ថ្នាក់ទី៥</Option>
               </Select>
             </Form.Item>
           </Col>
