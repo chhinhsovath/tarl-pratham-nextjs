@@ -68,3 +68,6 @@ layout-10581d63dd75547b.js?dpl=dpl_B6gz9KaHh4t3w3a6eg7vLc8wXmZ8:1 Failed to fetc
 layout-10581d63dd755…3w3a6eg7vLc8wXmZ8:1 Failed to fetch progress data: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
     at I (page-a617974f8c9c951…eg7vLc8wXmZ8:1:1387)
 ﻿
+
+
+https://tarl.openplp.com/reports/attendance make sure we are showing real data not mock up. I live the way you design.

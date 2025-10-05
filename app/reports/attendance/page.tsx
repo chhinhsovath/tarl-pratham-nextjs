@@ -87,7 +87,7 @@ interface MonthlyTrend {
 export default function AttendancePage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedSchool, setSelectedSchool] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
@@ -95,77 +95,8 @@ export default function AttendancePage() {
   const [dateRange, setDateRange] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
-  // Mock data for attendance records
-  const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([
-    {
-      id: 1,
-      student_name: 'ម៉ាលីកា ច័ន្ទ',
-      school_name: 'សាលាបឋមសិក្សាភ្នំពេញ',
-      class_name: 'ថ្នាក់ទី៤ក',
-      grade: 'ថ្នាក់ទី៤',
-      total_days: 150,
-      days_present: 142,
-      days_absent: 6,
-      days_late: 2,
-      attendance_rate: 94.7,
-      consecutive_absences: 0,
-      last_absence_date: '2024-01-10',
-      attendance_trend: 'stable',
-      status: 'excellent',
-      recent_attendance: ['P', 'P', 'P', 'L', 'P', 'P', 'P', 'P', 'A', 'P']
-    },
-    {
-      id: 2,
-      student_name: 'រតនា គឹម',
-      school_name: 'សាលាបឋមសិក្សាកំពត',
-      class_name: 'ថ្នាក់ទី៥ខ',
-      grade: 'ថ្នាក់ទី៥',
-      total_days: 150,
-      days_present: 135,
-      days_absent: 12,
-      days_late: 3,
-      attendance_rate: 90.0,
-      consecutive_absences: 1,
-      last_absence_date: '2024-01-15',
-      attendance_trend: 'stable',
-      status: 'good',
-      recent_attendance: ['P', 'P', 'A', 'P', 'P', 'L', 'P', 'P', 'P', 'P']
-    },
-    {
-      id: 3,
-      student_name: 'សុវណ្ណ ហុង',
-      school_name: 'សាលាបឋមសិក្សាសៀមរាប',
-      class_name: 'ថ្នាក់ទី៤គ',
-      grade: 'ថ្នាក់ទី៤',
-      total_days: 150,
-      days_present: 120,
-      days_absent: 25,
-      days_late: 5,
-      attendance_rate: 80.0,
-      consecutive_absences: 2,
-      last_absence_date: '2024-01-14',
-      attendance_trend: 'declining',
-      status: 'concerning',
-      recent_attendance: ['A', 'A', 'P', 'L', 'P', 'P', 'A', 'P', 'P', 'L']
-    },
-    {
-      id: 4,
-      student_name: 'ញាត្តា ស៊ុន',
-      school_name: 'សាលាបឋមសិក្សាបាត់ដំបង',
-      class_name: 'ថ្នាក់ទី៥ច',
-      grade: 'ថ្នាក់ទី៥',
-      total_days: 150,
-      days_present: 105,
-      days_absent: 38,
-      days_late: 7,
-      attendance_rate: 70.0,
-      consecutive_absences: 5,
-      last_absence_date: '2024-01-15',
-      attendance_trend: 'declining',
-      status: 'critical',
-      recent_attendance: ['A', 'A', 'A', 'A', 'A', 'P', 'A', 'A', 'L', 'P']
-    }
-  ]);
+  // Real attendance data from API
+  const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
 
   // Mock daily attendance data
   const [dailyData, setDailyData] = useState<DailyAttendance[]>([
@@ -195,11 +126,41 @@ export default function AttendancePage() {
 
   // Overall statistics
   const [stats, setStats] = useState({
-    totalStudents: 1248,
-    overallAttendance: 87.3,
-    absentToday: 156,
-    chronicAbsentees: 42
+    totalStudents: 0,
+    overallAttendance: 0,
+    absentToday: 0,
+    chronicAbsentees: 0
   });
+
+  useEffect(() => {
+    fetchAttendanceData();
+  }, []);
+
+  const fetchAttendanceData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/reports/attendance');
+      const result = await response.json();
+
+      if (result.data) {
+        setAttendanceData(result.data.attendance_records || []);
+
+        // Update stats from API
+        if (result.data.summary) {
+          setStats({
+            totalStudents: result.data.summary.total_students || 0,
+            overallAttendance: result.data.summary.average_attendance_rate || 0,
+            absentToday: 0,
+            chronicAbsentees: result.data.summary.students_with_concerning_attendance || 0
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch attendance data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     const colors = {
