@@ -67,6 +67,7 @@ function StudentsContent() {
   const { data: session } = useSession();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [form] = Form.useForm();
@@ -133,6 +134,8 @@ function StudentsContent() {
 
   const handleSubmit = async (values: any) => {
     try {
+      setSubmitting(true);
+
       const studentData = {
         student_id: values.student_id,
         name: values.name,
@@ -154,7 +157,7 @@ function StudentsContent() {
 
         const result = await response.json();
         setStudents(prev => prev.map(s => s.id === editingStudent.id ? result.data : s));
-        message.success('ធ្វើបច្ចុប្បន្នភាពសិស្សបានជោគជ័យ');
+        message.success('ធ្វើបច្ចុប្បន្នភាពសិស្សបានជោគជ័យ! 🎉');
       } else {
         // Create new student via API
         const response = await fetch('/api/students', {
@@ -167,25 +170,27 @@ function StudentsContent() {
           let error;
           try {
             error = await response.json();
-            console.error('API Error Response:', error);
+            console.error('❌ API Error Response:', error);
           } catch (jsonError) {
             const text = await response.text();
-            console.error('Non-JSON Error Response:', text);
-            throw new Error(`Server error (${response.status}): ${text.substring(0, 200)}`);
+            console.error('❌ Non-JSON Error Response:', text);
+            throw new Error(`បញ្ហាម៉ាស៊ីនមេ (${response.status}): ${text.substring(0, 200)}`);
           }
           throw new Error(error.message || error.error || 'មានបញ្ហាក្នុងការបន្ថែមសិស្ស');
         }
 
         const result = await response.json();
         setStudents(prev => [result.data, ...prev]);
-        message.success('បន្ថែមសិស្សបានជោគជ័យ');
+        message.success('បន្ថែមសិស្សបានជោគជ័យ! 🎉');
       }
 
       setModalVisible(false);
       form.resetFields();
     } catch (error) {
-      console.error('Error saving student:', error);
-      message.error(error instanceof Error ? error.message : 'មានបញ្ហាក្នុងការរក្សាទុកទិន្នន័យ');
+      console.error('❌ Error saving student:', error);
+      message.error(error instanceof Error ? error.message : 'មានបញ្ហាក្នុងការរក្សាទុកទិន្នន័យ សូមព្យាយាមម្តងទៀត');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -649,10 +654,10 @@ function StudentsContent() {
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
             <Space>
-              <Button onClick={() => setModalVisible(false)}>
+              <Button onClick={() => setModalVisible(false)} disabled={submitting}>
                 បោះបង់
               </Button>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" loading={submitting}>
                 {editingStudent ? 'ធ្វើបច្ចុប្បន្នភាព' : 'បន្ថែម'}
               </Button>
             </Space>
