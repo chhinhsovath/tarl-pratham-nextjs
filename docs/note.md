@@ -16,12 +16,21 @@ endline តេស្តចុងក្រោយគ្រា
 រឿង (យល់ន័យ១ យល់ន័យ២)
 
  គណិតវិទ្យា
-កម្រិតដំបូង                                                                                                         លេខ១ខ្ទង
+កម្រិតដំបូង
+លេខ១ខ្ទង
 លេខ២ខ្ទង
-ប្រមាណវិធីដក                                                                                                  ប្រមាណវិធីចែក                                                                                                             ចំណោទ
+ប្រមាណវិធីដក                                                                                                  ប្រមាណវិធីចែក                                                                                                             
+ចំណោទ
+
+
+Loading student data...
 
 
 
 if you check comprehensive table users in field email, username,role,school_id,subject,province
   that will be helpful to be smart to display student information which will be link with user
   profile information and the student. 
+
+
+
+  Fixed gutter, no responsive array

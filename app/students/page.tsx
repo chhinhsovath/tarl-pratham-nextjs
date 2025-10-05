@@ -493,7 +493,7 @@ function StudentsContent() {
                   </div>
 
                   {/* Card Actions */}
-                  <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
                     <Button
                       type="primary"
                       size="large"

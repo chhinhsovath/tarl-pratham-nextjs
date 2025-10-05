@@ -119,33 +119,33 @@ export default function SimpleReportsPage() {
         </div>
 
         {/* Statistics Cards */}
-        <Row gutter={[12, 12]} className="mb-8">
+        <Row gutter={[16, 16]} className="mb-8">
           <Col xs={12} sm={12} md={8}>
-            <Card loading={loading} bodyStyle={{ padding: '16px' }}>
+            <Card loading={loading} bodyStyle={{ padding: '20px' }}>
               <Statistic
                 title="សិស្សសរុប"
                 value={stats.totalStudents}
-                valueStyle={{ color: '#1890ff', fontSize: '20px' }}
+                valueStyle={{ color: '#1890ff', fontSize: '24px' }}
                 prefix={<TeamOutlined />}
               />
             </Card>
           </Col>
           <Col xs={12} sm={12} md={8}>
-            <Card loading={loading} bodyStyle={{ padding: '16px' }}>
+            <Card loading={loading} bodyStyle={{ padding: '20px' }}>
               <Statistic
                 title="ការវាយតម្លៃសរុប"
                 value={stats.totalAssessments}
-                valueStyle={{ color: '#52c41a', fontSize: '20px' }}
+                valueStyle={{ color: '#52c41a', fontSize: '24px' }}
                 prefix={<FileTextOutlined />}
               />
             </Card>
           </Col>
           <Col xs={24} sm={12} md={8}>
-            <Card loading={loading} bodyStyle={{ padding: '16px' }}>
+            <Card loading={loading} bodyStyle={{ padding: '20px' }}>
               <Statistic
                 title="ការណែនាំសរុប"
                 value={stats.totalMentoringVisits}
-                valueStyle={{ color: '#722ed1', fontSize: '20px' }}
+                valueStyle={{ color: '#722ed1', fontSize: '24px' }}
                 prefix={<UserOutlined />}
               />
             </Card>
@@ -153,7 +153,7 @@ export default function SimpleReportsPage() {
         </Row>
 
         {/* Clean Report Cards Grid - Mobile Optimized */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
           {reportCards.map((report, index) => {
             // Icon mapping function
             const getIcon = (iconType: string) => {
@@ -171,20 +171,20 @@ export default function SimpleReportsPage() {
 
             return (
               <Link href={report.path} key={index}>
-                <div className={`${report.color} rounded-xl p-4 hover:shadow-lg transition-all duration-200 cursor-pointer border border-gray-100`}>
+                <div className={`${report.color} rounded-xl p-5 hover:shadow-lg transition-all duration-200 cursor-pointer border border-gray-100`}>
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      <div className={`w-12 h-12 ${report.iconColor} rounded-lg flex items-center justify-center shadow-sm`}>
+                      <div className={`w-14 h-14 ${report.iconColor} rounded-lg flex items-center justify-center shadow-sm`}>
                         {getIcon(report.icon)}
                       </div>
                     </div>
-                    <div className="ml-3 flex-1">
-                      <h3 className="text-base font-semibold text-gray-900 mb-1">{report.title}</h3>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">{report.subtitle}</p>
+                    <div className="ml-4 flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{report.title}</h3>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{report.subtitle}</p>
                       <p className="text-sm text-gray-600">{report.description}</p>
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center justify-end">
+                  <div className="mt-4 flex items-center justify-end">
                     <div className="flex items-center text-sm font-medium text-indigo-600">
                       មើលរបាយការណ៍
                       <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +199,7 @@ export default function SimpleReportsPage() {
         </div>
 
         {/* Simple Recent Activity - Mobile Responsive */}
-        <div className="mt-4">
+        <div className="mt-6">
           <div className="bg-white shadow-sm rounded-lg">
             <div className="px-4 py-3 border-b border-gray-200">
               <h3 className="text-base font-medium text-gray-900">សកម្មភាពថ្មីៗ</h3>
