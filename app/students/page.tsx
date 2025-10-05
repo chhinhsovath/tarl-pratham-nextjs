@@ -30,7 +30,6 @@ import {
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
 import { trackActivity } from '@/lib/trackActivity';
-import BulkClassAssignModal from '@/components/students/BulkClassAssignModal';
 import { useSession } from 'next-auth/react';
 
 const { Title, Text } = Typography;
@@ -73,8 +72,6 @@ function StudentsContent() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
-  const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
-  const [bulkClassModalVisible, setBulkClassModalVisible] = useState(false);
 
   useEffect(() => {
     fetchStudents();
@@ -200,56 +197,7 @@ function StudentsContent() {
     student.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  // Handle select all
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedStudentIds(filteredStudents.map(s => s.id));
-    } else {
-      setSelectedStudentIds([]);
-    }
-  };
-
-  // Handle individual selection
-  const handleSelectStudent = (studentId: number, checked: boolean) => {
-    if (checked) {
-      setSelectedStudentIds(prev => [...prev, studentId]);
-    } else {
-      setSelectedStudentIds(prev => prev.filter(id => id !== studentId));
-    }
-  };
-
-  // Navigate to bulk assessment
-  const handleBulkAssessment = () => {
-    if (selectedStudentIds.length === 0) {
-      message.warning('សូមជ្រើសរើសសិស្សយ៉ាងតិច ១នាក់');
-      return;
-    }
-    const studentIdsParam = selectedStudentIds.join(',');
-    router.push(`/assessments/create-bulk?student_ids=${studentIdsParam}`);
-  };
-
   const columns = [
-    {
-      title: (
-        <input
-          type="checkbox"
-          checked={selectedStudentIds.length === filteredStudents.length && filteredStudents.length > 0}
-          onChange={(e) => handleSelectAll(e.target.checked)}
-          style={{ cursor: 'pointer' }}
-        />
-      ),
-      key: 'select',
-      width: 60,
-      fixed: 'left',
-      render: (_: any, record: Student) => (
-        <input
-          type="checkbox"
-          checked={selectedStudentIds.includes(record.id)}
-          onChange={(e) => handleSelectStudent(record.id, e.target.checked)}
-          style={{ cursor: 'pointer', minWidth: '20px', minHeight: '20px' }}
-        />
-      ),
-    },
     {
       title: 'លេខសម្គាល់សិស្ស',
       dataIndex: 'student_id',
@@ -374,27 +322,6 @@ function StudentsContent() {
             </Col>
             <Col xs={24} md={12}>
               <div className="flex flex-wrap gap-2 md:justify-end">
-                {selectedStudentIds.length > 0 && (
-                  <>
-                    <Button
-                      type="default"
-                      onClick={() => setBulkClassModalVisible(true)}
-                      size="large"
-                      className="flex-1 md:flex-none"
-                    >
-                      កំណត់ថ្នាក់ ({selectedStudentIds.length})
-                    </Button>
-                    <Button
-                      type="default"
-                      icon={<FileTextOutlined />}
-                      onClick={handleBulkAssessment}
-                      size="large"
-                      className="flex-1 md:flex-none"
-                    >
-                      វាយតម្លៃ ({selectedStudentIds.length})
-                    </Button>
-                  </>
-                )}
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
@@ -479,98 +406,80 @@ function StudentsContent() {
                   key={student.id}
                   className="student-card"
                   style={{
-                    borderLeft: selectedStudentIds.includes(student.id) ? '4px solid #1890ff' : '1px solid #f0f0f0',
-                    backgroundColor: selectedStudentIds.includes(student.id) ? '#f0f7ff' : 'white'
+                    borderLeft: '1px solid #f0f0f0',
+                    backgroundColor: 'white'
                   }}
                   bodyStyle={{ padding: '16px' }}
                 >
-                  {/* Card Header - Checkbox + Name */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start gap-3 flex-1">
-                      <input
-                        type="checkbox"
-                        checked={selectedStudentIds.includes(student.id)}
-                        onChange={(e) => handleSelectStudent(student.id, e.target.checked)}
-                        style={{
-                          cursor: 'pointer',
-                          minWidth: '20px',
-                          minHeight: '20px',
-                          marginTop: '2px'
-                        }}
-                      />
-                      <div className="flex-1">
-                        {/* លេខសម្គាល់សិស្ស */}
-                        <Text type="secondary" style={{ fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-                          លេខសម្គាល់: {student.student_id || '-'}
-                        </Text>
+                  {/* លេខសម្គាល់សិស្ស */}
+                  <Text type="secondary" style={{ fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                    លេខសម្គាល់: {student.student_id || '-'}
+                  </Text>
 
-                        {/* ឈ្មោះសិស្ស */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <UserOutlined
-                            style={{
-                              color: student.gender === 'male' || student.gender === 'ប្រុស' ? '#1890ff' : '#f759ab',
-                              fontSize: '16px'
-                            }}
-                          />
-                          <Text strong style={{ fontSize: '15px' }}>{student.name}</Text>
-                        </div>
-
-                        {/* ភេទ + ថ្នាក់ */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <Text type="secondary" style={{ fontSize: '11px' }}>ភេទ:</Text>
-                          <Tag size="small" color={student.gender === 'male' || student.gender === 'ប្រុស' ? 'blue' : student.gender === 'female' || student.gender === 'ស្រី' ? 'pink' : 'default'}>
-                            {student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender || '-'}
-                          </Tag>
-                          {student.grade && (
-                            <>
-                              <Text type="secondary" style={{ fontSize: '11px' }}>ថ្នាក់:</Text>
-                              <Tag size="small" color="blue">ទី{student.grade}</Tag>
-                            </>
-                          )}
-                        </div>
-
-                        {/* Baseline Assessment */}
-                        <div className="mb-1">
-                          <Text type="secondary" style={{ fontSize: '11px' }}>មូលដ្ឋាន: </Text>
-                          {student.baseline_khmer_level && (
-                            <Tag size="small" color="purple">ភាសា: {student.baseline_khmer_level}</Tag>
-                          )}
-                          {student.baseline_math_level && (
-                            <Tag size="small" color="cyan">គណិត: {student.baseline_math_level}</Tag>
-                          )}
-                          {!student.baseline_khmer_level && !student.baseline_math_level && (
-                            <Text style={{ fontSize: '11px' }}>-</Text>
-                          )}
-                        </div>
-
-                        {/* Midline Assessment */}
-                        {(student.midline_khmer_level || student.midline_math_level) && (
-                          <div className="mb-1">
-                            <Text type="secondary" style={{ fontSize: '11px' }}>កណ្តាល: </Text>
-                            {student.midline_khmer_level && (
-                              <Tag size="small" color="orange">ភាសា: {student.midline_khmer_level}</Tag>
-                            )}
-                            {student.midline_math_level && (
-                              <Tag size="small" color="gold">គណិត: {student.midline_math_level}</Tag>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Endline Assessment */}
-                        {(student.endline_khmer_level || student.endline_math_level) && (
-                          <div className="mb-1">
-                            <Text type="secondary" style={{ fontSize: '11px' }}>បញ្ចប់: </Text>
-                            {student.endline_khmer_level && (
-                              <Tag size="small" color="green">ភាសា: {student.endline_khmer_level}</Tag>
-                            )}
-                            {student.endline_math_level && (
-                              <Tag size="small" color="lime">គណិត: {student.endline_math_level}</Tag>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                  {/* ឈ្មោះសិស្ស */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <UserOutlined
+                      style={{
+                        color: student.gender === 'male' || student.gender === 'ប្រុស' ? '#1890ff' : '#f759ab',
+                        fontSize: '16px'
+                      }}
+                    />
+                    <Text strong style={{ fontSize: '15px' }}>{student.name}</Text>
                   </div>
+
+                  {/* ភេទ + ថ្នាក់ */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <Text type="secondary" style={{ fontSize: '11px' }}>ភេទ:</Text>
+                    <Tag size="small" color={student.gender === 'male' || student.gender === 'ប្រុស' ? 'blue' : student.gender === 'female' || student.gender === 'ស្រី' ? 'pink' : 'default'}>
+                      {student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender || '-'}
+                    </Tag>
+                    {student.grade && (
+                      <>
+                        <Text type="secondary" style={{ fontSize: '11px' }}>ថ្នាក់:</Text>
+                        <Tag size="small" color="blue">ទី{student.grade}</Tag>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Baseline Assessment */}
+                  <div className="mb-1">
+                    <Text type="secondary" style={{ fontSize: '11px' }}>មូលដ្ឋាន: </Text>
+                    {student.baseline_khmer_level && (
+                      <Tag size="small" color="purple">ភាសា: {student.baseline_khmer_level}</Tag>
+                    )}
+                    {student.baseline_math_level && (
+                      <Tag size="small" color="cyan">គណិត: {student.baseline_math_level}</Tag>
+                    )}
+                    {!student.baseline_khmer_level && !student.baseline_math_level && (
+                      <Text style={{ fontSize: '11px' }}>-</Text>
+                    )}
+                  </div>
+
+                  {/* Midline Assessment */}
+                  {(student.midline_khmer_level || student.midline_math_level) && (
+                    <div className="mb-1">
+                      <Text type="secondary" style={{ fontSize: '11px' }}>កណ្តាល: </Text>
+                      {student.midline_khmer_level && (
+                        <Tag size="small" color="orange">ភាសា: {student.midline_khmer_level}</Tag>
+                      )}
+                      {student.midline_math_level && (
+                        <Tag size="small" color="gold">គណិត: {student.midline_math_level}</Tag>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Endline Assessment */}
+                  {(student.endline_khmer_level || student.endline_math_level) && (
+                    <div className="mb-1">
+                      <Text type="secondary" style={{ fontSize: '11px' }}>បញ្ចប់: </Text>
+                      {student.endline_khmer_level && (
+                        <Tag size="small" color="green">ភាសា: {student.endline_khmer_level}</Tag>
+                      )}
+                      {student.endline_math_level && (
+                        <Tag size="small" color="lime">គណិត: {student.endline_math_level}</Tag>
+                      )}
+                    </div>
+                  )}
 
                   {/* Card Actions */}
                   <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
@@ -684,19 +593,6 @@ function StudentsContent() {
           </Form.Item>
         </Form>
       </Modal>
-
-      {/* Bulk Class Assignment Modal */}
-      <BulkClassAssignModal
-        visible={bulkClassModalVisible}
-        studentIds={selectedStudentIds}
-        pilotSchoolId={session?.user?.pilot_school_id || 33}
-        onSuccess={() => {
-          setBulkClassModalVisible(false);
-          setSelectedStudentIds([]);
-          fetchStudents();
-        }}
-        onCancel={() => setBulkClassModalVisible(false)}
-      />
     </>
   );
 }
