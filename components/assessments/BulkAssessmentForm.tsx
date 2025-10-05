@@ -45,6 +45,7 @@ const { TextArea } = Input;
 
 interface Student {
   id: number;
+  student_id?: string;
   name: string;
   age?: number;
   gender?: string;

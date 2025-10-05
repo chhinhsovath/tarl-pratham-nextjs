@@ -38,6 +38,7 @@ const { Option } = Select;
 
 interface Student {
   id: number;
+  student_id?: string;
   name: string;
   gender: string;
   age?: number;

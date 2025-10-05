@@ -23,6 +23,7 @@ interface BulkAssessmentWizardProps {
 
 interface Student {
   id: number;
+  student_id?: string;
   name: string;
   sex?: string;
   gender?: string;
