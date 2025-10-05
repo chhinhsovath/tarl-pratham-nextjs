@@ -230,6 +230,13 @@ function AssessmentsContent() {
 
   const columns = [
     {
+      title: 'លេខសិស្ស',
+      dataIndex: 'student',
+      key: 'student_id',
+      width: 100,
+      render: (student: any) => student?.student_id || '-'
+    },
+    {
       title: 'សិស្ស',
       dataIndex: 'student',
       key: 'student',
@@ -311,15 +318,22 @@ function AssessmentsContent() {
       }
     },
     {
-      title: 'ពិន្ទុ',
-      dataIndex: 'score',
-      key: 'score',
-      width: 80,
-      render: (score: number) => score ? (
-        <Tag color={score >= 80 ? 'green' : score >= 60 ? 'orange' : 'red'}>
-          {score}%
+      title: 'គំរូតេស្ត',
+      dataIndex: 'assessment_sample',
+      key: 'assessment_sample',
+      width: 100,
+      render: (sample: string) => sample || '-'
+    },
+    {
+      title: 'ការយល់ព្រម',
+      dataIndex: 'student_consent',
+      key: 'student_consent',
+      width: 100,
+      render: (consent: string) => (
+        <Tag color={consent === 'Yes' ? 'green' : consent === 'No' ? 'red' : 'default'}>
+          {consent === 'Yes' ? 'បាទ/ចាស' : consent === 'No' ? 'ទេ' : '-'}
         </Tag>
-      ) : '-'
+      )
     },
     {
       title: 'កាលបរិច្ឆេទ',
@@ -365,22 +379,22 @@ function AssessmentsContent() {
       width: 150,
       render: (record: any) => (
         <Space size="small">
-          <Button 
-            size="small" 
+          <Button
+            size="small"
             icon={<EyeOutlined />}
             onClick={() => router.push(`/assessments/${record.id}`)}
           >
             មើល
           </Button>
-          
+
           {hasPermission(user, 'assessments.edit') && (
-            <Button 
-              size="small" 
+            <Button
+              size="small"
               icon={<EditOutlined />}
               onClick={() => router.push(`/assessments/${record.id}/edit`)}
             />
           )}
-          
+
           {hasPermission(user, 'assessments.delete') && (
             <Popconfirm
               title="តើអ្នកពិតជាចង់លុបការវាយតម្លៃនេះមែនទេ?"
@@ -388,9 +402,9 @@ function AssessmentsContent() {
               okText="យល់ព្រម"
               cancelText="បោះបង់"
             >
-              <Button 
-                size="small" 
-                danger 
+              <Button
+                size="small"
+                danger
                 icon={<DeleteOutlined />}
               />
             </Popconfirm>
