@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
+import { getLevelLabelKM, getSubjectLabelKM, getAssessmentTypeLabelKM } from '@/lib/constants/assessment-levels';
 
 export default function AssessmentDetailPage() {
   const router = useRouter();
@@ -91,27 +92,17 @@ export default function AssessmentDetailPage() {
     );
   }
 
-  const typeMap = {
-    'ដើមគ្រា': 'តេស្តដើមគ្រា',
-    'ពាក់កណ្តាលគ្រា': 'តេស្តពាក់កណ្ដាលគ្រា',
-    'ចុងគ្រា': 'តេស្តចុងក្រោយគ្រា',
-    'baseline': 'តេស្តដើមគ្រា',
-    'midline': 'តេស្តពាក់កណ្ដាលគ្រា',
-    'endline': 'តេស្តចុងក្រោយគ្រា'
+  // Get proper Khmer labels from constants
+  const getAssessmentTypeLabel = (type: string) => {
+    return getAssessmentTypeLabelKM(type) || type;
   };
 
-  const subjectMap = {
-    khmer: 'ភាសាខ្មែរ',
-    math: 'គណិតវិទ្យា',
-    language: 'ភាសាខ្មែរ'
+  const getSubjectLabel = (subject: string) => {
+    return getSubjectLabelKM(subject) || subject;
   };
 
-  const levelMap = {
-    beginner: 'កម្រិតដំបូង',
-    letter: 'តួអក្សរ',
-    word: 'ពាក្យ',
-    paragraph: 'កថាខណ្ឌ',
-    story: 'រឿង'
+  const getLevelLabel = (subject: string, level: string) => {
+    return getLevelLabelKM(subject, level) || level;
   };
 
   return (
@@ -177,16 +168,16 @@ export default function AssessmentDetailPage() {
 
             <Descriptions.Item label="ប្រភេទការវាយតម្លៃ">
               <Tag color={
-                assessment.assessment_type === 'ដើមគ្រា' ? 'blue' :
-                assessment.assessment_type === 'ពាក់កណ្តាលគ្រា' ? 'orange' : 'green'
+                assessment.assessment_type === 'baseline' ? 'blue' :
+                assessment.assessment_type === 'midline' ? 'orange' : 'green'
               }>
-                {typeMap[assessment.assessment_type as keyof typeof typeMap] || assessment.assessment_type}
+                {getAssessmentTypeLabel(assessment.assessment_type)}
               </Tag>
             </Descriptions.Item>
 
             <Descriptions.Item label="មុខវិជ្ជា">
-              <Tag color={assessment.subject === 'khmer' ? 'purple' : 'cyan'}>
-                {subjectMap[assessment.subject as keyof typeof subjectMap] || assessment.subject}
+              <Tag color={assessment.subject === 'language' ? 'purple' : 'cyan'}>
+                {getSubjectLabel(assessment.subject)}
               </Tag>
             </Descriptions.Item>
 
@@ -196,9 +187,16 @@ export default function AssessmentDetailPage() {
                   assessment.level === 'beginner' ? 'red' :
                   assessment.level === 'letter' ? 'orange' :
                   assessment.level === 'word' ? 'gold' :
-                  assessment.level === 'paragraph' ? 'green' : 'blue'
+                  assessment.level === 'paragraph' ? 'green' :
+                  assessment.level === 'story' ? 'blue' :
+                  assessment.level === 'comprehension1' ? 'purple' :
+                  assessment.level === 'comprehension2' ? 'magenta' :
+                  assessment.level === 'number_1digit' ? 'cyan' :
+                  assessment.level === 'number_2digit' ? 'geekblue' :
+                  assessment.level === 'subtraction' ? 'lime' :
+                  assessment.level === 'division' ? 'volcano' : 'default'
                 }>
-                  {levelMap[assessment.level as keyof typeof levelMap] || assessment.level}
+                  {getLevelLabel(assessment.subject, assessment.level)}
                 </Tag>
               ) : '-'}
             </Descriptions.Item>
