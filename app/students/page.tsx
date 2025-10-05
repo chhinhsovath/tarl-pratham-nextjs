@@ -500,11 +500,9 @@ function StudentsContent() {
                       />
                       <div className="flex-1">
                         {/* លេខសម្គាល់សិស្ស */}
-                        {student.student_id && (
-                          <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '4px' }}>
-                            លេខសម្គាល់: {student.student_id}
-                          </Text>
-                        )}
+                        <Text type="secondary" style={{ fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+                          លេខសម្គាល់: {student.student_id || '-'}
+                        </Text>
 
                         {/* ឈ្មោះសិស្ស */}
                         <div className="flex items-center gap-2 mb-2">
@@ -514,58 +512,62 @@ function StudentsContent() {
                               fontSize: '16px'
                             }}
                           />
-                          <Text strong style={{ fontSize: '16px' }}>{student.name}</Text>
+                          <Text strong style={{ fontSize: '15px' }}>{student.name}</Text>
                         </div>
 
-                        {/* ភេទ */}
-                        <div className="mb-2">
-                          <Text type="secondary" style={{ fontSize: '12px' }}>ភេទ: </Text>
-                          <Tag color={student.gender === 'male' || student.gender === 'ប្រុស' ? 'blue' : student.gender === 'female' || student.gender === 'ស្រី' ? 'pink' : 'default'} style={{ marginLeft: '4px' }}>
-                            {student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender === 'other' ? 'ផ្សេងទៀត' : student.gender || '-'}
+                        {/* ភេទ + ថ្នាក់ */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <Text type="secondary" style={{ fontSize: '11px' }}>ភេទ:</Text>
+                          <Tag size="small" color={student.gender === 'male' || student.gender === 'ប្រុស' ? 'blue' : student.gender === 'female' || student.gender === 'ស្រី' ? 'pink' : 'default'}>
+                            {student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender || '-'}
                           </Tag>
+                          {student.grade && (
+                            <>
+                              <Text type="secondary" style={{ fontSize: '11px' }}>ថ្នាក់:</Text>
+                              <Tag size="small" color="blue">ទី{student.grade}</Tag>
+                            </>
+                          )}
                         </div>
 
-                        {/* កម្រិតបច្ចុប្បន្ន */}
+                        {/* Baseline Assessment */}
                         <div className="mb-1">
-                          <Text type="secondary" style={{ fontSize: '12px', display: 'block' }}>
-                            កម្រិតបច្ចុប្បន្ន: {student.baseline_khmer_level || student.baseline_math_level || '-'}
-                          </Text>
+                          <Text type="secondary" style={{ fontSize: '11px' }}>មូលដ្ឋាន: </Text>
+                          {student.baseline_khmer_level && (
+                            <Tag size="small" color="purple">ភាសា: {student.baseline_khmer_level}</Tag>
+                          )}
+                          {student.baseline_math_level && (
+                            <Tag size="small" color="cyan">គណិត: {student.baseline_math_level}</Tag>
+                          )}
+                          {!student.baseline_khmer_level && !student.baseline_math_level && (
+                            <Text style={{ fontSize: '11px' }}>-</Text>
+                          )}
                         </div>
 
-                        {/* Assessment Levels */}
-                        {(student.baseline_khmer_level || student.baseline_math_level) && (
-                          <div className="mt-2 p-2 bg-gray-50 rounded">
-                            {student.baseline_khmer_level && (
-                              <div className="mb-1">
-                                <Text style={{ fontSize: '11px' }}>
-                                  <Text type="secondary">មូលដ្ឋាន ភាសា: </Text>
-                                  <Tag size="small" color="purple">{student.baseline_khmer_level}</Tag>
-                                </Text>
-                              </div>
+                        {/* Midline Assessment */}
+                        {(student.midline_khmer_level || student.midline_math_level) && (
+                          <div className="mb-1">
+                            <Text type="secondary" style={{ fontSize: '11px' }}>កណ្តាល: </Text>
+                            {student.midline_khmer_level && (
+                              <Tag size="small" color="orange">ភាសា: {student.midline_khmer_level}</Tag>
                             )}
-                            {student.baseline_math_level && (
-                              <div>
-                                <Text style={{ fontSize: '11px' }}>
-                                  <Text type="secondary">មូលដ្ឋាន គណិត: </Text>
-                                  <Tag size="small" color="cyan">{student.baseline_math_level}</Tag>
-                                </Text>
-                              </div>
+                            {student.midline_math_level && (
+                              <Tag size="small" color="gold">គណិត: {student.midline_math_level}</Tag>
                             )}
                           </div>
                         )}
 
-                        {/* Status Tags */}
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {student.age && (
-                            <Tag size="small">{student.age} ឆ្នាំ</Tag>
-                          )}
-                          {student.grade && (
-                            <Tag size="small" color="blue">ថ្នាក់ទី{student.grade}</Tag>
-                          )}
-                          <Tag size="small" color={student.is_active ? 'green' : 'red'}>
-                            {student.is_active ? 'សកម្ម' : 'អសកម្ម'}
-                          </Tag>
-                        </div>
+                        {/* Endline Assessment */}
+                        {(student.endline_khmer_level || student.endline_math_level) && (
+                          <div className="mb-1">
+                            <Text type="secondary" style={{ fontSize: '11px' }}>បញ្ចប់: </Text>
+                            {student.endline_khmer_level && (
+                              <Tag size="small" color="green">ភាសា: {student.endline_khmer_level}</Tag>
+                            )}
+                            {student.endline_math_level && (
+                              <Tag size="small" color="lime">គណិត: {student.endline_math_level}</Tag>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
