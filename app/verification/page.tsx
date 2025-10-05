@@ -322,42 +322,43 @@ export default function VerificationPage() {
         </div>
 
         {/* Statistics Cards */}
-        <Row gutter={16} className="mb-6">
-          <Col xs={12} sm={6}>
-            <Card>
+        <Row gutter={[8, 8]} className="mb-6">
+          <Col xs={12} sm={12} md={6}>
+            <Card bodyStyle={{ padding: '16px' }}>
               <Statistic
                 title="រង់ចាំផ្ទៀងផ្ទាត់"
                 value={stats.pending}
-                valueStyle={{ color: '#faad14' }}
+                valueStyle={{ color: '#faad14', fontSize: '20px' }}
                 prefix={<ExclamationCircleOutlined />}
               />
             </Card>
           </Col>
-          <Col xs={12} sm={6}>
-            <Card>
+          <Col xs={12} sm={12} md={6}>
+            <Card bodyStyle={{ padding: '16px' }}>
               <Statistic
                 title="បានផ្ទៀងផ្ទាត់"
                 value={stats.verified}
-                valueStyle={{ color: '#52c41a' }}
+                valueStyle={{ color: '#52c41a', fontSize: '20px' }}
                 prefix={<CheckCircleOutlined />}
               />
             </Card>
           </Col>
-          <Col xs={12} sm={6}>
-            <Card>
+          <Col xs={12} sm={12} md={6}>
+            <Card bodyStyle={{ padding: '16px' }}>
               <Statistic
                 title="បានបដិសេធ"
                 value={stats.rejected}
-                valueStyle={{ color: '#ff4d4f' }}
+                valueStyle={{ color: '#ff4d4f', fontSize: '20px' }}
                 prefix={<CloseCircleOutlined />}
               />
             </Card>
           </Col>
-          <Col xs={12} sm={6}>
-            <Card>
+          <Col xs={12} sm={12} md={6}>
+            <Card bodyStyle={{ padding: '16px' }}>
               <Statistic
                 title="សរុប"
                 value={stats.total}
+                valueStyle={{ fontSize: '20px' }}
                 prefix={<LockOutlined />}
               />
             </Card>
@@ -365,44 +366,47 @@ export default function VerificationPage() {
         </Row>
 
         {/* Filters */}
-        <Card className="mb-6">
-          <Row gutter={16}>
-            <Col xs={24} sm={8}>
+        <Card className="mb-6" bodyStyle={{ padding: '16px' }}>
+          <Row gutter={[8, 8]}>
+            <Col xs={24} sm={12} md={8}>
               <Input
                 placeholder="ស្វែងរក..."
                 prefix={<SearchOutlined />}
                 value={filters.search}
                 onChange={(e) => setFilters({...filters, search: e.target.value})}
+                size="middle"
               />
             </Col>
-            <Col xs={12} sm={4}>
+            <Col xs={12} sm={6} md={4}>
               <Select
                 placeholder="ប្រភេទ"
                 value={filters.assessment_type}
                 onChange={(value) => setFilters({...filters, assessment_type: value})}
                 allowClear
                 style={{ width: '100%' }}
+                size="middle"
               >
                 <Option value="baseline">មូលដ្ឋាន</Option>
                 <Option value="midline">ពាក់កណ្តាល</Option>
                 <Option value="endline">បញ្ចប់</Option>
               </Select>
             </Col>
-            <Col xs={12} sm={4}>
+            <Col xs={12} sm={6} md={4}>
               <Select
                 placeholder="មុខវិជ្ជា"
                 value={filters.subject}
                 onChange={(value) => setFilters({...filters, subject: value})}
                 allowClear
                 style={{ width: '100%' }}
+                size="middle"
               >
                 <Option value="khmer">ភាសាខ្មែរ</Option>
                 <Option value="math">គណិតវិទ្យា</Option>
               </Select>
             </Col>
-            <Col xs={24} sm={8}>
-              <Space>
-                <Button 
+            <Col xs={24} sm={12} md={8}>
+              <Space wrap style={{ width: '100%' }}>
+                <Button
                   onClick={() => {
                     setFilters({
                       search: '',
@@ -412,13 +416,15 @@ export default function VerificationPage() {
                       teacher_id: ''
                     });
                   }}
+                  size="middle"
                 >
                   សម្អាត
                 </Button>
                 {selectedAssessments.length > 0 && (
-                  <Button 
+                  <Button
                     type="primary"
                     onClick={handleBulkVerify}
+                    size="middle"
                   >
                     ផ្ទៀងផ្ទាត់ ({selectedAssessments.length})
                   </Button>
@@ -429,35 +435,35 @@ export default function VerificationPage() {
         </Card>
 
         {/* Tabs for different statuses */}
-        <Card>
-          <Tabs 
-            activeKey={activeTab} 
+        <Card bodyStyle={{ padding: '16px' }}>
+          <Tabs
+            activeKey={activeTab}
             onChange={setActiveTab}
             items={[
               {
                 key: 'pending',
                 label: (
-                  <span>
-                    រង់ចាំផ្ទៀងផ្ទាត់
-                    <Badge count={stats.pending} offset={[10, 0]} />
+                  <span style={{ fontSize: '14px' }}>
+                    រង់ចាំ
+                    <Badge count={stats.pending} offset={[5, 0]} style={{ marginLeft: '4px' }} />
                   </span>
                 )
               },
               {
                 key: 'verified',
                 label: (
-                  <span>
+                  <span style={{ fontSize: '14px' }}>
                     បានផ្ទៀងផ្ទាត់
-                    <Badge count={stats.verified} offset={[10, 0]} showZero color="green" />
+                    <Badge count={stats.verified} offset={[5, 0]} showZero color="green" style={{ marginLeft: '4px' }} />
                   </span>
                 )
               },
               {
                 key: 'rejected',
                 label: (
-                  <span>
+                  <span style={{ fontSize: '14px' }}>
                     បានបដិសេធ
-                    <Badge count={stats.rejected} offset={[10, 0]} showZero color="red" />
+                    <Badge count={stats.rejected} offset={[5, 0]} showZero color="red" style={{ marginLeft: '4px' }} />
                   </span>
                 )
               }
@@ -465,7 +471,8 @@ export default function VerificationPage() {
           />
 
           {/* Table */}
-          <Table scroll={{ x: "max-content" }}
+          <Table
+            scroll={{ x: 800 }}
             rowSelection={activeTab === 'pending' ? rowSelection : undefined}
             columns={columns}
             dataSource={assessments}
@@ -474,8 +481,10 @@ export default function VerificationPage() {
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total} ការវាយតម្លៃ`
+              showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total}`,
+              simple: typeof window !== 'undefined' && window.innerWidth < 768
             }}
+            size="small"
           />
         </Card>
 
