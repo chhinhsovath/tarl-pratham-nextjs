@@ -225,7 +225,7 @@ export default function SmartDashboard() {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
       {/* Welcome Header */}
       <Card
         style={{
@@ -234,7 +234,7 @@ export default function SmartDashboard() {
           marginBottom: '24px',
           color: 'white'
         }}
-        bodyStyle={{ padding: '32px' }}
+        bodyStyle={{ padding: '24px' }}
       >
         <Row align="middle" gutter={[16, 16]}>
           <Col xs={24} md={16}>
