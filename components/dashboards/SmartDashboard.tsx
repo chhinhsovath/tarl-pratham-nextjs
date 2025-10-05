@@ -225,7 +225,7 @@ export default function SmartDashboard() {
   }
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Welcome Header */}
       <Card
         style={{
