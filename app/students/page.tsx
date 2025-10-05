@@ -499,7 +499,15 @@ function StudentsContent() {
                         }}
                       />
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        {/* លេខសម្គាល់សិស្ស */}
+                        {student.student_id && (
+                          <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '4px' }}>
+                            លេខសម្គាល់: {student.student_id}
+                          </Text>
+                        )}
+
+                        {/* ឈ្មោះសិស្ស */}
+                        <div className="flex items-center gap-2 mb-2">
                           <UserOutlined
                             style={{
                               color: student.gender === 'male' || student.gender === 'ប្រុស' ? '#1890ff' : '#f759ab',
@@ -508,14 +516,53 @@ function StudentsContent() {
                           />
                           <Text strong style={{ fontSize: '16px' }}>{student.name}</Text>
                         </div>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <Tag color={student.gender === 'male' || student.gender === 'ប្រុស' ? 'blue' : student.gender === 'female' || student.gender === 'ស្រី' ? 'pink' : 'default'}>
+
+                        {/* ភេទ */}
+                        <div className="mb-2">
+                          <Text type="secondary" style={{ fontSize: '12px' }}>ភេទ: </Text>
+                          <Tag color={student.gender === 'male' || student.gender === 'ប្រុស' ? 'blue' : student.gender === 'female' || student.gender === 'ស្រី' ? 'pink' : 'default'} style={{ marginLeft: '4px' }}>
                             {student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender === 'other' ? 'ផ្សេងទៀត' : student.gender || '-'}
                           </Tag>
+                        </div>
+
+                        {/* កម្រិតបច្ចុប្បន្ន */}
+                        <div className="mb-1">
+                          <Text type="secondary" style={{ fontSize: '12px', display: 'block' }}>
+                            កម្រិតបច្ចុប្បន្ន: {student.baseline_khmer_level || student.baseline_math_level || '-'}
+                          </Text>
+                        </div>
+
+                        {/* Assessment Levels */}
+                        {(student.baseline_khmer_level || student.baseline_math_level) && (
+                          <div className="mt-2 p-2 bg-gray-50 rounded">
+                            {student.baseline_khmer_level && (
+                              <div className="mb-1">
+                                <Text style={{ fontSize: '11px' }}>
+                                  <Text type="secondary">មូលដ្ឋាន ភាសា: </Text>
+                                  <Tag size="small" color="purple">{student.baseline_khmer_level}</Tag>
+                                </Text>
+                              </div>
+                            )}
+                            {student.baseline_math_level && (
+                              <div>
+                                <Text style={{ fontSize: '11px' }}>
+                                  <Text type="secondary">មូលដ្ឋាន គណិត: </Text>
+                                  <Tag size="small" color="cyan">{student.baseline_math_level}</Tag>
+                                </Text>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Status Tags */}
+                        <div className="flex flex-wrap gap-1 mt-2">
                           {student.age && (
-                            <Tag>{student.age} ឆ្នាំ</Tag>
+                            <Tag size="small">{student.age} ឆ្នាំ</Tag>
                           )}
-                          <Tag color={student.is_active ? 'green' : 'red'}>
+                          {student.grade && (
+                            <Tag size="small" color="blue">ថ្នាក់ទី{student.grade}</Tag>
+                          )}
+                          <Tag size="small" color={student.is_active ? 'green' : 'red'}>
                             {student.is_active ? 'សកម្ម' : 'អសកម្ម'}
                           </Tag>
                         </div>
@@ -527,21 +574,18 @@ function StudentsContent() {
                   <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
                     <Button
                       type="primary"
-                      size="large"
                       icon={<FileTextOutlined />}
                       onClick={() => router.push(`/assessments/create?student_id=${student.id}`)}
-                      style={{ flex: '1 1 auto', minWidth: '140px' }}
+                      style={{ flex: '1 1 auto', minWidth: '100px' }}
                     >
                       វាយតម្លៃ
                     </Button>
                     <Button
-                      size="large"
                       icon={<EyeOutlined />}
                       onClick={() => router.push(`/students/${student.id}`)}
                       style={{ flex: '0 0 auto' }}
                     />
                     <Button
-                      size="large"
                       icon={<EditOutlined />}
                       onClick={() => handleEdit(student)}
                       style={{ flex: '0 0 auto' }}
@@ -555,7 +599,6 @@ function StudentsContent() {
                     >
                       <Button
                         danger
-                        size="large"
                         icon={<DeleteOutlined />}
                         style={{ flex: '0 0 auto' }}
                       />
