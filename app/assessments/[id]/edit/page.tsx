@@ -45,9 +45,13 @@ export default function EditAssessmentPage() {
       const studentsResponse = await fetch('/api/students');
       if (studentsResponse.ok) {
         const studentsData = await studentsResponse.json();
-        const studentsList = studentsData.students || [];
+        const studentsList = studentsData.students || studentsData.data || [];
         console.log('✅ Students loaded:', studentsList.length);
         setStudents(studentsList);
+      } else {
+        console.error('❌ Failed to load students:', studentsResponse.status);
+        const errorData = await studentsResponse.json();
+        console.error('Error details:', errorData);
       }
 
       // Then fetch assessment
@@ -168,7 +172,8 @@ export default function EditAssessmentPage() {
                 filterOption={(input, option) =>
                   (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
                 }
-                loading={students.length === 0}
+                loading={loading && students.length === 0}
+                notFoundContent={loading ? 'កំពុងផ្ទុក...' : 'មិនមានសិស្ស'}
                 size="large"
               >
                 {students.map((student: any) => (
