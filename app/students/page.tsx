@@ -221,13 +221,14 @@ function StudentsContent() {
         />
       ),
       key: 'select',
-      width: 50,
+      width: 60,
+      fixed: 'left',
       render: (_: any, record: Student) => (
         <input
           type="checkbox"
           checked={selectedStudentIds.includes(record.id)}
           onChange={(e) => handleSelectStudent(record.id, e.target.checked)}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', minWidth: '20px', minHeight: '20px' }}
         />
       ),
     },
@@ -235,9 +236,11 @@ function StudentsContent() {
       title: 'ឈ្មោះសិស្ស',
       dataIndex: 'name',
       key: 'name',
+      width: 200,
+      fixed: 'left',
       render: (text: string, record: Student) => (
         <Space>
-          <UserOutlined style={{ color: record.gender === 'male' ? '#1890ff' : '#f759ab' }} />
+          <UserOutlined style={{ color: record.gender === 'ប្រុស' ? '#1890ff' : '#f759ab' }} />
           <strong>{text}</strong>
         </Space>
       ),
@@ -246,6 +249,8 @@ function StudentsContent() {
       title: 'ភេទ',
       dataIndex: 'gender',
       key: 'gender',
+      width: 80,
+      className: 'mobile-hide',
       render: (gender: string) => (
         <Tag color={gender === 'ប្រុស' ? 'blue' : 'pink'}>
           {gender || '-'}
@@ -256,12 +261,15 @@ function StudentsContent() {
       title: 'អាយុ',
       dataIndex: 'age',
       key: 'age',
+      width: 70,
+      className: 'mobile-hide',
       render: (age: number) => age || '-',
     },
     {
       title: 'ស្ថានភាព',
       dataIndex: 'is_active',
       key: 'is_active',
+      width: 100,
       render: (is_active: boolean) => (
         <Tag color={is_active ? 'green' : 'red'}>
           {is_active ? 'សកម្ម' : 'អសកម្ម'}
@@ -272,11 +280,15 @@ function StudentsContent() {
       title: 'កាលបរិច្ឆេទបង្កើត',
       dataIndex: 'created_at',
       key: 'created_at',
+      width: 120,
+      className: 'mobile-hide',
       render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
     },
     {
       title: 'សកម្មភាព',
       key: 'actions',
+      width: 200,
+      fixed: 'right',
       render: (_: any, record: Student) => (
         <Space>
           <Button
@@ -284,10 +296,11 @@ function StudentsContent() {
             icon={<EyeOutlined />}
             onClick={() => router.push(`/students/${record.id}`)}
             title="មើលព័ត៌មានសិស្ស"
+            size="large"
           />
           <Button
             type="primary"
-            size="small"
+            size="large"
             icon={<FileTextOutlined />}
             onClick={() => router.push(`/assessments/create?student_id=${record.id}`)}
             title="បង្កើតការវាយតម្លៃ"
@@ -392,7 +405,8 @@ function StudentsContent() {
 
         {/* Students Table */}
         <Card>
-          <Table scroll={{ x: "max-content" }}
+          <Table
+            scroll={{ x: 1000 }}
             columns={columns}
             dataSource={filteredStudents}
             rowKey="id"
@@ -404,6 +418,7 @@ function StudentsContent() {
               showQuickJumper: true,
               showTotal: (total, range) => `${range[0]}-${range[1]} ពី ${total} សិស្ស`,
             }}
+            size="middle"
           />
         </Card>
       </Space>
