@@ -119,41 +119,41 @@ export default function SimpleReportsPage() {
         </div>
 
         {/* Statistics Cards */}
-        <Row gutter={16} className="mb-8">
-          <Col xs={24} sm={8}>
-            <Card loading={loading}>
+        <Row gutter={[12, 12]} className="mb-8">
+          <Col xs={12} sm={12} md={8}>
+            <Card loading={loading} bodyStyle={{ padding: '16px' }}>
               <Statistic
                 title="សិស្សសរុប"
                 value={stats.totalStudents}
-                valueStyle={{ color: '#1890ff' }}
+                valueStyle={{ color: '#1890ff', fontSize: '20px' }}
                 prefix={<TeamOutlined />}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={8}>
-            <Card loading={loading}>
+          <Col xs={12} sm={12} md={8}>
+            <Card loading={loading} bodyStyle={{ padding: '16px' }}>
               <Statistic
                 title="ការវាយតម្លៃសរុប"
                 value={stats.totalAssessments}
-                valueStyle={{ color: '#52c41a' }}
+                valueStyle={{ color: '#52c41a', fontSize: '20px' }}
                 prefix={<FileTextOutlined />}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={8}>
-            <Card loading={loading}>
+          <Col xs={24} sm={12} md={8}>
+            <Card loading={loading} bodyStyle={{ padding: '16px' }}>
               <Statistic
                 title="ការណែនាំសរុប"
                 value={stats.totalMentoringVisits}
-                valueStyle={{ color: '#722ed1' }}
+                valueStyle={{ color: '#722ed1', fontSize: '20px' }}
                 prefix={<UserOutlined />}
               />
             </Card>
           </Col>
         </Row>
 
-        {/* Clean Report Cards Grid - Following codebase patterns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Clean Report Cards Grid - Mobile Optimized */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {reportCards.map((report, index) => {
             // Icon mapping function
             const getIcon = (iconType: string) => {
@@ -171,20 +171,20 @@ export default function SimpleReportsPage() {
 
             return (
               <Link href={report.path} key={index}>
-                <div className={`${report.color} rounded-xl p-6 hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer border border-gray-100`}>
-                  <div className="flex items-center">
+                <div className={`${report.color} rounded-xl p-4 hover:shadow-lg transition-all duration-200 cursor-pointer border border-gray-100`}>
+                  <div className="flex items-start">
                     <div className="flex-shrink-0">
                       <div className={`w-12 h-12 ${report.iconColor} rounded-lg flex items-center justify-center shadow-sm`}>
                         {getIcon(report.icon)}
                       </div>
                     </div>
-                    <div className="ml-4 flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{report.title}</h3>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{report.subtitle}</p>
-                      <p className="text-sm text-gray-600 leading-relaxed">{report.description}</p>
+                    <div className="ml-3 flex-1">
+                      <h3 className="text-base font-semibold text-gray-900 mb-1">{report.title}</h3>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">{report.subtitle}</p>
+                      <p className="text-sm text-gray-600">{report.description}</p>
                     </div>
                   </div>
-                  <div className="mt-4 flex items-center justify-between">
+                  <div className="mt-3 flex items-center justify-end">
                     <div className="flex items-center text-sm font-medium text-indigo-600">
                       មើលរបាយការណ៍
                       <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,26 +198,28 @@ export default function SimpleReportsPage() {
           })}
         </div>
 
-        {/* Simple Recent Activity Table - Laravel style */}
-        <div className="mt-8">
+        {/* Simple Recent Activity - Mobile Responsive */}
+        <div className="mt-4">
           <div className="bg-white shadow-sm rounded-lg">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">សកម្មភាពថ្មីៗ</h3>
+            <div className="px-4 py-3 border-b border-gray-200">
+              <h3 className="text-base font-medium text-gray-900">សកម្មភាពថ្មីៗ</h3>
             </div>
-            <div className="overflow-hidden">
+
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       កាលបរិច្ឆេទ
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       ប្រភេទ
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       សាលារៀន
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       ស្ថានភាព
                     </th>
                   </tr>
@@ -225,29 +227,29 @@ export default function SimpleReportsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
+                      <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">
                         កំពុងផ្ទុកទិន្នន័យ...
                       </td>
                     </tr>
                   ) : stats.recentActivities.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
+                      <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">
                         មិនមានសកម្មភាពថ្មីៗ
                       </td>
                     </tr>
                   ) : (
                     stats.recentActivities.slice(0, 5).map((activity: any, index: number) => (
                       <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-3 text-sm text-gray-900">
                           {activity.assessed_date ? new Date(activity.assessed_date).toLocaleDateString('km-KH') : '-'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-3 text-sm text-gray-900">
                           {activity.subject === 'khmer' ? 'ភាសាខ្មែរ' : activity.subject === 'math' ? 'គណិតវិទ្យា' : activity.subject}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-3 text-sm text-gray-900">
                           {activity.pilot_school?.school_name || '-'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-3">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                             បញ្ចប់
                           </span>
@@ -257,6 +259,38 @@ export default function SimpleReportsPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden divide-y divide-gray-200">
+              {loading ? (
+                <div className="px-4 py-8 text-center text-sm text-gray-500">
+                  កំពុងផ្ទុកទិន្នន័យ...
+                </div>
+              ) : stats.recentActivities.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-gray-500">
+                  មិនមានសកម្មភាពថ្មីៗ
+                </div>
+              ) : (
+                stats.recentActivities.slice(0, 5).map((activity: any, index: number) => (
+                  <div key={index} className="px-4 py-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-sm font-medium text-gray-900">
+                        {activity.subject === 'khmer' ? 'ភាសាខ្មែរ' : activity.subject === 'math' ? 'គណិតវិទ្យា' : activity.subject}
+                      </span>
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        បញ្ចប់
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {activity.pilot_school?.school_name || '-'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {activity.assessed_date ? new Date(activity.assessed_date).toLocaleDateString('km-KH') : '-'}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
