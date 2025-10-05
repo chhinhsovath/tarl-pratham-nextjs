@@ -76,16 +76,19 @@ function StudentsContent() {
     try {
       const response = await fetch('/api/students?limit=100');
       if (!response.ok) {
-        throw new Error('Failed to fetch students');
+        const errorData = await response.json();
+        console.error('❌ API Error:', errorData);
+        throw new Error(errorData.message || errorData.error || 'Failed to fetch students');
       }
       const data = await response.json();
+      console.log('✅ Students fetched:', data.data?.length || 0);
       setStudents(data.data || []);
 
       // Track activity: User viewed student list
       trackActivity('student_view');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching students:', error);
-      message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស');
+      message.error(error.message || 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស');
       setStudents([]);
     } finally {
       setLoading(false);

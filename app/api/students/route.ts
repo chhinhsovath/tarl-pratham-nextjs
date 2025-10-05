@@ -187,7 +187,12 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error("Error fetching students:", error);
     return NextResponse.json(
-      { error: "មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស សូមព្យាយាមម្តងទៀត" },
+      {
+        error: "មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស សូមព្យាយាមម្តងទៀត",
+        message: error.message || String(error),
+        code: error.code || 'UNKNOWN_ERROR',
+        meta: error.meta || {}
+      },
       { status: 500 }
     );
   }
