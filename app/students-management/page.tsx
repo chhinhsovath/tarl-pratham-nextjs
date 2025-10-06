@@ -18,7 +18,9 @@ import {
   Row,
   Col,
   DatePicker,
-  InputNumber
+  InputNumber,
+  Upload,
+  Image
 } from 'antd';
 import {
   PlusOutlined,
@@ -27,7 +29,12 @@ import {
   EyeOutlined,
   SearchOutlined,
   DownloadOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  UserOutlined,
+  FileTextOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  UploadOutlined
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
@@ -47,6 +54,7 @@ interface Student {
   guardian_name?: string;
   guardian_phone?: string;
   address?: string;
+  photo?: string;
   school_class_id?: number;
   pilot_school_id?: number;
   baseline_khmer_level?: string;
@@ -58,6 +66,8 @@ interface Student {
   is_active: boolean;
   is_temporary: boolean;
   added_by_mentor: boolean;
+  created_by_role?: string;
+  record_status?: string;
   created_at: string;
   updated_at: string;
   pilot_school?: {
@@ -66,6 +76,18 @@ interface Student {
   school_class?: {
     name: string;
   };
+  added_by?: {
+    id: number;
+    name: string;
+    role: string;
+  };
+  assessments?: Array<{
+    id: number;
+    assessment_type: string;
+    subject: string;
+    level: string;
+    assessed_date: string;
+  }>;
 }
 
 function StudentsManagementContent() {
@@ -255,6 +277,87 @@ function StudentsManagementContent() {
             <Tag color="orange" size="small" className="ml-2">បណ្តោះអាសន្ន</Tag>
           )}
         </div>
+      )
+    },
+    {
+      title: 'បង្កើតដោយ',
+      dataIndex: 'added_by',
+      key: 'added_by',
+      width: 150,
+      render: (addedBy: any, record: Student) => (
+        <div>
+          {addedBy ? (
+            <>
+              <div className="text-sm font-medium">{addedBy.name}</div>
+              <Tag size="small" color={
+                addedBy.role === 'teacher' ? 'blue' :
+                addedBy.role === 'mentor' ? 'purple' :
+                addedBy.role === 'admin' ? 'red' : 'default'
+              }>
+                {addedBy.role === 'teacher' ? 'គ្រូ' :
+                 addedBy.role === 'mentor' ? 'អ្នកណែនាំ' :
+                 addedBy.role === 'admin' ? 'អ្នកគ្រប់គ្រង' : addedBy.role}
+              </Tag>
+            </>
+          ) : '-'}
+        </div>
+      )
+    },
+    {
+      title: 'ការវាយតម្លៃ',
+      dataIndex: 'assessments',
+      key: 'assessments',
+      width: 120,
+      render: (assessments: any[], record: Student) => {
+        const count = assessments?.length || 0;
+        const verified = assessments?.filter(a => a.verified_by_id).length || 0;
+        return (
+          <Space direction="vertical" size="small">
+            <Button
+              type="link"
+              size="small"
+              icon={<FileTextOutlined />}
+              onClick={() => router.push(`/assessments?student_id=${record.id}`)}
+              style={{ padding: 0 }}
+            >
+              {count} ការវាយតម្លៃ
+            </Button>
+            {count > 0 && (
+              <div className="text-xs">
+                <CheckCircleOutlined className="text-green-500 mr-1" />
+                {verified} ផ្ទៀងផ្ទាត់
+              </div>
+            )}
+          </Space>
+        );
+      }
+    },
+    {
+      title: 'ស្ថានភាពទិន្នន័យ',
+      dataIndex: 'record_status',
+      key: 'record_status',
+      width: 120,
+      render: (status: string, record: Student) => (
+        <Space direction="vertical" size="small">
+          <Tag color={
+            status === 'production' ? 'green' :
+            status === 'test_teacher' ? 'blue' :
+            status === 'test_mentor' ? 'purple' :
+            status === 'demo' ? 'orange' : 'default'
+          }>
+            {status === 'production' ? 'ផលិតកម្ម' :
+             status === 'test_teacher' ? 'សាកល្បង (គ្រូ)' :
+             status === 'test_mentor' ? 'សាកល្បង (អ្នកណែនាំ)' :
+             status === 'demo' ? 'សាកល្បង' : status}
+          </Tag>
+          {record.created_by_role && (
+            <div className="text-xs text-gray-500">
+              {record.created_by_role === 'teacher' ? 'គ្រូបង្កើត' :
+               record.created_by_role === 'mentor' ? 'អ្នកណែនាំបង្កើត' :
+               record.created_by_role}
+            </div>
+          )}
+        </Space>
       )
     },
     {
@@ -526,7 +629,7 @@ function StudentsManagementContent() {
               setPagination({ ...pagination, current: page, pageSize });
             }
           }}
-          scroll={{ x: 2500, y: 600 }}
+          scroll={{ x: 3000, y: 600 }}
           size="small"
         />
       </Card>
@@ -546,6 +649,28 @@ function StudentsManagementContent() {
           layout="vertical"
         >
           <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="photo"
+                label="រូបថតសិស្ស"
+              >
+                <Input
+                  placeholder="URL រូបថតសិស្ស"
+                  prefix={<UploadOutlined />}
+                  suffix={
+                    form.getFieldValue('photo') && (
+                      <Image
+                        src={form.getFieldValue('photo')}
+                        alt="Preview"
+                        width={30}
+                        height={30}
+                        style={{ borderRadius: '4px' }}
+                      />
+                    )
+                  }
+                />
+              </Form.Item>
+            </Col>
             <Col span={12}>
               <Form.Item
                 name="student_id"

@@ -137,8 +137,24 @@ export async function GET(request: NextRequest) {
           gender: true,
           age: true,
           grade: true,
+          date_of_birth: true,
+          guardian_name: true,
+          guardian_phone: true,
+          address: true,
+          photo: true,
+          baseline_khmer_level: true,
+          baseline_math_level: true,
+          midline_khmer_level: true,
+          midline_math_level: true,
+          endline_khmer_level: true,
+          endline_math_level: true,
           is_active: true,
+          is_temporary: true,
+          added_by_mentor: true,
+          created_by_role: true,
+          record_status: true,
           created_at: true,
+          updated_at: true,
           pilot_school_id: true,
           school_class_id: true,
           pilot_school: {
@@ -175,7 +191,8 @@ export async function GET(request: NextRequest) {
               assessment_type: true,
               subject: true,
               level: true,
-              assessed_date: true
+              assessed_date: true,
+              verified_by_id: true
             },
             orderBy: { assessed_date: "desc" }
           }
