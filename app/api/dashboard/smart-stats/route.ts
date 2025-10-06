@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { PrismaClient } from '@prisma/client';
 
-// const prisma = new PrismaClient(); // REMOVED: Use shared singleton from @/lib/prisma
 
 export async function GET(req: NextRequest) {
   try {

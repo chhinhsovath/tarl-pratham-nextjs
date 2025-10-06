@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-// const prisma = new PrismaClient(); // REMOVED: Use shared singleton from @/lib/prisma
 
 /**
  * POST /api/mentor/reset-test-data
