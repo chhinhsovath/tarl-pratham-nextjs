@@ -158,7 +158,7 @@ function SchoolOverviewContent() {
       )
     },
     {
-      title: 'Baseline',
+      title: 'តេស្តដើមគ្រា',
       dataIndex: 'baseline_count',
       key: 'baseline_count',
       width: 120,
@@ -179,10 +179,10 @@ function SchoolOverviewContent() {
       )
     },
     {
-      title: 'Midline',
+      title: 'តេស្តពាក់កណ្ដាលគ្រា',
       dataIndex: 'midline_count',
       key: 'midline_count',
-      width: 120,
+      width: 140,
       align: 'center' as const,
       render: (count: number, record: SchoolOverview) => (
         <div>
@@ -200,10 +200,10 @@ function SchoolOverviewContent() {
       )
     },
     {
-      title: 'Endline',
+      title: 'តេស្តចុងក្រោយគ្រា',
       dataIndex: 'endline_count',
       key: 'endline_count',
-      width: 120,
+      width: 140,
       align: 'center' as const,
       render: (count: number, record: SchoolOverview) => (
         <div>
@@ -351,7 +351,7 @@ function SchoolOverviewContent() {
           <Col xs={24} lg={8}>
             <Card>
               <Statistic
-                title="សាលាមាន Baseline"
+                title="សាលាមានតេស្តដើមគ្រា"
                 value={summary.schools_with_baseline}
                 suffix={`/ ${summary.total_schools}`}
                 valueStyle={{ color: '#1890ff' }}
@@ -365,7 +365,7 @@ function SchoolOverviewContent() {
           <Col xs={24} lg={8}>
             <Card>
               <Statistic
-                title="សាលាមាន Midline"
+                title="សាលាមានតេស្តពាក់កណ្ដាលគ្រា"
                 value={summary.schools_with_midline}
                 suffix={`/ ${summary.total_schools}`}
                 valueStyle={{ color: '#fa8c16' }}
@@ -379,7 +379,7 @@ function SchoolOverviewContent() {
           <Col xs={24} lg={8}>
             <Card>
               <Statistic
-                title="សាលាមាន Endline"
+                title="សាលាមានតេស្តចុងក្រោយគ្រា"
                 value={summary.schools_with_endline}
                 suffix={`/ ${summary.total_schools}`}
                 valueStyle={{ color: '#52c41a' }}
@@ -408,12 +408,12 @@ function SchoolOverviewContent() {
             <Select
               value={filterType}
               onChange={setFilterType}
-              style={{ width: 200 }}
+              style={{ width: 220 }}
             >
               <Option value="all">ទាំងអស់</Option>
-              <Option value="with_baseline">មាន Baseline</Option>
-              <Option value="with_midline">មាន Midline</Option>
-              <Option value="with_endline">មាន Endline</Option>
+              <Option value="with_baseline">មានតេស្តដើមគ្រា</Option>
+              <Option value="with_midline">មានតេស្តពាក់កណ្ដាលគ្រា</Option>
+              <Option value="with_endline">មានតេស្តចុងក្រោយគ្រា</Option>
               <Option value="with_mentor">មានអ្នកណែនាំ</Option>
               <Option value="no_assessments">គ្មានការវាយតម្លៃ</Option>
             </Select>
