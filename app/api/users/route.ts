@@ -75,21 +75,15 @@ export async function GET(request: NextRequest) {
       where.pilot_school_id = parseInt(school_id);
     }
 
-    // For mentors: allow viewing teachers at their assigned school
+    // For mentors: allow viewing users at their assigned school
     // For teachers: limit to their own data
     // Admin/coordinator: no restrictions
     if (session.user.role === "mentor") {
-      // Mentors can view teachers at their assigned school
-      if (school_id) {
-        // If school_id is provided and matches mentor's school, allow viewing teachers
-        if (parseInt(school_id) === session.user.pilot_school_id) {
-          // Allow query to proceed - mentor can see teachers at their school
-        } else {
-          // School ID doesn't match - restrict to own data
-          where.id = parseInt(session.user.id);
-        }
+      // Mentors can view users at their assigned school
+      if (session.user.pilot_school_id) {
+        where.pilot_school_id = session.user.pilot_school_id;
       } else {
-        // No school_id provided - restrict to own data
+        // Mentor has no school assigned - restrict to own data
         where.id = parseInt(session.user.id);
       }
     } else if (session.user.role === "teacher") {
