@@ -372,13 +372,6 @@ function StudentsManagementContent() {
       )
     },
     {
-      title: 'អាយុ',
-      dataIndex: 'age',
-      key: 'age',
-      width: 80,
-      render: (age: number) => age || '-'
-    },
-    {
       title: 'ថ្នាក់',
       dataIndex: 'grade',
       key: 'grade',
@@ -386,46 +379,11 @@ function StudentsManagementContent() {
       render: (grade: number) => grade ? `ទី${grade}` : '-'
     },
     {
-      title: 'ថ្ងៃខែឆ្នាំកំណើត',
-      dataIndex: 'date_of_birth',
-      key: 'date_of_birth',
-      width: 120,
-      render: (date: string) => date ? dayjs(date).format('DD/MM/YYYY') : '-'
-    },
-    {
-      title: 'អាណាព្យាបាល',
-      dataIndex: 'guardian_name',
-      key: 'guardian_name',
-      width: 150,
-      render: (text: string) => text || '-'
-    },
-    {
-      title: 'លេខទូរស័ព្ទ',
-      dataIndex: 'guardian_phone',
-      key: 'guardian_phone',
-      width: 120,
-      render: (text: string) => text || '-'
-    },
-    {
-      title: 'អាសយដ្ឋាន',
-      dataIndex: 'address',
-      key: 'address',
-      width: 150,
-      render: (text: string) => text || '-'
-    },
-    {
       title: 'សាលារៀន',
       dataIndex: 'pilot_school',
       key: 'pilot_school',
       width: 150,
       render: (school: any) => school?.school_name || '-'
-    },
-    {
-      title: 'ថ្នាក់រៀន',
-      dataIndex: 'school_class',
-      key: 'school_class',
-      width: 120,
-      render: (schoolClass: any) => schoolClass?.name || '-'
     },
     {
       title: 'មូលដ្ឋាន ភាសា',
@@ -629,7 +587,7 @@ function StudentsManagementContent() {
               setPagination({ ...pagination, current: page, pageSize });
             }
           }}
-          scroll={{ x: 3000, y: 600 }}
+          scroll={{ x: 2200, y: 600 }}
           size="small"
         />
       </Card>
