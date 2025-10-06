@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Only admins and coordinators can promote data to production
-    if (!['admin', 'coordinator'].includes(session.user.role)) {
+    // Only admins, coordinators, and mentors can promote data to production
+    if (!['admin', 'coordinator', 'mentor'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'អ្នកមិនមានសិទ្ធិផ្លាស់ប្តូរទិន្នន័យទៅផលិតកម្ម' },
         { status: 403 }
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (!['admin', 'coordinator'].includes(session.user.role)) {
+    if (!['admin', 'coordinator', 'mentor'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'អ្នកមិនមានសិទ្ធិមើលទិន្នន័យនេះ' },
         { status: 403 }

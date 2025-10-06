@@ -86,9 +86,28 @@ export default function VerificationPage() {
   const fetchAssessments = async () => {
     setLoading(true);
     try {
-      // TODO: Create verification API endpoint
-      // For now, return empty array until API is implemented
-      setAssessments([]);
+      const params = new URLSearchParams({
+        status: activeTab,
+        page: '1',
+        limit: '20'
+      });
+
+      if (filters.search) params.append('search', filters.search);
+      if (filters.assessment_type) params.append('assessment_type', filters.assessment_type);
+      if (filters.subject) params.append('subject', filters.subject);
+
+      const response = await fetch(`/api/assessments/verify?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch assessments');
+      }
+
+      const data = await response.json();
+      setAssessments(data.assessments || []);
+
+      if (data.statistics) {
+        setStats(data.statistics);
+      }
     } catch (error) {
       console.error('Error fetching assessments:', error);
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យ');
@@ -99,13 +118,17 @@ export default function VerificationPage() {
   };
 
   const fetchStats = async () => {
-    // TODO: Fetch real statistics from API
-    setStats({
-      pending: 0,
-      verified: 0,
-      rejected: 0,
-      total: 0
-    });
+    try {
+      const response = await fetch('/api/assessments/verify?status=pending&limit=1');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.statistics) {
+          setStats(data.statistics);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
   };
 
   const handleVerify = async (record: any) => {
@@ -116,13 +139,28 @@ export default function VerificationPage() {
   const handleVerifySubmit = async () => {
     try {
       const values = await form.validateFields();
-      
-      message.success(`ការវាយតម្លៃត្រូវបាន${values.action === 'verify' ? 'ផ្ទៀងផ្ទាត់' : 'បដិសេធ'}ដោយជោគជ័យ`);
-      
-      setVerifyModalVisible(false);
-      form.resetFields();
-      fetchAssessments();
-      fetchStats();
+
+      const response = await fetch('/api/assessments/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          assessment_ids: [selectedAssessment.id],
+          action: values.action === 'verify' ? 'approve' : 'reject',
+          notes: values.notes
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        message.success(data.message || `ការវាយតម្លៃត្រូវបាន${values.action === 'verify' ? 'ផ្ទៀងផ្ទាត់' : 'បដិសេធ'}ដោយជោគជ័យ`);
+        setVerifyModalVisible(false);
+        form.resetFields();
+        fetchAssessments();
+        fetchStats();
+      } else {
+        message.error(data.error || 'មានបញ្ហាក្នុងការផ្ទៀងផ្ទាត់');
+      }
     } catch (error) {
       console.error('Verification error:', error);
       message.error('មានបញ្ហាក្នុងការផ្ទៀងផ្ទាត់');
@@ -142,10 +180,26 @@ export default function VerificationPage() {
       cancelText: 'បោះបង់',
       onOk: async () => {
         try {
-          message.success(`បានផ្ទៀងផ្ទាត់ការវាយតម្លៃចំនួន ${selectedAssessments.length} ដោយជោគជ័យ`);
-          setSelectedAssessments([]);
-          fetchAssessments();
-          fetchStats();
+          const response = await fetch('/api/assessments/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              assessment_ids: selectedAssessments,
+              action: 'approve',
+              notes: 'Bulk verification'
+            })
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            message.success(data.message || `បានផ្ទៀងផ្ទាត់ការវាយតម្លៃចំនួន ${selectedAssessments.length} ដោយជោគជ័យ`);
+            setSelectedAssessments([]);
+            fetchAssessments();
+            fetchStats();
+          } else {
+            message.error(data.error || 'មានបញ្ហាក្នុងការផ្ទៀងផ្ទាត់');
+          }
         } catch (error) {
           message.error('មានបញ្ហាក្នុងការផ្ទៀងផ្ទាត់');
         }
@@ -155,22 +209,30 @@ export default function VerificationPage() {
 
   const columns = [
     {
+      title: 'លេខសិស្ស',
+      key: 'student_id',
+      width: 100,
+      render: (record: any) => record.student?.student_id || '-'
+    },
+    {
       title: 'សិស្ស',
       key: 'student',
       render: (record: any) => (
         <div>
-          <div className="font-semibold">{record.student_name}</div>
-          <div className="text-xs text-gray-500">{record.student_id}</div>
+          <div className="font-semibold">{record.student?.name}</div>
+          <div className="text-xs text-gray-500">
+            {record.student?.gender} · អាយុ {record.student?.age || 'N/A'}
+          </div>
         </div>
       )
     },
     {
-      title: 'សាលា/ថ្នាក់',
+      title: 'សាលា',
       key: 'school',
       render: (record: any) => (
         <div>
-          <div className="text-sm">{record.school}</div>
-          <div className="text-xs text-gray-500">{record.class}</div>
+          <div className="text-sm">{record.pilot_school?.school_name || '-'}</div>
+          <div className="text-xs text-gray-500">{record.pilot_school?.school_code || ''}</div>
         </div>
       )
     },
@@ -193,8 +255,8 @@ export default function VerificationPage() {
       dataIndex: 'subject',
       key: 'subject',
       render: (subject: string) => (
-        <Tag color={subject === 'khmer' ? 'purple' : 'cyan'}>
-          {subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា'}
+        <Tag color={subject === 'language' || subject === 'khmer' ? 'purple' : 'cyan'}>
+          {subject === 'language' || subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា'}
         </Tag>
       )
     },
