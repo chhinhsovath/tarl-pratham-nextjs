@@ -1,0 +1,142 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Only admin and coordinator can access monitoring
+    if (session.user.role !== 'admin' && session.user.role !== 'coordinator') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const today = new Date();
+    const todayStart = new Date(today.setHours(0, 0, 0, 0));
+    const weekStart = new Date(today.setDate(today.getDate() - 7));
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Fetch all metrics in parallel
+    const [
+      total_users,
+      active_users,
+      total_schools,
+      total_students,
+      total_assessments,
+      assessments_today,
+      assessments_this_week,
+      pending_verifications,
+      baseline_active,
+      midline_active,
+      endline_active,
+      recent_activities_raw,
+    ] = await Promise.all([
+      prisma.users.count(),
+      prisma.users.count({ where: { is_active: true } }),
+      prisma.pilot_schools.count(),
+      prisma.students.count({ where: { is_active: true } }),
+      prisma.assessments.count(),
+      prisma.assessments.count({
+        where: {
+          created_at: { gte: todayStart },
+        },
+      }),
+      prisma.assessments.count({
+        where: {
+          created_at: { gte: weekStart },
+        },
+      }),
+      prisma.assessments.count({
+        where: {
+          record_status: { in: ['draft', 'submitted', null] },
+        },
+      }),
+      prisma.pilot_schools.count({
+        where: {
+          AND: [
+            { baseline_start_date: { lte: todayStr } },
+            { baseline_end_date: { gte: todayStr } },
+          ],
+        },
+      }),
+      prisma.pilot_schools.count({
+        where: {
+          AND: [
+            { midline_start_date: { lte: todayStr } },
+            { midline_end_date: { gte: todayStr } },
+          ],
+        },
+      }),
+      prisma.pilot_schools.count({
+        where: {
+          AND: [
+            { endline_start_date: { lte: todayStr } },
+            { endline_end_date: { gte: todayStr } },
+          ],
+        },
+      }),
+      prisma.assessments.findMany({
+        take: 20,
+        orderBy: { created_at: 'desc' },
+        include: {
+          added_by: {
+            select: { name: true },
+          },
+          student: {
+            select: { name: true },
+          },
+        },
+      }),
+    ]);
+
+    // Format recent activities
+    const recent_activities = recent_activities_raw.map((assessment) => ({
+      id: assessment.id,
+      type: 'assessment',
+      description: `New ${assessment.assessment_type} assessment for ${assessment.student?.name}`,
+      user_name: assessment.added_by?.name || 'Unknown',
+      created_at: assessment.created_at.toISOString(),
+    }));
+
+    // Calculate system stats (mock values - would need actual implementation)
+    const system_stats = {
+      database_size: '2.5 GB',
+      uptime: '15 days',
+      last_backup: '2 hours ago',
+    };
+
+    return NextResponse.json({
+      total_users,
+      active_users,
+      total_schools,
+      total_students,
+      total_assessments,
+      assessments_today,
+      assessments_this_week,
+      pending_verifications,
+      active_periods: {
+        baseline: baseline_active,
+        midline: midline_active,
+        endline: endline_active,
+      },
+      recent_activities,
+      system_stats,
+    });
+  } catch (error) {
+    console.error('Error fetching system health:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch system health',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
+}
