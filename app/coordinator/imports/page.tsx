@@ -77,7 +77,7 @@ function BulkImportPageContent() {
   const importTypes = [
     {
       value: 'users',
-      label: 'Users (Teachers/Mentors)',
+      label: 'អ្នកប្រើប្រាស់ (គ្រូបង្រៀន/អ្នកណែនាំ)',
       icon: <UserOutlined />,
       color: '#1890ff',
       requiredFields: ['name', 'email', 'role', 'username', 'password'],
@@ -86,7 +86,7 @@ function BulkImportPageContent() {
     },
     {
       value: 'schools',
-      label: 'Schools',
+      label: 'សាលារៀន',
       icon: <BankOutlined />,
       color: '#52c41a',
       requiredFields: ['school_name', 'school_code', 'province', 'district'],
@@ -95,7 +95,7 @@ function BulkImportPageContent() {
     },
     {
       value: 'students',
-      label: 'Students',
+      label: 'សិស្ស',
       icon: <TeamOutlined />,
       color: '#722ed1',
       requiredFields: ['name', 'pilot_school_id'],
@@ -104,7 +104,7 @@ function BulkImportPageContent() {
     },
     {
       value: 'assessments',
-      label: 'Assessments',
+      label: 'ការវាយតម្លៃ',
       icon: <FileDoneOutlined />,
       color: '#fa8c16',
       requiredFields: ['student_id', 'assessment_type', 'subject'],
@@ -284,14 +284,14 @@ function BulkImportPageContent() {
         return (
           <div>
             <Alert
-              message="Import Instructions"
+              message="មគ្គុទ្ទេសក៍នាំចូល"
               description={
                 <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
-                  <li>Select the type of data you want to import</li>
-                  <li>Download the template and fill it with your data</li>
-                  <li>Upload the completed Excel file</li>
-                  <li>Review validation results and fix any errors</li>
-                  <li>Confirm import to add data to the system</li>
+                  <li>ជ្រើសរើសប្រភេទទិន្នន័យដែលអ្នកចង់នាំចូល</li>
+                  <li>ទាញយកគំរូ និងបំពេញដោយទិន្នន័យរបស់អ្នក</li>
+                  <li>ផ្ទុកឡើងឯកសារ Excel ដែលបានបំពេញ</li>
+                  <li>ពិនិត្យលទ្ធផលផ្ទៀងផ្ទាត់ និងកែកំហុសណាមួយ</li>
+                  <li>បញ្ជាក់ការនាំចូលដើម្បីបន្ថែមទិន្នន័យទៅក្នុងប្រព័ន្ធ</li>
                 </ul>
               }
               type="info"
@@ -300,7 +300,7 @@ function BulkImportPageContent() {
             />
 
             <Form layout="vertical">
-              <Form.Item label="Import Type" required>
+              <Form.Item label="ប្រភេទនាំចូល" required>
                 <Select
                   value={importType}
                   onChange={setImportType}
@@ -327,7 +327,7 @@ function BulkImportPageContent() {
                   <Row gutter={16}>
                     <Col span={12}>
                       <Card>
-                        <Title level={5}>Required Fields</Title>
+                        <Title level={5}>វាលចាំបាច់</Title>
                         <List
                           size="small"
                           dataSource={importTypes.find(t => t.value === importType)?.requiredFields}
@@ -341,7 +341,7 @@ function BulkImportPageContent() {
                     </Col>
                     <Col span={12}>
                       <Card>
-                        <Title level={5}>Optional Fields</Title>
+                        <Title level={5}>វាលស្រេចចិត្ត</Title>
                         <List
                           size="small"
                           dataSource={importTypes.find(t => t.value === importType)?.optionalFields}
@@ -363,7 +363,7 @@ function BulkImportPageContent() {
                       onClick={() => downloadTemplate(importType)}
                       block
                     >
-                      Download Excel Template
+                      ទាញយកគំរូ Excel
                     </Button>
 
                     <Dragger
@@ -376,10 +376,10 @@ function BulkImportPageContent() {
                         <FileExcelOutlined style={{ fontSize: 48, color: '#52c41a' }} />
                       </p>
                       <p className="ant-upload-text">
-                        Click or drag Excel file to upload
+                        ចុច ឬអូសឯកសារ Excel មកទីនេះដើម្បីផ្ទុកឡើង
                       </p>
                       <p className="ant-upload-hint">
-                        Support for .xlsx and .xls files only
+                        គាំទ្រតែឯកសារ .xlsx និង .xls ប៉ុណ្ណោះ
                       </p>
                     </Dragger>
                   </Space>
@@ -397,7 +397,7 @@ function BulkImportPageContent() {
                 <Col span={6}>
                   <Card>
                     <Statistic
-                      title="Total Rows"
+                      title="ជួរដេកសរុប"
                       value={importData.totalRows}
                       prefix={<FileExcelOutlined />}
                     />
@@ -406,7 +406,7 @@ function BulkImportPageContent() {
                 <Col span={6}>
                   <Card>
                     <Statistic
-                      title="Valid Rows"
+                      title="ជួរដេកត្រឹមត្រូវ"
                       value={importData.validRows}
                       valueStyle={{ color: '#52c41a' }}
                       prefix={<CheckCircleOutlined />}
@@ -416,7 +416,7 @@ function BulkImportPageContent() {
                 <Col span={6}>
                   <Card>
                     <Statistic
-                      title="Invalid Rows"
+                      title="ជួរដេកមិនត្រឹមត្រូវ"
                       value={importData.invalidRows}
                       valueStyle={{ color: importData.invalidRows > 0 ? '#ff4d4f' : '#52c41a' }}
                       prefix={<CloseCircleOutlined />}
@@ -583,11 +583,11 @@ function BulkImportPageContent() {
 
   return (
     <div className="max-w-full overflow-x-hidden">
-      <Card title="Bulk Data Import">
+      <Card title="នាំចូលទិន្នន័យជាបណ្តុំ">
         <Steps current={currentStep} style={{ marginBottom: 32 }}>
-          <Step title="Select & Upload" icon={<UploadOutlined />} />
-          <Step title="Validate & Review" icon={<EyeOutlined />} />
-          <Step title="Import Results" icon={<CheckCircleOutlined />} />
+          <Step title="ជ្រើសរើស & ផ្ទុកឡើង" icon={<UploadOutlined />} />
+          <Step title="ផ្ទៀងផ្ទាត់ & ពិនិត្យ" icon={<EyeOutlined />} />
+          <Step title="លទ្ធផលនាំចូល" icon={<CheckCircleOutlined />} />
         </Steps>
 
         {renderStepContent()}
@@ -595,7 +595,7 @@ function BulkImportPageContent() {
 
       {/* Preview Modal */}
       <Modal
-        title="Complete Data Preview"
+        title="មើលទិន្នន័យពេញលេញ"
         open={previewModalVisible}
         onCancel={() => setPreviewModalVisible(false)}
         width="90%"
