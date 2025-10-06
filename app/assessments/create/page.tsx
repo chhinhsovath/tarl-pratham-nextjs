@@ -1,13 +1,18 @@
 'use client';
 
 import { Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Spin } from 'antd';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import AssessmentWizard from '@/components/wizards/AssessmentWizard';
 
 function AssessmentCreateContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get student info from URL parameters
+  const studentId = searchParams.get('studentId');
+  const studentName = searchParams.get('studentName');
 
   const handleComplete = () => {
     router.push('/dashboard');
@@ -19,7 +24,12 @@ function AssessmentCreateContent() {
 
   return (
     <HorizontalLayout>
-      <AssessmentWizard onComplete={handleComplete} onCancel={handleCancel} />
+      <AssessmentWizard
+        onComplete={handleComplete}
+        onCancel={handleCancel}
+        initialStudentId={studentId ? parseInt(studentId) : undefined}
+        initialStudentName={studentName || undefined}
+      />
     </HorizontalLayout>
   );
 }

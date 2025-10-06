@@ -19,6 +19,8 @@ const { Title, Text } = Typography;
 interface AssessmentWizardProps {
   onComplete?: () => void;
   onCancel?: () => void;
+  initialStudentId?: number;
+  initialStudentName?: string;
 }
 
 export interface WizardData {
@@ -33,9 +35,18 @@ export interface WizardData {
   notes?: string;
 }
 
-export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWizardProps) {
-  const [currentStep, setCurrentStep] = useState(0);
+export default function AssessmentWizard({
+  onComplete,
+  onCancel,
+  initialStudentId,
+  initialStudentName
+}: AssessmentWizardProps) {
+  // If student is pre-selected, start at step 0 (Assessment Details), otherwise step 0 is Student Selection
+  const hasPreSelectedStudent = initialStudentId !== undefined;
+  const [currentStep, setCurrentStep] = useState(hasPreSelectedStudent ? 0 : 0);
   const [wizardData, setWizardData] = useState<WizardData>({
+    student_id: initialStudentId,
+    student_name: initialStudentName,
     assessment_type: 'baseline',
     subject: 'language',
     assessment_sample: 'ឧបករណ៍តេស្ត លេខ១',
@@ -45,7 +56,24 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
   const [loading, setLoading] = useState(false);
   const [assessmentId, setAssessmentId] = useState<number | null>(null);
 
-  const steps = [
+  // Define steps based on whether student is pre-selected
+  const steps = hasPreSelectedStudent ? [
+    {
+      title: 'លម្អិតការវាយតម្លៃ',
+      icon: <BookOutlined />,
+      description: 'បញ្ចូលពត៌មានការវាយតម្លៃ'
+    },
+    {
+      title: 'ពិនិត្យ',
+      icon: <CheckCircleOutlined />,
+      description: 'ពិនិត្យនិងបញ្ជាក់ទិន្នន័យ'
+    },
+    {
+      title: 'បញ្ចប់',
+      icon: <RocketOutlined />,
+      description: 'បានរក្សាទុកជោគជ័យ'
+    }
+  ] : [
     {
       title: 'ជ្រើសរើសសិស្ស',
       icon: <UserOutlined />,
@@ -74,13 +102,22 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
 
   const handleNext = () => {
     // Validate current step before moving forward
-    if (currentStep === 0 && !wizardData.student_id) {
-      message.warning('សូមជ្រើសរើសសិស្សម្នាក់');
-      return;
-    }
-    if (currentStep === 1 && !wizardData.level) {
-      message.warning('សូមជ្រើសរើសកម្រិត');
-      return;
+    if (!hasPreSelectedStudent) {
+      // Original flow with student selection
+      if (currentStep === 0 && !wizardData.student_id) {
+        message.warning('សូមជ្រើសរើសសិស្សម្នាក់');
+        return;
+      }
+      if (currentStep === 1 && !wizardData.level) {
+        message.warning('សូមជ្រើសរើសកម្រិត');
+        return;
+      }
+    } else {
+      // Pre-selected student flow (3 steps)
+      if (currentStep === 0 && !wizardData.level) {
+        message.warning('សូមជ្រើសរើសកម្រិត');
+        return;
+      }
     }
     setCurrentStep(currentStep + 1);
   };
@@ -110,7 +147,8 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
       // Track activity: User created an assessment
       trackActivity('assessment_add');
 
-      setCurrentStep(3); // Move to success step
+      // Move to success step (step 2 for pre-selected, step 3 for full flow)
+      setCurrentStep(hasPreSelectedStudent ? 2 : 3);
     } catch (error: any) {
       message.error(error.message || 'មានបញ្ហាក្នុងការរក្សាទុក');
     } finally {
@@ -125,54 +163,98 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
   };
 
   const renderStepContent = () => {
-    switch (currentStep) {
-      case 0:
-        return (
-          <StudentSelectionStep
-            selectedStudentId={wizardData.student_id}
-            onSelect={(student) => {
-              updateWizardData({
-                student_id: student.id,
-                student_name: student.name
-              });
-            }}
-          />
-        );
-      case 1:
-        return (
-          <AssessmentDetailsStep
-            data={wizardData}
-            onChange={updateWizardData}
-          />
-        );
-      case 2:
-        return (
-          <ReviewStep
-            data={wizardData}
-            onEdit={(step) => setCurrentStep(step)}
-          />
-        );
-      case 3:
-        return (
-          <SuccessStep
-            assessmentId={assessmentId}
-            studentName={wizardData.student_name}
-            onFinish={handleFinish}
-            onAddAnother={() => {
-              setCurrentStep(0);
-              setWizardData({
-                assessment_type: 'baseline',
-                subject: 'language',
-                assessment_sample: 'ឧបករណ៍តេស្ត លេខ១',
-                student_consent: 'Yes',
-                assessed_date: new Date().toISOString()
-              });
-              setAssessmentId(null);
-            }}
-          />
-        );
-      default:
-        return null;
+    if (hasPreSelectedStudent) {
+      // 3-step flow: Assessment Details → Review → Success
+      switch (currentStep) {
+        case 0: // Assessment Details
+          return (
+            <AssessmentDetailsStep
+              data={wizardData}
+              onChange={updateWizardData}
+            />
+          );
+        case 1: // Review
+          return (
+            <ReviewStep
+              data={wizardData}
+              onEdit={(step) => setCurrentStep(step)}
+            />
+          );
+        case 2: // Success
+          return (
+            <SuccessStep
+              assessmentId={assessmentId}
+              studentName={wizardData.student_name}
+              onFinish={handleFinish}
+              onAddAnother={() => {
+                setCurrentStep(0);
+                setWizardData({
+                  student_id: initialStudentId,
+                  student_name: initialStudentName,
+                  assessment_type: 'baseline',
+                  subject: 'language',
+                  assessment_sample: 'ឧបករណ៍តេស្ត លេខ១',
+                  student_consent: 'Yes',
+                  assessed_date: new Date().toISOString()
+                });
+                setAssessmentId(null);
+              }}
+            />
+          );
+        default:
+          return null;
+      }
+    } else {
+      // 4-step flow: Student Selection → Assessment Details → Review → Success
+      switch (currentStep) {
+        case 0:
+          return (
+            <StudentSelectionStep
+              selectedStudentId={wizardData.student_id}
+              onSelect={(student) => {
+                updateWizardData({
+                  student_id: student.id,
+                  student_name: student.name
+                });
+              }}
+            />
+          );
+        case 1:
+          return (
+            <AssessmentDetailsStep
+              data={wizardData}
+              onChange={updateWizardData}
+            />
+          );
+        case 2:
+          return (
+            <ReviewStep
+              data={wizardData}
+              onEdit={(step) => setCurrentStep(step)}
+            />
+          );
+        case 3:
+          return (
+            <SuccessStep
+              assessmentId={assessmentId}
+              studentName={wizardData.student_name}
+              onFinish={handleFinish}
+              onAddAnother={() => {
+                setCurrentStep(0);
+                setWizardData({
+                  assessment_type: 'baseline',
+                  subject: 'language',
+                  assessment_sample: 'ឧបករណ៍តេស្ត លេខ១',
+                  student_consent: 'Yes',
+                  assessed_date: new Date().toISOString()
+                });
+                setAssessmentId(null);
+              }}
+            />
+          );
+        default:
+          return null;
+      }
     }
   };
 
@@ -217,7 +299,7 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
       </Card>
 
       {/* Navigation Buttons */}
-      {currentStep < 3 && (
+      {currentStep < (hasPreSelectedStudent ? 2 : 3) && (
         <Card className="wizard-nav-buttons">
           <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
             <Button
@@ -229,7 +311,7 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
               បោះបង់
             </Button>
             <Space wrap>
-              {currentStep > 0 && currentStep < 3 && (
+              {currentStep > 0 && currentStep < (hasPreSelectedStudent ? 2 : 3) && (
                 <Button
                   size="large"
                   onClick={handlePrev}
@@ -239,7 +321,7 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
                   ថយក្រោយ
                 </Button>
               )}
-              {currentStep < 2 && (
+              {currentStep < (hasPreSelectedStudent ? 1 : 2) && (
                 <Button
                   type="primary"
                   size="large"
@@ -250,7 +332,7 @@ export default function AssessmentWizard({ onComplete, onCancel }: AssessmentWiz
                   បន្ទាប់
                 </Button>
               )}
-              {currentStep === 2 && (
+              {currentStep === (hasPreSelectedStudent ? 1 : 2) && (
                 <Button
                   type="primary"
                   size="large"
