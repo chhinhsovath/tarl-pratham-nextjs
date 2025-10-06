@@ -119,59 +119,59 @@ function CoordinatorWorkspaceContent() {
 
   const quickActions = [
     {
-      title: 'Bulk Import Users',
+      title: 'នាំចូលអ្នកប្រើប្រាស់ជាបណ្តុំ',
       icon: <UserAddOutlined style={{ fontSize: 24 }} />,
       color: '#1890ff',
-      description: 'Import teachers and mentors from Excel',
+      description: 'នាំចូលគ្រូបង្រៀន និងអ្នកណែនាំពី Excel',
       path: '/coordinator/imports/users'
     },
     {
-      title: 'Import Schools',
+      title: 'នាំចូលសាលារៀន',
       icon: <BankOutlined style={{ fontSize: 24 }} />,
       color: '#52c41a',
-      description: 'Bulk import school data',
+      description: 'នាំចូលទិន្នន័យសាលារៀនជាបណ្តុំ',
       path: '/coordinator/imports/schools'
     },
     {
-      title: 'Import Students',
+      title: 'នាំចូលសិស្ស',
       icon: <TeamOutlined style={{ fontSize: 24 }} />,
       color: '#722ed1',
-      description: 'Import student records',
+      description: 'នាំចូលកំណត់ត្រាសិស្ស',
       path: '/coordinator/imports/students'
     },
     {
-      title: 'Language Settings',
+      title: 'ការកំណត់ភាសា',
       icon: <GlobalOutlined style={{ fontSize: 24 }} />,
       color: '#13c2c2',
-      description: 'Configure language translations',
+      description: 'កំណត់ការបកប្រែភាសា',
       path: '/coordinator/languages'
     },
     {
-      title: 'Assessment Periods',
+      title: 'រយៈពេលវាយតម្លៃ',
       icon: <CalendarOutlined style={{ fontSize: 24 }} />,
       color: '#fa8c16',
-      description: 'Manage assessment timelines',
+      description: 'គ្រប់គ្រងរយៈពេលវាយតម្លៃ',
       path: '/assessments/periods'
     },
     {
-      title: 'Verification Queue',
+      title: 'ជួរផ្ទៀងផ្ទាត់',
       icon: <FileDoneOutlined style={{ fontSize: 24 }} />,
       color: '#eb2f96',
-      description: 'Review pending assessments',
+      description: 'ពិនិត្យការវាយតម្លៃរងចាំ',
       path: '/assessments/verify'
     },
     {
-      title: 'System Reports',
+      title: 'របាយការណ៍ប្រព័ន្ធ',
       icon: <BarChartOutlined style={{ fontSize: 24 }} />,
       color: '#faad14',
-      description: 'Generate comprehensive reports',
+      description: 'បង្កើតរបាយការណ៍ទូលំទូលាយ',
       path: '/reports'
     },
     {
-      title: 'System Monitor',
+      title: 'តាមដានប្រព័ន្ធ',
       icon: <DashboardOutlined style={{ fontSize: 24 }} />,
       color: '#a0d911',
-      description: 'Monitor system health',
+      description: 'តាមដានសុខភាពប្រព័ន្ធ',
       path: '/coordinator/monitoring'
     }
   ];
@@ -280,26 +280,26 @@ function CoordinatorWorkspaceContent() {
         <Row align="middle">
           <Col flex="auto">
             <Title level={3} style={{ margin: 0 }}>
-              Coordinator Workspace
+              កន្លែងធ្វើការអ្នកសម្របសម្រួល
             </Title>
             <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
-              Manage bulk operations, system configuration, and monitor platform activities
+              គ្រប់គ្រងប្រតិបត្តិការជាបណ្តុំ ការកំណត់ប្រព័ន្ធ និងតាមដានសកម្មភាពវេទិកា
             </Paragraph>
           </Col>
           <Col>
             <Space>
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 icon={<CloudUploadOutlined />}
                 onClick={() => router.push('/coordinator/imports')}
               >
-                Bulk Import
+                នាំចូលជាបណ្តុំ
               </Button>
-              <Button 
+              <Button
                 icon={<SettingOutlined />}
                 onClick={() => router.push('/coordinator/settings')}
               >
-                Settings
+                ការកំណត់
               </Button>
             </Space>
           </Col>
@@ -312,7 +312,7 @@ function CoordinatorWorkspaceContent() {
         <Col xs={12} sm={6}>
           <Card>
             <Statistic
-              title="Total Schools"
+              title="សាលារៀនសរុប"
               value={stats.total_schools}
               prefix={<BankOutlined />}
               valueStyle={{ color: '#1890ff' }}
@@ -322,7 +322,7 @@ function CoordinatorWorkspaceContent() {
         <Col xs={12} sm={6}>
           <Card>
             <Statistic
-              title="Total Teachers"
+              title="គ្រូបង្រៀនសរុប"
               value={stats.total_teachers}
               prefix={<TeamOutlined />}
               valueStyle={{ color: '#52c41a' }}
@@ -332,7 +332,7 @@ function CoordinatorWorkspaceContent() {
         <Col xs={12} sm={6}>
           <Card>
             <Statistic
-              title="Total Students"
+              title="សិស្សសរុប"
               value={stats.total_students}
               prefix={<TeamOutlined />}
               valueStyle={{ color: '#722ed1' }}
@@ -342,7 +342,7 @@ function CoordinatorWorkspaceContent() {
         <Col xs={12} sm={6}>
           <Card>
             <Statistic
-              title="Pending Verifications"
+              title="ការផ្ទៀងផ្ទាត់រងចាំ"
               value={stats.pending_verifications}
               prefix={<ExclamationCircleOutlined />}
               valueStyle={{ color: stats.pending_verifications > 0 ? '#faad14' : '#52c41a' }}
@@ -354,7 +354,7 @@ function CoordinatorWorkspaceContent() {
                 onClick={() => router.push('/assessments/verify')}
                 style={{ padding: 0, marginTop: 8 }}
               >
-                Review Now →
+                ពិនិត្យឥឡូវ →
               </Button>
             )}
           </Card>
@@ -362,7 +362,7 @@ function CoordinatorWorkspaceContent() {
       </Row>
 
       {/* Quick Actions Grid */}
-      <Card title="Quick Actions" style={{ marginBottom: 24 }}>
+      <Card title="សកម្មភាពរហ័ស" style={{ marginBottom: 24 }}>
         <Row gutter={[16, 16]}>
           {quickActions.map((action, index) => (
             <Col xs={24} sm={12} md={8} lg={6} key={index}>
@@ -400,10 +400,10 @@ function CoordinatorWorkspaceContent() {
       {/* Activity Tabs */}
       <Card>
         <Tabs defaultActiveKey="1">
-          <TabPane 
+          <TabPane
             tab={
               <span>
-                <SyncOutlined /> Recent Activities
+                <SyncOutlined /> សកម្មភាពថ្មីៗ
               </span>
             }
             key="1"
@@ -414,7 +414,7 @@ function CoordinatorWorkspaceContent() {
                   <Timeline.Item
                     key={activity.id}
                     dot={
-                      <div style={{ 
+                      <div style={{
                         color: getActivityColor(activity.status),
                         fontSize: 16
                       }}>
@@ -426,7 +426,7 @@ function CoordinatorWorkspaceContent() {
                       <Text strong>{activity.title}</Text>
                       {activity.user && (
                         <Text type="secondary" style={{ marginLeft: 8 }}>
-                          by {activity.user}
+                          ដោយ {activity.user}
                         </Text>
                       )}
                       <div>
@@ -441,15 +441,15 @@ function CoordinatorWorkspaceContent() {
               </Timeline>
             ) : (
               <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                <Text type="secondary">No recent activities</Text>
+                <Text type="secondary">មិនមានសកម្មភាពថ្មី</Text>
               </div>
             )}
           </TabPane>
 
-          <TabPane 
+          <TabPane
             tab={
               <span>
-                <FileExcelOutlined /> Import History
+                <FileExcelOutlined /> ប្រវត្តិនាំចូល
                 {stats.recent_imports > 0 && (
                   <Badge count={stats.recent_imports} style={{ marginLeft: 8 }} />
                 )}
@@ -466,10 +466,10 @@ function CoordinatorWorkspaceContent() {
             />
           </TabPane>
 
-          <TabPane 
+          <TabPane
             tab={
               <span>
-                <WarningOutlined /> System Alerts
+                <WarningOutlined /> ការព្រមានប្រព័ន្ធ
               </span>
             }
             key="3"
@@ -515,24 +515,24 @@ function CoordinatorWorkspaceContent() {
 
       {/* System Health Alert */}
       <Alert
-        message="System Health"
+        message="សុខភាពប្រព័ន្ធ"
         description={
           <Row gutter={16}>
             <Col span={6}>
-              <Text>Database: </Text>
-              <Tag color="green">Healthy</Tag>
+              <Text>មូលដ្ឋានទិន្នន័យ: </Text>
+              <Tag color="green">ល្អ</Tag>
             </Col>
             <Col span={6}>
-              <Text>API Response: </Text>
-              <Tag color="green">Fast (120ms)</Tag>
+              <Text>ការឆ្លើយតប API: </Text>
+              <Tag color="green">លឿន (120ms)</Tag>
             </Col>
             <Col span={6}>
-              <Text>Storage: </Text>
-              <Tag color="orange">75% Used</Tag>
+              <Text>ទំហំផ្ទុក: </Text>
+              <Tag color="orange">75% ប្រើ</Tag>
             </Col>
             <Col span={6}>
-              <Text>Last Backup: </Text>
-              <Tag color="green">2 hours ago</Tag>
+              <Text>បម្រុងទុកចុងក្រោយ: </Text>
+              <Tag color="green">២ ម៉ោងមុន</Tag>
             </Col>
           </Row>
         }
