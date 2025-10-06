@@ -22,8 +22,8 @@ const assessmentSchema = z.object({
     errorMap: () => ({ message: "Subject must be language or math" })
   }),
   level: z.string().optional(),
-  assessment_sample: z.enum(["Sample 1", "Sample 2", "Sample 3"], {
-    errorMap: () => ({ message: "Assessment sample must be Sample 1, Sample 2, or Sample 3" })
+  assessment_sample: z.enum(["Sample 1", "Sample 2", "Sample 3", "ឧបករណ៍តេស្ត លេខ១", "ឧបករណ៍តេស្ត លេខ២", "ឧបករណ៍តេស្ត លេខ៣"], {
+    errorMap: () => ({ message: "Assessment sample must be Sample 1/2/3 or ឧបករណ៍តេស្ត លេខ១/២/៣" })
   }),
   student_consent: z.enum(["Yes", "No"], {
     errorMap: () => ({ message: "Student consent must be Yes or No" })
