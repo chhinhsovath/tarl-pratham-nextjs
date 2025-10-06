@@ -118,9 +118,22 @@ export async function GET(request: NextRequest) {
       schools: p._count.id
     }));
 
+    // Return in format expected by coordinator page
     return NextResponse.json({
+      // Top-level stats for dashboard cards
+      total_schools: total_schools,
+      total_teachers: total_teachers,
+      total_students: total_students,
+      total_assessments: total_assessments,
+      pending_verifications: 0, // Not tracked yet
+      recent_imports: 0, // Not tracked yet
+      active_mentoring_visits: 0, // Not tracked yet
+      languages_configured: 2, // EN/KH
+
+      // Detailed breakdowns for charts/analytics
       schools: {
         total: total_schools,
+        by_province: province_distribution,
       },
       students: {
         total: total_students,
@@ -146,7 +159,6 @@ export async function GET(request: NextRequest) {
           endline: endline_assessments,
         }
       },
-      provinces: province_distribution,
     });
   } catch (error) {
     console.error('Error fetching coordinator stats:', error);
