@@ -157,10 +157,10 @@ function LoginContent() {
           <Title level={2} style={{ marginBottom: 8 }}>
             <LoginOutlined /> TaRL កម្ពុជា
           </Title>
-          <Text type="secondary">
+          <Text type="secondary" style={{ display: 'block' }}>
             ប្រព័ន្ធគ្រប់គ្រងការបង្រៀនស្របតាមសមត្ថភាព
           </Text>
-          <Text type="secondary">
+          <Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
             https://tarl.openplp.com
           </Text>
         </div>
