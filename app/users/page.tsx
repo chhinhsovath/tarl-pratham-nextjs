@@ -258,20 +258,20 @@ function UsersPageContent() {
           {canEdit && (
             <Link href={`/users/${record.id}/edit`}>
               <Button type="link" icon={<EditOutlined />} size="small">
-                Edit
+                កែប្រែ
               </Button>
             </Link>
           )}
           {canDelete && record.id !== parseInt(session?.user?.id || "0") && (
             <Popconfirm
-              title="Delete User"
-              description="Are you sure you want to delete this user?"
+              title="លុបអ្នកប្រើប្រាស់"
+              description="តើអ្នកពិតជាចង់លុបអ្នកប្រើប្រាស់នេះមែនទេ?"
               onConfirm={() => handleDelete(record.id)}
-              okText="Yes"
-              cancelText="No"
+              okText="យល់ព្រម"
+              cancelText="បោះបង់"
             >
               <Button type="link" danger icon={<DeleteOutlined />} size="small">
-                Delete
+                លុប
               </Button>
             </Popconfirm>
           )}
@@ -309,12 +309,12 @@ function UsersPageContent() {
         marginBottom: "24px" 
       }}>
         <Title level={2} style={{ margin: 0 }}>
-          User Management
+          គ្រប់គ្រងអ្នកប្រើប្រាស់
         </Title>
         {canCreate && (
           <Link href="/users/create">
             <Button type="primary" icon={<PlusOutlined />}>
-              Add User
+              បន្ថែមអ្នកប្រើប្រាស់ថ្មី
             </Button>
           </Link>
         )}

@@ -340,12 +340,12 @@ function SchoolsPageContent() {
         marginBottom: "24px" 
       }}>
         <Title level={2} style={{ margin: 0 }}>
-          School Management
+          គ្រប់គ្រងសាលារៀន
         </Title>
         {canCreate && (
           <Link href="/schools/create">
             <Button type="primary" icon={<PlusOutlined />}>
-              Add School
+              បន្ថែមសាលារៀនថ្មី
             </Button>
           </Link>
         )}

@@ -22,7 +22,8 @@ import {
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
-  ExportOutlined
+  ExportOutlined,
+  PlusOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -408,6 +409,16 @@ function AssessmentsContent() {
             </Col>
             <Col xs={24} md={12} style={{ textAlign: 'right' }}>
               <Space wrap>
+                {hasPermission(user, 'assessments.create') && (
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => router.push('/assessments/create')}
+                    size="large"
+                  >
+                    បង្កើតការវាយតម្លៃថ្មី
+                  </Button>
+                )}
                 {hasPermission(user, 'assessments.export') && (
                   <Button
                     icon={<ExportOutlined />}
