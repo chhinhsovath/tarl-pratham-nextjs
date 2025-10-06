@@ -161,11 +161,11 @@ function CoordinatorWorkspaceContent() {
       path: '/assessments/verify'
     },
     {
-      title: 'របាយការណ៍ប្រព័ន្ធ',
+      title: 'របាយការណ៍ទូទៅសាលារៀន',
       icon: <BarChartOutlined style={{ fontSize: 24 }} />,
       color: '#faad14',
-      description: 'បង្កើតរបាយការណ៍ទូលំទូលាយ',
-      path: '/reports'
+      description: 'ទិដ្ឋភាពទូទៅសិស្ស ការវាយតម្លៃ និងការណែនាំ',
+      path: '/reports/school-overview'
     },
     {
       title: 'តាមដានប្រព័ន្ធ',
