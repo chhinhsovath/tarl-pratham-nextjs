@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Count pending assessments
-    const pending = await prisma.assessments.count({
+    const pending = await prisma.assessment.count({
       where: {
         ...baseWhere,
         record_status: { in: ['draft', 'submitted', null] },
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Count verified assessments
-    const verified = await prisma.assessments.count({
+    const verified = await prisma.assessment.count({
       where: {
         ...baseWhere,
         record_status: 'verified',
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Count rejected assessments
-    const rejected = await prisma.assessments.count({
+    const rejected = await prisma.assessment.count({
       where: {
         ...baseWhere,
         record_status: 'rejected',
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Count locked assessments
-    const locked = await prisma.assessments.count({
+    const locked = await prisma.assessment.count({
       where: {
         ...baseWhere,
         is_locked: true,

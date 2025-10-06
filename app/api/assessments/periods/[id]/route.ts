@@ -29,7 +29,7 @@ export async function PUT(
     const body = await request.json();
 
     // Check if school is locked
-    const school = await prisma.pilot_schools.findUnique({
+    const school = await prisma.pilotSchool.findUnique({
       where: { id: schoolId },
       select: { is_locked: true },
     });
@@ -42,7 +42,7 @@ export async function PUT(
     }
 
     // Update the school periods
-    await prisma.pilot_schools.update({
+    await prisma.pilotSchool.update({
       where: { id: schoolId },
       data: {
         baseline_start_date: body.baseline_start_date || null,

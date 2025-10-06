@@ -29,7 +29,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update all schools that are not locked
-    const result = await prisma.pilot_schools.updateMany({
+    const result = await prisma.pilotSchool.updateMany({
       where: {
         id: { in: school_ids },
         is_locked: false,

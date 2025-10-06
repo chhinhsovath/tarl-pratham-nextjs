@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update all assessments that are not locked
-    const result = await prisma.assessments.updateMany({
+    const result = await prisma.assessment.updateMany({
       where: {
         id: { in: assessment_ids },
         is_locked: false,

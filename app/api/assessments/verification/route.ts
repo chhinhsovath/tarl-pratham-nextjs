@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       where.added_by_id = parseInt(session.user.id);
     }
 
-    const assessments = await prisma.assessments.findMany({
+    const assessments = await prisma.assessment.findMany({
       where,
       include: {
         student: {

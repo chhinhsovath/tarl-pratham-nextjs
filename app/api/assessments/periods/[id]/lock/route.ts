@@ -28,7 +28,7 @@ export async function POST(
 
     const { lock } = await request.json();
 
-    await prisma.pilot_schools.update({
+    await prisma.pilotSchool.update({
       where: { id: schoolId },
       data: { is_locked: lock },
     });

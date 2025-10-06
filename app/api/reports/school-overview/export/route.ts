@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all pilot schools with comprehensive data
-    const schools = await prisma.pilot_schools.findMany({
+    const schools = await prisma.pilotSchool.findMany({
       select: {
         id: true,
         school_name: true,
@@ -25,27 +25,27 @@ export async function GET(request: NextRequest) {
 
     const schoolOverviewData = await Promise.all(
       schools.map(async (school) => {
-        const totalStudents = await prisma.students.count({
+        const totalStudents = await prisma.student.count({
           where: { pilot_school_id: school.id, is_active: true },
         });
 
-        const baselineCount = await prisma.assessments.count({
+        const baselineCount = await prisma.assessment.count({
           where: { pilot_school_id: school.id, assessment_type: 'baseline' },
         });
 
-        const midlineCount = await prisma.assessments.count({
+        const midlineCount = await prisma.assessment.count({
           where: { pilot_school_id: school.id, assessment_type: 'midline' },
         });
 
-        const endlineCount = await prisma.assessments.count({
+        const endlineCount = await prisma.assessment.count({
           where: { pilot_school_id: school.id, assessment_type: 'endline' },
         });
 
-        const totalAssessments = await prisma.assessments.count({
+        const totalAssessments = await prisma.assessment.count({
           where: { pilot_school_id: school.id },
         });
 
-        const verifiedCount = await prisma.assessments.count({
+        const verifiedCount = await prisma.assessment.count({
           where: { pilot_school_id: school.id, record_status: 'verified' },
         });
 
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
           where: { pilot_school_id: school.id },
         });
 
-        const mentor = await prisma.users.findFirst({
+        const mentor = await prisma.user.findFirst({
           where: {
             pilot_school_id: school.id,
             role: 'mentor',

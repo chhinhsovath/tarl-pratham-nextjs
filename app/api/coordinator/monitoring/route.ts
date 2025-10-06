@@ -38,27 +38,27 @@ export async function GET(request: NextRequest) {
       endline_active,
       recent_activities_raw,
     ] = await Promise.all([
-      prisma.users.count(),
-      prisma.users.count({ where: { is_active: true } }),
-      prisma.pilot_schools.count(),
-      prisma.students.count({ where: { is_active: true } }),
-      prisma.assessments.count(),
-      prisma.assessments.count({
+      prisma.user.count(),
+      prisma.user.count({ where: { is_active: true } }),
+      prisma.pilotSchool.count(),
+      prisma.student.count({ where: { is_active: true } }),
+      prisma.assessment.count(),
+      prisma.assessment.count({
         where: {
           created_at: { gte: todayStart },
         },
       }),
-      prisma.assessments.count({
+      prisma.assessment.count({
         where: {
           created_at: { gte: weekStart },
         },
       }),
-      prisma.assessments.count({
+      prisma.assessment.count({
         where: {
           record_status: { in: ['draft', 'submitted', null] },
         },
       }),
-      prisma.pilot_schools.count({
+      prisma.pilotSchool.count({
         where: {
           AND: [
             { baseline_start_date: { lte: todayStr } },
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
           ],
         },
       }),
-      prisma.pilot_schools.count({
+      prisma.pilotSchool.count({
         where: {
           AND: [
             { midline_start_date: { lte: todayStr } },
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
           ],
         },
       }),
-      prisma.pilot_schools.count({
+      prisma.pilotSchool.count({
         where: {
           AND: [
             { endline_start_date: { lte: todayStr } },
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
           ],
         },
       }),
-      prisma.assessments.findMany({
+      prisma.assessment.findMany({
         take: 20,
         orderBy: { created_at: 'desc' },
         include: {

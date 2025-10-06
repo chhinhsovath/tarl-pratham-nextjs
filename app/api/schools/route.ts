@@ -358,7 +358,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if school has associated students
-    const studentsCount = await prisma.students.count({
+    const studentsCount = await prisma.student.count({
       where: {
         pilot_school_id: parseInt(id),
         is_active: true

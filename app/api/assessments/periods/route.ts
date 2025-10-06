@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all pilot schools with their assessment periods
-    const schools = await prisma.pilot_schools.findMany({
+    const schools = await prisma.pilotSchool.findMany({
       select: {
         id: true,
         school_name: true,
