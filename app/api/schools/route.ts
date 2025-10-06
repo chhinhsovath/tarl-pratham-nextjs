@@ -76,21 +76,12 @@ export async function GET(request: NextRequest) {
         { school_name: { contains: search, mode: "insensitive" } },
         { school_code: { contains: search, mode: "insensitive" } },
         { district: { contains: search, mode: "insensitive" } },
-        { commune: { contains: search, mode: "insensitive" } },
-        { village: { contains: search, mode: "insensitive" } }
+        { cluster: { contains: search, mode: "insensitive" } }
       ];
     }
 
     if (province_id) {
       pilotWhere.province = province_id;
-    }
-
-    if (school_type) {
-      pilotWhere.school_type = school_type;
-    }
-
-    if (level) {
-      pilotWhere.level = level;
     }
 
     const [pilotSchools, total] = await Promise.all([
@@ -102,16 +93,15 @@ export async function GET(request: NextRequest) {
           school_code: true,
           province: true,
           district: true,
-          commune: true,
-          village: true,
-          school_type: true,
-          level: true,
-          total_students: true,
-          total_teachers: true,
-          latitude: true,
-          longitude: true,
-          phone: true,
-          email: true,
+          cluster: true,
+          cluster_id: true,
+          baseline_start_date: true,
+          baseline_end_date: true,
+          midline_start_date: true,
+          midline_end_date: true,
+          endline_start_date: true,
+          endline_end_date: true,
+          is_locked: true,
           created_at: true,
         },
         skip,
@@ -128,16 +118,25 @@ export async function GET(request: NextRequest) {
       code: ps.school_code,
       province_id: 0, // Not used in pilot_schools
       district: ps.district,
-      commune: ps.commune,
-      village: ps.village,
-      school_type: ps.school_type,
-      level: ps.level,
-      total_students: ps.total_students,
-      total_teachers: ps.total_teachers,
-      latitude: ps.latitude,
-      longitude: ps.longitude,
-      phone: ps.phone,
-      email: ps.email,
+      commune: null, // Not in pilot_schools schema
+      village: null, // Not in pilot_schools schema
+      school_type: null, // Not in pilot_schools schema
+      level: null, // Not in pilot_schools schema
+      total_students: null, // Not in pilot_schools schema
+      total_teachers: null, // Not in pilot_schools schema
+      latitude: null, // Not in pilot_schools schema
+      longitude: null, // Not in pilot_schools schema
+      phone: null, // Not in pilot_schools schema
+      email: null, // Not in pilot_schools schema
+      cluster: ps.cluster,
+      cluster_id: ps.cluster_id,
+      baseline_start_date: ps.baseline_start_date,
+      baseline_end_date: ps.baseline_end_date,
+      midline_start_date: ps.midline_start_date,
+      midline_end_date: ps.midline_end_date,
+      endline_start_date: ps.endline_start_date,
+      endline_end_date: ps.endline_end_date,
+      is_locked: ps.is_locked,
       created_at: ps.created_at,
       province: {
         id: 0,
@@ -200,17 +199,8 @@ export async function POST(request: NextRequest) {
         school_name: body.name,
         school_code: body.code,
         province: body.province || "",
-        district: body.district,
-        commune: body.commune,
-        village: body.village,
-        school_type: body.school_type,
-        level: body.level,
-        total_students: body.total_students || 0,
-        total_teachers: body.total_teachers || 0,
-        latitude: body.latitude,
-        longitude: body.longitude,
-        phone: body.phone,
-        email: body.email,
+        district: body.district || "",
+        cluster: body.cluster || "",
       }
     });
 
@@ -278,22 +268,13 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // Build update data for pilot_schools
+    // Build update data for pilot_schools (only existing fields)
     const pilotUpdateData: any = {};
     if (updateData.name) pilotUpdateData.school_name = updateData.name;
     if (updateData.code) pilotUpdateData.school_code = updateData.code;
     if (updateData.province) pilotUpdateData.province = updateData.province;
     if (updateData.district) pilotUpdateData.district = updateData.district;
-    if (updateData.commune) pilotUpdateData.commune = updateData.commune;
-    if (updateData.village) pilotUpdateData.village = updateData.village;
-    if (updateData.school_type) pilotUpdateData.school_type = updateData.school_type;
-    if (updateData.level) pilotUpdateData.level = updateData.level;
-    if (updateData.total_students !== undefined) pilotUpdateData.total_students = updateData.total_students;
-    if (updateData.total_teachers !== undefined) pilotUpdateData.total_teachers = updateData.total_teachers;
-    if (updateData.latitude !== undefined) pilotUpdateData.latitude = updateData.latitude;
-    if (updateData.longitude !== undefined) pilotUpdateData.longitude = updateData.longitude;
-    if (updateData.phone) pilotUpdateData.phone = updateData.phone;
-    if (updateData.email) pilotUpdateData.email = updateData.email;
+    if (updateData.cluster) pilotUpdateData.cluster = updateData.cluster;
 
     // Update pilot school
     const pilotSchool = await prisma.pilotSchool.update({
