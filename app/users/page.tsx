@@ -21,7 +21,9 @@ import {
   Row,
   Col,
   Statistic,
-  Pagination
+  Pagination,
+  Modal,
+  Form
 } from "antd";
 import {
   PlusOutlined,
@@ -30,7 +32,8 @@ import {
   DeleteOutlined,
   UserOutlined,
   HomeOutlined,
-  TeamOutlined
+  TeamOutlined,
+  KeyOutlined
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import Link from "next/link";
@@ -101,10 +104,17 @@ function UsersPageContent() {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
 
+  // Reset password modal
+  const [resetPasswordModal, setResetPasswordModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [form] = Form.useForm();
+
   // Check permissions
   const canCreate = session?.user?.role === "admin" || session?.user?.role === "coordinator";
   const canEdit = session?.user?.role === "admin" || session?.user?.role === "coordinator";
   const canDelete = session?.user?.role === "admin";
+  const canResetPassword = session?.user?.role === "admin" || session?.user?.role === "coordinator";
 
   useEffect(() => {
     if (status === "loading") return;
@@ -158,6 +168,36 @@ function UsersPageContent() {
     } catch (error) {
       console.error("Error deleting user:", error);
       message.error(error instanceof Error ? error.message : "Failed to delete user");
+    }
+  };
+
+  const handleResetPassword = async (values: { new_password: string }) => {
+    if (!selectedUser) return;
+
+    setResettingPassword(true);
+    try {
+      const response = await fetch(`/api/users/${selectedUser.id}/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ new_password: values.new_password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to reset password");
+      }
+
+      message.success("កំណត់ពាក្យសម្ងាត់ឡើងវិញបានជោគជ័យ");
+      setResetPasswordModal(false);
+      form.resetFields();
+      setSelectedUser(null);
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      message.error(error instanceof Error ? error.message : "Failed to reset password");
+    } finally {
+      setResettingPassword(false);
     }
   };
 
@@ -261,6 +301,19 @@ function UsersPageContent() {
                 កែប្រែ
               </Button>
             </Link>
+          )}
+          {canResetPassword && (
+            <Button
+              type="link"
+              icon={<KeyOutlined />}
+              size="small"
+              onClick={() => {
+                setSelectedUser(record);
+                setResetPasswordModal(true);
+              }}
+            >
+              កំណត់ពាក្យសម្ងាត់
+            </Button>
           )}
           {canDelete && record.id !== parseInt(session?.user?.id || "0") && (
             <Popconfirm
@@ -427,6 +480,44 @@ function UsersPageContent() {
           />
         </div>
       </Card>
+
+      {/* Reset Password Modal */}
+      <Modal
+        title="កំណត់ពាក្យសម្ងាត់ឡើងវិញ"
+        open={resetPasswordModal}
+        onCancel={() => {
+          setResetPasswordModal(false);
+          form.resetFields();
+          setSelectedUser(null);
+        }}
+        onOk={() => form.submit()}
+        confirmLoading={resettingPassword}
+        okText="កំណត់ពាក្យសម្ងាត់"
+        cancelText="បោះបង់"
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleResetPassword}
+        >
+          <Form.Item label="អ្នកប្រើប្រាស់">
+            <Input value={selectedUser?.name} disabled />
+          </Form.Item>
+          <Form.Item label="អ៊ីមែល">
+            <Input value={selectedUser?.email} disabled />
+          </Form.Item>
+          <Form.Item
+            label="ពាក្យសម្ងាត់ថ្មី"
+            name="new_password"
+            rules={[
+              { required: true, message: "សូមបញ្ចូលពាក្យសម្ងាត់ថ្មី" },
+              { min: 6, message: "ពាក្យសម្ងាត់ត្រូវតែមានយ៉ាងតិច 6 តួអក្សរ" }
+            ]}
+          >
+            <Input.Password placeholder="បញ្ចូលពាក្យសម្ងាត់ថ្មី" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

@@ -119,25 +119,25 @@ function CoordinatorWorkspaceContent() {
 
   const quickActions = [
     {
-      title: 'នាំចូលអ្នកប្រើប្រាស់ជាបណ្តុំ',
+      title: 'គ្រប់គ្រងអ្នកប្រើប្រាស់',
       icon: <UserAddOutlined style={{ fontSize: 24 }} />,
       color: '#1890ff',
-      description: 'នាំចូលគ្រូបង្រៀន និងអ្នកណែនាំពី Excel',
-      path: '/coordinator/imports/users'
+      description: 'មើល កែប្រែ លុប និងកំណត់ពាក្យសម្ងាត់ឡើងវិញ',
+      path: '/users'
     },
     {
-      title: 'នាំចូលសាលារៀន',
+      title: 'គ្រប់គ្រងសាលារៀន',
       icon: <BankOutlined style={{ fontSize: 24 }} />,
       color: '#52c41a',
-      description: 'នាំចូលទិន្នន័យសាលារៀនជាបណ្តុំ',
-      path: '/coordinator/imports/schools'
+      description: 'បន្ថែម កែប្រែ និងលុបសាលារៀន',
+      path: '/schools'
     },
     {
-      title: 'នាំចូលសិស្ស',
+      title: 'គ្រប់គ្រងសិស្ស',
       icon: <TeamOutlined style={{ fontSize: 24 }} />,
       color: '#722ed1',
-      description: 'នាំចូលកំណត់ត្រាសិស្ស',
-      path: '/coordinator/imports/students'
+      description: 'បន្ថែម កែប្រែ និងលុបសិស្ស',
+      path: '/students'
     },
     {
       title: 'ការកំណត់ភាសា',
