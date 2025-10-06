@@ -83,6 +83,7 @@ const mentoringVisitSchema = z.object({
 function hasPermission(userRole: string, action: string): boolean {
   const permissions = {
     admin: ['view', 'create', 'update', 'delete'],
+    coordinator: ['view', 'create', 'update', 'delete'],
     mentor: ['view', 'create', 'update', 'delete'],
     teacher: ['view'],
     viewer: ['view']

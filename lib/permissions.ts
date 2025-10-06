@@ -27,16 +27,36 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'test_mode.toggle_any', 'admin.test_dashboard' // Phase 3: Admin features
   ],
   coordinator: [
-    'users.view', 'users.bulk_import',
-    'schools.view', 'schools.bulk_import',
-    'students.view', 'students.bulk_import',
+    // Full user management
+    'users.view', 'users.create', 'users.edit', 'users.delete', 'users.bulk_import',
+    // Full school management
+    'schools.view', 'schools.create', 'schools.edit', 'schools.delete', 'schools.bulk_import',
+    // Full student management
+    'students.view', 'students.create', 'students.edit', 'students.delete', 'students.bulk_import',
+    // Full assessment management
+    'assessments.view', 'assessments.create', 'assessments.edit', 'assessments.delete',
+    // Full mentoring management
+    'mentoring.view', 'mentoring.create', 'mentoring.edit', 'mentoring.delete',
+    // Full class management
+    'classes.view', 'classes.create', 'classes.edit', 'classes.delete',
+    // Settings and resources
+    'settings.view', 'settings.edit',
+    'resources.view', 'resources.create', 'resources.edit', 'resources.delete',
+    // Verification
+    'verification.view', 'verification.approve',
+    // Reports
     'reports.view', 'reports.export',
+    // Workspaces
     'coordinator.workspace',
+    'analytics.dashboard',
+    // Language
     'language.manage',
-    'bulk.delete_test_data', 'bulk.archive_test_data', // Phase 2: Bulk operations
-    'test_sessions.view', // Phase 2: Session viewing
-    'test_data.promote', 'test_data.manage', // Phase 3: Test data management
-    'admin.test_dashboard' // Phase 3: Admin features
+    // Bulk operations
+    'bulk.delete_test_data', 'bulk.archive_test_data',
+    // Test data management
+    'test_sessions.view', 'test_sessions.manage',
+    'test_data.promote', 'test_data.manage',
+    'admin.test_dashboard'
   ],
   mentor: [
     'students.view', 'students.create', 'students.edit', 'students.delete', // temporary only
@@ -284,6 +304,10 @@ export function getMenuItems(user: User | null) {
     
     if (hasPermission(user, 'resources.view')) {
       adminChildren.push({ key: 'resources', label: 'Resources', path: '/resources' });
+    }
+
+    if (hasPermission(user, 'admin.test_dashboard')) {
+      adminChildren.push({ key: 'test-data', label: 'Test Data Management', path: '/admin/test-data' });
     }
 
     if (adminChildren.length > 0) {

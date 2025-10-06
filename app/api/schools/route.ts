@@ -36,7 +36,7 @@ const schoolSchema = z.object({
 function hasPermission(userRole: string, action: string): boolean {
   const permissions = {
     admin: ["view", "create", "update", "delete"],
-    coordinator: ["view", "create", "update"],
+    coordinator: ["view", "create", "update", "delete"],
     mentor: ["view"],
     teacher: ["view"],
     viewer: ["view"]

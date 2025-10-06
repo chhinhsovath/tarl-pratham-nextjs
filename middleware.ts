@@ -65,9 +65,12 @@ export async function middleware(request: NextRequest) {
     teacher: ['/teacher/dashboard'],
   };
 
-  // Check admin-only routes
+  // Check admin-only routes (with coordinator exceptions)
   if (path.startsWith('/admin') || path === '/settings') {
-    if (userRole !== 'admin') {
+    // Allow coordinators to access test-data management
+    if (path.startsWith('/admin/test-data') && userRole === 'coordinator') {
+      // Coordinator allowed
+    } else if (userRole !== 'admin') {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
@@ -83,8 +86,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 
-  // Check verification access (admin and mentor only)
-  if (path.startsWith('/verification') && !['admin', 'mentor'].includes(userRole)) {
+  // Check verification access (admin, coordinator, and mentor)
+  if (path.startsWith('/verification') && !['admin', 'coordinator', 'mentor'].includes(userRole)) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 
