@@ -439,13 +439,13 @@ function BulkImportPageContent() {
             {validationErrors.length > 0 && (
               <>
                 <Alert
-                  message="Validation Errors Found"
-                  description="Please fix the following errors in your Excel file and re-upload"
+                  message="រកឃើញកំហុសផ្ទៀងផ្ទាត់"
+                  description="សូមកែកំហុសខាងក្រោមនៅក្នុងឯកសារ Excel របស់អ្នក ហើយផ្ទុកឡើងម្តងទៀត"
                   type="error"
                   showIcon
                   style={{ margin: '24px 0' }}
                 />
-                
+
                 <Table
                   dataSource={validationErrors}
                   columns={errorColumns}
@@ -459,14 +459,14 @@ function BulkImportPageContent() {
             {validationErrors.length === 0 && importData && (
               <>
                 <Alert
-                  message="Validation Successful"
-                  description={`All ${importData.totalRows} rows passed validation and are ready for import`}
+                  message="ផ្ទៀងផ្ទាត់បានជោគជ័យ"
+                  description={`ជួរដេកទាំងអស់ ${importData.totalRows} បានឆ្លងកាត់ការផ្ទៀងផ្ទាត់ និងត្រៀមរួចសម្រាប់នាំចូល`}
                   type="success"
                   showIcon
                   style={{ margin: '24px 0' }}
                 />
 
-                <Card title="Data Preview (First 5 Rows)">
+                <Card title="មើលទិន្នន័យជាមុន (៥ ជួរដេកដំបូង)">
                   <Table
                     dataSource={importData.rows.slice(0, 5)}
                     columns={importData.headers.map(header => ({
@@ -479,14 +479,14 @@ function BulkImportPageContent() {
                     size="small"
                     scroll={{ x: true }}
                   />
-                  
+
                   {importData.rows.length > 5 && (
                     <div style={{ textAlign: 'center', marginTop: 16 }}>
                       <Button
                         type="link"
                         onClick={() => setPreviewModalVisible(true)}
                       >
-                        View All {importData.rows.length} Rows
+                        មើលទាំងអស់ {importData.rows.length} ជួរដេក
                       </Button>
                     </div>
                   )}
@@ -498,9 +498,9 @@ function BulkImportPageContent() {
 
             <Space>
               <Button onClick={() => setCurrentStep(0)}>
-                Back
+                ថយក្រោយ
               </Button>
-              
+
               {validationErrors.length === 0 && (
                 <Button
                   type="primary"
@@ -508,10 +508,10 @@ function BulkImportPageContent() {
                   onClick={handleImport}
                   loading={processing}
                 >
-                  Import {importData?.totalRows} Records
+                  នាំចូល {importData?.totalRows} កំណត់ត្រា
                 </Button>
               )}
-              
+
               {validationErrors.length > 0 && (
                 <Button
                   icon={<ReloadOutlined />}
@@ -532,18 +532,18 @@ function BulkImportPageContent() {
         return (
           <Result
             status={importResult?.failed > 0 ? 'warning' : 'success'}
-            title={importResult?.failed > 0 ? 'Import Completed with Errors' : 'Import Successful!'}
+            title={importResult?.failed > 0 ? 'នាំចូលបានបញ្ចប់ជាមួយកំហុស' : 'នាំចូលបានជោគជ័យ!'}
             subTitle={
               <div>
-                <p>Successfully imported {importResult?.successful} records</p>
+                <p>បាននាំចូលជោគជ័យ {importResult?.successful} កំណត់ត្រា</p>
                 {importResult?.failed > 0 && (
-                  <p>{importResult?.failed} records failed to import</p>
+                  <p>{importResult?.failed} កំណត់ត្រាបរាជ័យក្នុងការនាំចូល</p>
                 )}
               </div>
             }
             extra={[
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 key="new"
                 onClick={() => {
                   setCurrentStep(0);
@@ -553,15 +553,15 @@ function BulkImportPageContent() {
                   setImportType('');
                 }}
               >
-                New Import
+                នាំចូលថ្មី
               </Button>,
               <Button key="view" onClick={() => router.push('/coordinator')}>
-                Back to Workspace
+                ត្រឡប់ទៅកន្លែងធ្វើការ
               </Button>
             ]}
           >
             {importResult?.errors && importResult.errors.length > 0 && (
-              <Card title="Import Errors" style={{ marginTop: 24 }}>
+              <Card title="កំហុសនាំចូល" style={{ marginTop: 24 }}>
                 <List
                   size="small"
                   dataSource={importResult.errors}
