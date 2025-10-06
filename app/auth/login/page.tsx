@@ -133,20 +133,24 @@ function LoginContent() {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      justifyContent: 'center', 
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
       alignItems: 'center',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
+      padding: '16px',
+      boxSizing: 'border-box',
+      width: '100%',
+      overflowX: 'hidden'
     }}>
-      <Card 
-        style={{ 
+      <Card
+        style={{
           width: '100%',
-          maxWidth: 450, 
+          maxWidth: '450px',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-          borderRadius: '12px'
+          borderRadius: '12px',
+          margin: '0 auto'
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
@@ -155,6 +159,9 @@ function LoginContent() {
           </Title>
           <Text type="secondary">
             ប្រព័ន្ធគ្រប់គ្រងការបង្រៀនស្របតាមសមត្ថភាព
+          </Text>
+          <Text type="secondary">
+            https://tarl.openplp.com
           </Text>
         </div>
 
@@ -260,7 +267,7 @@ function LoginContent() {
               </Text>
               <br />
               <Text type="secondary" style={{ fontSize: 12 }}>
-                តួនាទី: <Tag color={getRoleColor(selectedUser.role)} size="small">{formatRoleName(selectedUser.role)}</Tag>
+                តួនាទី: <Tag color={getRoleColor(selectedUser.role)}>{formatRoleName(selectedUser.role)}</Tag>
               </Text>
             </div>
           )}

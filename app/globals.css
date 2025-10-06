@@ -236,3 +236,42 @@ main {
 .bg-white .text-gray-500 { color: #9ca3af !important; }
 .bg-white p { color: #111827 !important; }
 .bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6 { color: #111827 !important; }
+
+/* Mobile Responsive Fixes */
+@media (max-width: 768px) {
+  /* Prevent horizontal overflow on mobile */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Ensure all containers respect viewport width */
+  * {
+    max-width: 100vw;
+  }
+
+  /* Login page mobile fixes */
+  .ant-card {
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Form elements on mobile */
+  .ant-select-dropdown {
+    max-width: calc(100vw - 32px) !important;
+  }
+
+  /* Prevent text overflow */
+  .ant-select-item-option-content {
+    word-wrap: break-word;
+    white-space: normal;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 375px) {
+  .ant-card-body {
+    padding: 16px !important;
+  }
+}
