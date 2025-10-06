@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
         const verifiedCount = await prisma.assessment.count({
           where: {
             pilot_school_id: school.id,
-            record_status: 'verified',
+            verified_by_id: { not: null },
           },
         });
 
