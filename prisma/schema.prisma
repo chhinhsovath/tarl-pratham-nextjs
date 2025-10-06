@@ -83,6 +83,7 @@ model PilotSchool {
   midline_end_date    DateTime?
   endline_start_date  DateTime?
   endline_end_date    DateTime?
+  is_locked           Boolean          @default(false)
   created_at          DateTime         @default(now())
   updated_at          DateTime         @updatedAt
   assessments         Assessment[]
@@ -96,6 +97,7 @@ model PilotSchool {
   @@index([cluster])
   @@index([baseline_start_date])
   @@index([midline_start_date])
+  @@index([is_locked])
   @@map("pilot_schools")
 }
 
