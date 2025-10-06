@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { PrismaClient } from '@prisma/client';
 import * as XLSX from 'xlsx';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient(); // REMOVED: Use shared singleton from @/lib/prisma
 
 export async function POST(request: NextRequest) {
   try {
