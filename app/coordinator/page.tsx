@@ -31,7 +31,6 @@ import {
   CheckCircleOutlined,
   SyncOutlined,
   WarningOutlined,
-  GlobalOutlined,
   BarChartOutlined,
   CalendarOutlined,
   UserAddOutlined,
@@ -138,13 +137,6 @@ function CoordinatorWorkspaceContent() {
       color: '#722ed1',
       description: 'បន្ថែម កែប្រែ និងលុបសិស្ស',
       path: '/students'
-    },
-    {
-      title: 'ការកំណត់ភាសា',
-      icon: <GlobalOutlined style={{ fontSize: 24 }} />,
-      color: '#13c2c2',
-      description: 'កំណត់ការបកប្រែភាសា',
-      path: '/coordinator/languages'
     },
     {
       title: 'រយៈពេលវាយតម្លៃ',

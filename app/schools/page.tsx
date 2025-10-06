@@ -85,8 +85,8 @@ interface ApiResponse {
   };
 }
 
-const SCHOOL_TYPES = ["Primary", "Secondary", "High School", "Technical", "Vocational"];
-const LEVELS = ["Primary", "Lower Secondary", "Upper Secondary", "Mixed"];
+const SCHOOL_TYPES = ["បឋមសិក្សា", "អនុវិទ្យាល័យ", "វិទ្យាល័យ", "បច្ចេកទេស", "បណ្តុះបណ្តាលជំនាញ"];
+const LEVELS = ["បឋមសិក្សា", "អនុវិទ្យាល័យ", "វិទ្យាល័យ", "ផ្សំ"];
 
 function SchoolsPageContent() {
   const { data: session, status } = useSession();
@@ -144,7 +144,7 @@ function SchoolsPageContent() {
       setPagination(prev => ({ ...prev, ...data.pagination }));
     } catch (error) {
       console.error("Error fetching schools:", error);
-      message.error("Failed to load schools");
+      message.error("មិនអាចផ្ទុកសាលារៀនបានទេ");
     } finally {
       setLoading(false);
     }
@@ -173,11 +173,11 @@ function SchoolsPageContent() {
         throw new Error(error.error || "Failed to delete school");
       }
 
-      message.success("School deleted successfully");
+      message.success("លុបសាលារៀនបានជោគជ័យ");
       fetchSchools();
     } catch (error) {
       console.error("Error deleting school:", error);
-      message.error(error instanceof Error ? error.message : "Failed to delete school");
+      message.error(error instanceof Error ? error.message : "មិនអាចលុបសាលារៀនបានទេ");
     }
   };
 
@@ -187,7 +187,7 @@ function SchoolsPageContent() {
 
   const columns: ColumnsType<School> = [
     {
-      title: "School",
+      title: "សាលារៀន",
       key: "school",
       render: (_, record) => (
         <div>
@@ -200,7 +200,7 @@ function SchoolsPageContent() {
       ),
     },
     {
-      title: "Location",
+      title: "ទីតាំង",
       key: "location",
       render: (_, record) => (
         <div>
@@ -219,7 +219,7 @@ function SchoolsPageContent() {
       ),
     },
     {
-      title: "Type & Level",
+      title: "ប្រភេទ & កម្រិត",
       key: "type_level",
       render: (_, record) => (
         <Space direction="vertical" size="small">
@@ -229,7 +229,7 @@ function SchoolsPageContent() {
       ),
     },
     {
-      title: "Students",
+      title: "សិស្ស",
       dataIndex: "total_students",
       key: "total_students",
       render: (count: number, record) => (
@@ -238,14 +238,14 @@ function SchoolsPageContent() {
             {count || 0}
           </div>
           <div style={{ color: "#666", fontSize: "12px" }}>
-            {record.classes.length} classes
+            {record.classes.length} ថ្នាក់រៀន
           </div>
         </div>
       ),
       sorter: true,
     },
     {
-      title: "Teachers",
+      title: "គ្រូបង្រៀន",
       dataIndex: "total_teachers",
       key: "total_teachers",
       render: (count: number) => (
@@ -256,7 +256,7 @@ function SchoolsPageContent() {
       sorter: true,
     },
     {
-      title: "Contact",
+      title: "ទំនាក់ទំនង",
       key: "contact",
       render: (_, record) => (
         <div>
@@ -275,34 +275,34 @@ function SchoolsPageContent() {
       ),
     },
     {
-      title: "Created",
+      title: "បានបង្កើត",
       dataIndex: "created_at",
       key: "created_at",
       render: (date: string) => new Date(date).toLocaleDateString(),
       sorter: true,
     },
     {
-      title: "Actions",
+      title: "សកម្មភាព",
       key: "actions",
       render: (_, record) => (
         <Space>
           {canEdit && (
             <Link href={`/schools/${record.id}/edit`}>
               <Button type="link" icon={<EditOutlined />} size="small">
-                Edit
+                កែប្រែ
               </Button>
             </Link>
           )}
           {canDelete && (
             <Popconfirm
-              title="Delete School"
-              description="Are you sure you want to delete this school? This will also affect all associated classes and students."
+              title="លុបសាលារៀន"
+              description="តើអ្នកប្រាកដជាចង់លុបសាលារៀននេះមែនទេ? នេះនឹងប៉ះពាល់ដល់ថ្នាក់រៀន និងសិស្សទាំងអស់ផងដែរ។"
               onConfirm={() => handleDelete(record.id)}
-              okText="Yes"
-              cancelText="No"
+              okText="បាទ/ចាស"
+              cancelText="ទេ"
             >
               <Button type="link" danger icon={<DeleteOutlined />} size="small">
-                Delete
+                លុប
               </Button>
             </Popconfirm>
           )}
@@ -324,11 +324,11 @@ function SchoolsPageContent() {
       <Breadcrumb style={{ marginBottom: "16px" }}>
         <Breadcrumb.Item>
           <Link href="/dashboard">
-            <HomeOutlined /> Dashboard
+            <HomeOutlined /> ផ្ទាំងគ្រប់គ្រង
           </Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
-          <BankOutlined /> Schools
+          <BankOutlined /> សាលារៀន
         </Breadcrumb.Item>
       </Breadcrumb>
 
@@ -356,7 +356,7 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Total Schools"
+              title="សាលារៀនសរុប"
               value={schoolStats.total}
               prefix={<BankOutlined />}
             />
@@ -365,7 +365,7 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Total Students"
+              title="សិស្សសរុប"
               value={schoolStats.totalStudents}
               valueStyle={{ color: "#3f8600" }}
             />
@@ -374,7 +374,7 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Total Teachers"
+              title="គ្រូបង្រៀនសរុប"
               value={schoolStats.totalTeachers}
               valueStyle={{ color: "#cf1322" }}
             />
@@ -383,7 +383,7 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Total Classes"
+              title="ថ្នាក់រៀនសរុប"
               value={schoolStats.totalClasses}
               valueStyle={{ color: "#1890ff" }}
             />
@@ -395,7 +395,7 @@ function SchoolsPageContent() {
       <Card style={{ marginBottom: "24px" }}>
         <Space wrap>
           <Input
-            placeholder="Search schools..."
+            placeholder="ស្វែងរកសាលារៀន..."
             prefix={<SearchOutlined />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -403,7 +403,7 @@ function SchoolsPageContent() {
             allowClear
           />
           <Select
-            placeholder="Filter by province"
+            placeholder="ច្រោះតាមខេត្ត"
             value={selectedProvince}
             onChange={setSelectedProvince}
             style={{ width: 200 }}
@@ -417,7 +417,7 @@ function SchoolsPageContent() {
             ))}
           </Select>
           <Select
-            placeholder="Filter by type"
+            placeholder="ច្រោះតាមប្រភេទ"
             value={selectedSchoolType}
             onChange={setSelectedSchoolType}
             style={{ width: 150 }}
@@ -430,7 +430,7 @@ function SchoolsPageContent() {
             ))}
           </Select>
           <Select
-            placeholder="Filter by level"
+            placeholder="ច្រោះតាមកម្រិត"
             value={selectedLevel}
             onChange={setSelectedLevel}
             style={{ width: 150 }}
@@ -466,7 +466,7 @@ function SchoolsPageContent() {
             showSizeChanger={false}
             showQuickJumper
             showTotal={(total, range) =>
-              `${range[0]}-${range[1]} of ${total} schools`
+              `${range[0]}-${range[1]} នៃ ${total} សាលារៀន`
             }
           />
         </div>
