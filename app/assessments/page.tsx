@@ -211,10 +211,13 @@ function AssessmentsContent() {
   const columns = [
     {
       title: 'លេខសិស្ស',
-      dataIndex: 'student',
       key: 'student_id',
       width: 100,
-      render: (student: any) => student?.student_id || '-'
+      render: (record: any) => {
+        // Try multiple possible locations for student_id
+        const studentId = record.student?.student_id || record.student_id || '-';
+        return <span>{studentId}</span>;
+      }
     },
     {
       title: 'សិស្ស',

@@ -150,6 +150,7 @@ export async function GET(request: NextRequest) {
           student: {
             select: {
               id: true,
+              student_id: true,
               name: true,
               age: true,
               gender: true,
