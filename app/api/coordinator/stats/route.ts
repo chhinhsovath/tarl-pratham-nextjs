@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       schools_by_province,
     ] = await Promise.all([
       // Schools
-      prisma.pilot_schools.count(),
+      prisma.pilotSchool.count(),
 
       // Students
       prisma.student.count(),
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
       }),
 
       // Schools by province
-      prisma.pilot_schools.groupBy({
+      prisma.pilotSchool.groupBy({
         by: ['province'],
         _count: { id: true },
         orderBy: { _count: { id: 'desc' } }

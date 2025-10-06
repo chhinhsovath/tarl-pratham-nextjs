@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [pilotSchools, total] = await Promise.all([
-      prisma.pilot_schools.findMany({
+      prisma.pilotSchool.findMany({
         where: pilotWhere,
         select: {
           id: true,
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { created_at: "desc" }
       }),
-      prisma.pilot_schools.count({ where: pilotWhere })
+      prisma.pilotSchool.count({ where: pilotWhere })
     ]);
 
     // Transform pilot_schools data to match schools API format
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Check if school code already exists in pilot_schools
-    const existingSchool = await prisma.pilot_schools.findFirst({
+    const existingSchool = await prisma.pilotSchool.findFirst({
       where: { school_code: body.code }
     });
 
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create school in pilot_schools
-    const pilotSchool = await prisma.pilot_schools.create({
+    const pilotSchool = await prisma.pilotSchool.create({
       data: {
         school_name: body.name,
         school_code: body.code,
@@ -263,7 +263,7 @@ export async function PUT(request: NextRequest) {
 
     // Check if school code already exists (excluding current school)
     if (updateData.code) {
-      const existingSchool = await prisma.pilot_schools.findFirst({
+      const existingSchool = await prisma.pilotSchool.findFirst({
         where: {
           school_code: updateData.code,
           id: { not: parseInt(id) }
@@ -296,7 +296,7 @@ export async function PUT(request: NextRequest) {
     if (updateData.email) pilotUpdateData.email = updateData.email;
 
     // Update pilot school
-    const pilotSchool = await prisma.pilot_schools.update({
+    const pilotSchool = await prisma.pilotSchool.update({
       where: { id: parseInt(id) },
       data: pilotUpdateData
     });
@@ -349,7 +349,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if pilot school exists
-    const pilotSchool = await prisma.pilot_schools.findUnique({
+    const pilotSchool = await prisma.pilotSchool.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -388,7 +388,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete pilot school (hard delete since pilot_schools doesn't have is_active)
-    await prisma.pilot_schools.delete({
+    await prisma.pilotSchool.delete({
       where: { id: parseInt(id) }
     });
 
