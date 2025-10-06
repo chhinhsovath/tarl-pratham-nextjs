@@ -118,7 +118,7 @@ function CoordinatorMonitoringContent() {
         <div>
           <Title level={2}>តាមដានប្រព័ន្ធ</Title>
           <Text type="secondary">
-            Last updated: {dayjs(lastUpdate).format('DD/MM/YYYY HH:mm:ss')}
+            ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ: {dayjs(lastUpdate).format('DD/MM/YYYY HH:mm:ss')}
           </Text>
         </div>
         <Button
@@ -126,7 +126,7 @@ function CoordinatorMonitoringContent() {
           onClick={fetchSystemHealth}
           loading={loading}
         >
-          Refresh
+          ផ្ទុកឡើងវិញ
         </Button>
       </div>
 
@@ -163,7 +163,7 @@ function CoordinatorMonitoringContent() {
               prefix={<UserOutlined />}
               suffix={
                 <Tag color="green">
-                  {health.active_users} Active
+                  {health.active_users} សកម្ម
                 </Tag>
               }
             />
@@ -250,9 +250,9 @@ function CoordinatorMonitoringContent() {
               <Col span={8}>
                 <Card>
                   <Statistic
-                    title="Baseline Active"
+                    title="មូលដ្ឋានសកម្ម"
                     value={health.active_periods.baseline}
-                    suffix="schools"
+                    suffix="សាលារៀន"
                     valueStyle={{ color: '#1890ff' }}
                   />
                 </Card>
@@ -260,9 +260,9 @@ function CoordinatorMonitoringContent() {
               <Col span={8}>
                 <Card>
                   <Statistic
-                    title="Midline Active"
+                    title="កណ្តាលសកម្ម"
                     value={health.active_periods.midline}
-                    suffix="schools"
+                    suffix="សាលារៀន"
                     valueStyle={{ color: '#fa8c16' }}
                   />
                 </Card>
@@ -270,9 +270,9 @@ function CoordinatorMonitoringContent() {
               <Col span={8}>
                 <Card>
                   <Statistic
-                    title="Endline Active"
+                    title="ចុងក្រោយសកម្ម"
                     value={health.active_periods.endline}
-                    suffix="schools"
+                    suffix="សាលារៀន"
                     valueStyle={{ color: '#52c41a' }}
                   />
                 </Card>
@@ -285,7 +285,7 @@ function CoordinatorMonitoringContent() {
       {/* Recent Activities */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={24}>
-          <Card title="សកម្មភាពថ្មីៗ" extra={<Badge status="processing" text="Live" />}>
+          <Card title="សកម្មភាពថ្មីៗ" extra={<Badge status="processing" text="ផ្ទាល់" />}>
             <Timeline mode="left">
               {health.recent_activities.slice(0, 10).map((activity) => (
                 <Timeline.Item
@@ -316,20 +316,20 @@ function CoordinatorMonitoringContent() {
             <Row gutter={16}>
               <Col span={8}>
                 <Statistic
-                  title="Database Size"
+                  title="ទំហំមូលដ្ឋានទិន្នន័យ"
                   value={health.system_stats.database_size}
                   prefix={<SyncOutlined spin />}
                 />
               </Col>
               <Col span={8}>
                 <Statistic
-                  title="System Uptime"
+                  title="ពេលវេលាដំណើរការប្រព័ន្ធ"
                   value={health.system_stats.uptime}
                 />
               </Col>
               <Col span={8}>
                 <Statistic
-                  title="Last Backup"
+                  title="បម្រុងទុកចុងក្រោយ"
                   value={health.system_stats.last_backup}
                 />
               </Col>

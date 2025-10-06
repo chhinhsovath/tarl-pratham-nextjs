@@ -45,6 +45,8 @@ model User {
   migrated_from_quick_login Boolean?           @default(false)
   migration_date            DateTime?          @db.Timestamp(6)
   assessments               Assessment[]       @relation("AssessmentAddedBy")
+  assessments_verified      Assessment[]       @relation("AssessmentVerifiedBy")
+  assessments_locked        Assessment[]       @relation("AssessmentLockedBy")
   attendance_records        AttendanceRecord[]
   mentoring_visits          MentoringVisit[]
   students                  Student[]          @relation("StudentAddedBy")
@@ -214,9 +216,17 @@ model Assessment {
   created_by_role      String?
   record_status        RecordStatus        @default(production)
   test_session_id      String?
+  verified_by_id       Int?
+  verified_at          DateTime?
+  verification_notes   String?
+  is_locked            Boolean             @default(false)
+  locked_by_id         Int?
+  locked_at            DateTime?
   assessment_histories AssessmentHistory[]
   assessment_lock      AssessmentLock?
   added_by             User?               @relation("AssessmentAddedBy", fields: [added_by_id], references: [id])
+  verified_by          User?               @relation("AssessmentVerifiedBy", fields: [verified_by_id], references: [id])
+  locked_by            User?               @relation("AssessmentLockedBy", fields: [locked_by_id], references: [id])
   pilot_school         PilotSchool?        @relation(fields: [pilot_school_id], references: [id])
   student              Student             @relation(fields: [student_id], references: [id])
 
@@ -229,6 +239,8 @@ model Assessment {
   @@index([assessed_by_mentor])
   @@index([record_status])
   @@index([test_session_id])
+  @@index([is_locked])
+  @@index([verified_by_id])
   @@map("assessments")
 }
 

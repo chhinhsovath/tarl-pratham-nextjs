@@ -284,14 +284,14 @@ function UsersPageContent() {
       ),
     },
     {
-      title: "Created",
+      title: "បានបង្កើត",
       dataIndex: "created_at",
       key: "created_at",
       render: (date: string) => new Date(date).toLocaleDateString(),
       sorter: true,
     },
     {
-      title: "Actions",
+      title: "សកម្មភាព",
       key: "actions",
       render: (_, record) => (
         <Space>
@@ -378,7 +378,7 @@ function UsersPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Total Users"
+              title="អ្នកប្រើប្រាស់សរុប"
               value={userStats.total}
               prefix={<TeamOutlined />}
             />
@@ -387,7 +387,7 @@ function UsersPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Admins"
+              title="អ្នកគ្រប់គ្រង"
               value={userStats.admins}
               valueStyle={{ color: "#cf1322" }}
             />
@@ -396,7 +396,7 @@ function UsersPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Mentors"
+              title="អ្នកណែនាំ"
               value={userStats.mentors}
               valueStyle={{ color: "#52c41a" }}
             />
@@ -405,7 +405,7 @@ function UsersPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Teachers"
+              title="គ្រូបង្រៀន"
               value={userStats.teachers}
               valueStyle={{ color: "#fa8c16" }}
             />
@@ -417,7 +417,7 @@ function UsersPageContent() {
       <Card style={{ marginBottom: "24px" }}>
         <Space wrap>
           <Input
-            placeholder="Search users..."
+            placeholder="ស្វែងរកអ្នកប្រើប្រាស់..."
             prefix={<SearchOutlined />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -425,7 +425,7 @@ function UsersPageContent() {
             allowClear
           />
           <Select
-            placeholder="Filter by role"
+            placeholder="តម្រងតាមតួនាទី"
             value={selectedRole}
             onChange={setSelectedRole}
             style={{ width: 150 }}
@@ -438,7 +438,7 @@ function UsersPageContent() {
             ))}
           </Select>
           <Select
-            placeholder="Filter by province"
+            placeholder="តម្រងតាមខេត្ត"
             value={selectedProvince}
             onChange={setSelectedProvince}
             style={{ width: 200 }}
