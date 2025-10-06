@@ -74,8 +74,17 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
       });
     }
 
-    // Students - Admin, Teacher, Mentor
-    if (hasRole(['admin', 'teacher', 'mentor'])) {
+    // Students - Admin/Coordinator (management), Teacher/Mentor (simple)
+    if (hasRole(['admin', 'coordinator'])) {
+      items.push({
+        key: '/students-management',
+        label: (
+          <Link href="/students-management" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+            សិស្ស
+          </Link>
+        ),
+      });
+    } else if (hasRole(['teacher', 'mentor'])) {
       items.push({
         key: '/students',
         label: (
