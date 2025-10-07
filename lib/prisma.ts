@@ -2,23 +2,12 @@ import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient | undefined };
 
-// Create PrismaClient with connection pooling configuration
+// Create PrismaClient with Supabase pgBouncer configuration
 const createPrismaClient = () => {
-  // Add connection pooling parameters to DATABASE_URL if not already present
-  const databaseUrl = process.env.DATABASE_URL || '';
-  const hasPooling = databaseUrl.includes('connection_limit') || databaseUrl.includes('pool_timeout');
-
-  const urlWithPooling = hasPooling
-    ? databaseUrl
-    : `${databaseUrl}${databaseUrl.includes('?') ? '&' : '?'}connection_limit=5&pool_timeout=10`;
-
   return new PrismaClient({
     log: process.env.NODE_ENV === 'production' ? ['error'] : ['error', 'warn'],
-    datasources: {
-      db: {
-        url: urlWithPooling,
-      },
-    },
+    // Supabase pgBouncer (port 6543) handles connection pooling
+    // No need to add connection_limit/pool_timeout in Prisma
   });
 };
 
