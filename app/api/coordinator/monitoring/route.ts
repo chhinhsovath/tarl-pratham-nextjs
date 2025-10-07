@@ -60,7 +60,8 @@ export async function GET(request: NextRequest) {
       }),
       prisma.assessment.count({
         where: {
-          record_status: { in: ['draft', 'submitted', null] },
+          verified_at: null,
+          record_status: 'production',
         },
       }),
       prisma.pilotSchool.count({
