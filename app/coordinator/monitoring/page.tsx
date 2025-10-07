@@ -31,9 +31,12 @@ import {
 import { useSession } from 'next-auth/react';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { Typography } from 'antd';
+
+dayjs.extend(relativeTime);
 
 const { Title, Text } = Typography;
-import { Typography } from 'antd';
 
 interface SystemHealth {
   total_users: number;
@@ -250,7 +253,7 @@ function CoordinatorMonitoringContent() {
               <Col span={8}>
                 <Card>
                   <Statistic
-                    title="មូលដ្ឋានសកម្ម"
+                    title="តេស្តដើមគ្រាសកម្ម"
                     value={health.active_periods.baseline}
                     suffix="សាលារៀន"
                     valueStyle={{ color: '#1890ff' }}
@@ -260,7 +263,7 @@ function CoordinatorMonitoringContent() {
               <Col span={8}>
                 <Card>
                   <Statistic
-                    title="កណ្តាលសកម្ម"
+                    title="តេស្តពាក់កណ្ដាលគ្រាសកម្ម"
                     value={health.active_periods.midline}
                     suffix="សាលារៀន"
                     valueStyle={{ color: '#fa8c16' }}
@@ -270,7 +273,7 @@ function CoordinatorMonitoringContent() {
               <Col span={8}>
                 <Card>
                   <Statistic
-                    title="ចុងក្រោយសកម្ម"
+                    title="តេស្តចុងក្រោយគ្រាសកម្ម"
                     value={health.active_periods.endline}
                     suffix="សាលារៀន"
                     valueStyle={{ color: '#52c41a' }}
