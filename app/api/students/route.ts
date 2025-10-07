@@ -154,6 +154,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Ensure Prisma is connected
+    try {
+      await prisma.$connect();
+    } catch (connectError) {
+      console.error("Prisma connection error:", connectError);
+    }
+
     const [students, total] = await Promise.all([
       prisma.student.findMany({
         where,
