@@ -224,40 +224,100 @@ function MentorAssignmentsPageContent() {
     }
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: any, keepOpen: boolean = false) => {
     setSubmitting(true);
     try {
-      const url = editingAssignment
-        ? "/api/mentor-assignments"
-        : "/api/mentor-assignments";
+      // If editing, single update
+      if (editingAssignment) {
+        const response = await fetch("/api/mentor-assignments", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: editingAssignment.id, ...values }),
+        });
 
-      const method = editingAssignment ? "PUT" : "POST";
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Failed to update assignment");
+        }
 
-      const body = editingAssignment
-        ? { id: editingAssignment.id, ...values }
-        : values;
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to save assignment");
+        message.success("បានកែប្រែការចាត់តាំងដោយជោគជ័យ");
+        setIsModalVisible(false);
+        form.resetFields();
+        fetchAssignments();
+        return;
       }
 
-      message.success(
-        editingAssignment
-          ? "បានកែប្រែការចាត់តាំងដោយជោគជ័យ"
-          : "បានបង្កើតការចាត់តាំងដោយជោគជ័យ"
-      );
-      setIsModalVisible(false);
-      form.resetFields();
+      // Creating new assignments: support multiple schools and subjects
+      const schoolIds = Array.isArray(values.pilot_school_id)
+        ? values.pilot_school_id
+        : [values.pilot_school_id];
+
+      const subjects = Array.isArray(values.subject)
+        ? values.subject
+        : [values.subject];
+
+      // Create all combinations of schools × subjects
+      const assignments = [];
+      for (const schoolId of schoolIds) {
+        for (const subject of subjects) {
+          assignments.push({
+            mentor_id: values.mentor_id,
+            pilot_school_id: schoolId,
+            subject: subject,
+            notes: values.notes,
+          });
+        }
+      }
+
+      // Create all assignments
+      let successCount = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+
+      for (const assignment of assignments) {
+        try {
+          const response = await fetch("/api/mentor-assignments", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(assignment),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            errors.push(error.error || "Failed to create assignment");
+            errorCount++;
+          } else {
+            successCount++;
+          }
+        } catch (error) {
+          errorCount++;
+          errors.push(error instanceof Error ? error.message : "Unknown error");
+        }
+      }
+
+      // Show result message
+      if (successCount > 0) {
+        message.success(`បានបង្កើតការចាត់តាំង ${successCount} ដោយជោគជ័យ`);
+      }
+      if (errorCount > 0) {
+        message.error(`មានបញ្ហា ${errorCount} ការចាត់តាំង: ${errors.join(", ")}`);
+      }
+
       fetchAssignments();
+
+      if (keepOpen) {
+        // Keep modal open, reset schools and subjects but keep mentor
+        const mentorId = form.getFieldValue('mentor_id');
+        form.resetFields();
+        form.setFieldsValue({ mentor_id: mentorId });
+      } else {
+        setIsModalVisible(false);
+        form.resetFields();
+      }
     } catch (error) {
       console.error("Error saving assignment:", error);
       message.error(error instanceof Error ? error.message : "មានបញ្ហាក្នុងការរក្សាទុក");
@@ -515,15 +575,17 @@ function MentorAssignmentsPageContent() {
 
             <Form.Item
               name="pilot_school_id"
-              label="ជ្រើសរើសសាលារៀន"
+              label={editingAssignment ? "សាលារៀន" : "ជ្រើសរើសសាលារៀន (អាចជ្រើសបានច្រើន)"}
               rules={[{ required: true, message: "សូមជ្រើសរើសសាលារៀន" }]}
             >
               <Select
+                mode={editingAssignment ? undefined : "multiple"}
                 placeholder="ជ្រើសរើសសាលារៀន"
                 loading={loadingSchools}
                 disabled={!!editingAssignment}
                 showSearch
                 optionFilterProp="children"
+                maxTagCount="responsive"
               >
                 {schools.map((school) => (
                   <Option key={school.id} value={school.id}>
@@ -535,10 +597,15 @@ function MentorAssignmentsPageContent() {
 
             <Form.Item
               name="subject"
-              label="ជ្រើសរើសមុខវិជ្ជា"
+              label={editingAssignment ? "មុខវិជ្ជា" : "ជ្រើសរើសមុខវិជ្ជា (អាចជ្រើសបានច្រើន)"}
               rules={[{ required: true, message: "សូមជ្រើសរើសមុខវិជ្ជា" }]}
             >
-              <Select placeholder="ជ្រើសរើសមុខវិជ្ជា" disabled={!!editingAssignment}>
+              <Select
+                mode={editingAssignment ? undefined : "multiple"}
+                placeholder="ជ្រើសរើសមុខវិជ្ជា"
+                disabled={!!editingAssignment}
+                maxTagCount="responsive"
+              >
                 <Option value="Language">ភាសា</Option>
                 <Option value="Math">គណិតវិទ្យា</Option>
               </Select>
@@ -567,13 +634,29 @@ function MentorAssignmentsPageContent() {
             <Form.Item>
               <Space>
                 <Button type="primary" htmlType="submit" loading={submitting}>
-                  {editingAssignment ? "រក្សាទុក" : "បង្កើត"}
+                  {editingAssignment ? "រក្សាទុក" : "រក្សាទុក"}
                 </Button>
+                {!editingAssignment && (
+                  <Button
+                    type="default"
+                    loading={submitting}
+                    onClick={() => {
+                      form.validateFields().then((values) => {
+                        handleSubmit(values, true);
+                      }).catch((error) => {
+                        console.error("Validation failed:", error);
+                      });
+                    }}
+                  >
+                    រក្សាទុក និងបន្ថែមទៀត
+                  </Button>
+                )}
                 <Button
                   onClick={() => {
                     setIsModalVisible(false);
                     form.resetFields();
                   }}
+                  disabled={submitting}
                 >
                   បោះបង់
                 </Button>
