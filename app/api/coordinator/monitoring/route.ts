@@ -20,7 +20,8 @@ export async function GET(request: NextRequest) {
     const today = new Date();
     const todayStart = new Date(today.setHours(0, 0, 0, 0));
     const weekStart = new Date(today.setDate(today.getDate() - 7));
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
 
     // Fetch all metrics in parallel
     const [
@@ -60,24 +61,24 @@ export async function GET(request: NextRequest) {
       prisma.pilotSchool.count({
         where: {
           AND: [
-            { baseline_start_date: { lte: todayStr } },
-            { baseline_end_date: { gte: todayStr } },
+            { baseline_start_date: { lte: todayDate } },
+            { baseline_end_date: { gte: todayDate } },
           ],
         },
       }),
       prisma.pilotSchool.count({
         where: {
           AND: [
-            { midline_start_date: { lte: todayStr } },
-            { midline_end_date: { gte: todayStr } },
+            { midline_start_date: { lte: todayDate } },
+            { midline_end_date: { gte: todayDate } },
           ],
         },
       }),
       prisma.pilotSchool.count({
         where: {
           AND: [
-            { endline_start_date: { lte: todayStr } },
-            { endline_end_date: { gte: todayStr } },
+            { endline_start_date: { lte: todayDate } },
+            { endline_end_date: { gte: todayDate } },
           ],
         },
       }),
