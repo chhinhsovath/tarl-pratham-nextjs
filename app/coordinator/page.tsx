@@ -135,8 +135,8 @@ function CoordinatorWorkspaceContent() {
       title: 'គ្រប់គ្រងសិស្ស',
       icon: <TeamOutlined style={{ fontSize: 24 }} />,
       color: '#722ed1',
-      description: 'បន្ថែម កែប្រែ និងលុបសិស្ស',
-      path: '/students'
+      description: 'បើទំព័រគ្រប់គ្រងសិស្ស',
+      path: '/students-management'
     },
     {
       title: 'ចាត់តាំងម៉ង់ទ័រ',
