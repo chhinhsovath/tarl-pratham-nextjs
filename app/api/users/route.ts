@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
       where.id = parseInt(session.user.id);
     }
 
-    const [users, total] = await Promise.all([
+    const [users, total, roleStats] = await Promise.all([
       prisma.user.findMany({
         where,
         select: {
@@ -119,8 +119,25 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { created_at: "desc" }
       }),
-      prisma.user.count({ where })
+      prisma.user.count({ where }),
+      // Get role statistics from all users (not just current page)
+      prisma.user.groupBy({
+        by: ['role'],
+        where,
+        _count: {
+          role: true
+        }
+      })
     ]);
+
+    // Convert role stats to easy-to-use object
+    const stats = {
+      admin: roleStats.find(s => s.role === 'admin')?._count.role || 0,
+      coordinator: roleStats.find(s => s.role === 'coordinator')?._count.role || 0,
+      mentor: roleStats.find(s => s.role === 'mentor')?._count.role || 0,
+      teacher: roleStats.find(s => s.role === 'teacher')?._count.role || 0,
+      viewer: roleStats.find(s => s.role === 'viewer')?._count.role || 0,
+    };
 
     return NextResponse.json({
       data: users,
@@ -129,7 +146,8 @@ export async function GET(request: NextRequest) {
         limit,
         total,
         pages: Math.ceil(total / limit)
-      }
+      },
+      stats
     });
 
   } catch (error: any) {

@@ -69,6 +69,13 @@ interface ApiResponse {
     total: number;
     pages: number;
   };
+  stats: {
+    admin: number;
+    coordinator: number;
+    mentor: number;
+    teacher: number;
+    viewer: number;
+  };
 }
 
 const ROLES = [
@@ -97,6 +104,13 @@ function UsersPageContent() {
     limit: 10,
     total: 0,
     pages: 0
+  });
+  const [stats, setStats] = useState({
+    admin: 0,
+    coordinator: 0,
+    mentor: 0,
+    teacher: 0,
+    viewer: 0
   });
 
   // Filters
@@ -140,10 +154,11 @@ function UsersPageContent() {
 
       const response = await fetch(`/api/users?${params}`);
       if (!response.ok) throw new Error("Failed to fetch users");
-      
+
       const data: ApiResponse = await response.json();
       setUsers(data.data);
       setPagination(prev => ({ ...prev, ...data.pagination }));
+      setStats(data.stats);
     } catch (error) {
       console.error("Error fetching users:", error);
       message.error("Failed to load users");
@@ -333,13 +348,6 @@ function UsersPageContent() {
     },
   ];
 
-  const userStats = {
-    total: pagination.total,
-    admins: users.filter(u => u.role === "admin").length,
-    mentors: users.filter(u => u.role === "mentor").length,
-    teachers: users.filter(u => u.role === "teacher").length,
-  };
-
   return (
     <div className="max-w-full overflow-x-hidden">
       {/* Breadcrumb */}
@@ -374,40 +382,58 @@ function UsersPageContent() {
       </div>
 
       {/* Statistics Cards */}
-      <Row gutter={16} style={{ marginBottom: "24px" }}>
-        <Col span={6}>
+      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
+        <Col xs={24} sm={12} md={8} lg={4}>
           <Card>
             <Statistic
               title="អ្នកប្រើប្រាស់សរុប"
-              value={userStats.total}
+              value={pagination.total}
               prefix={<TeamOutlined />}
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={8} lg={4}>
           <Card>
             <Statistic
               title="អ្នកគ្រប់គ្រង"
-              value={userStats.admins}
+              value={stats.admin}
               valueStyle={{ color: "#cf1322" }}
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={8} lg={4}>
+          <Card>
+            <Statistic
+              title="អ្នកសម្របសម្រួល"
+              value={stats.coordinator}
+              valueStyle={{ color: "#1890ff" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={4}>
           <Card>
             <Statistic
               title="អ្នកណែនាំ"
-              value={userStats.mentors}
+              value={stats.mentor}
               valueStyle={{ color: "#52c41a" }}
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={8} lg={4}>
           <Card>
             <Statistic
               title="គ្រូបង្រៀន"
-              value={userStats.teachers}
+              value={stats.teacher}
               valueStyle={{ color: "#fa8c16" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={4}>
+          <Card>
+            <Statistic
+              title="អ្នកមើល"
+              value={stats.viewer}
+              valueStyle={{ color: "#8c8c8c" }}
             />
           </Card>
         </Col>
