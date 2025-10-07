@@ -268,7 +268,7 @@ function MentorAssignmentsPageContent() {
 
   const columns: ColumnsType<Assignment> = [
     {
-      title: "ម៉ង់ទ័រ (Mentor)",
+      title: "ម៉ង់ទ័រ",
       dataIndex: ["mentor", "name"],
       key: "mentor_name",
       render: (text: string, record: Assignment) => (
@@ -284,7 +284,7 @@ function MentorAssignmentsPageContent() {
       ),
     },
     {
-      title: "សាលារៀន (School)",
+      title: "សាលារៀន",
       dataIndex: ["pilot_school", "school_name"],
       key: "school_name",
       render: (text: string, record: Assignment) => (
@@ -299,7 +299,7 @@ function MentorAssignmentsPageContent() {
       ),
     },
     {
-      title: "មុខវិជ្ជា (Subject)",
+      title: "មុខវិជ្ជា",
       dataIndex: "subject",
       key: "subject",
       render: (subject: string) => (
@@ -312,7 +312,7 @@ function MentorAssignmentsPageContent() {
       ),
     },
     {
-      title: "ស្ថានភាព (Status)",
+      title: "ស្ថានភាព",
       dataIndex: "is_active",
       key: "is_active",
       render: (isActive: boolean) => (
@@ -322,13 +322,13 @@ function MentorAssignmentsPageContent() {
       ),
     },
     {
-      title: "កាលបរិច្ឆេទចាត់តាំង (Assigned Date)",
+      title: "កាលបរិច្ឆេទចាត់តាំង",
       dataIndex: "assigned_date",
       key: "assigned_date",
       render: (date: string) => new Date(date).toLocaleDateString("km-KH"),
     },
     {
-      title: "សកម្មភាព (Actions)",
+      title: "សកម្មភាព",
       key: "actions",
       render: (_: any, record: Assignment) => (
         <Space>
@@ -369,10 +369,6 @@ function MentorAssignmentsPageContent() {
         <div style={{ marginBottom: 24 }}>
           <Title level={2}>
             ចាត់តាំងម៉ង់ទ័រទៅសាលារៀន
-            <br />
-            <Text type="secondary" style={{ fontSize: 16 }}>
-              Assign Mentors to Schools for Subjects
-            </Text>
           </Title>
         </div>
 
@@ -382,7 +378,7 @@ function MentorAssignmentsPageContent() {
             <Col xs={24} sm={12} md={6}>
               <Select
                 style={{ width: "100%" }}
-                placeholder="ជ្រើសរើសម៉ង់ទ័រ (Select Mentor)"
+                placeholder="ជ្រើសរើសម៉ង់ទ័រ"
                 allowClear
                 loading={loadingMentors}
                 onChange={(value) => setSelectedMentor(value || "")}
@@ -398,7 +394,7 @@ function MentorAssignmentsPageContent() {
             <Col xs={24} sm={12} md={6}>
               <Select
                 style={{ width: "100%" }}
-                placeholder="ជ្រើសរើសសាលារៀន (Select School)"
+                placeholder="ជ្រើសរើសសាលារៀន"
                 allowClear
                 loading={loadingSchools}
                 onChange={(value) => setSelectedSchool(value || "")}
@@ -414,25 +410,25 @@ function MentorAssignmentsPageContent() {
             <Col xs={24} sm={12} md={6}>
               <Select
                 style={{ width: "100%" }}
-                placeholder="ជ្រើសរើសមុខវិជ្ជា (Select Subject)"
+                placeholder="ជ្រើសរើសមុខវិជ្ជា"
                 allowClear
                 onChange={(value) => setSelectedSubject(value || "")}
                 value={selectedSubject || undefined}
               >
-                <Option value="Language">ភាសា (Language)</Option>
-                <Option value="Math">គណិតវិទ្យា (Math)</Option>
+                <Option value="Language">ភាសា</Option>
+                <Option value="Math">គណិតវិទ្យា</Option>
               </Select>
             </Col>
             <Col xs={24} sm={12} md={6}>
               <Select
                 style={{ width: "100%" }}
-                placeholder="ជ្រើសរើសស្ថានភាព (Select Status)"
+                placeholder="ជ្រើសរើសស្ថានភាព"
                 allowClear
                 onChange={(value) => setSelectedStatus(value || "")}
                 value={selectedStatus || undefined}
               >
-                <Option value="true">សកម្ម (Active)</Option>
-                <Option value="false">អសកម្ម (Inactive)</Option>
+                <Option value="true">សកម្ម</Option>
+                <Option value="false">អសកម្ម</Option>
               </Select>
             </Col>
           </Row>
@@ -444,10 +440,10 @@ function MentorAssignmentsPageContent() {
                   icon={<PlusOutlined />}
                   onClick={handleCreate}
                 >
-                  បង្កើតការចាត់តាំងថ្មី (Create Assignment)
+                  បង្កើតការចាត់តាំងថ្មី
                 </Button>
                 <Button onClick={fetchAssignments}>
-                  ផ្ទុកឡើងវិញ (Refresh)
+                  ផ្ទុកឡើងវិញ
                 </Button>
               </Space>
             </Col>
@@ -478,8 +474,8 @@ function MentorAssignmentsPageContent() {
         <Modal
           title={
             editingAssignment
-              ? "កែប្រែការចាត់តាំងម៉ង់ទ័រ (Edit Assignment)"
-              : "បង្កើតការចាត់តាំងថ្មី (Create Assignment)"
+              ? "កែប្រែការចាត់តាំងម៉ង់ទ័រ"
+              : "បង្កើតការចាត់តាំងថ្មី"
           }
           open={isModalVisible}
           onCancel={() => {
@@ -499,7 +495,7 @@ function MentorAssignmentsPageContent() {
           >
             <Form.Item
               name="mentor_id"
-              label="ជ្រើសរើសម៉ង់ទ័រ (Select Mentor)"
+              label="ជ្រើសរើសម៉ង់ទ័រ"
               rules={[{ required: true, message: "សូមជ្រើសរើសម៉ង់ទ័រ" }]}
             >
               <Select
@@ -519,7 +515,7 @@ function MentorAssignmentsPageContent() {
 
             <Form.Item
               name="pilot_school_id"
-              label="ជ្រើសរើសសាលារៀន (Select School)"
+              label="ជ្រើសរើសសាលារៀន"
               rules={[{ required: true, message: "សូមជ្រើសរើសសាលារៀន" }]}
             >
               <Select
@@ -539,16 +535,16 @@ function MentorAssignmentsPageContent() {
 
             <Form.Item
               name="subject"
-              label="ជ្រើសរើសមុខវិជ្ជា (Select Subject)"
+              label="ជ្រើសរើសមុខវិជ្ជា"
               rules={[{ required: true, message: "សូមជ្រើសរើសមុខវិជ្ជា" }]}
             >
               <Select placeholder="ជ្រើសរើសមុខវិជ្ជា" disabled={!!editingAssignment}>
-                <Option value="Language">ភាសា (Language)</Option>
-                <Option value="Math">គណិតវិទ្យា (Math)</Option>
+                <Option value="Language">ភាសា</Option>
+                <Option value="Math">គណិតវិទ្យា</Option>
               </Select>
             </Form.Item>
 
-            <Form.Item name="notes" label="កំណត់ចំណាំ (Notes)">
+            <Form.Item name="notes" label="កំណត់ចំណាំ">
               <Input.TextArea
                 rows={3}
                 placeholder="បញ្ចូលកំណត់ចំណាំបន្ថែម (ប្រសិនបើមាន)"
@@ -558,12 +554,12 @@ function MentorAssignmentsPageContent() {
             {editingAssignment && (
               <Form.Item
                 name="is_active"
-                label="ស្ថានភាព (Status)"
+                label="ស្ថានភាព"
                 valuePropName="checked"
               >
                 <Select>
-                  <Option value={true}>សកម្ម (Active)</Option>
-                  <Option value={false}>អសកម្ម (Inactive)</Option>
+                  <Option value={true}>សកម្ម</Option>
+                  <Option value={false}>អសកម្ម</Option>
                 </Select>
               </Form.Item>
             )}
@@ -571,7 +567,7 @@ function MentorAssignmentsPageContent() {
             <Form.Item>
               <Space>
                 <Button type="primary" htmlType="submit" loading={submitting}>
-                  {editingAssignment ? "រក្សាទុក (Save)" : "បង្កើត (Create)"}
+                  {editingAssignment ? "រក្សាទុក" : "បង្កើត"}
                 </Button>
                 <Button
                   onClick={() => {
@@ -579,7 +575,7 @@ function MentorAssignmentsPageContent() {
                     form.resetFields();
                   }}
                 >
-                  បោះបង់ (Cancel)
+                  បោះបង់
                 </Button>
               </Space>
             </Form.Item>

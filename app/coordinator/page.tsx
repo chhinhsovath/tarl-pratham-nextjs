@@ -139,6 +139,13 @@ function CoordinatorWorkspaceContent() {
       path: '/students'
     },
     {
+      title: 'ចាត់តាំងម៉ង់ទ័រ',
+      icon: <TeamOutlined style={{ fontSize: 24 }} />,
+      color: '#13c2c2',
+      description: 'ចាត់តាំងម៉ង់ទ័រទៅសាលារៀនសម្រាប់មុខវិជ្ជា',
+      path: '/coordinator/mentor-assignments'
+    },
+    {
       title: 'រយៈពេលវាយតម្លៃ',
       icon: <CalendarOutlined style={{ fontSize: 24 }} />,
       color: '#fa8c16',
