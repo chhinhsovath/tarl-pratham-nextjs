@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
       where.id = parseInt(session.user.id);
     }
 
-    const [users, total, roleStats] = await Promise.all([
+    const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
         select: {
@@ -119,25 +119,45 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { created_at: "desc" }
       }),
-      prisma.user.count({ where }),
-      // Get role statistics from all users (not just current page)
-      prisma.user.groupBy({
+      prisma.user.count({ where })
+    ]);
+
+    // Get role statistics - wrapped in try-catch for safety
+    let stats = {
+      admin: 0,
+      coordinator: 0,
+      mentor: 0,
+      teacher: 0,
+      viewer: 0,
+    };
+
+    try {
+      const roleStats = await prisma.user.groupBy({
         by: ['role'],
         where,
         _count: {
           role: true
         }
-      })
-    ]);
+      });
 
-    // Convert role stats to easy-to-use object
-    const stats = {
-      admin: roleStats.find(s => s.role === 'admin')?._count.role || 0,
-      coordinator: roleStats.find(s => s.role === 'coordinator')?._count.role || 0,
-      mentor: roleStats.find(s => s.role === 'mentor')?._count.role || 0,
-      teacher: roleStats.find(s => s.role === 'teacher')?._count.role || 0,
-      viewer: roleStats.find(s => s.role === 'viewer')?._count.role || 0,
-    };
+      stats = {
+        admin: roleStats.find(s => s.role === 'admin')?._count.role || 0,
+        coordinator: roleStats.find(s => s.role === 'coordinator')?._count.role || 0,
+        mentor: roleStats.find(s => s.role === 'mentor')?._count.role || 0,
+        teacher: roleStats.find(s => s.role === 'teacher')?._count.role || 0,
+        viewer: roleStats.find(s => s.role === 'viewer')?._count.role || 0,
+      };
+    } catch (statsError) {
+      console.error("Error fetching role statistics:", statsError);
+      // Fallback: calculate from current users if groupBy fails
+      stats = {
+        admin: users.filter(u => u.role === 'admin').length,
+        coordinator: users.filter(u => u.role === 'coordinator').length,
+        mentor: users.filter(u => u.role === 'mentor').length,
+        teacher: users.filter(u => u.role === 'teacher').length,
+        viewer: users.filter(u => u.role === 'viewer').length,
+      };
+    }
 
     return NextResponse.json({
       data: users,
