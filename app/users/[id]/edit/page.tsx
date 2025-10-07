@@ -55,24 +55,24 @@ interface PilotSchool {
 }
 
 const ROLES = [
-  { value: "admin", label: "Admin" },
-  { value: "coordinator", label: "Coordinator" },
-  { value: "mentor", label: "Mentor" },
-  { value: "teacher", label: "Teacher" },
-  { value: "viewer", label: "Viewer" }
+  { value: "admin", label: "អ្នកគ្រប់គ្រង" },
+  { value: "coordinator", label: "អ្នកសម្របសម្រួល" },
+  { value: "mentor", label: "អ្នកណែនាំ" },
+  { value: "teacher", label: "គ្រូបង្រៀន" },
+  { value: "viewer", label: "អ្នកមើល" }
 ];
 
 const PROVINCES = [
-  "Banteay Meanchey", "Battambang", "Kampong Cham", "Kampong Chhnang", 
-  "Kampong Speu", "Kampong Thom", "Kampot", "Kandal", "Kep", "Koh Kong",
-  "Kratie", "Mondulkiri", "Oddar Meanchey", "Pailin", "Phnom Penh",
-  "Preah Vihear", "Prey Veng", "Pursat", "Ratanakiri", "Siem Reap",
-  "Preah Sihanouk", "Stung Treng", "Svay Rieng", "Takeo", "Tbong Khmum"
+  "បន្ទាយមានជ័យ", "បាត់ដំបង", "កំពង់ចាម", "កំពង់ឆ្នាំង",
+  "កំពង់ស្ពឺ", "កំពង់ធំ", "កំពត", "កណ្តាល", "កែប", "កោះកុង",
+  "ក្រចេះ", "មណ្ឌលគិរី", "ឧត្តរមានជ័យ", "ប៉ៃលិន", "ភ្នំពេញ",
+  "ព្រះវិហារ", "ព្រៃវែង", "ពោធិ៍សាត់", "រតនគិរី", "សៀមរាប",
+  "ព្រះសីហនុ", "ស្ទឹងត្រែង", "ស្វាយរៀង", "តាកែវ", "ត្បូងឃ្មុំ"
 ];
 
 const SUBJECTS = [
-  "Khmer", "Mathematics", "Science", "Social Studies", "English", 
-  "Physical Education", "Arts", "Life Skills", "Computer"
+  "ភាសាខ្មែរ", "គណិតវិទ្យា", "វិទ្យាសាស្ត្រ", "សិក្សាសង្គម", "ភាសាអង់គ្លេស",
+  "កីឡា", "សិល្បៈ", "ជំនាញរស់នៅ", "កុំព្យូទ័រ"
 ];
 
 function EditUserPageContent() {
@@ -101,7 +101,7 @@ function EditUserPageContent() {
                    session.user.id === userId;
                    
     if (!canEdit) {
-      message.error("You don't have permission to edit this user");
+      message.error("អ្នកមិនមានសិទ្ធិកែប្រែអ្នកប្រើប្រាស់នេះទេ");
       router.push("/users");
       return;
     }
@@ -113,13 +113,13 @@ function EditUserPageContent() {
   const fetchUser = async () => {
     try {
       const response = await fetch(`/api/users?id=${userId}&single=true`);
-      if (!response.ok) throw new Error("Failed to fetch user");
-      
+      if (!response.ok) throw new Error("មិនអាចទាញយកទិន្នន័យអ្នកប្រើប្រាស់");
+
       const data = await response.json();
       const userData = data.data;
       setUser(userData);
       setSelectedRole(userData.role);
-      
+
       // Set form values
       form.setFieldsValue({
         name: userData.name,
@@ -132,7 +132,7 @@ function EditUserPageContent() {
       });
     } catch (error) {
       console.error("Error fetching user:", error);
-      message.error("Failed to load user data");
+      message.error("មិនអាចផ្ទុកទិន្នន័យអ្នកប្រើប្រាស់");
       router.push("/users");
     } finally {
       setFetching(false);
@@ -170,14 +170,14 @@ function EditUserPageContent() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update user");
+        throw new Error(error.error || "មិនអាចកែប្រែអ្នកប្រើប្រាស់");
       }
 
-      message.success("User updated successfully");
+      message.success("បានកែប្រែអ្នកប្រើប្រាស់ដោយជោគជ័យ");
       router.push("/users");
     } catch (error) {
       console.error("Error updating user:", error);
-      message.error(error instanceof Error ? error.message : "Failed to update user");
+      message.error(error instanceof Error ? error.message : "មិនអាចកែប្រែអ្នកប្រើប្រាស់");
     } finally {
       setLoading(false);
     }
@@ -199,7 +199,7 @@ function EditUserPageContent() {
     return (
       <div style={{ padding: "24px", textAlign: "center" }}>
         <Spin size="large" />
-        <div style={{ marginTop: "16px" }}>Loading user data...</div>
+        <div style={{ marginTop: "16px" }}>កំពុងផ្ទុកទិន្នន័យអ្នកប្រើប្រាស់...</div>
       </div>
     );
   }
@@ -207,9 +207,9 @@ function EditUserPageContent() {
   if (!user) {
     return (
       <div style={{ padding: "24px", textAlign: "center" }}>
-        <Title level={3}>User not found</Title>
+        <Title level={3}>រកមិនឃើញអ្នកប្រើប្រាស់</Title>
         <Link href="/users">
-          <Button type="primary">Back to Users</Button>
+          <Button type="primary">ត្រឡប់ទៅអ្នកប្រើប្រាស់</Button>
         </Link>
       </div>
     );
@@ -221,32 +221,32 @@ function EditUserPageContent() {
       <Breadcrumb style={{ marginBottom: "16px" }}>
         <Breadcrumb.Item>
           <Link href="/dashboard">
-            <HomeOutlined /> Dashboard
+            <HomeOutlined /> ទំព័រដើម
           </Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
           <Link href="/users">
-            <TeamOutlined /> Users
+            <TeamOutlined /> អ្នកប្រើប្រាស់
           </Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
-          <EditOutlined /> Edit {user.name}
+          <EditOutlined /> កែប្រែ {user.name}
         </Breadcrumb.Item>
       </Breadcrumb>
 
       {/* Page Header */}
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
-        marginBottom: "24px" 
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "24px"
       }}>
         <Title level={2} style={{ margin: 0 }}>
-          Edit User: {user.name}
+          កែប្រែអ្នកប្រើប្រាស់៖ {user.name}
         </Title>
         <Link href="/users">
           <Button icon={<ArrowLeftOutlined />}>
-            Back to Users
+            ត្រឡប់ទៅអ្នកប្រើប្រាស់
           </Button>
         </Link>
       </div>
@@ -261,28 +261,28 @@ function EditUserPageContent() {
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Form.Item
-                label="Full Name"
+                label="ឈ្មោះពេញ"
                 name="name"
                 rules={[
-                  { required: true, message: "Please enter the user's name" },
-                  { min: 2, message: "Name must be at least 2 characters" }
+                  { required: true, message: "សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់" },
+                  { min: 2, message: "ឈ្មោះត្រូវតែមានយ៉ាងតិច ២ តួអក្សរ" }
                 ]}
               >
-                <Input placeholder="Enter full name" size="large" />
+                <Input placeholder="បញ្ចូលឈ្មោះពេញ" size="large" />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Email Address"
+                label="អាសយដ្ឋានអ៊ីមែល"
                 name="email"
                 rules={[
-                  { required: true, message: "Please enter email address" },
-                  { type: "email", message: "Please enter a valid email" }
+                  { required: true, message: "សូមបញ្ចូលអាសយដ្ឋានអ៊ីមែល" },
+                  { type: "email", message: "សូមបញ្ចូលអ៊ីមែលត្រឹមត្រូវ" }
                 ]}
               >
-                <Input 
-                  placeholder="Enter email address" 
+                <Input
+                  placeholder="បញ្ចូលអាសយដ្ឋានអ៊ីមែល"
                   size="large"
                   disabled={session?.user?.id === userId && session?.user?.role !== "admin"}
                 />
@@ -293,26 +293,26 @@ function EditUserPageContent() {
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Form.Item
-                label="New Password (leave empty to keep current)"
+                label="ពាក្យសម្ងាត់ថ្មី (ទុកចោលប្រសិនបើចង់រក្សាពាក្យសម្ងាត់បច្ចុប្បន្ន)"
                 name="password"
                 rules={[
-                  { min: 6, message: "Password must be at least 6 characters" }
+                  { min: 6, message: "ពាក្យសម្ងាត់ត្រូវតែមានយ៉ាងតិច ៦ តួអក្សរ" }
                 ]}
               >
-                <Input.Password placeholder="Enter new password" size="large" />
+                <Input.Password placeholder="បញ្ចូលពាក្យសម្ងាត់ថ្មី" size="large" />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Role"
+                label="តួនាទី"
                 name="role"
                 rules={[
-                  { required: true, message: "Please select a role" }
+                  { required: true, message: "សូមជ្រើសរើសតួនាទី" }
                 ]}
               >
-                <Select 
-                  placeholder="ជ្រើសរើសតួនាទី" 
+                <Select
+                  placeholder="ជ្រើសរើសតួនាទី"
                   size="large"
                   onChange={handleRoleChange}
                   disabled={!canEditRole}
@@ -330,11 +330,11 @@ function EditUserPageContent() {
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Form.Item
-                label="Province"
+                label="ខេត្ត"
                 name="province"
               >
-                <Select 
-                  placeholder="ជ្រើសរើសខេត្ត" 
+                <Select
+                  placeholder="ជ្រើសរើសខេត្ត"
                   size="large"
                   showSearch
                   allowClear
@@ -350,11 +350,11 @@ function EditUserPageContent() {
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Subject"
+                label="មុខវិជ្ជា"
                 name="subject"
               >
-                <Select 
-                  placeholder="ជ្រើសរើសមុខវិជ្ជា" 
+                <Select
+                  placeholder="ជ្រើសរើសមុខវិជ្ជា"
                   size="large"
                   allowClear
                 >
@@ -371,21 +371,21 @@ function EditUserPageContent() {
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Form.Item
-                label="Phone Number"
+                label="លេខទូរស័ព្ទ"
                 name="phone"
               >
-                <Input placeholder="Enter phone number" size="large" />
+                <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" size="large" />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               {(selectedRole === "mentor" || selectedRole === "teacher") && (
                 <Form.Item
-                  label="Pilot School"
+                  label="សាលាសាកល្បង"
                   name="pilot_school_id"
                 >
-                  <Select 
-                    placeholder="ជ្រើសរើសសាលាសាកល្បង" 
+                  <Select
+                    placeholder="ជ្រើសរើសសាលាសាកល្បង"
                     size="large"
                     showSearch
                     allowClear
@@ -410,18 +410,18 @@ function EditUserPageContent() {
           {/* Form Actions */}
           <div style={{ marginTop: "32px" }}>
             <Space>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 loading={loading}
                 size="large"
                 icon={<SaveOutlined />}
               >
-                Update User
+                កែប្រែអ្នកប្រើប្រាស់
               </Button>
               <Link href="/users">
                 <Button size="large">
-                  Cancel
+                  បោះបង់
                 </Button>
               </Link>
             </Space>
