@@ -449,7 +449,14 @@ export async function PUT(request: NextRequest) {
       }, { status: 404 });
     }
 
-    if (!canAccessStudent(session.user.role, session.user.pilot_school_id, existingStudent.pilot_school_id)) {
+    const hasAccess = await canAccessStudent(
+      session.user.role,
+      session.user.id,
+      session.user.pilot_school_id,
+      existingStudent.pilot_school_id
+    );
+
+    if (!hasAccess) {
       return NextResponse.json({
         error: "អ្នកមិនមានសិទ្ធិចូលប្រើទិន្នន័យនេះ",
         message: "Forbidden - cannot access student from different school",
@@ -598,7 +605,14 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
-    if (!canAccessStudent(session.user.role, session.user.pilot_school_id, existingStudent.pilot_school_id)) {
+    const hasAccess = await canAccessStudent(
+      session.user.role,
+      session.user.id,
+      session.user.pilot_school_id,
+      existingStudent.pilot_school_id
+    );
+
+    if (!hasAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
