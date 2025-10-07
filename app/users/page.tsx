@@ -79,11 +79,11 @@ interface ApiResponse {
 }
 
 const ROLES = [
-  { value: "admin", label: "Admin", color: "red" },
-  { value: "coordinator", label: "Coordinator", color: "blue" },
-  { value: "mentor", label: "Mentor", color: "green" },
-  { value: "teacher", label: "Teacher", color: "orange" },
-  { value: "viewer", label: "Viewer", color: "default" }
+  { value: "admin", label: "អ្នកគ្រប់គ្រង", color: "red" },
+  { value: "coordinator", label: "អ្នកសម្របសម្រួល", color: "blue" },
+  { value: "mentor", label: "អ្នកណែនាំ", color: "green" },
+  { value: "teacher", label: "គ្រូបង្រៀន", color: "orange" },
+  { value: "viewer", label: "អ្នកមើល", color: "default" }
 ];
 
 const PROVINCES = [
@@ -227,7 +227,7 @@ function UsersPageContent() {
 
   const columns: ColumnsType<User> = [
     {
-      title: "User",
+      title: "អ្នកប្រើប្រាស់",
       key: "user",
       render: (_, record) => (
         <Space>
@@ -240,7 +240,7 @@ function UsersPageContent() {
       ),
     },
     {
-      title: "Role",
+      title: "តួនាទី",
       dataIndex: "role",
       key: "role",
       render: (role: string) => (
@@ -252,19 +252,19 @@ function UsersPageContent() {
       filteredValue: selectedRole ? [selectedRole] : null,
     },
     {
-      title: "Province",
+      title: "ខេត្ត",
       dataIndex: "province",
       key: "province",
       render: (province: string) => province || "-",
     },
     {
-      title: "Subject",
+      title: "មុខវិជ្ជា",
       dataIndex: "subject",
       key: "subject",
       render: (subject: string) => subject || "-",
     },
     {
-      title: "Pilot School",
+      title: "សាលារៀន",
       key: "pilot_school",
       render: (_, record) => (
         record.pilot_school ? (
@@ -275,24 +275,24 @@ function UsersPageContent() {
       ),
     },
     {
-      title: "Phone",
+      title: "លេខទូរសព្ទ",
       dataIndex: "phone",
       key: "phone",
       render: (phone: string) => phone || "-",
     },
     {
-      title: "Status",
+      title: "ស្ថានភាព",
       key: "status",
       render: (_, record) => (
         <Space direction="vertical" size="small">
           {record.role === "teacher" && (
             <Tag color={record.teacher_profile_setup ? "green" : "orange"}>
-              Profile: {record.teacher_profile_setup ? "Complete" : "Incomplete"}
+              ប្រវត្តិរូប៖ {record.teacher_profile_setup ? "បានបំពេញ" : "មិនទាន់បំពេញ"}
             </Tag>
           )}
           {record.role === "mentor" && (
             <Tag color={record.mentor_profile_complete ? "green" : "orange"}>
-              Mentor: {record.mentor_profile_complete ? "Complete" : "Incomplete"}
+              ម៉ង់ទ័រ៖ {record.mentor_profile_complete ? "បានបំពេញ" : "មិនទាន់បំពេញ"}
             </Tag>
           )}
         </Space>
@@ -354,11 +354,11 @@ function UsersPageContent() {
       <Breadcrumb style={{ marginBottom: "16px" }}>
         <Breadcrumb.Item>
           <Link href="/dashboard">
-            <HomeOutlined /> Dashboard
+            <HomeOutlined /> ផ្ទាំងគ្រប់គ្រង
           </Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
-          <TeamOutlined /> Users
+          <TeamOutlined /> អ្នកប្រើប្រាស់
         </Breadcrumb.Item>
       </Breadcrumb>
 
@@ -501,7 +501,7 @@ function UsersPageContent() {
             showSizeChanger={false}
             showQuickJumper
             showTotal={(total, range) =>
-              `${range[0]}-${range[1]} of ${total} users`
+              `${range[0]}-${range[1]} នៃ ${total} អ្នកប្រើប្រាស់`
             }
           />
         </div>
