@@ -164,7 +164,6 @@ export async function GET(request: NextRequest) {
           gender: true,
           age: true,
           grade: true,
-          date_of_birth: true,
           guardian_name: true,
           guardian_phone: true,
           address: true,
