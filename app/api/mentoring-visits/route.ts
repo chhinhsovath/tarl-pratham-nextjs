@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 // Validation schema for mentoring visit
 const mentoringVisitSchema = z.object({
@@ -154,8 +155,18 @@ export async function GET(request: NextRequest) {
     if (session.user.role === 'teacher') {
       where.teacher_id = parseInt(session.user.id);
     } else if (session.user.role === 'mentor') {
-      if (session.user.pilot_school_id) {
-        where.pilot_school_id = session.user.pilot_school_id;
+      // Mentors can access visits from ALL their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+
+      if (mentorSchoolIds.length > 0) {
+        // Show visits at assigned schools OR visits created by this mentor
+        where.OR = [
+          { pilot_school_id: { in: mentorSchoolIds } },
+          { mentor_id: parseInt(session.user.id) }
+        ];
+      } else {
+        // No schools assigned - only show own visits
+        where.mentor_id = parseInt(session.user.id);
       }
     }
 

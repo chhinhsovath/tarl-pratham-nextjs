@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { getRecordStatus, getRecordStatusFilter } from "@/lib/utils/recordStatus";
+import { getMentorSchoolIds } from "@/lib/mentorAssignments";
 
 // Validation schema
 const studentSchema = z.object({
@@ -41,15 +42,28 @@ function hasPermission(userRole: string, action: string): boolean {
 }
 
 // Helper function to check if user can access student data
-function canAccessStudent(userRole: string, userPilotSchoolId: number | null, studentPilotSchoolId: number | null): boolean {
+// NOTE: For mentors, use canMentorAccessStudent from mentorAuthorization.ts for comprehensive checks
+async function canAccessStudent(
+  userRole: string,
+  userId: string,
+  userPilotSchoolId: number | null,
+  studentPilotSchoolId: number | null
+): Promise<boolean> {
   if (userRole === "admin" || userRole === "coordinator") {
     return true;
   }
-  
-  if ((userRole === "mentor" || userRole === "teacher") && userPilotSchoolId) {
+
+  if (userRole === "mentor") {
+    // Mentors can access students from ALL their assigned schools
+    if (!studentPilotSchoolId) return false;
+    const mentorSchoolIds = await getMentorSchoolIds(parseInt(userId));
+    return mentorSchoolIds.includes(studentPilotSchoolId);
+  }
+
+  if (userRole === "teacher" && userPilotSchoolId) {
     return studentPilotSchoolId === userPilotSchoolId;
   }
-  
+
   return false;
 }
 
@@ -116,7 +130,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply access restrictions for mentors and teachers
-    if (session.user.role === "mentor" || session.user.role === "teacher") {
+    if (session.user.role === "mentor") {
+      // Mentors can access students from ALL their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+
+      if (mentorSchoolIds.length > 0) {
+        where.AND = where.AND || [];
+        where.AND.push({ pilot_school_id: { in: mentorSchoolIds } });
+      } else {
+        // No schools assigned - no access
+        where.AND = where.AND || [];
+        where.AND.push({ id: -1 });
+      }
+    } else if (session.user.role === "teacher") {
+      // Teachers remain restricted to their single school
       if (session.user.pilot_school_id) {
         where.AND = where.AND || [];
         where.AND.push({ pilot_school_id: session.user.pilot_school_id });

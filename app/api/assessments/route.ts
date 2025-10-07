@@ -10,6 +10,7 @@ import {
   buildLevelFieldName,
   getLevelsBySubject
 } from "@/lib/constants/assessment-levels";
+import { getMentorSchoolIds, getMentorAssignedSubjects } from "@/lib/mentorAssignments";
 
 // Validation schema with dynamic level validation
 const assessmentSchema = z.object({
@@ -60,15 +61,28 @@ function hasPermission(userRole: string, action: string): boolean {
 }
 
 // Helper function to check if user can access assessment data
-function canAccessAssessment(userRole: string, userPilotSchoolId: number | null, assessmentPilotSchoolId: number | null): boolean {
+// NOTE: For mentors, use canMentorAccessAssessment from mentorAuthorization.ts for comprehensive checks
+async function canAccessAssessment(
+  userRole: string,
+  userId: string,
+  userPilotSchoolId: number | null,
+  assessmentPilotSchoolId: number | null
+): Promise<boolean> {
   if (userRole === "admin" || userRole === "coordinator") {
     return true;
   }
-  
-  if ((userRole === "mentor" || userRole === "teacher") && userPilotSchoolId) {
+
+  if (userRole === "mentor") {
+    // Mentors can access assessments from ALL their assigned schools
+    if (!assessmentPilotSchoolId) return false;
+    const mentorSchoolIds = await getMentorSchoolIds(parseInt(userId));
+    return mentorSchoolIds.includes(assessmentPilotSchoolId);
+  }
+
+  if (userRole === "teacher" && userPilotSchoolId) {
     return assessmentPilotSchoolId === userPilotSchoolId;
   }
-  
+
   return false;
 }
 
@@ -134,7 +148,26 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply access restrictions for mentors and teachers
-    if (session.user.role === "mentor" || session.user.role === "teacher") {
+    if (session.user.role === "mentor") {
+      // Mentors can access assessments from ALL their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+
+      if (mentorSchoolIds.length > 0) {
+        where.pilot_school_id = { in: mentorSchoolIds };
+
+        // Optional: Filter by assigned subjects (if you want strict subject filtering)
+        // Uncomment the following to enable strict subject filtering:
+        // const assignedSubjects = await getMentorAssignedSubjects(parseInt(session.user.id));
+        // if (assignedSubjects.length > 0 && !subject) {
+        //   // Convert "Language"/"Math" to "language"/"math" to match DB values
+        //   where.subject = { in: assignedSubjects.map(s => s.toLowerCase()) };
+        // }
+      } else {
+        // No schools assigned - no access
+        where.id = -1;
+      }
+    } else if (session.user.role === "teacher") {
+      // Teachers remain restricted to their single school
       if (session.user.pilot_school_id) {
         where.pilot_school_id = session.user.pilot_school_id;
       } else {
