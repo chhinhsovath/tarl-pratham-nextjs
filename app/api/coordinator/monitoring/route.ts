@@ -17,11 +17,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const today = new Date();
-    const todayStart = new Date(today.setHours(0, 0, 0, 0));
-    const weekStart = new Date(today.setDate(today.getDate() - 7));
-    const todayDate = new Date();
-    todayDate.setHours(0, 0, 0, 0);
+    // Create clean Date objects without mutation
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+
+    const weekAgo = new Date(now);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekStart = new Date(weekAgo.getFullYear(), weekAgo.getMonth(), weekAgo.getDate(), 0, 0, 0, 0);
+
+    // For DateTime field comparison in Prisma
+    const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 
     // Fetch all metrics in parallel
     const [
@@ -60,25 +65,31 @@ export async function GET(request: NextRequest) {
       }),
       prisma.pilotSchool.count({
         where: {
+          baseline_start_date: { not: null },
+          baseline_end_date: { not: null },
           AND: [
-            { baseline_start_date: { lte: todayDate } },
-            { baseline_end_date: { gte: todayDate } },
+            { baseline_start_date: { lte: todayDate.toISOString() } },
+            { baseline_end_date: { gte: todayDate.toISOString() } },
           ],
         },
       }),
       prisma.pilotSchool.count({
         where: {
+          midline_start_date: { not: null },
+          midline_end_date: { not: null },
           AND: [
-            { midline_start_date: { lte: todayDate } },
-            { midline_end_date: { gte: todayDate } },
+            { midline_start_date: { lte: todayDate.toISOString() } },
+            { midline_end_date: { gte: todayDate.toISOString() } },
           ],
         },
       }),
       prisma.pilotSchool.count({
         where: {
+          endline_start_date: { not: null },
+          endline_end_date: { not: null },
           AND: [
-            { endline_start_date: { lte: todayDate } },
-            { endline_end_date: { gte: todayDate } },
+            { endline_start_date: { lte: todayDate.toISOString() } },
+            { endline_end_date: { gte: todayDate.toISOString() } },
           ],
         },
       }),
