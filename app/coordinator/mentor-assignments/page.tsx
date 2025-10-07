@@ -428,7 +428,7 @@ function MentorAssignmentsPageContent() {
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
           <Title level={2}>
-            ចាត់តាំងម៉ង់ទ័រទៅសាលារៀន
+            ចាត់តាំងព្រឹក្សាគរុកោសល្យ
           </Title>
         </div>
 
@@ -534,7 +534,7 @@ function MentorAssignmentsPageContent() {
         <Modal
           title={
             editingAssignment
-              ? "កែប្រែការចាត់តាំងម៉ង់ទ័រ"
+              ? "កែប្រែការចាត់តាំងព្រឹក្សាគរុកោសល្យ"
               : "បង្កើតការចាត់តាំងថ្មី"
           }
           open={isModalVisible}
