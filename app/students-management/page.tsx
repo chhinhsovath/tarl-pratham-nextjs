@@ -43,6 +43,32 @@ import dayjs from 'dayjs';
 const { Title, Text } = Typography;
 const { Option } = Select;
 
+// Helper function to translate assessment levels to Khmer
+function translateLevelToKhmer(level: string | undefined | null, subject: 'khmer' | 'math'): string {
+  if (!level) return '-';
+
+  const levelMap: { [key: string]: string } = {
+    // Khmer Language Levels
+    'Beginning': 'កម្រិតដំបូង',
+    'Characters': 'តួអក្សរ',
+    'Words': 'ពាក្យ',
+    'Paragraphs': 'កថាខណ្ឌ',
+    'Story (Comprehension 1)': 'រឿង (យល់ន័យ១)',
+    'Story (Comprehension 2)': 'រឿង (យល់ន័យ២)',
+    'Story': 'រឿង',
+
+    // Math Levels
+    'Single Digit': 'លេខ១ខ្ទង',
+    'Double Digit': 'លេខ២ខ្ទង',
+    'Subtraction': 'ប្រមាណវិធីដក',
+    'Division': 'ប្រមាណវិធីចែក',
+    'Problems': 'ចំណោទ',
+  };
+
+  // Return translated level or original if not found in map
+  return levelMap[level] || level;
+}
+
 interface Student {
   id: number;
   student_id?: string;
@@ -386,46 +412,46 @@ function StudentsManagementContent() {
       render: (school: any) => school?.school_name || '-'
     },
     {
-      title: 'មូលដ្ឋាន ភាសា',
+      title: 'តេស្តដើមគ្រា ភាសា',
       dataIndex: 'baseline_khmer_level',
       key: 'baseline_khmer_level',
       width: 120,
-      render: (level: string) => level ? <Tag color="purple">{level}</Tag> : '-'
+      render: (level: string) => level ? <Tag color="purple">{translateLevelToKhmer(level, 'khmer')}</Tag> : '-'
     },
     {
-      title: 'មូលដ្ឋាន គណិត',
+      title: 'តេស្តដើមគ្រា គណិត',
       dataIndex: 'baseline_math_level',
       key: 'baseline_math_level',
       width: 120,
-      render: (level: string) => level ? <Tag color="cyan">{level}</Tag> : '-'
+      render: (level: string) => level ? <Tag color="cyan">{translateLevelToKhmer(level, 'math')}</Tag> : '-'
     },
     {
-      title: 'កណ្តាល ភាសា',
+      title: 'តេស្តពាក់កណ្ដាលគ្រា ភាសា',
       dataIndex: 'midline_khmer_level',
       key: 'midline_khmer_level',
       width: 120,
-      render: (level: string) => level ? <Tag color="orange">{level}</Tag> : '-'
+      render: (level: string) => level ? <Tag color="orange">{translateLevelToKhmer(level, 'khmer')}</Tag> : '-'
     },
     {
-      title: 'កណ្តាល គណិត',
+      title: 'តេស្តពាក់កណ្ដាលគ្រា គណិត',
       dataIndex: 'midline_math_level',
       key: 'midline_math_level',
       width: 120,
-      render: (level: string) => level ? <Tag color="gold">{level}</Tag> : '-'
+      render: (level: string) => level ? <Tag color="gold">{translateLevelToKhmer(level, 'math')}</Tag> : '-'
     },
     {
-      title: 'បញ្ចប់ ភាសា',
+      title: 'តេស្តចុងក្រោយគ្រា ភាសា',
       dataIndex: 'endline_khmer_level',
       key: 'endline_khmer_level',
       width: 120,
-      render: (level: string) => level ? <Tag color="green">{level}</Tag> : '-'
+      render: (level: string) => level ? <Tag color="green">{translateLevelToKhmer(level, 'khmer')}</Tag> : '-'
     },
     {
-      title: 'បញ្ចប់ គណិត',
+      title: 'តេស្តចុងក្រោយគ្រា គណិត',
       dataIndex: 'endline_math_level',
       key: 'endline_math_level',
       width: 120,
-      render: (level: string) => level ? <Tag color="lime">{level}</Tag> : '-'
+      render: (level: string) => level ? <Tag color="lime">{translateLevelToKhmer(level, 'math')}</Tag> : '-'
     },
     {
       title: 'ស្ថានភាព',
