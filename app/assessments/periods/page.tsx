@@ -244,7 +244,7 @@ function AssessmentPeriodsPageContent() {
       }
     },
     {
-      title: 'មូលដ្ឋាន',
+      title: 'តេស្តដើមគ្រា',
       key: 'baseline',
       render: (_: any, record: AssessmentPeriod) => (
         <div>
@@ -263,7 +263,7 @@ function AssessmentPeriodsPageContent() {
       )
     },
     {
-      title: 'កុលសនភាព',
+      title: 'តេស្តពាក់កណ្ដាលគ្រា',
       key: 'midline',
       render: (_: any, record: AssessmentPeriod) => (
         <div>
@@ -282,7 +282,7 @@ function AssessmentPeriodsPageContent() {
       )
     },
     {
-      title: 'បញ្ចប់',
+      title: 'តេស្តចុងក្រោយគ្រា',
       key: 'endline',
       render: (_: any, record: AssessmentPeriod) => (
         <div>
@@ -380,7 +380,7 @@ function AssessmentPeriodsPageContent() {
           <Col span={5}>
             <Card>
               <Statistic
-                title="មូលដ្ឋានកំពុងដំណើរការ"
+                title="តេស្តដើមគ្រាកំពុងដំណើរការ"
                 value={stats.baseline_active}
                 valueStyle={{ color: '#1890ff' }}
               />
@@ -389,7 +389,7 @@ function AssessmentPeriodsPageContent() {
           <Col span={5}>
             <Card>
               <Statistic
-                title="កុលសនភាពកំពុងដំណើរការ"
+                title="តេស្តពាក់កណ្ដាលគ្រាកំពុងដំណើរការ"
                 value={stats.midline_active}
                 valueStyle={{ color: '#faad14' }}
               />
@@ -398,7 +398,7 @@ function AssessmentPeriodsPageContent() {
           <Col span={5}>
             <Card>
               <Statistic
-                title="បញ្ចប់កំពុងដំណើរការ"
+                title="តេស្តចុងក្រោយគ្រាកំពុងដំណើរការ"
                 value={stats.endline_active}
                 valueStyle={{ color: '#52c41a' }}
               />
@@ -485,7 +485,7 @@ function AssessmentPeriodsPageContent() {
             <Timeline.Item color="blue">
               <Form.Item
                 name="baseline"
-                label="រយៈពេលវាយតម្លៃមូលដ្ឋាន"
+                label="រយៈពេលវាយតម្លៃតេស្តដើមគ្រា"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -494,16 +494,16 @@ function AssessmentPeriodsPageContent() {
             <Timeline.Item color="orange">
               <Form.Item
                 name="midline"
-                label="រយៈពេលវាយតម្លៃកុលសនភាព"
+                label="រយៈពេលវាយតម្លៃតេស្តពាក់កណ្ដាលគ្រា"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
             </Timeline.Item>
-            
+
             <Timeline.Item color="green">
               <Form.Item
                 name="endline"
-                label="រយៈពេលវាយតម្លៃបញ្ចប់"
+                label="រយៈពេលវាយតម្លៃតេស្តចុងក្រោយគ្រា"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -555,7 +555,7 @@ function AssessmentPeriodsPageContent() {
             <Timeline.Item color="blue">
               <Form.Item
                 name="baseline"
-                label="រយៈពេលវាយតម្លៃមូលដ្ឋាន"
+                label="រយៈពេលវាយតម្លៃតេស្តដើមគ្រា"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
@@ -564,16 +564,16 @@ function AssessmentPeriodsPageContent() {
             <Timeline.Item color="orange">
               <Form.Item
                 name="midline"
-                label="រយៈពេលវាយតម្លៃកុលសនភាព"
+                label="រយៈពេលវាយតម្លៃតេស្តពាក់កណ្ដាលគ្រា"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
             </Timeline.Item>
-            
+
             <Timeline.Item color="green">
               <Form.Item
                 name="endline"
-                label="រយៈពេលវាយតម្លៃបញ្ចប់"
+                label="រយៈពេលវាយតម្លៃតេស្តចុងក្រោយគ្រា"
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
