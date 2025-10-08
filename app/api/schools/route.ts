@@ -49,13 +49,13 @@ function hasPermission(userRole: string, action: string): boolean {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, "view")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិមើលសាលារៀនទេ" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -170,13 +170,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, "create")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិបង្កើតសាលារៀនទេ" }, { status: 403 });
     }
 
     const body = await request.json();
@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
 
     if (existingSchool) {
       return NextResponse.json(
-        { error: "School code already exists" },
+        { error: "លេខកូដសាលារៀននេះមានរួចហើយ សូមប្រើលេខកូដផ្សេង" },
         { status: 400 }
       );
     }
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({
-      message: "School created successfully",
+      message: "បានបង្កើតសាលារៀនដោយជោគជ័យ",
       data: {
         id: pilotSchool.id,
         name: pilotSchool.school_name,
@@ -218,14 +218,14 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "ទិន្នន័យមិនត្រឹមត្រូវ", details: error.errors },
         { status: 400 }
       );
     }
-    
+
     console.error("Error creating school:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "មានបញ្ហាក្នុងការបង្កើតសាលារៀន" },
       { status: 500 }
     );
   }
@@ -235,20 +235,20 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, "update")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិកែប្រែសាលារៀនទេ" }, { status: 403 });
     }
 
     const body = await request.json();
     const { id, ...updateData } = body;
 
     if (!id) {
-      return NextResponse.json({ error: "School ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "សូមបញ្ចូលលេខសម្គាល់សាលារៀន" }, { status: 400 });
     }
 
     // Check if school code already exists (excluding current school)
@@ -262,7 +262,7 @@ export async function PUT(request: NextRequest) {
 
       if (existingSchool) {
         return NextResponse.json(
-          { error: "School code already exists" },
+          { error: "លេខកូដសាលារៀននេះមានរួចហើយ សូមប្រើលេខកូដផ្សេង" },
           { status: 400 }
         );
       }
@@ -283,7 +283,7 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json({
-      message: "School updated successfully",
+      message: "បានកែប្រែសាលារៀនដោយជោគជ័យ",
       data: {
         id: pilotSchool.id,
         name: pilotSchool.school_name,
@@ -296,14 +296,14 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "ទិន្នន័យមិនត្រឹមត្រូវ", details: error.errors },
         { status: 400 }
       );
     }
-    
+
     console.error("Error updating school:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "មានបញ្ហាក្នុងការកែប្រែសាលារៀន" },
       { status: 500 }
     );
   }
@@ -313,20 +313,20 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, "delete")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិលុបសាលារៀនទេ" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ error: "School ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "សូមបញ្ចូលលេខសម្គាល់សាលារៀន" }, { status: 400 });
     }
 
     // Check if pilot school exists
@@ -335,7 +335,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!pilotSchool) {
-      return NextResponse.json({ error: "School not found" }, { status: 404 });
+      return NextResponse.json({ error: "រកមិនឃើញសាលារៀន" }, { status: 404 });
     }
 
     // Check if school has associated students
@@ -348,7 +348,7 @@ export async function DELETE(request: NextRequest) {
 
     if (studentsCount > 0) {
       return NextResponse.json(
-        { error: `Cannot delete school with ${studentsCount} existing students. Please transfer students first.` },
+        { error: `មិនអាចលុបសាលារៀននេះបានទេ ព្រោះមានសិស្ស ${studentsCount} នាក់នៅសាលានេះ។ សូមផ្លាស់ប្តូរសិស្សទៅសាលាផ្សេងជាមុនសិន។` },
         { status: 400 }
       );
     }
@@ -363,7 +363,7 @@ export async function DELETE(request: NextRequest) {
 
     if (usersCount > 0) {
       return NextResponse.json(
-        { error: `Cannot delete school with ${usersCount} assigned users. Please reassign users first.` },
+        { error: `មិនអាចលុបសាលារៀននេះបានទេ ព្រោះមានអ្នកប្រើប្រាស់ ${usersCount} នាក់ត្រូវបានចាត់តាំងនៅសាលានេះ។ សូមផ្លាស់ប្តូរអ្នកប្រើប្រាស់ទៅសាលាផ្សេងជាមុនសិន។` },
         { status: 400 }
       );
     }
@@ -374,13 +374,13 @@ export async function DELETE(request: NextRequest) {
     });
 
     return NextResponse.json({
-      message: "School deleted successfully"
+      message: "បានលុបសាលារៀនដោយជោគជ័យ"
     });
 
   } catch (error) {
     console.error("Error deleting school:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "មានបញ្ហាក្នុងការលុបសាលារៀន" },
       { status: 500 }
     );
   }
