@@ -186,13 +186,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check permissions - only admin and coordinator can delete
-    if (!hasPermission(session.user.role, "delete")) {
-      return NextResponse.json({
-        error: 'Forbidden - Only admins and coordinators can delete students. Teachers can only soft-delete by setting is_active=false'
-      }, { status: 403 });
-    }
-
     const { id } = await params;
     const studentId = parseInt(id);
 
@@ -215,6 +208,30 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden - Cannot delete students from other schools' }, { status: 403 });
     }
 
+    // Check permissions based on role
+    const userRole = session.user.role;
+
+    if (userRole === 'teacher') {
+      // Teachers can only delete students that have NO assessments
+      const assessmentCount = await prisma.assessment.count({
+        where: { student_id: studentId }
+      });
+
+      if (assessmentCount > 0) {
+        return NextResponse.json({
+          error: 'មិនអាចលុបសិស្សបានទេ ព្រោះសិស្សនេះមានការវាយតម្លៃរួចហើយ។ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រសិនបើចង់លុប។',
+          message: `Cannot delete student with ${assessmentCount} assessment(s). Only admins and coordinators can delete assessed students.`
+        }, { status: 403 });
+      }
+    } else if (userRole !== 'admin' && userRole !== 'coordinator') {
+      // Other roles (mentor, viewer) cannot delete
+      return NextResponse.json({
+        error: 'អ្នកមិនមានសិទ្ធិលុបសិស្សទេ'
+      }, { status: 403 });
+    }
+
+    // Admin, coordinator can delete regardless of assessments
+    // Teacher can delete if no assessments
     await prisma.student.delete({
       where: { id: studentId }
     });
