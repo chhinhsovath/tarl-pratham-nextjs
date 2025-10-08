@@ -224,8 +224,15 @@ export async function POST(request: NextRequest) {
     }
 
     console.error("Error creating school:", error);
+
+    // Return detailed error message for debugging
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "មានបញ្ហាក្នុងការបង្កើតសាលារៀន" },
+      {
+        error: "មានបញ្ហាក្នុងការបង្កើតសាលារៀន",
+        message: errorMessage,
+        details: error
+      },
       { status: 500 }
     );
   }
@@ -302,8 +309,15 @@ export async function PUT(request: NextRequest) {
     }
 
     console.error("Error updating school:", error);
+
+    // Return detailed error message for debugging
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "មានបញ្ហាក្នុងការកែប្រែសាលារៀន" },
+      {
+        error: "មានបញ្ហាក្នុងការកែប្រែសាលារៀន",
+        message: errorMessage,
+        details: error
+      },
       { status: 500 }
     );
   }
@@ -379,8 +393,15 @@ export async function DELETE(request: NextRequest) {
 
   } catch (error) {
     console.error("Error deleting school:", error);
+
+    // Return detailed error message for debugging
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "មានបញ្ហាក្នុងការលុបសាលារៀន" },
+      {
+        error: "មានបញ្ហាក្នុងការលុបសាលារៀន",
+        message: errorMessage,
+        details: error
+      },
       { status: 500 }
     );
   }
