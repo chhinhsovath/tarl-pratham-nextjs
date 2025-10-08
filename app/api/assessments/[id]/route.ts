@@ -145,7 +145,9 @@ export async function PUT(
         notes: true,
         assessed_date: true,
         assessment_sample: true,
-        student_consent: true
+        student_consent: true,
+        is_locked: true,
+        verified_by_id: true
       }
     });
 
@@ -156,6 +158,16 @@ export async function PUT(
     // Check if user can access this assessment
     if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
       return NextResponse.json({ error: 'Forbidden - Cannot update assessments from other schools' }, { status: 403 });
+    }
+
+    // Teachers can only update unverified and unlocked assessments
+    if (session.user.role === 'teacher') {
+      if (existingAssessment.is_locked || existingAssessment.verified_by_id) {
+        return NextResponse.json({
+          error: 'មិនអាចកែប្រែការវាយតម្លៃបានទេ ព្រោះការវាយតម្លៃនេះត្រូវបានផ្ទៀងផ្ទាត់ ឬចាក់សោរួចហើយ។ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រសិនបើចង់កែប្រែ។',
+          message: 'Cannot update verified or locked assessment. Only admins and coordinators can update verified/locked assessments.'
+        }, { status: 403 });
+      }
     }
 
     // Update assessment

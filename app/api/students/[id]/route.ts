@@ -212,15 +212,23 @@ export async function DELETE(
     const userRole = session.user.role;
 
     if (userRole === 'teacher') {
-      // Teachers can only delete students that have NO assessments
-      const assessmentCount = await prisma.assessment.count({
-        where: { student_id: studentId }
+      // Teachers can delete students if:
+      // 1. Student has NO assessments, OR
+      // 2. Student has assessments BUT none are verified/locked
+      const verifiedOrLockedCount = await prisma.assessment.count({
+        where: {
+          student_id: studentId,
+          OR: [
+            { verified_by_id: { not: null } },
+            { is_locked: true }
+          ]
+        }
       });
 
-      if (assessmentCount > 0) {
+      if (verifiedOrLockedCount > 0) {
         return NextResponse.json({
-          error: 'មិនអាចលុបសិស្សបានទេ ព្រោះសិស្សនេះមានការវាយតម្លៃរួចហើយ។ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រសិនបើចង់លុប។',
-          message: `Cannot delete student with ${assessmentCount} assessment(s). Only admins and coordinators can delete assessed students.`
+          error: 'មិនអាចលុបសិស្សបានទេ ព្រោះការវាយតម្លៃរបស់សិស្សនេះត្រូវបានផ្ទៀងផ្ទាត់ ឬចាក់សោរួចហើយ។ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រសិនបើចង់លុប។',
+          message: `Cannot delete student with ${verifiedOrLockedCount} verified/locked assessment(s). Only admins and coordinators can delete students with verified or locked assessments.`
         }, { status: 403 });
       }
     } else if (userRole !== 'admin' && userRole !== 'coordinator') {

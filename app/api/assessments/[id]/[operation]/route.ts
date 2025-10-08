@@ -7,12 +7,12 @@ import { prisma } from '@/lib/prisma';
 function hasPermission(userRole: string, action: string): boolean {
   const permissions = {
     admin: ['lock', 'unlock', 'verify', 'unverify', 'delete'],
+    coordinator: ['lock', 'unlock', 'verify', 'unverify', 'delete'],
     mentor: ['verify', 'unverify', 'delete'],
-    teacher: [],
-    coordinator: [],
+    teacher: ['delete'], // Teachers can delete unverified/unlocked assessments
     viewer: []
   };
-  
+
   return permissions[userRole as keyof typeof permissions]?.includes(action) || false;
 }
 
@@ -84,12 +84,25 @@ export async function POST(
       }
     }
 
-    // Check if assessment is locked for certain operations
-    if (['delete'].includes(operation) && assessment.is_locked) {
-      return NextResponse.json(
-        { error: 'Cannot perform operation on locked assessment' },
-        { status: 403 }
-      );
+    // Check if assessment is locked or verified for certain operations
+    if (['delete'].includes(operation)) {
+      // Teachers can only delete unverified and unlocked assessments
+      if (session.user.role === 'teacher') {
+        if (assessment.is_locked || assessment.verified_by_id) {
+          return NextResponse.json({
+            error: 'មិនអាចលុបការវាយតម្លៃបានទេ ព្រោះការវាយតម្លៃនេះត្រូវបានផ្ទៀងផ្ទាត់ ឬចាក់សោរួចហើយ។ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រសិនបើចង់លុប។',
+            message: 'Cannot delete verified or locked assessment. Only admins and coordinators can delete verified/locked assessments.'
+          }, { status: 403 });
+        }
+      }
+      // Admin and coordinator can delete regardless of lock/verify status
+      // Mentors can delete if not locked (existing logic)
+      else if (session.user.role === 'mentor' && assessment.is_locked) {
+        return NextResponse.json(
+          { error: 'Cannot delete locked assessment' },
+          { status: 403 }
+        );
+      }
     }
 
     let updateData: any = {};
