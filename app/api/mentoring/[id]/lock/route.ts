@@ -15,9 +15,9 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Only admins can lock/unlock visits
-    if (session.user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Only admins and coordinators can lock/unlock visits
+    if (session.user.role !== "admin" && session.user.role !== "coordinator") {
+      return NextResponse.json({ error: "Forbidden - Admin or Coordinator only" }, { status: 403 });
     }
 
     const visitId = parseInt(params.id);
@@ -107,9 +107,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Only admins can lock/unlock visits
-    if (session.user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Only admins and coordinators can lock/unlock visits
+    if (session.user.role !== "admin" && session.user.role !== "coordinator") {
+      return NextResponse.json({ error: "Forbidden - Admin or Coordinator only" }, { status: 403 });
     }
 
     const visitId = parseInt(params.id);

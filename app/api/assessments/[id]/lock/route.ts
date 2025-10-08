@@ -15,9 +15,9 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Only admin can lock/unlock assessments
-    if (session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
+    // Only admin and coordinator can lock/unlock assessments
+    if (session.user.role !== 'admin' && session.user.role !== 'coordinator') {
+      return NextResponse.json({ error: 'Forbidden - Admin or Coordinator only' }, { status: 403 });
     }
 
     const assessmentId = parseInt(params.id);

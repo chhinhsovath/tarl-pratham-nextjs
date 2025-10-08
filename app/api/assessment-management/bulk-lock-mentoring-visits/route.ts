@@ -17,9 +17,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Only admins can lock mentoring visits
-    if (session.user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Only admins and coordinators can lock mentoring visits
+    if (session.user.role !== "admin" && session.user.role !== "coordinator") {
+      return NextResponse.json({ error: "Forbidden - Admin or Coordinator only" }, { status: 403 });
     }
 
     const body = await request.json();
