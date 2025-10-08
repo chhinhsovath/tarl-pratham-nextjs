@@ -218,8 +218,16 @@ export async function POST(request: NextRequest) {
       counter++;
     }
 
-    // Create school with auto-generated fields
+    // Get next available ID explicitly to avoid sequence cache issues
+    const maxId = await prisma.pilotSchool.findFirst({
+      select: { id: true },
+      orderBy: { id: 'desc' }
+    });
+    const nextId = (maxId?.id || 0) + 1;
+
+    // Create school with auto-generated fields including explicit ID
     const createData = {
+      id: nextId,
       school_name: body.name.trim(),
       school_code: finalSchoolCode,
       province: body.province.trim(),
