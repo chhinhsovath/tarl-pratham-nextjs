@@ -181,6 +181,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Log request body for debugging
+    console.log("Create school request body:", JSON.stringify(body, null, 2));
+
     // Check if school code already exists in pilot_schools
     const existingSchool = await prisma.pilotSchool.findFirst({
       where: { school_code: body.code }
@@ -193,7 +196,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate required fields (pilot_schools table requires province, district, cluster)
+    // Validate required fields
+    if (!body.name || body.name.trim() === "") {
+      return NextResponse.json(
+        { error: "សូមបញ្ចូលឈ្មោះសាលារៀន" },
+        { status: 400 }
+      );
+    }
+
+    if (!body.code || body.code.trim() === "") {
+      return NextResponse.json(
+        { error: "សូមបញ្ចូលលេខកូដសាលារៀន" },
+        { status: 400 }
+      );
+    }
+
+    if (!body.province || body.province.trim() === "") {
+      return NextResponse.json(
+        { error: "សូមជ្រើសរើសខេត្ត" },
+        { status: 400 }
+      );
+    }
+
     if (!body.district || body.district.trim() === "") {
       return NextResponse.json(
         { error: "សូមបញ្ចូលស្រុក/ខណ្ឌ" },
@@ -201,15 +225,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create school in pilot_schools
+    // Create school in pilot_schools - ONLY use fields that exist in the schema
+    // DO NOT pass id, it will auto-increment
+    const createData = {
+      school_name: body.name.trim(),
+      school_code: body.code.trim(),
+      province: body.province.trim(),
+      district: body.district.trim(),
+      cluster: body.cluster ? body.cluster.trim() : "",
+    };
+
+    console.log("Creating school with data:", JSON.stringify(createData, null, 2));
+
     const pilotSchool = await prisma.pilotSchool.create({
-      data: {
-        school_name: body.name,
-        school_code: body.code,
-        province: body.province,
-        district: body.district,
-        cluster: body.cluster || "",  // Can be empty string
-      }
+      data: createData
     });
 
     return NextResponse.json({
