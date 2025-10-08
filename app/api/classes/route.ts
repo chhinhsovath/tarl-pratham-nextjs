@@ -41,13 +41,7 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
-              code: true,
-              province: {
-                select: {
-                  name_english: true,
-                  name_khmer: true
-                }
-              }
+              code: true
             }
           },
           students: {
@@ -58,7 +52,6 @@ export async function GET(request: NextRequest) {
           }
         },
         orderBy: [
-          { school: { name: 'asc' } },
           { grade: 'asc' },
           { name: 'asc' }
         ],
@@ -88,7 +81,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Classes fetch error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch classes' },
+      {
+        error: 'Failed to fetch classes',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: error
+      },
       { status: 500 }
     );
   } finally {

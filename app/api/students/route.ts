@@ -132,17 +132,17 @@ export async function GET(request: NextRequest) {
       where.AND.push({ is_temporary: is_temporary === "true" });
     }
 
-    if (grade) {
+    if (grade && grade.trim() !== '') {
       where.AND = where.AND || [];
       where.AND.push({ grade: parseInt(grade) });
     }
 
-    if (created_by_user_id) {
+    if (created_by_user_id && created_by_user_id.trim() !== '') {
       where.AND = where.AND || [];
       where.AND.push({ added_by_id: parseInt(created_by_user_id) });
     }
 
-    if (mentor_id) {
+    if (mentor_id && mentor_id.trim() !== '') {
       // Filter students at schools assigned to this mentor
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(mentor_id));
       if (mentorSchoolIds.length > 0) {
