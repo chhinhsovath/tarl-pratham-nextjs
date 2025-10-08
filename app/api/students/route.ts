@@ -85,8 +85,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
     const gender = searchParams.get("gender") || "";
+    const grade = searchParams.get("grade") || "";
     const school_class_id = searchParams.get("school_class_id") || "";
     const pilot_school_id = searchParams.get("pilot_school_id") || "";
+    const created_by_user_id = searchParams.get("created_by_user_id") || "";
+    const mentor_id = searchParams.get("mentor_id") || "";
     const is_temporary = searchParams.get("is_temporary");
     const include_test_data = searchParams.get("include_test_data") === "true";
 
@@ -127,6 +130,29 @@ export async function GET(request: NextRequest) {
     if (is_temporary !== null) {
       where.AND = where.AND || [];
       where.AND.push({ is_temporary: is_temporary === "true" });
+    }
+
+    if (grade) {
+      where.AND = where.AND || [];
+      where.AND.push({ grade: parseInt(grade) });
+    }
+
+    if (created_by_user_id) {
+      where.AND = where.AND || [];
+      where.AND.push({ added_by_id: parseInt(created_by_user_id) });
+    }
+
+    if (mentor_id) {
+      // Filter students at schools assigned to this mentor
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(mentor_id));
+      if (mentorSchoolIds.length > 0) {
+        where.AND = where.AND || [];
+        where.AND.push({ pilot_school_id: { in: mentorSchoolIds } });
+      } else {
+        // No schools assigned to this mentor - return no students
+        where.AND = where.AND || [];
+        where.AND.push({ id: -1 });
+      }
     }
 
     // Apply access restrictions for mentors and teachers

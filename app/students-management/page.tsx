@@ -133,6 +133,8 @@ function StudentsManagementContent() {
     gender: '',
     grade: '',
     pilot_school_id: '',
+    created_by_user_id: '',
+    mentor_id: '',
     is_active: 'true',
     is_temporary: ''
   });
@@ -146,6 +148,8 @@ function StudentsManagementContent() {
 
   const [pilotSchools, setPilotSchools] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
+  const [teachers, setTeachers] = useState<any[]>([]);
+  const [mentors, setMentors] = useState<any[]>([]);
 
   useEffect(() => {
     fetchStudents();
@@ -154,9 +158,10 @@ function StudentsManagementContent() {
 
   const fetchFormData = async () => {
     try {
-      const [schoolsRes, classesRes] = await Promise.all([
+      const [schoolsRes, classesRes, usersRes] = await Promise.all([
         fetch('/api/pilot-schools'),
-        fetch('/api/classes')
+        fetch('/api/classes'),
+        fetch('/api/users')
       ]);
 
       if (schoolsRes.ok) {
@@ -167,6 +172,15 @@ function StudentsManagementContent() {
       if (classesRes.ok) {
         const classesData = await classesRes.json();
         setClasses(classesData.data || []);
+      }
+
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        const allUsers = usersData.data || [];
+
+        // Filter teachers and mentors
+        setTeachers(allUsers.filter((u: any) => u.role === 'teacher'));
+        setMentors(allUsers.filter((u: any) => u.role === 'mentor'));
       }
     } catch (error) {
       console.error('Error fetching form data:', error);
@@ -586,6 +600,44 @@ function StudentsManagementContent() {
             </Select>
           </Col>
           <Col xs={12} sm={6} md={5}>
+            <Select
+              placeholder="គ្រូបង្រៀន"
+              value={filters.created_by_user_id || undefined}
+              onChange={(value) => setFilters({ ...filters, created_by_user_id: value || '' })}
+              style={{ width: '100%' }}
+              allowClear
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)
+                  ?.toLowerCase()
+                  ?.includes(input.toLowerCase()) ?? false
+              }
+            >
+              {teachers.map(teacher => (
+                <Option key={teacher.id} value={teacher.id}>{teacher.name}</Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={12} sm={6} md={5}>
+            <Select
+              placeholder="អ្នកណែនាំ"
+              value={filters.mentor_id || undefined}
+              onChange={(value) => setFilters({ ...filters, mentor_id: value || '' })}
+              style={{ width: '100%' }}
+              allowClear
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)
+                  ?.toLowerCase()
+                  ?.includes(input.toLowerCase()) ?? false
+              }
+            >
+              {mentors.map(mentor => (
+                <Option key={mentor.id} value={mentor.id}>{mentor.name}</Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={12} sm={6} md={4}>
             <Select
               placeholder="ស្ថានភាព"
               value={filters.is_active}
