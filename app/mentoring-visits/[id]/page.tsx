@@ -155,9 +155,10 @@ export default function MentoringVisitDetailPage() {
 
   const canEdit = () => {
     if (!mentoringVisit || !session?.user) return false;
-    
+
     return (
-      (session.user.role === 'admin' || 
+      (session.user.role === 'admin' ||
+       session.user.role === 'coordinator' ||
        (session.user.role === 'mentor' && mentoringVisit.mentor.id === parseInt(session.user.id))) &&
       !mentoringVisit.is_locked
     );

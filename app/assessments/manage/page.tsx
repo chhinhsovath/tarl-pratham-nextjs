@@ -261,9 +261,10 @@ export default function AssessmentManagementPage() {
 
   // Get row actions based on user role and assessment status
   const getRowActions = (record: Assessment) => {
-    const canEdit = session?.user?.role === 'admin' || 
+    const canEdit = session?.user?.role === 'admin' ||
+                   session?.user?.role === 'coordinator' ||
                    (session?.user?.role === 'mentor' && !record.is_locked);
-    const canVerify = session?.user?.role === 'admin' || session?.user?.role === 'mentor';
+    const canVerify = session?.user?.role === 'admin' || session?.user?.role === 'coordinator' || session?.user?.role === 'mentor';
     const canLock = session?.user?.role === 'admin';
 
     const items = [

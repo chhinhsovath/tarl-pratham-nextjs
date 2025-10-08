@@ -184,7 +184,8 @@ function MentoringVisitsContent() {
 
   // Get row actions based on user role
   const getRowActions = (record: MentoringVisit) => {
-    const canEdit = session?.user?.role === 'admin' || 
+    const canEdit = session?.user?.role === 'admin' ||
+                   session?.user?.role === 'coordinator' ||
                    (session?.user?.role === 'mentor' && record.mentor.id === parseInt(session.user.id));
     const canDelete = canEdit && !record.is_locked;
 

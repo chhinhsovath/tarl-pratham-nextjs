@@ -192,13 +192,14 @@ export default function MentoringVisitDetailPage() {
   };
 
   const canEdit = !visit?.is_locked && (
-    session?.user?.role === 'admin' || 
-    session?.user?.role === 'coordinator' || 
+    session?.user?.role === 'admin' ||
+    session?.user?.role === 'coordinator' ||
     (session?.user?.role === 'mentor' && visit?.mentor_id === parseInt(session.user.id))
   );
 
   const canDelete = !visit?.is_locked && (
-    session?.user?.role === 'admin' || 
+    session?.user?.role === 'admin' ||
+    session?.user?.role === 'coordinator' ||
     (session?.user?.role === 'mentor' && visit?.mentor_id === parseInt(session.user.id))
   );
 
