@@ -123,6 +123,7 @@ export async function GET(request: NextRequest) {
       // Top-level stats for dashboard cards
       total_schools: total_schools,
       total_teachers: total_teachers,
+      total_mentors: total_mentors,
       total_students: total_students,
       total_assessments: total_assessments,
       pending_verifications: 0, // Not tracked yet

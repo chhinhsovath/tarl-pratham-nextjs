@@ -47,6 +47,7 @@ const { TabPane } = Tabs;
 interface WorkspaceStats {
   total_schools: number;
   total_teachers: number;
+  total_mentors: number;
   total_students: number;
   total_assessments: number;
   pending_verifications: number;
@@ -72,6 +73,7 @@ function CoordinatorWorkspaceContent() {
   const [stats, setStats] = useState<WorkspaceStats>({
     total_schools: 0,
     total_teachers: 0,
+    total_mentors: 0,
     total_students: 0,
     total_assessments: 0,
     pending_verifications: 0,
@@ -308,7 +310,7 @@ function CoordinatorWorkspaceContent() {
       {/* Stats Overview */}
       {/* Statistics Cards - Using verification page pattern */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col xs={12} sm={6}>
+        <Col xs={12} sm={8} md={8} lg={4}>
           <Card>
             <Statistic
               title="សាលារៀនសរុប"
@@ -318,7 +320,7 @@ function CoordinatorWorkspaceContent() {
             />
           </Card>
         </Col>
-        <Col xs={12} sm={6}>
+        <Col xs={12} sm={8} md={8} lg={4}>
           <Card>
             <Statistic
               title="គ្រូបង្រៀនសរុប"
@@ -328,7 +330,17 @@ function CoordinatorWorkspaceContent() {
             />
           </Card>
         </Col>
-        <Col xs={12} sm={6}>
+        <Col xs={12} sm={8} md={8} lg={4}>
+          <Card>
+            <Statistic
+              title="ម៉ង់ទ័រសរុប"
+              value={stats.total_mentors}
+              prefix={<TeamOutlined />}
+              valueStyle={{ color: '#13c2c2' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={12} sm={8} md={8} lg={4}>
           <Card>
             <Statistic
               title="សិស្សសរុប"
@@ -338,7 +350,7 @@ function CoordinatorWorkspaceContent() {
             />
           </Card>
         </Col>
-        <Col xs={12} sm={6}>
+        <Col xs={12} sm={8} md={8} lg={8}>
           <Card>
             <Statistic
               title="ការផ្ទៀងផ្ទាត់រងចាំ"
