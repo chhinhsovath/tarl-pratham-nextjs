@@ -102,33 +102,29 @@ export async function PUT(
 
     const body = await request.json();
 
-    // Update the school
+    // Validate required fields - ONLY name and province can be edited by users
+    if (!body.school_name || body.school_name.trim() === "") {
+      return NextResponse.json(
+        { error: "សូមបញ្ចូលឈ្មោះសាលារៀន" },
+        { status: 400 }
+      );
+    }
+
+    if (!body.province || body.province.trim() === "") {
+      return NextResponse.json(
+        { error: "សូមជ្រើសរើសខេត្ត" },
+        { status: 400 }
+      );
+    }
+
+    // Update the school - ONLY allow editing name and province
+    // school_code, district, cluster are auto-managed and should not be changed
     const updatedSchool = await prisma.pilotSchool.update({
       where: { id: schoolId },
       data: {
-        province: body.province,
-        district: body.district,
-        cluster: body.cluster,
-        school_name: body.school_name,
-        school_code: body.school_code,
-        baseline_start_date: body.baseline_start_date
-          ? new Date(body.baseline_start_date)
-          : null,
-        baseline_end_date: body.baseline_end_date
-          ? new Date(body.baseline_end_date)
-          : null,
-        midline_start_date: body.midline_start_date
-          ? new Date(body.midline_start_date)
-          : null,
-        midline_end_date: body.midline_end_date
-          ? new Date(body.midline_end_date)
-          : null,
-        endline_start_date: body.endline_start_date
-          ? new Date(body.endline_start_date)
-          : null,
-        endline_end_date: body.endline_end_date
-          ? new Date(body.endline_end_date)
-          : null,
+        school_name: body.school_name.trim(),
+        province: body.province.trim(),
+        // Do NOT update: school_code, district, cluster, assessment dates
       },
     });
 

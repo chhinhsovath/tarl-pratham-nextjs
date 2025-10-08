@@ -184,29 +184,10 @@ export async function POST(request: NextRequest) {
     // Log request body for debugging
     console.log("Create school request body:", JSON.stringify(body, null, 2));
 
-    // Check if school code already exists in pilot_schools
-    const existingSchool = await prisma.pilotSchool.findFirst({
-      where: { school_code: body.code }
-    });
-
-    if (existingSchool) {
-      return NextResponse.json(
-        { error: "លេខកូដសាលារៀននេះមានរួចហើយ សូមប្រើលេខកូដផ្សេង" },
-        { status: 400 }
-      );
-    }
-
-    // Validate required fields
+    // Validate required fields - ONLY name and province
     if (!body.name || body.name.trim() === "") {
       return NextResponse.json(
         { error: "សូមបញ្ចូលឈ្មោះសាលារៀន" },
-        { status: 400 }
-      );
-    }
-
-    if (!body.code || body.code.trim() === "") {
-      return NextResponse.json(
-        { error: "សូមបញ្ចូលលេខកូដសាលារៀន" },
         { status: 400 }
       );
     }
@@ -218,24 +199,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!body.district || body.district.trim() === "") {
-      return NextResponse.json(
-        { error: "សូមបញ្ចូលស្រុក/ខណ្ឌ" },
-        { status: 400 }
-      );
+    // Auto-generate school_code from province + timestamp
+    const provinceCode = body.province.substring(0, 3).toUpperCase();
+    const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+    const schoolCode = `${provinceCode}${timestamp}`;
+
+    // Check if generated code exists (very unlikely, but just in case)
+    let finalSchoolCode = schoolCode;
+    let counter = 1;
+    while (true) {
+      const existingSchool = await prisma.pilotSchool.findFirst({
+        where: { school_code: finalSchoolCode }
+      });
+
+      if (!existingSchool) break;
+
+      finalSchoolCode = `${schoolCode}${counter}`;
+      counter++;
     }
 
-    // Create school in pilot_schools - ONLY use fields that exist in the schema
-    // DO NOT pass id, it will auto-increment
+    // Create school with auto-generated fields
     const createData = {
       school_name: body.name.trim(),
-      school_code: body.code.trim(),
+      school_code: finalSchoolCode,
       province: body.province.trim(),
-      district: body.district.trim(),
-      cluster: body.cluster ? body.cluster.trim() : "",
+      district: "", // Auto-set to empty string
+      cluster: "",  // Auto-set to empty string
     };
 
-    console.log("Creating school with data:", JSON.stringify(createData, null, 2));
+    console.log("Creating school with auto-generated data:", JSON.stringify(createData, null, 2));
 
     const pilotSchool = await prisma.pilotSchool.create({
       data: createData

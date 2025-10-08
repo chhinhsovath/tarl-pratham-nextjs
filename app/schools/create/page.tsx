@@ -134,81 +134,40 @@ function CreateSchoolPageContent() {
           onFinish={handleSubmit}
           autoComplete="off"
         >
-          <Row gutter={16}>
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="name"
-                label="ឈ្មោះសាលារៀន"
-                rules={[
-                  { required: true, message: "សូមបញ្ចូលឈ្មោះសាលារៀន" },
-                  { min: 3, message: "ឈ្មោះសាលារៀនត្រូវតែមានយ៉ាងតិច ៣ តួអក្សរ" }
-                ]}
-              >
-                <Input placeholder="បញ្ចូលឈ្មោះសាលារៀន" size="large" />
-              </Form.Item>
-            </Col>
-
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="code"
-                label="លេខកូដសាលារៀន"
-                rules={[
-                  { required: true, message: "សូមបញ្ចូលលេខកូដសាលារៀន" },
-                  { min: 2, message: "លេខកូដត្រូវតែមានយ៉ាងតិច ២ តួអក្សរ" }
-                ]}
-              >
-                <Input placeholder="បញ្ចូលលេខកូដសាលារៀន" size="large" />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="province"
-                label="ខេត្ត"
-                rules={[
-                  { required: true, message: "សូមជ្រើសរើសខេត្ត" }
-                ]}
-              >
-                <Select
-                  placeholder="ជ្រើសរើសខេត្ត"
-                  size="large"
-                  showSearch
-                  allowClear
-                  filterOption={(input, option) =>
-                    (option?.children as unknown as string)
-                      ?.toLowerCase()
-                      ?.includes(input.toLowerCase()) ?? false
-                  }
-                >
-                  {PROVINCES.map(province => (
-                    <Option key={province} value={province}>
-                      {province}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="district"
-                label="ស្រុក/ខណ្ឌ"
-                rules={[
-                  { required: true, message: "សូមបញ្ចូលស្រុក/ខណ្ឌ" }
-                ]}
-              >
-                <Input placeholder="បញ្ចូលស្រុក/ខណ្ឌ" size="large" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="name"
+            label="ឈ្មោះសាលារៀន"
+            rules={[
+              { required: true, message: "សូមបញ្ចូលឈ្មោះសាលារៀន" },
+              { min: 3, message: "ឈ្មោះសាលារៀនត្រូវតែមានយ៉ាងតិច ៣ តួអក្សរ" }
+            ]}
+          >
+            <Input placeholder="បញ្ចូលឈ្មោះសាលារៀន" size="large" />
+          </Form.Item>
 
           <Form.Item
-            name="cluster"
-            label="ក្លាស្ទ័រ (Cluster)"
+            name="province"
+            label="ខេត្ត"
+            rules={[
+              { required: true, message: "សូមជ្រើសរើសខេត្ត" }
+            ]}
           >
-            <Input placeholder="បញ្ចូលក្លាស្ទ័រ (ប្រសិនបើមិនមាន សូមទុកចោល)" size="large" />
+            <Select
+              placeholder="ជ្រើសរើសខេត្ត"
+              size="large"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)
+                  ?.toLowerCase()
+                  ?.includes(input.toLowerCase()) ?? false
+              }
+            >
+              {PROVINCES.map(province => (
+                <Option key={province} value={province}>
+                  {province}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
 
           {/* Form Actions */}
