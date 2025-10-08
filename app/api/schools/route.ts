@@ -193,14 +193,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate required fields (pilot_schools table requires province, district, cluster)
+    if (!body.district || body.district.trim() === "") {
+      return NextResponse.json(
+        { error: "សូមបញ្ចូលស្រុក/ខណ្ឌ" },
+        { status: 400 }
+      );
+    }
+
     // Create school in pilot_schools
     const pilotSchool = await prisma.pilotSchool.create({
       data: {
         school_name: body.name,
         school_code: body.code,
-        province: body.province || "",
-        district: body.district || "",
-        cluster: body.cluster || "",
+        province: body.province,
+        district: body.district,
+        cluster: body.cluster || "",  // Can be empty string
       }
     });
 

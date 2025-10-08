@@ -36,14 +36,8 @@ const PROVINCES = [
   "ព្រះសីហនុ", "ស្ទឹងត្រែង", "ស្វាយរៀង", "តាកែវ", "ត្បូងឃ្មុំ"
 ];
 
-const SCHOOL_TYPES = [
-  "មត្តេយ្យសិក្សា",
-  "បឋមសិក្សា",
-  "អនុវិទ្យាល័យ",
-  "វិទ្យាល័យ",
-  "បច្ចេកទេស",
-  "បណ្តុះបណ្តាលជំនាញ"
-];
+// Note: school_type is not used in pilot_schools table
+// PilotSchool only has: province, district, cluster, school_name, school_code
 
 function CreateSchoolPageContent() {
   const router = useRouter();
@@ -210,35 +204,12 @@ function CreateSchoolPageContent() {
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="cluster"
-                label="ក្លាស្ទ័រ (Cluster)"
-              >
-                <Input placeholder="បញ្ចូលក្លាស្ទ័រ (ប្រសិនបើមាន)" size="large" />
-              </Form.Item>
-            </Col>
-
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="school_type"
-                label="ប្រភេទសាលារៀន"
-              >
-                <Select
-                  placeholder="ជ្រើសរើសប្រភេទសាលារៀន"
-                  size="large"
-                  allowClear
-                >
-                  {SCHOOL_TYPES.map(type => (
-                    <Option key={type} value={type}>
-                      {type}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="cluster"
+            label="ក្លាស្ទ័រ (Cluster)"
+          >
+            <Input placeholder="បញ្ចូលក្លាស្ទ័រ (ប្រសិនបើមិនមាន សូមទុកចោល)" size="large" />
+          </Form.Item>
 
           {/* Form Actions */}
           <div style={{ marginTop: "32px" }}>
