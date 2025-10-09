@@ -27,6 +27,14 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Helper function to convert date string to Date object
+    const parseDate = (dateString: string | null | undefined): Date | null => {
+      if (!dateString) return null;
+      // Create Date object from YYYY-MM-DD string
+      const date = new Date(dateString + 'T00:00:00.000Z');
+      return isNaN(date.getTime()) ? null : date;
+    };
+
     // Update all schools that are not locked
     const result = await prisma.pilotSchool.updateMany({
       where: {
@@ -34,12 +42,12 @@ export async function PUT(request: NextRequest) {
         is_locked: false,
       },
       data: {
-        baseline_start_date: periodDates.baseline_start_date || null,
-        baseline_end_date: periodDates.baseline_end_date || null,
-        midline_start_date: periodDates.midline_start_date || null,
-        midline_end_date: periodDates.midline_end_date || null,
-        endline_start_date: periodDates.endline_start_date || null,
-        endline_end_date: periodDates.endline_end_date || null,
+        baseline_start_date: parseDate(periodDates.baseline_start_date),
+        baseline_end_date: parseDate(periodDates.baseline_end_date),
+        midline_start_date: parseDate(periodDates.midline_start_date),
+        midline_end_date: parseDate(periodDates.midline_end_date),
+        endline_start_date: parseDate(periodDates.endline_start_date),
+        endline_end_date: parseDate(periodDates.endline_end_date),
       },
     });
 

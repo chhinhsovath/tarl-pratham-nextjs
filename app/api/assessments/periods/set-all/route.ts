@@ -42,7 +42,9 @@ export async function PUT(request: NextRequest) {
     // Convert date strings to Date objects for Prisma
     const convertToDate = (dateString: string | null | undefined): Date | null => {
       if (!dateString) return null;
-      return new Date(dateString);
+      // Create Date object from YYYY-MM-DD string with explicit UTC time
+      const date = new Date(dateString + 'T00:00:00.000Z');
+      return isNaN(date.getTime()) ? null : date;
     };
 
     // Get count of schools before update

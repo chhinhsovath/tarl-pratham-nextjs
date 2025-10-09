@@ -40,16 +40,24 @@ export async function PUT(
       );
     }
 
+    // Helper function to convert date string to Date object
+    const parseDate = (dateString: string | null | undefined): Date | null => {
+      if (!dateString) return null;
+      // Create Date object from YYYY-MM-DD string
+      const date = new Date(dateString + 'T00:00:00.000Z');
+      return isNaN(date.getTime()) ? null : date;
+    };
+
     // Update the school periods
     await prisma.pilotSchool.update({
       where: { id: schoolId },
       data: {
-        baseline_start_date: body.baseline_start_date || null,
-        baseline_end_date: body.baseline_end_date || null,
-        midline_start_date: body.midline_start_date || null,
-        midline_end_date: body.midline_end_date || null,
-        endline_start_date: body.endline_start_date || null,
-        endline_end_date: body.endline_end_date || null,
+        baseline_start_date: parseDate(body.baseline_start_date),
+        baseline_end_date: parseDate(body.baseline_end_date),
+        midline_start_date: parseDate(body.midline_start_date),
+        midline_end_date: parseDate(body.midline_end_date),
+        endline_start_date: parseDate(body.endline_start_date),
+        endline_end_date: parseDate(body.endline_end_date),
       },
     });
 
