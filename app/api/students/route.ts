@@ -82,7 +82,11 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+
+    // Force high limit for all users to show all data (no pagination)
+    const requestedLimit = parseInt(searchParams.get("limit") || "10000");
+    const limit = requestedLimit > 10 ? requestedLimit : 10000; // Ensure minimum 10000
+
     const search = searchParams.get("search") || "";
     const gender = searchParams.get("gender") || "";
     const grade = searchParams.get("grade") || "";
@@ -270,6 +274,12 @@ export async function GET(request: NextRequest) {
         limit,
         total,
         pages: Math.ceil(total / limit)
+      }
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
 
