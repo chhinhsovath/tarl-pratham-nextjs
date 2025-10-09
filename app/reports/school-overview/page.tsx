@@ -430,18 +430,18 @@ function SchoolOverviewContent() {
 
       {/* Data Table */}
       <Card>
+        {/* Total count display */}
+        <div style={{ marginBottom: '16px', textAlign: 'right' }}>
+          <Text strong>សរុប: {filteredData.length} សាលារៀន</Text>
+        </div>
+
         <Table
           columns={columns}
           dataSource={filteredData}
           rowKey="school_id"
           loading={loading}
           scroll={{ x: 1400 }}
-          pagination={{
-            pageSize: 20,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total} សាលារៀន`
-          }}
+          pagination={false}
         />
       </Card>
     </>
