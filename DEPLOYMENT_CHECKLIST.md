@@ -17,17 +17,19 @@
 4. Replace with this **EXACT** value:
 
 ```
-postgres://postgres.uyrmvvwwchzmqtstgwbi:QtMVSsu8uw60WRjK@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=5&pool_timeout=10&connect_timeout=10&statement_cache_size=0
+postgres://postgres.uyrmvvwwchzmqtstgwbi:QtMVSsu8uw60WRjK@db.uyrmvvwwchzmqtstgwbi.supabase.co:5432/postgres
 ```
 
 5. Click **Save**
-6. Go to **Deployments** → Click latest → **Redeploy**
+6. Go to **Deployments** → Click latest → **Redeploy** (uncheck "Use existing Build Cache")
 
 #### What Changed:
-**Added these critical parameters:**
-- `connection_limit=5` - Prevents connection exhaustion
-- `pool_timeout=10` - Connection timeout
-- `statement_cache_size=0` - **Fixes "prepared statement s4" error**
+**Switched from pgBouncer (port 6543) to Direct Connection (port 5432):**
+- Uses `db.uyrmvvwwchzmqtstgwbi.supabase.co` (direct host)
+- Port `5432` (direct connection, not pooler)
+- No pgBouncer complexity
+- No prepared statement issues
+- Supabase handles pooling automatically
 
 #### Verify Fix:
 After redeployment, test:
