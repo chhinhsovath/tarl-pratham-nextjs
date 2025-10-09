@@ -19,8 +19,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
 
+    // Build filter - coordinators only see their own imports
+    const whereFilter: any = {};
+
+    if (session.user.role === 'coordinator') {
+      // Coordinators can only see imports they created
+      whereFilter.imported_by = parseInt(session.user.id);
+      console.log(`[COORDINATOR] Filtering bulk imports by imported_by: ${session.user.id}`);
+    }
+    // Admins see all imports (no filter)
+
     // Fetch bulk import records
     const imports = await prisma.bulkImport.findMany({
+      where: whereFilter,
       take: limit,
       orderBy: { created_at: 'desc' },
       select: {
