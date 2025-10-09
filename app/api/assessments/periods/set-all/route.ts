@@ -39,6 +39,12 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Convert date strings to Date objects for Prisma
+    const convertToDate = (dateString: string | null | undefined): Date | null => {
+      if (!dateString) return null;
+      return new Date(dateString);
+    };
+
     // Get count of schools before update
     const totalSchools = await prisma.pilotSchool.count();
     const lockedSchools = await prisma.pilotSchool.count({
@@ -51,12 +57,12 @@ export async function PUT(request: NextRequest) {
         is_locked: false, // Only update non-locked schools
       },
       data: {
-        baseline_start_date: baseline_start_date || null,
-        baseline_end_date: baseline_end_date || null,
-        midline_start_date: midline_start_date || null,
-        midline_end_date: midline_end_date || null,
-        endline_start_date: endline_start_date || null,
-        endline_end_date: endline_end_date || null,
+        baseline_start_date: convertToDate(baseline_start_date),
+        baseline_end_date: convertToDate(baseline_end_date),
+        midline_start_date: convertToDate(midline_start_date),
+        midline_end_date: convertToDate(midline_end_date),
+        endline_start_date: convertToDate(endline_start_date),
+        endline_end_date: convertToDate(endline_end_date),
       },
     });
 
