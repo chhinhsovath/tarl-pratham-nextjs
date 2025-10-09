@@ -12,8 +12,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all pilot schools with comprehensive data
-    const schools = await prisma.PilotSchool.findMany({
+    // Build where clause based on user role
+    const where: any = {};
+
+    // Coordinators can only see their assigned school
+    if (session.user.role === 'coordinator') {
+      if (!session.user.pilot_school_id) {
+        return NextResponse.json({
+          error: 'អ្នកមិនមានសាលារៀនចាត់តាំងទេ',
+          message: 'Coordinator has no assigned school'
+        }, { status: 403 });
+      }
+      where.id = session.user.pilot_school_id;
+      console.log(`[COORDINATOR] Filtering school overview by pilot_school_id: ${session.user.pilot_school_id}`);
+    }
+    // Admin sees all schools (no filter)
+
+    // Get pilot schools filtered by role
+    const schools = await prisma.pilotSchool.findMany({
+      where,
       select: {
         id: true,
         school_name: true,
@@ -24,7 +41,7 @@ export async function GET(request: NextRequest) {
     const schoolOverviewData = await Promise.all(
       schools.map(async (school) => {
         // Count total students
-        const totalStudents = await prisma.Student.count({
+        const totalStudents = await prisma.student.count({
           where: {
             pilot_school_id: school.id,
             is_active: true,
@@ -32,7 +49,7 @@ export async function GET(request: NextRequest) {
         });
 
         // Count baseline assessments
-        const baselineCount = await prisma.Assessment.count({
+        const baselineCount = await prisma.assessment.count({
           where: {
             pilot_school_id: school.id,
             assessment_type: 'baseline',
@@ -40,7 +57,7 @@ export async function GET(request: NextRequest) {
         });
 
         // Count midline assessments
-        const midlineCount = await prisma.Assessment.count({
+        const midlineCount = await prisma.assessment.count({
           where: {
             pilot_school_id: school.id,
             assessment_type: 'midline',
@@ -48,7 +65,7 @@ export async function GET(request: NextRequest) {
         });
 
         // Count endline assessments
-        const endlineCount = await prisma.Assessment.count({
+        const endlineCount = await prisma.assessment.count({
           where: {
             pilot_school_id: school.id,
             assessment_type: 'endline',
@@ -56,14 +73,14 @@ export async function GET(request: NextRequest) {
         });
 
         // Count total assessments
-        const totalAssessments = await prisma.Assessment.count({
+        const totalAssessments = await prisma.assessment.count({
           where: {
             pilot_school_id: school.id,
           },
         });
 
         // Count verified assessments
-        const verifiedCount = await prisma.Assessment.count({
+        const verifiedCount = await prisma.assessment.count({
           where: {
             pilot_school_id: school.id,
             verified_by_id: { not: null },
@@ -71,14 +88,14 @@ export async function GET(request: NextRequest) {
         });
 
         // Count mentoring visits
-        const mentoringVisits = await prisma.MentoringVisit.count({
+        const mentoringVisits = await prisma.mentoringVisit.count({
           where: {
             pilot_school_id: school.id,
           },
         });
 
         // Check if school has a mentor assigned
-        const mentor = await prisma.User.findFirst({
+        const mentor = await prisma.user.findFirst({
           where: {
             pilot_school_id: school.id,
             role: 'mentor',
