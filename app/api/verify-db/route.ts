@@ -8,10 +8,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Test database connection
-    await prisma.$connect();
-
-    // Get basic statistics
+    // Get basic statistics - Prisma connects automatically on first query
     const [userCount, schoolCount, studentCount, assessmentCount] = await Promise.all([
       prisma.user.count(),
       prisma.pilotSchool.count(),
@@ -68,7 +65,5 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

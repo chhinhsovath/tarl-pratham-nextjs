@@ -1,52 +1,21 @@
 import { PrismaClient } from '@prisma/client';
 
+// Global singleton to prevent multiple Prisma instances
 const globalForPrisma = global as unknown as {
   prisma: PrismaClient | undefined;
-  isConnecting: boolean;
 };
 
-// Create PrismaClient with connection pooling for serverless
+// Optimized Prisma Client for serverless
 const createPrismaClient = () => {
-  const client = new PrismaClient({
+  return new PrismaClient({
     log: process.env.NODE_ENV === 'production' ? ['error'] : ['error', 'warn'],
   });
-
-  return client;
 };
 
-// Use singleton pattern in both development and production to prevent connection leaks
-export const prisma = globalForPrisma.prisma || createPrismaClient();
+// Singleton pattern: reuse same instance across serverless function invocations
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
+// In development, store in global to survive HMR (Hot Module Replacement)
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
-} else if (!globalForPrisma.prisma) {
-  globalForPrisma.prisma = prisma;
-}
-
-// Ensure connection is established for serverless environments
-export async function connectPrisma() {
-  if (globalForPrisma.isConnecting) {
-    // Wait for existing connection attempt
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return prisma;
-  }
-
-  try {
-    globalForPrisma.isConnecting = true;
-    // Explicitly connect the Prisma engine
-    await prisma.$connect();
-    return prisma;
-  } catch (error) {
-    console.error('Prisma connection error:', error);
-    throw error;
-  } finally {
-    globalForPrisma.isConnecting = false;
-  }
-}
-
-// Graceful shutdown
-if (typeof window === 'undefined') {
-  process.on('beforeExit', async () => {
-    await prisma.$disconnect();
-  });
 }
