@@ -16,6 +16,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Build filter for coordinator - only their school
+    const schoolFilter: any = {};
+    const userFilter: any = {};
+
+    if (session.user.role === 'coordinator') {
+      if (!session.user.pilot_school_id) {
+        return NextResponse.json({
+          error: 'អ្នកមិនមានសាលារៀនចាត់តាំងទេ',
+          message: 'Coordinator has no assigned school'
+        }, { status: 403 });
+      }
+      schoolFilter.pilot_school_id = session.user.pilot_school_id;
+      userFilter.pilot_school_id = session.user.pilot_school_id;
+      console.log(`[COORDINATOR STATS] Filtering by pilot_school_id: ${session.user.pilot_school_id}`);
+    }
+
     const today = new Date();
     const todayStart = new Date(today.setHours(0, 0, 0, 0));
     const weekStart = new Date(today.setDate(today.getDate() - 7));
@@ -40,64 +56,66 @@ export async function GET(request: NextRequest) {
       students_by_grade,
       schools_by_province,
     ] = await Promise.all([
-      // Schools
-      prisma.pilotSchool.count(),
+      // Schools - admin sees all, coordinator sees only their school
+      session.user.role === 'admin'
+        ? prisma.pilotSchool.count()
+        : Promise.resolve(1), // Coordinator has 1 school
 
       // Students
-      prisma.student.count(),
-      prisma.student.count({ where: { is_active: true } }),
+      prisma.student.count({ where: schoolFilter }),
+      prisma.student.count({ where: { ...schoolFilter, is_active: true } }),
 
       // Teachers
-      prisma.user.count({ where: { role: 'teacher' } }),
-      prisma.user.count({ where: { role: 'teacher', is_active: true } }),
+      prisma.user.count({ where: { ...userFilter, role: 'teacher' } }),
+      prisma.user.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
 
       // Mentors
-      prisma.user.count({ where: { role: 'mentor', is_active: true } }),
+      prisma.user.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
 
       // Assessments
-      prisma.assessment.count(),
+      prisma.assessment.count({ where: schoolFilter }),
       prisma.assessment.count({
-        where: { created_at: { gte: todayStart } }
+        where: { ...schoolFilter, created_at: { gte: todayStart } }
       }),
       prisma.assessment.count({
-        where: { created_at: { gte: weekStart } }
+        where: { ...schoolFilter, created_at: { gte: weekStart } }
       }),
       prisma.assessment.count({
-        where: { created_at: { gte: monthStart } }
+        where: { ...schoolFilter, created_at: { gte: monthStart } }
       }),
 
       // Assessment types
       prisma.assessment.count({
-        where: { assessment_type: 'baseline' }
+        where: { ...schoolFilter, assessment_type: 'baseline' }
       }),
       prisma.assessment.count({
-        where: { assessment_type: 'midline' }
+        where: { ...schoolFilter, assessment_type: 'midline' }
       }),
       prisma.assessment.count({
-        where: { assessment_type: 'endline' }
+        where: { ...schoolFilter, assessment_type: 'endline' }
       }),
 
       // Students by gender
       prisma.student.groupBy({
         by: ['gender'],
-        where: { is_active: true },
+        where: { ...schoolFilter, is_active: true },
         _count: { id: true }
       }),
 
-      // Students by grade
+      // Students by grade - skip orderBy to avoid nullable issues
       prisma.student.groupBy({
         by: ['grade'],
-        where: { is_active: true },
-        _count: { id: true },
-        orderBy: { grade: 'asc' }
+        where: { ...schoolFilter, is_active: true },
+        _count: { id: true }
       }),
 
-      // Schools by province
-      prisma.pilotSchool.groupBy({
-        by: ['province'],
-        _count: { id: true },
-        orderBy: { _count: { id: 'desc' } }
-      }),
+      // Schools by province - only for admin
+      session.user.role === 'admin'
+        ? prisma.pilotSchool.groupBy({
+            by: ['province'],
+            _count: { id: true }
+          })
+        : Promise.resolve([]),
     ]);
 
     // Format gender distribution
@@ -106,11 +124,13 @@ export async function GET(request: NextRequest) {
       female: students_by_gender.find(g => g.gender === 'female')?._count.id || 0,
     };
 
-    // Format grade distribution
-    const grade_distribution = students_by_grade.map(g => ({
-      grade: g.grade || 0,
-      count: g._count.id
-    }));
+    // Format grade distribution and sort by grade
+    const grade_distribution = students_by_grade
+      .map(g => ({
+        grade: g.grade || 0,
+        count: g._count.id
+      }))
+      .sort((a, b) => a.grade - b.grade);
 
     // Format province distribution
     const province_distribution = schools_by_province.map(p => ({

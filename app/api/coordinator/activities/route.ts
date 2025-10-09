@@ -16,6 +16,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Build filter for coordinator - only their school
+    const schoolFilter: any = {};
+
+    if (session.user.role === 'coordinator') {
+      if (!session.user.pilot_school_id) {
+        return NextResponse.json({
+          error: 'អ្នកមិនមានសាលារៀនចាត់តាំងទេ',
+          message: 'Coordinator has no assigned school'
+        }, { status: 403 });
+      }
+      schoolFilter.pilot_school_id = session.user.pilot_school_id;
+      console.log(`[COORDINATOR ACTIVITIES] Filtering by pilot_school_id: ${session.user.pilot_school_id}`);
+    }
+
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const activity_type = searchParams.get('type') || ''; // assessment, student, user
@@ -28,6 +42,7 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       // Recent assessments
       prisma.assessment.findMany({
+        where: schoolFilter,
         take: limit,
         orderBy: { created_at: 'desc' },
         select: {
@@ -60,6 +75,7 @@ export async function GET(request: NextRequest) {
 
       // Recent students added
       prisma.student.findMany({
+        where: schoolFilter,
         take: limit,
         orderBy: { created_at: 'desc' },
         select: {
@@ -86,6 +102,7 @@ export async function GET(request: NextRequest) {
 
       // Recent users added
       prisma.user.findMany({
+        where: schoolFilter,
         take: limit,
         orderBy: { created_at: 'desc' },
         select: {
