@@ -152,9 +152,22 @@ function StudentsManagementContent() {
   const [mentors, setMentors] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchStudents();
     fetchFormData();
-  }, [pagination.current, pagination.pageSize, filters]);
+  }, []);
+
+  useEffect(() => {
+    // Reset to page 1 when filters change
+    if (pagination.current !== 1) {
+      setPagination(prev => ({ ...prev, current: 1 }));
+    } else {
+      fetchStudents();
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    // Fetch when pagination changes
+    fetchStudents();
+  }, [pagination.current, pagination.pageSize]);
 
   const fetchFormData = async () => {
     try {
@@ -649,6 +662,18 @@ function StudentsManagementContent() {
               <Option value="">ទាំងអស់</Option>
             </Select>
           </Col>
+          <Col xs={12} sm={6} md={5}>
+            <Select
+              placeholder="ប្រភេទទិន្នន័យ"
+              value={filters.is_temporary || undefined}
+              onChange={(value) => setFilters({ ...filters, is_temporary: value || '' })}
+              style={{ width: '100%' }}
+              allowClear
+            >
+              <Option value="true">បណ្តោះអាសន្ន (ម៉ង់ទ័រ)</Option>
+              <Option value="false">ផលិតកម្ម</Option>
+            </Select>
+          </Col>
         </Row>
 
         {/* Table */}
@@ -658,11 +683,17 @@ function StudentsManagementContent() {
           rowKey="id"
           loading={loading}
           pagination={{
-            ...pagination,
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
             showSizeChanger: true,
             showTotal: (total) => `សរុប ${total} សិស្ស`,
             onChange: (page, pageSize) => {
-              setPagination({ ...pagination, current: page, pageSize });
+              setPagination(prev => ({
+                ...prev,
+                current: page,
+                pageSize: pageSize || prev.pageSize
+              }));
             }
           }}
           scroll={{ x: 2200, y: 600 }}

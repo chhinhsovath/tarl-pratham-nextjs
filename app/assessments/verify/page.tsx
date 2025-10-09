@@ -54,7 +54,8 @@ function AssessmentVerificationPage() {
     subject: '',
     school_id: '',
     date_from: '',
-    date_to: ''
+    date_to: '',
+    is_temporary: ''
   });
   const [stats, setStats] = useState({
     pending: 0,
@@ -393,6 +394,14 @@ function AssessmentVerificationPage() {
               </Select>
             </Form.Item>
 
+            <Form.Item name="is_temporary">
+              <Select style={{ width: 180 }} placeholder="ប្រភេទទិន្នន័យ">
+                <Option value="">ប្រភេទទាំងអស់</Option>
+                <Option value="true">បណ្តោះអាសន្ន (ម៉ង់ទ័រ)</Option>
+                <Option value="false">ផលិតកម្ម</Option>
+              </Select>
+            </Form.Item>
+
             <Form.Item name="date_from">
               <DatePicker placeholder="ពីកាលបរិច្ឆេទ" />
             </Form.Item>
@@ -415,7 +424,8 @@ function AssessmentVerificationPage() {
                   subject: '',
                   school_id: '',
                   date_from: '',
-                  date_to: ''
+                  date_to: '',
+                  is_temporary: ''
                 });
                 form.resetFields();
               }}>
