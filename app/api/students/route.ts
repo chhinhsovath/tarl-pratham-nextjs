@@ -85,7 +85,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Ensure Prisma connection is established (required for serverless environments)
-    await connectPrisma();
+    try {
+      await connectPrisma();
+    } catch (connectionError: any) {
+      console.error("Failed to connect to database:", connectionError);
+      return NextResponse.json(
+        {
+          error: "មានបញ្ហាក្នុងការតភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យ",
+          message: connectionError.message || String(connectionError),
+          code: "DATABASE_CONNECTION_ERROR"
+        },
+        { status: 503 }
+      );
+    }
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -101,6 +113,7 @@ export async function GET(request: NextRequest) {
     const pilot_school_id = searchParams.get("pilot_school_id") || "";
     const created_by_user_id = searchParams.get("created_by_user_id") || "";
     const mentor_id = searchParams.get("mentor_id") || "";
+    const is_active = searchParams.get("is_active");
     const is_temporary = searchParams.get("is_temporary");
     const include_test_data = searchParams.get("include_test_data") === "true";
 
@@ -108,9 +121,21 @@ export async function GET(request: NextRequest) {
 
     // Build where clause with record_status filter
     const where: any = {
-      is_active: true,
       ...getRecordStatusFilter(session.user.role, include_test_data)
     };
+
+    // Handle is_active filter - default to showing only active students
+    if (is_active === "true") {
+      where.is_active = true;
+    } else if (is_active === "false") {
+      where.is_active = false;
+    } else if (is_active === "") {
+      // Empty string means show all (both active and inactive)
+      // Don't add is_active filter
+    } else {
+      // No filter provided - default to showing only active
+      where.is_active = true;
+    }
     
     if (search) {
       where.AND = where.AND || [];
@@ -172,22 +197,27 @@ export async function GET(request: NextRequest) {
       if (session.user.pilot_school_id) {
         where.AND = where.AND || [];
         where.AND.push({ pilot_school_id: session.user.pilot_school_id });
+        console.log(`[COORDINATOR] Filtering by pilot_school_id: ${session.user.pilot_school_id}`);
       } else {
         // If coordinator has no pilot school, they can't see any students
         where.AND = where.AND || [];
         where.AND.push({ id: -1 });
+        console.log(`[COORDINATOR] No pilot_school_id - blocking all access`);
       }
     } else if (session.user.role === "mentor") {
       // Mentors can access students from ALL their assigned schools
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      console.log(`[MENTOR] User ID: ${session.user.id}, Assigned school IDs:`, mentorSchoolIds);
 
       if (mentorSchoolIds.length > 0) {
         where.AND = where.AND || [];
         where.AND.push({ pilot_school_id: { in: mentorSchoolIds } });
+        console.log(`[MENTOR] Filtering by school IDs:`, mentorSchoolIds);
       } else {
         // No schools assigned - no access
         where.AND = where.AND || [];
         where.AND.push({ id: -1 });
+        console.log(`[MENTOR] No assigned schools - blocking all access`);
       }
     } else if (session.user.role === "teacher") {
       // Teachers remain restricted to their single school
@@ -199,13 +229,6 @@ export async function GET(request: NextRequest) {
         where.AND = where.AND || [];
         where.AND.push({ id: -1 });
       }
-    }
-
-    // Ensure Prisma is connected
-    try {
-      await prisma.$connect();
-    } catch (connectError) {
-      console.error("Prisma connection error:", connectError);
     }
 
     const [students, total] = await Promise.all([
