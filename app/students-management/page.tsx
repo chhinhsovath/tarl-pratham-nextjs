@@ -139,10 +139,10 @@ function StudentsManagementContent() {
     is_temporary: ''
   });
 
-  // Pagination
+  // Pagination - Show all data for all roles (no pagination limit)
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: 10000,
     total: 0
   });
 
@@ -151,30 +151,14 @@ function StudentsManagementContent() {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [mentors, setMentors] = useState<any[]>([]);
 
-  // Set high page size for coordinators and admins to see all data
-  useEffect(() => {
-    if (session?.user?.role === 'coordinator' || session?.user?.role === 'admin') {
-      setPagination(prev => ({ ...prev, pageSize: 10000 }));
-    }
-  }, [session?.user?.role]);
-
   useEffect(() => {
     fetchFormData();
   }, []);
 
   useEffect(() => {
-    // Reset to page 1 when filters change
-    if (pagination.current !== 1) {
-      setPagination(prev => ({ ...prev, current: 1 }));
-    } else {
-      fetchStudents();
-    }
-  }, [filters]);
-
-  useEffect(() => {
-    // Fetch when pagination changes
+    // Fetch students when filters change
     fetchStudents();
-  }, [pagination.current, pagination.pageSize]);
+  }, [filters]);
 
   const fetchFormData = async () => {
     try {
@@ -683,37 +667,18 @@ function StudentsManagementContent() {
           </Col>
         </Row>
 
-        {/* Total count for coordinators/admins */}
-        {(session?.user?.role === 'coordinator' || session?.user?.role === 'admin') && (
-          <div style={{ marginBottom: '16px', textAlign: 'right' }}>
-            <Text strong>សរុប: {pagination.total} សិស្ស</Text>
-          </div>
-        )}
+        {/* Total count - show for all users */}
+        <div style={{ marginBottom: '16px', textAlign: 'right' }}>
+          <Text strong>សរុប: {pagination.total} សិស្ស</Text>
+        </div>
 
-        {/* Table */}
+        {/* Table - No pagination for all roles */}
         <Table
           columns={columns}
           dataSource={students}
           rowKey="id"
           loading={loading}
-          pagination={
-            session?.user?.role === 'coordinator' || session?.user?.role === 'admin'
-              ? false // No pagination for coordinators/admins - show all data
-              : {
-                  current: pagination.current,
-                  pageSize: pagination.pageSize,
-                  total: pagination.total,
-                  showSizeChanger: true,
-                  showTotal: (total) => `សរុប ${total} សិស្ស`,
-                  onChange: (page, pageSize) => {
-                    setPagination(prev => ({
-                      ...prev,
-                      current: page,
-                      pageSize: pageSize || prev.pageSize
-                    }));
-                  }
-                }
-          }
+          pagination={false}
           scroll={{ x: 2200, y: 600 }}
           size="small"
         />
