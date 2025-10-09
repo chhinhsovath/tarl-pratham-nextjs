@@ -292,7 +292,7 @@ function UsersPageContent() {
           )}
           {record.role === "mentor" && (
             <Tag color={record.mentor_profile_complete ? "green" : "orange"}>
-              ម៉ង់ទ័រ៖ {record.mentor_profile_complete ? "បានបំពេញ" : "មិនទាន់បំពេញ"}
+              គ្រូព្រឹក្សាគរុកោសល្យ៖ {record.mentor_profile_complete ? "បានបំពេញ" : "មិនទាន់បំពេញ"}
             </Tag>
           )}
         </Space>

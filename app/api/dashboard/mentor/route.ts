@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     if (session.user.role !== "mentor") {
       return NextResponse.json(
-        { error: "តែម៉ង់ទ័របានអាចចូលមើលទំព័រនេះ" },
+        { error: "តែគ្រូព្រឹក្សាគរុកោសល្យបានអាចចូលមើលទំព័រនេះ" },
         { status: 403 }
       );
     }

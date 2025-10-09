@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     if (!hasPermission(session.user.role, "view")) {
       return NextResponse.json({
-        error: "អ្នកមិនមានសិទ្ធិមើលការចាត់តាំងម៉ង់ទ័រ",
+        error: "អ្នកមិនមានសិទ្ធិមើលការចាត់តាំងគ្រូព្រឹក្សាគរុកោសល្យ",
         message: "Permission denied"
       }, { status: 403 });
     }
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     if (!mentor) {
       return NextResponse.json(
         {
-          error: "រកមិនឃើញម៉ង់ទ័រ",
+          error: "រកមិនឃើញគ្រូព្រឹក្សាគរុកោសល្យ",
           message: "Mentor not found"
         },
         { status: 404 }
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
     if (mentor.role !== "mentor") {
       return NextResponse.json(
         {
-          error: "អ្នកប្រើប្រាស់នេះមិនមែនជាម៉ង់ទ័រទេ",
+          error: "អ្នកប្រើប្រាស់នេះមិនមែនជាគ្រូព្រឹក្សាគរុកោសល្យទេ",
           message: "User is not a mentor"
         },
         { status: 400 }

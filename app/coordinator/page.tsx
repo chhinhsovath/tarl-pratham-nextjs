@@ -141,10 +141,10 @@ function CoordinatorWorkspaceContent() {
       path: '/students-management'
     },
     {
-      title: 'ចាត់តាំងម៉ង់ទ័រ',
+      title: 'ចាត់តាំងគ្រូព្រឹក្សាគរុកោសល្យ',
       icon: <TeamOutlined style={{ fontSize: 24 }} />,
       color: '#13c2c2',
-      description: 'ចាត់តាំងម៉ង់ទ័រទៅសាលារៀនសម្រាប់មុខវិជ្ជា',
+      description: 'ចាត់តាំងគ្រូព្រឹក្សាគរុកោសល្យទៅសាលារៀនសម្រាប់មុខវិជ្ជា',
       path: '/coordinator/mentor-assignments'
     },
     {
@@ -333,7 +333,7 @@ function CoordinatorWorkspaceContent() {
         <Col xs={12} sm={8} md={8} lg={4}>
           <Card>
             <Statistic
-              title="ម៉ង់ទ័រសរុប"
+              title="គ្រូព្រឹក្សាគរុកោសល្យសរុប"
               value={stats.total_mentors}
               prefix={<TeamOutlined />}
               valueStyle={{ color: '#13c2c2' }}

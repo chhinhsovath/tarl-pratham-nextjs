@@ -397,7 +397,7 @@ function AssessmentVerificationPage() {
             <Form.Item name="is_temporary">
               <Select style={{ width: 180 }} placeholder="ប្រភេទទិន្នន័យ">
                 <Option value="">ប្រភេទទាំងអស់</Option>
-                <Option value="true">បណ្តោះអាសន្ន (ម៉ង់ទ័រ)</Option>
+                <Option value="true">បណ្តោះអាសន្ន (គ្រូព្រឹក្សាគរុកោសល្យ)</Option>
                 <Option value="false">ផលិតកម្ម</Option>
               </Select>
             </Form.Item>

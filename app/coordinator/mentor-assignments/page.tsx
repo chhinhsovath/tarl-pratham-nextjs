@@ -328,7 +328,7 @@ function MentorAssignmentsPageContent() {
 
   const columns: ColumnsType<Assignment> = [
     {
-      title: "ម៉ង់ទ័រ",
+      title: "គ្រូព្រឹក្សាគរុកោសល្យ",
       dataIndex: ["mentor", "name"],
       key: "mentor_name",
       render: (text: string, record: Assignment) => (
@@ -438,7 +438,7 @@ function MentorAssignmentsPageContent() {
             <Col xs={24} sm={12} md={6}>
               <Select
                 style={{ width: "100%" }}
-                placeholder="ជ្រើសរើសម៉ង់ទ័រ"
+                placeholder="ជ្រើសរើសគ្រូព្រឹក្សាគរុកោសល្យ"
                 allowClear
                 loading={loadingMentors}
                 onChange={(value) => setSelectedMentor(value || "")}
@@ -555,11 +555,11 @@ function MentorAssignmentsPageContent() {
           >
             <Form.Item
               name="mentor_id"
-              label="ជ្រើសរើសម៉ង់ទ័រ"
-              rules={[{ required: true, message: "សូមជ្រើសរើសម៉ង់ទ័រ" }]}
+              label="ជ្រើសរើសគ្រូព្រឹក្សាគរុកោសល្យ"
+              rules={[{ required: true, message: "សូមជ្រើសរើសគ្រូព្រឹក្សាគរុកោសល្យ" }]}
             >
               <Select
-                placeholder="ជ្រើសរើសម៉ង់ទ័រ"
+                placeholder="ជ្រើសរើសគ្រូព្រឹក្សាគរុកោសល្យ"
                 loading={loadingMentors}
                 disabled={!!editingAssignment}
                 showSearch

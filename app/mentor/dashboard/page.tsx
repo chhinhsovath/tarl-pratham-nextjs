@@ -270,7 +270,7 @@ function MentorDashboardContent() {
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
           <Title level={2}>
-            តារាងត្រួតពិនិត្យម៉ង់ទ័រ
+            តារាងត្រួតពិនិត្យគ្រូព្រឹក្សាគរុកោសល្យ
             <br />
             <Text type="secondary" style={{ fontSize: 16 }}>
               Mentor Dashboard
