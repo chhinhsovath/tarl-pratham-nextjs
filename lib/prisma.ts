@@ -35,8 +35,8 @@ export async function connectPrisma() {
 
   try {
     globalForPrisma.isConnecting = true;
-    // Test connection with a simple query
-    await prisma.$queryRaw`SELECT 1`;
+    // Explicitly connect the Prisma engine
+    await prisma.$connect();
     return prisma;
   } catch (error) {
     console.error('Prisma connection error:', error);
