@@ -44,14 +44,9 @@ export async function GET(
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true,
-            province: {
-              select: {
-                name_english: true,
-                name_khmer: true
-              }
-            }
+            school_name: true,
+            school_code: true,
+            province: true // province is a string, not a relation
           }
         }
       }

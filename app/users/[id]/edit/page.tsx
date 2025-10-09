@@ -40,12 +40,9 @@ interface User {
   pilot_school_id?: number;
   pilot_school?: {
     id: number;
-    name: string;
-    code: string;
-    province?: {
-      name_english: string;
-      name_khmer: string;
-    };
+    school_name: string;
+    school_code: string;
+    province?: string; // province is a string
   };
 }
 
@@ -53,10 +50,7 @@ interface PilotSchool {
   id: number;
   name: string;
   code: string;
-  province?: {
-    name_english: string;
-    name_khmer?: string;
-  };
+  province?: string; // province is a string
 }
 
 const ROLES = [
@@ -410,7 +404,7 @@ function EditUserPageContent() {
                   >
                     {pilotSchools.map(school => (
                       <Option key={school.id} value={school.id}>
-                        {school.name} ({school.code}){school.province ? ` - ${school.province.name_english}` : ''}
+                        {school.name} ({school.code}){school.province ? ` - ${school.province}` : ''}
                       </Option>
                     ))}
                   </Select>
