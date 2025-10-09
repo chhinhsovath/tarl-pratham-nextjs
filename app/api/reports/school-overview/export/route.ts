@@ -45,10 +45,13 @@ export async function GET(request: NextRequest) {
         });
 
         const verifiedCount = await prisma.assessment.count({
-          where: { pilot_school_id: school.id, record_status: 'verified' },
+          where: {
+            pilot_school_id: school.id,
+            verified_by_id: { not: null }
+          },
         });
 
-        const mentoringVisits = await prisma.mentoring_visits.count({
+        const mentoringVisits = await prisma.mentoringVisit.count({
           where: { pilot_school_id: school.id },
         });
 
