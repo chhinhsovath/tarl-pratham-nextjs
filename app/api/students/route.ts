@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, connectPrisma } from "@/lib/prisma";
 import { z } from "zod";
 import { getRecordStatus, getRecordStatusFilter } from "@/lib/utils/recordStatus";
 import { getMentorSchoolIds } from "@/lib/mentorAssignments";
@@ -71,7 +71,7 @@ async function canAccessStudent(
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -79,6 +79,9 @@ export async function GET(request: NextRequest) {
     if (!hasPermission(session.user.role, "view")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    // Ensure Prisma connection is established (required for serverless environments)
+    await connectPrisma();
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -301,7 +304,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -309,6 +312,9 @@ export async function POST(request: NextRequest) {
     if (!hasPermission(session.user.role, "create")) {
       return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិបង្កើតសិស្សទេ" }, { status: 403 });
     }
+
+    // Ensure Prisma connection is established (required for serverless environments)
+    await connectPrisma();
 
     const body = await request.json();
 
@@ -463,7 +469,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -471,6 +477,9 @@ export async function PUT(request: NextRequest) {
     if (!hasPermission(session.user.role, "update")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    // Ensure Prisma connection is established (required for serverless environments)
+    await connectPrisma();
 
     const body = await request.json();
     const { id, ...updateData } = body;
@@ -620,7 +629,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
@@ -628,6 +637,9 @@ export async function DELETE(request: NextRequest) {
     if (!hasPermission(session.user.role, "delete")) {
       return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិលុបសិស្សទេ" }, { status: 403 });
     }
+
+    // Ensure Prisma connection is established (required for serverless environments)
+    await connectPrisma();
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
