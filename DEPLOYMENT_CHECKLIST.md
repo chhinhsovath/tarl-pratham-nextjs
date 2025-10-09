@@ -1,5 +1,43 @@
 # Vercel Auto-Deploy Setup Checklist
 
+---
+
+## 🚨 **CRITICAL: Fix Production Database Errors (January 2025)**
+
+### Current Production Errors
+1. ❌ **Connection pool exhaustion**: "Too many database connections opened"
+2. ❌ **Prepared statement conflict**: "prepared statement s4 already exists" (Error 42P05)
+
+### **IMMEDIATE ACTION REQUIRED: Update DATABASE_URL on Vercel**
+
+#### Quick Fix Steps:
+1. Go to Vercel Dashboard: https://vercel.com/dashboard
+2. Select project → **Settings** → **Environment Variables**
+3. Find `DATABASE_URL` and click **Edit**
+4. Replace with this **EXACT** value:
+
+```
+postgres://postgres.uyrmvvwwchzmqtstgwbi:QtMVSsu8uw60WRjK@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=5&pool_timeout=10&connect_timeout=10&statement_cache_size=0
+```
+
+5. Click **Save**
+6. Go to **Deployments** → Click latest → **Redeploy**
+
+#### What Changed:
+**Added these critical parameters:**
+- `connection_limit=5` - Prevents connection exhaustion
+- `pool_timeout=10` - Connection timeout
+- `statement_cache_size=0` - **Fixes "prepared statement s4" error**
+
+#### Verify Fix:
+After redeployment, test:
+- https://tarl.openplp.com/api/students?limit=500
+- Should return JSON with 51 students (no errors)
+- https://tarl.openplp.com/students-management
+- Should show "សរុប: 51 សិស្ស"
+
+---
+
 ## ✅ Pre-Deployment Checklist
 
 ### 1. GitHub Repository Status
@@ -157,5 +195,8 @@ Deployment is successful when:
 
 ---
 
-**Last Updated:** 2025-10-07
-**Latest Commit:** `a842320` - fix: Resolve client-side error in coordinator monitoring page
+**Last Updated:** 2025-10-09
+**Latest Commits:**
+- `3cbc882` - fix: Disable prepared statements to fix pgBouncer transaction mode error
+- `c79975f` - fix: Show all students by default (active + inactive)
+- `0e4b9b5` - fix: Prevent database connection pool exhaustion
