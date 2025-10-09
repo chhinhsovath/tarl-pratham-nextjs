@@ -139,10 +139,10 @@ function StudentsManagementContent() {
     is_temporary: ''
   });
 
-  // Pagination - Show all data for all roles (no pagination limit)
+  // Pagination - Reasonable limit to prevent DB connection exhaustion
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10000,
+    pageSize: 500,
     total: 0
   });
 

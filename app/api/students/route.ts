@@ -83,9 +83,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
 
-    // Force high limit for all users to show all data (no pagination)
-    const requestedLimit = parseInt(searchParams.get("limit") || "10000");
-    const limit = requestedLimit > 10 ? requestedLimit : 10000; // Ensure minimum 10000
+    // Reasonable limit to prevent DB connection exhaustion while showing all data
+    const requestedLimit = parseInt(searchParams.get("limit") || "500");
+    const limit = requestedLimit > 10 ? requestedLimit : 500; // Default to 500, prevents connection pool issues
 
     const search = searchParams.get("search") || "";
     const gender = searchParams.get("gender") || "";

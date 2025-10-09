@@ -7,7 +7,7 @@ const createPrismaClient = () => {
   return new PrismaClient({
     log: process.env.NODE_ENV === 'production' ? ['error'] : ['error', 'warn'],
     // Supabase pgBouncer (port 6543) handles connection pooling
-    // No need to add connection_limit/pool_timeout in Prisma
+    // Ensure DATABASE_URL includes: pgbouncer=true&connection_limit=5&pool_timeout=10
   });
 };
 
