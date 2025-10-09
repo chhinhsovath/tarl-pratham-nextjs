@@ -37,18 +37,39 @@ export async function GET(request: NextRequest) {
     const weekStart = new Date(today.setDate(today.getDate() - 7));
     const monthStart = new Date(today.setMonth(today.getMonth() - 1));
 
-    // Fetch all metrics in parallel for performance
+    // Fetch metrics in smaller batches to avoid connection pool exhaustion
+    // Batch 1: Basic counts (5 queries)
     const [
       total_schools,
       total_students,
       active_students,
       total_teachers,
       active_teachers,
+    ] = await Promise.all([
+      session.user.role === 'admin' ? prisma.pilotSchool.count() : Promise.resolve(1),
+      prisma.student.count({ where: schoolFilter }),
+      prisma.student.count({ where: { ...schoolFilter, is_active: true } }),
+      prisma.user.count({ where: { ...userFilter, role: 'teacher' } }),
+      prisma.user.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
+    ]);
+
+    // Batch 2: Assessments (5 queries)
+    const [
       total_mentors,
       total_assessments,
       assessments_today,
       assessments_this_week,
       assessments_this_month,
+    ] = await Promise.all([
+      prisma.user.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
+      prisma.assessment.count({ where: schoolFilter }),
+      prisma.assessment.count({ where: { ...schoolFilter, created_at: { gte: todayStart } } }),
+      prisma.assessment.count({ where: { ...schoolFilter, created_at: { gte: weekStart } } }),
+      prisma.assessment.count({ where: { ...schoolFilter, created_at: { gte: monthStart } } }),
+    ]);
+
+    // Batch 3: Assessment types and distributions (6 queries)
+    const [
       baseline_assessments,
       midline_assessments,
       endline_assessments,
@@ -56,65 +77,21 @@ export async function GET(request: NextRequest) {
       students_by_grade,
       schools_by_province,
     ] = await Promise.all([
-      // Schools - admin sees all, coordinator sees only their school
-      session.user.role === 'admin'
-        ? prisma.pilotSchool.count()
-        : Promise.resolve(1), // Coordinator has 1 school
-
-      // Students
-      prisma.student.count({ where: schoolFilter }),
-      prisma.student.count({ where: { ...schoolFilter, is_active: true } }),
-
-      // Teachers
-      prisma.user.count({ where: { ...userFilter, role: 'teacher' } }),
-      prisma.user.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
-
-      // Mentors
-      prisma.user.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
-
-      // Assessments
-      prisma.assessment.count({ where: schoolFilter }),
-      prisma.assessment.count({
-        where: { ...schoolFilter, created_at: { gte: todayStart } }
-      }),
-      prisma.assessment.count({
-        where: { ...schoolFilter, created_at: { gte: weekStart } }
-      }),
-      prisma.assessment.count({
-        where: { ...schoolFilter, created_at: { gte: monthStart } }
-      }),
-
-      // Assessment types
-      prisma.assessment.count({
-        where: { ...schoolFilter, assessment_type: 'baseline' }
-      }),
-      prisma.assessment.count({
-        where: { ...schoolFilter, assessment_type: 'midline' }
-      }),
-      prisma.assessment.count({
-        where: { ...schoolFilter, assessment_type: 'endline' }
-      }),
-
-      // Students by gender
+      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'baseline' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'midline' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'endline' } }),
       prisma.student.groupBy({
         by: ['gender'],
         where: { ...schoolFilter, is_active: true },
         _count: { id: true }
       }),
-
-      // Students by grade - skip orderBy to avoid nullable issues
       prisma.student.groupBy({
         by: ['grade'],
         where: { ...schoolFilter, is_active: true },
         _count: { id: true }
       }),
-
-      // Schools by province - only for admin
       session.user.role === 'admin'
-        ? prisma.pilotSchool.groupBy({
-            by: ['province'],
-            _count: { id: true }
-          })
+        ? prisma.pilotSchool.groupBy({ by: ['province'], _count: { id: true } })
         : Promise.resolve([]),
     ]);
 
