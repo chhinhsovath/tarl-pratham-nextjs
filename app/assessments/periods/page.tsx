@@ -211,6 +211,64 @@ function AssessmentPeriodsPageContent() {
     }
   };
 
+  const handleSetAllPeriods = async () => {
+    Modal.confirm({
+      title: 'កំណត់រយៈពេលសម្រាប់សាលារៀនទាំងអស់',
+      content: (
+        <div>
+          <p>តើអ្នកចង់កំណត់រយៈពេលវាយតម្លៃដូចខាងក្រោមសម្រាប់សាលារៀនទាំងអស់ដែរឬទេ?</p>
+          <ul style={{ marginTop: 16 }}>
+            <li><strong>តេស្តដើមគ្រា:</strong> 10-13 វិច្ឆិកា 2025</li>
+            <li><strong>តេស្តពាក់កណ្ដាលគ្រា:</strong> 18-19 ធ្នូ 2025</li>
+            <li><strong>តេស្តចុងក្រោយគ្រា:</strong> 27-28 មករា 2026</li>
+          </ul>
+          <Alert
+            message="ការប្រាប់ភ្នាក់"
+            description="សាលារៀនដែលជាប់សោនឹងមិនត្រូវបានធ្វើបច្ចុប្បន្នភាព"
+            type="warning"
+            showIcon
+            style={{ marginTop: 16 }}
+          />
+        </div>
+      ),
+      okText: 'បាទ/ចាស ធ្វើបច្ចុប្បន្នភាព',
+      cancelText: 'បោះបង់',
+      width: 600,
+      onOk: async () => {
+        try {
+          const response = await fetch('/api/assessments/periods/set-all', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              baseline_start_date: '2025-11-10',
+              baseline_end_date: '2025-11-13',
+              midline_start_date: '2025-12-18',
+              midline_end_date: '2025-12-19',
+              endline_start_date: '2026-01-27',
+              endline_end_date: '2026-01-28',
+            })
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            message.success(
+              `បានធ្វើបច្ចុប្បន្នភាព ${result.updated_count} សាលារៀនដោយជោគជ័យ`,
+              5
+            );
+            fetchPeriods();
+            fetchStats();
+          } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to update');
+          }
+        } catch (error) {
+          console.error('Error setting all periods:', error);
+          message.error('មានបញ្ហាក្នុងការកំណត់រយៈពេល');
+        }
+      }
+    });
+  };
+
   const columns = [
     {
       title: 'សាលារៀន',
@@ -366,7 +424,19 @@ function AssessmentPeriodsPageContent() {
 
   return (
     <div className="max-w-full overflow-x-hidden">
-      <Card title="ការគ្រប់ឃ្រងរយៈពេលវាយតម្លៃ">
+      <Card
+        title="ការគ្រប់ឃ្រងរយៈពេលវាយតម្លៃ"
+        extra={
+          <Button
+            type="primary"
+            icon={<CalendarOutlined />}
+            onClick={handleSetAllPeriods}
+            size="large"
+          >
+            កំណត់រយៈពេលស្តង់ដារសម្រាប់សាលារៀនទាំងអស់
+          </Button>
+        }
+      >
         <Row gutter={16} style={{ marginBottom: 24 }}>
           <Col span={4}>
             <Card>
