@@ -669,7 +669,7 @@ function StudentsManagementContent() {
 
         {/* Total count - show for all users */}
         <div style={{ marginBottom: '16px', textAlign: 'right' }}>
-          <Text strong>សរុប: {pagination.total} សិស្ស</Text>
+          <Text strong>សរុប: {students.length} សិស្ស</Text>
         </div>
 
         {/* Table - No pagination for all roles */}
