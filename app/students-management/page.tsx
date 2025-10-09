@@ -127,7 +127,7 @@ function StudentsManagementContent() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [form] = Form.useForm();
 
-  // Filters
+  // Filters - Show all students by default (active + inactive)
   const [filters, setFilters] = useState({
     search: '',
     gender: '',
@@ -135,7 +135,7 @@ function StudentsManagementContent() {
     pilot_school_id: '',
     created_by_user_id: '',
     mentor_id: '',
-    is_active: 'true',
+    is_active: '', // Empty = show all (active + inactive)
     is_temporary: ''
   });
 
