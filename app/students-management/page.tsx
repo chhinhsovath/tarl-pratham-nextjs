@@ -151,6 +151,13 @@ function StudentsManagementContent() {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [mentors, setMentors] = useState<any[]>([]);
 
+  // Set high page size for coordinators and admins to see all data
+  useEffect(() => {
+    if (session?.user?.role === 'coordinator' || session?.user?.role === 'admin') {
+      setPagination(prev => ({ ...prev, pageSize: 10000 }));
+    }
+  }, [session?.user?.role]);
+
   useEffect(() => {
     fetchFormData();
   }, []);
@@ -676,26 +683,37 @@ function StudentsManagementContent() {
           </Col>
         </Row>
 
+        {/* Total count for coordinators/admins */}
+        {(session?.user?.role === 'coordinator' || session?.user?.role === 'admin') && (
+          <div style={{ marginBottom: '16px', textAlign: 'right' }}>
+            <Text strong>សរុប: {pagination.total} សិស្ស</Text>
+          </div>
+        )}
+
         {/* Table */}
         <Table
           columns={columns}
           dataSource={students}
           rowKey="id"
           loading={loading}
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-            showTotal: (total) => `សរុប ${total} សិស្ស`,
-            onChange: (page, pageSize) => {
-              setPagination(prev => ({
-                ...prev,
-                current: page,
-                pageSize: pageSize || prev.pageSize
-              }));
-            }
-          }}
+          pagination={
+            session?.user?.role === 'coordinator' || session?.user?.role === 'admin'
+              ? false // No pagination for coordinators/admins - show all data
+              : {
+                  current: pagination.current,
+                  pageSize: pagination.pageSize,
+                  total: pagination.total,
+                  showSizeChanger: true,
+                  showTotal: (total) => `សរុប ${total} សិស្ស`,
+                  onChange: (page, pageSize) => {
+                    setPagination(prev => ({
+                      ...prev,
+                      current: page,
+                      pageSize: pageSize || prev.pageSize
+                    }));
+                  }
+                }
+          }
           scroll={{ x: 2200, y: 600 }}
           size="small"
         />
