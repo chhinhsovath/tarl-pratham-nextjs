@@ -282,7 +282,8 @@ export async function GET(request: NextRequest) {
               assessed_date: true,
               verified_by_id: true
             },
-            orderBy: { assessed_date: "desc" }
+            orderBy: { assessed_date: "desc" },
+            take: 5 // Limit to 5 most recent assessments per student
           }
         },
         skip,
