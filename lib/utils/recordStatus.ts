@@ -69,8 +69,9 @@ export function getRecordStatusFilter(
   }
 
   if (userRole === 'admin' || userRole === 'coordinator') {
-    // Admins see production by default, but can toggle
-    return { record_status: 'production' };
+    // Admins and coordinators see ALL data (no filter applied)
+    // This allows them to manage students with any record_status
+    return {};
   }
 
   if (userRole === 'mentor') {
