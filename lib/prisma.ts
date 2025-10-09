@@ -5,12 +5,10 @@ const globalForPrisma = global as unknown as {
   isConnecting: boolean;
 };
 
-// Create PrismaClient with Supabase pgBouncer configuration
+// Create PrismaClient with connection pooling for serverless
 const createPrismaClient = () => {
   const client = new PrismaClient({
     log: process.env.NODE_ENV === 'production' ? ['error'] : ['error', 'warn'],
-    // Supabase pgBouncer (port 6543) handles connection pooling
-    // Ensure DATABASE_URL includes: pgbouncer=true&connection_limit=5&pool_timeout=10&statement_cache_size=0
   });
 
   return client;
