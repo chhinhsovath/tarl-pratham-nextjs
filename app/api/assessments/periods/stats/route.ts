@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    today.setHours(0, 0, 0, 0); // Set to start of day for consistent comparison
 
     // Count total schools
     const total_schools = await prisma.pilotSchool.count();
@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
     const baseline_active = await prisma.pilotSchool.count({
       where: {
         AND: [
-          { baseline_start_date: { lte: todayStr } },
-          { baseline_end_date: { gte: todayStr } },
+          { baseline_start_date: { lte: today } },
+          { baseline_end_date: { gte: today } },
         ],
       },
     });
@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
     const midline_active = await prisma.pilotSchool.count({
       where: {
         AND: [
-          { midline_start_date: { lte: todayStr } },
-          { midline_end_date: { gte: todayStr } },
+          { midline_start_date: { lte: today } },
+          { midline_end_date: { gte: today } },
         ],
       },
     });
@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
     const endline_active = await prisma.pilotSchool.count({
       where: {
         AND: [
-          { endline_start_date: { lte: todayStr } },
-          { endline_end_date: { gte: todayStr } },
+          { endline_start_date: { lte: today } },
+          { endline_end_date: { gte: today } },
         ],
       },
     });

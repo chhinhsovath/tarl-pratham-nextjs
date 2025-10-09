@@ -69,8 +69,8 @@ export async function GET(request: NextRequest) {
           baseline_start_date: { not: null },
           baseline_end_date: { not: null },
           AND: [
-            { baseline_start_date: { lte: todayDate.toISOString() } },
-            { baseline_end_date: { gte: todayDate.toISOString() } },
+            { baseline_start_date: { lte: todayDate } },
+            { baseline_end_date: { gte: todayDate } },
           ],
         },
       }),
@@ -79,8 +79,8 @@ export async function GET(request: NextRequest) {
           midline_start_date: { not: null },
           midline_end_date: { not: null },
           AND: [
-            { midline_start_date: { lte: todayDate.toISOString() } },
-            { midline_end_date: { gte: todayDate.toISOString() } },
+            { midline_start_date: { lte: todayDate } },
+            { midline_end_date: { gte: todayDate } },
           ],
         },
       }),
@@ -89,8 +89,8 @@ export async function GET(request: NextRequest) {
           endline_start_date: { not: null },
           endline_end_date: { not: null },
           AND: [
-            { endline_start_date: { lte: todayDate.toISOString() } },
-            { endline_end_date: { gte: todayDate.toISOString() } },
+            { endline_start_date: { lte: todayDate } },
+            { endline_end_date: { gte: todayDate } },
           ],
         },
       }),
