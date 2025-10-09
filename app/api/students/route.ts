@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma, connectPrisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { getRecordStatus, getRecordStatusFilter } from "@/lib/utils/recordStatus";
 import { getMentorSchoolIds } from "@/lib/mentorAssignments";
@@ -82,21 +82,6 @@ export async function GET(request: NextRequest) {
 
     if (!hasPermission(session.user.role, "view")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    // Ensure Prisma connection is established (required for serverless environments)
-    try {
-      await connectPrisma();
-    } catch (connectionError: any) {
-      console.error("Failed to connect to database:", connectionError);
-      return NextResponse.json(
-        {
-          error: "មានបញ្ហាក្នុងការតភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យ",
-          message: connectionError.message || String(connectionError),
-          code: "DATABASE_CONNECTION_ERROR"
-        },
-        { status: 503 }
-      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -350,9 +335,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិបង្កើតសិស្សទេ" }, { status: 403 });
     }
 
-    // Ensure Prisma connection is established (required for serverless environments)
-    await connectPrisma();
-
     const body = await request.json();
 
     // Validate input
@@ -515,9 +497,6 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Ensure Prisma connection is established (required for serverless environments)
-    await connectPrisma();
-
     const body = await request.json();
     const { id, ...updateData } = body;
     
@@ -674,9 +653,6 @@ export async function DELETE(request: NextRequest) {
     if (!hasPermission(session.user.role, "delete")) {
       return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិលុបសិស្សទេ" }, { status: 403 });
     }
-
-    // Ensure Prisma connection is established (required for serverless environments)
-    await connectPrisma();
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
