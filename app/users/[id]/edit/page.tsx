@@ -42,6 +42,10 @@ interface User {
     id: number;
     name: string;
     code: string;
+    province?: {
+      name_english: string;
+      name_khmer: string;
+    };
   };
 }
 
@@ -49,8 +53,9 @@ interface PilotSchool {
   id: number;
   name: string;
   code: string;
-  province: {
+  province?: {
     name_english: string;
+    name_khmer?: string;
   };
 }
 
@@ -112,11 +117,18 @@ function EditUserPageContent() {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch(`/api/users?id=${userId}&single=true`);
-      if (!response.ok) throw new Error("មិនអាចទាញយកទិន្នន័យអ្នកប្រើប្រាស់");
+      // Use correct API endpoint: /api/users/[id]
+      const response = await fetch(`/api/users/${userId}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "មិនអាចទាញយកទិន្នន័យអ្នកប្រើប្រាស់");
+      }
 
       const data = await response.json();
       const userData = data.data;
+
+      console.log('[USER EDIT] Fetched user data:', userData);
+
       setUser(userData);
       setSelectedRole(userData.role);
 
@@ -132,7 +144,7 @@ function EditUserPageContent() {
       });
     } catch (error) {
       console.error("Error fetching user:", error);
-      message.error("មិនអាចផ្ទុកទិន្នន័យអ្នកប្រើប្រាស់");
+      message.error(error instanceof Error ? error.message : "មិនអាចផ្ទុកទិន្នន័យអ្នកប្រើប្រាស់");
       router.push("/users");
     } finally {
       setFetching(false);
@@ -398,7 +410,7 @@ function EditUserPageContent() {
                   >
                     {pilotSchools.map(school => (
                       <Option key={school.id} value={school.id}>
-                        {school.name} ({school.code}) - {school.province.name_english}
+                        {school.name} ({school.code}){school.province ? ` - ${school.province.name_english}` : ''}
                       </Option>
                     ))}
                   </Select>
