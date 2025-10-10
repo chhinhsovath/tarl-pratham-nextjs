@@ -16,21 +16,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Build filter for coordinator - only their school
+    // Coordinators have admin-like access - NO restrictions
     const schoolFilter: any = {};
     const userFilter: any = {};
 
-    if (session.user.role === 'coordinator') {
-      if (!session.user.pilot_school_id) {
-        return NextResponse.json({
-          error: 'អ្នកមិនមានសាលារៀនចាត់តាំងទេ',
-          message: 'Coordinator has no assigned school'
-        }, { status: 403 });
-      }
-      schoolFilter.pilot_school_id = session.user.pilot_school_id;
-      userFilter.pilot_school_id = session.user.pilot_school_id;
-      console.log(`[COORDINATOR STATS] Filtering by pilot_school_id: ${session.user.pilot_school_id}`);
-    }
+    console.log(`[COORDINATOR STATS] User role: ${session.user.role} - Full access granted`);
 
     const today = new Date();
     const todayStart = new Date(today.setHours(0, 0, 0, 0));
@@ -46,7 +36,7 @@ export async function GET(request: NextRequest) {
       total_teachers,
       active_teachers,
     ] = await Promise.all([
-      session.user.role === 'admin' ? prisma.pilotSchool.count() : Promise.resolve(1),
+      prisma.pilotSchool.count(), // Both admin and coordinator see all schools
       prisma.student.count({ where: schoolFilter }),
       prisma.student.count({ where: { ...schoolFilter, is_active: true } }),
       prisma.user.count({ where: { ...userFilter, role: 'teacher' } }),
@@ -90,9 +80,7 @@ export async function GET(request: NextRequest) {
         where: { ...schoolFilter, is_active: true },
         _count: { id: true }
       }),
-      session.user.role === 'admin'
-        ? prisma.pilotSchool.groupBy({ by: ['province'], _count: { id: true } })
-        : Promise.resolve([]),
+      prisma.pilotSchool.groupBy({ by: ['province'], _count: { id: true } }), // Both admin and coordinator see all provinces
     ]);
 
     // Format gender distribution

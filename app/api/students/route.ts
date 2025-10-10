@@ -49,12 +49,8 @@ async function canAccessStudent(
   userPilotSchoolId: number | null,
   studentPilotSchoolId: number | null
 ): Promise<boolean> {
-  if (userRole === "admin") {
-    return true;
-  }
-
-  if (userRole === "coordinator" && userPilotSchoolId) {
-    return studentPilotSchoolId === userPilotSchoolId;
+  if (userRole === "admin" || userRole === "coordinator") {
+    return true; // Both admin and coordinator have full access
   }
 
   if (userRole === "mentor") {
@@ -176,20 +172,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Apply access restrictions for coordinators, mentors, and teachers
-    if (session.user.role === "coordinator") {
-      // Coordinators are restricted to their assigned school
-      if (session.user.pilot_school_id) {
-        where.AND = where.AND || [];
-        where.AND.push({ pilot_school_id: session.user.pilot_school_id });
-        console.log(`[COORDINATOR] Filtering by pilot_school_id: ${session.user.pilot_school_id}`);
-      } else {
-        // If coordinator has no pilot school, they can't see any students
-        where.AND = where.AND || [];
-        where.AND.push({ id: -1 });
-        console.log(`[COORDINATOR] No pilot_school_id - blocking all access`);
-      }
-    } else if (session.user.role === "mentor") {
+    // Apply access restrictions for mentors and teachers (coordinators have full access like admin)
+    if (session.user.role === "mentor") {
       // Mentors can access students from ALL their assigned schools
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
       console.log(`[MENTOR] User ID: ${session.user.id}, Assigned school IDs:`, mentorSchoolIds);

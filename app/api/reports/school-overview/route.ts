@@ -15,18 +15,8 @@ export async function GET(request: NextRequest) {
     // Build where clause based on user role
     const where: any = {};
 
-    // Coordinators can only see their assigned school
-    if (session.user.role === 'coordinator') {
-      if (!session.user.pilot_school_id) {
-        return NextResponse.json({
-          error: 'អ្នកមិនមានសាលារៀនចាត់តាំងទេ',
-          message: 'Coordinator has no assigned school'
-        }, { status: 403 });
-      }
-      where.id = session.user.pilot_school_id;
-      console.log(`[COORDINATOR] Filtering school overview by pilot_school_id: ${session.user.pilot_school_id}`);
-    }
-    // Admin sees all schools (no filter)
+    // Coordinators have admin-like access - see all schools (no filter)
+    console.log(`[SCHOOL OVERVIEW] User role: ${session.user.role} - Full access granted`);
 
     // Get pilot schools filtered by role
     const schools = await prisma.pilotSchool.findMany({

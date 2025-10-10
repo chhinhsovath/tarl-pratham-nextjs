@@ -16,19 +16,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Build filter for coordinator - only their school
+    // Coordinators have admin-like access - NO restrictions
     const schoolFilter: any = {};
 
-    if (session.user.role === 'coordinator') {
-      if (!session.user.pilot_school_id) {
-        return NextResponse.json({
-          error: 'អ្នកមិនមានសាលារៀនចាត់តាំងទេ',
-          message: 'Coordinator has no assigned school'
-        }, { status: 403 });
-      }
-      schoolFilter.pilot_school_id = session.user.pilot_school_id;
-      console.log(`[COORDINATOR ACTIVITIES] Filtering by pilot_school_id: ${session.user.pilot_school_id}`);
-    }
+    console.log(`[COORDINATOR ACTIVITIES] User role: ${session.user.role} - Full access granted`);
 
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
