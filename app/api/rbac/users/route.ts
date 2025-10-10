@@ -79,6 +79,7 @@ export async function GET(request: NextRequest) {
             }
           },
           user_pilot_school_assignments: {
+            take: 10, // Limit nested assignments to prevent unbounded query
             include: {
               pilot_school: {
                 select: {
@@ -106,7 +107,8 @@ export async function GET(request: NextRequest) {
     const [schools, roles] = await Promise.all([
       prisma.pilotSchool.findMany({
         select: { id: true, school_name: true },
-        orderBy: { school_name: 'asc' }
+        orderBy: { school_name: 'asc' },
+        take: 100 // Limit schools list to prevent unbounded query
       }),
       Promise.resolve(['admin', 'coordinator', 'mentor', 'teacher', 'viewer'])
     ]);
