@@ -14,7 +14,9 @@ import {
   Progress,
   message,
   Select,
-  Input
+  Input,
+  Dropdown,
+  MenuProps
 } from 'antd';
 import {
   BankOutlined,
@@ -23,7 +25,9 @@ import {
   CheckCircleOutlined,
   EyeOutlined,
   DownloadOutlined,
-  SearchOutlined
+  SearchOutlined,
+  FileExcelOutlined,
+  FilePdfOutlined
 } from '@ant-design/icons';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -89,25 +93,56 @@ function SchoolOverviewContent() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = async (format: 'excel' | 'pdf', lang: 'km' | 'en') => {
     try {
-      const response = await fetch('/api/reports/school-overview/export');
+      const response = await fetch(`/api/reports/school-overview/export?format=${format}&lang=${lang}`);
       if (!response.ok) throw new Error('Failed to export');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `school-overview-${new Date().toISOString().split('T')[0]}.xlsx`;
+      const ext = format === 'pdf' ? 'pdf' : 'xlsx';
+      link.download = `school-overview-${new Date().toISOString().split('T')[0]}.${ext}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      message.success('Export បានជោគជ័យ');
+      message.success(`Export ${format.toUpperCase()} បានជោគជ័យ`);
     } catch (error) {
       message.error('Export បរាជ័យ');
     }
   };
+
+  const exportMenuItems: MenuProps['items'] = [
+    {
+      key: 'excel-km',
+      icon: <FileExcelOutlined />,
+      label: 'Excel (ខ្មែរ)',
+      onClick: () => handleExport('excel', 'km')
+    },
+    {
+      key: 'excel-en',
+      icon: <FileExcelOutlined />,
+      label: 'Excel (English)',
+      onClick: () => handleExport('excel', 'en')
+    },
+    {
+      type: 'divider'
+    },
+    {
+      key: 'pdf-km',
+      icon: <FilePdfOutlined />,
+      label: 'PDF (ខ្មែរ)',
+      onClick: () => handleExport('pdf', 'km')
+    },
+    {
+      key: 'pdf-en',
+      icon: <FilePdfOutlined />,
+      label: 'PDF (English)',
+      onClick: () => handleExport('pdf', 'en')
+    }
+  ];
 
   const filteredData = data.filter(school => {
     const matchesSearch = school.school_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -418,13 +453,14 @@ function SchoolOverviewContent() {
               <Option value="no_assessments">គ្មានការវាយតម្លៃ</Option>
             </Select>
           </Space>
-          <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            onClick={handleExport}
-          >
-            Export Excel
-          </Button>
+          <Dropdown menu={{ items: exportMenuItems }} placement="bottomRight">
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+            >
+              Export
+            </Button>
+          </Dropdown>
         </Space>
       </Card>
 
