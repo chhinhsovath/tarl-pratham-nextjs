@@ -18,21 +18,22 @@ export async function GET(request: NextRequest) {
       levelLabels = ["ចាប់ផ្តើម", "លេខ១ខ្ទង់", "លេខ២ខ្ទង់", "ដក", "ចែក", "ល្បាយពាក្យ"];
     }
 
-    // Get assessment counts by level
-    const assessmentCounts = await Promise.all(
-      levels.map(async (level) => {
-        const count = await prisma.assessment.count({
-          where: {
-            subject: subject,
-            level: level.toLowerCase().replace(/\s+/g, "_").replace(/\./g, "")
-          }
-        });
-        return count;
-      })
-    );
+    // Get assessment counts by level - OPTIMIZED: Single groupBy query instead of parallel map
+    const levelCounts = await prisma.assessment.groupBy({
+      by: ['level'],
+      where: { subject: subject },
+      _count: { level: true }
+    });
 
-    // Get cycle counts (baseline, midline, endline)
-    const [baseline, midline, endline] = await Promise.all([
+    // Convert grouped results to array matching levels order
+    const assessmentCounts = levels.map(level => {
+      const normalizedLevel = level.toLowerCase().replace(/\s+/g, "_").replace(/\./g, "");
+      const found = levelCounts.find(lc => lc.level === normalizedLevel);
+      return found?._count.level || 0;
+    });
+
+    // BATCH: Cycle counts + total students (4 queries)
+    const [baseline, midline, endline, totalStudents] = await Promise.all([
       prisma.assessment.count({
         where: {
           subject: subject,
@@ -50,19 +51,18 @@ export async function GET(request: NextRequest) {
           subject: subject,
           assessment_type: "endline"
         }
+      }),
+      // Get total unique students assessed
+      prisma.assessment.findMany({
+        where: {
+          subject: subject
+        },
+        distinct: ['student_id'],
+        select: {
+          student_id: true
+        }
       })
     ]);
-
-    // Get total unique students assessed
-    const totalStudents = await prisma.assessment.findMany({
-      where: {
-        subject: subject
-      },
-      distinct: ['student_id'],
-      select: {
-        student_id: true
-      }
-    });
 
     // Prepare chart data
     const chartData = {
