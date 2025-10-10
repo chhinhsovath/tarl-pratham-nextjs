@@ -16,12 +16,17 @@ export async function GET(
     }
 
     const userId = parseInt(params.id);
-    
+
+    // Validate user ID
+    if (isNaN(userId)) {
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
+    }
+
     // Check permissions - users can view their own data, admins/coordinators can view all
-    const canView = session.user.role === "admin" || 
-                   session.user.role === "coordinator" || 
+    const canView = session.user.role === "admin" ||
+                   session.user.role === "coordinator" ||
                    session.user.id === params.id;
-    
+
     if (!canView) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -63,7 +68,12 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Failed to fetch user",
+        message: error instanceof Error ? error.message : "Unknown error",
+        code: (error as any)?.code || "UNKNOWN_ERROR",
+        meta: (error as any)?.meta || {}
+      },
       { status: 500 }
     );
   }
