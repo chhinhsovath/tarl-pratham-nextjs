@@ -57,6 +57,13 @@ export default function Home() {
     endline: '—',
     total: 0
   });
+  const [statistics, setStatistics] = useState({
+    total_students: 0,
+    total_schools: 0,
+    total_assessments: 0,
+    total_mentoring_visits: 0,
+    assessed_students: 0
+  });
 
   // Fetch assessment data
   const fetchAssessmentData = async (selectedSubject: 'khmer' | 'math') => {
@@ -92,6 +99,17 @@ export default function Home() {
         endline: data.cycleData.endline || '—',
         total: data.cycleData.total || 0
       });
+
+      // Update statistics
+      if (data.statistics) {
+        setStatistics({
+          total_students: data.statistics.total_students || 0,
+          total_schools: data.statistics.total_schools || 0,
+          total_assessments: data.statistics.total_assessments || 0,
+          total_mentoring_visits: data.statistics.total_mentoring_visits || 0,
+          assessed_students: data.statistics.assessed_students || 0
+        });
+      }
     } catch (error) {
       console.error('Error fetching assessment data:', error);
       // Set default data if error
@@ -218,30 +236,30 @@ export default function Home() {
 
   const stats = [
     {
-      name: 'សរុបសិស្ស',
-      value: cycleData.total.toLocaleString(),
+      name: 'សិស្សសរុប',
+      value: statistics.total_students.toLocaleString(),
       icon: UserGroupIcon,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
     },
     {
-      name: 'ការវាយតម្លៃ',
-      value: '3',
-      icon: ChartBarIcon,
+      name: 'សាលារៀន',
+      value: statistics.total_schools.toLocaleString(),
+      icon: HomeIcon,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
     },
     {
-      name: 'មុខវិជ្ជា',
-      value: '2',
-      icon: BookOpenIcon,
+      name: 'ការវាយតម្លៃ',
+      value: statistics.total_assessments.toLocaleString(),
+      icon: ChartBarIcon,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
     },
     {
-      name: 'កម្រិត',
-      value: subject === 'khmer' ? '7' : '6',
-      icon: AcademicCapIcon,
+      name: 'ការណែនាំ',
+      value: statistics.total_mentoring_visits.toLocaleString(),
+      icon: EyeIcon,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
     },

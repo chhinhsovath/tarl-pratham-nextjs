@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
       return found?._count.level || 0;
     });
 
-    // BATCH: Cycle counts + total students (4 queries)
-    const [baseline, midline, endline, totalStudents] = await Promise.all([
+    // BATCH: Cycle counts + comprehensive stats (8 queries)
+    const [baseline, midline, endline, totalStudents, totalSchools, totalAssessments, totalMentors, assessedStudents] = await Promise.all([
       prisma.assessment.count({
         where: {
           subject: subject,
@@ -58,7 +58,17 @@ export async function GET(request: NextRequest) {
           assessment_type: "endline"
         }
       }),
-      // Get total unique students assessed
+      // Get total students (all students, not just assessed ones)
+      prisma.student.count({
+        where: { is_active: true }
+      }),
+      // Get total schools
+      prisma.pilotSchool.count(),
+      // Get total assessments across all subjects
+      prisma.assessment.count(),
+      // Get total mentoring visits
+      prisma.mentoringVisit.count(),
+      // Get total unique students assessed for this subject
       prisma.assessment.findMany({
         where: {
           subject: subject
@@ -82,17 +92,28 @@ export async function GET(request: NextRequest) {
       }]
     };
 
-    // Prepare cycle data
+    // Prepare cycle data with comprehensive statistics
     const cycleData = {
       baseline: baseline || 0,
       midline: midline || 0,
       endline: endline || 0,
-      total: totalStudents.length
+      total: assessedStudents.length, // Students assessed for this subject
+      totalStudents: totalStudents, // All active students
+      totalSchools: totalSchools,
+      totalAssessments: totalAssessments, // All assessments across all subjects
+      totalMentors: totalMentors
     };
 
     return NextResponse.json({
       chartData,
-      cycleData
+      cycleData,
+      statistics: {
+        total_students: totalStudents,
+        total_schools: totalSchools,
+        total_assessments: totalAssessments,
+        total_mentoring_visits: totalMentors,
+        assessed_students: assessedStudents.length
+      }
     });
 
   } catch (error) {
@@ -119,7 +140,18 @@ export async function GET(request: NextRequest) {
         baseline: 0,
         midline: 0,
         endline: 0,
-        total: 0
+        total: 0,
+        totalStudents: 0,
+        totalSchools: 0,
+        totalAssessments: 0,
+        totalMentors: 0
+      },
+      statistics: {
+        total_students: 0,
+        total_schools: 0,
+        total_assessments: 0,
+        total_mentoring_visits: 0,
+        assessed_students: 0
       }
     });
   }
