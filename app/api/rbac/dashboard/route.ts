@@ -18,26 +18,37 @@ export async function GET(request: NextRequest) {
     }
 
     // Get statistics for each role with proper data isolation
+    // BATCH 1: User counts (4 queries)
     const [
       totalUsers,
       activeUsers,
       adminUsers,
-      coordinatorUsers,
+      coordinatorUsers
+    ] = await Promise.all([
+      prisma.user.count(),
+      prisma.user.count({ where: { is_active: true } }),
+      prisma.user.count({ where: { role: "admin" } }),
+      prisma.user.count({ where: { role: "coordinator" } })
+    ]);
+
+    // BATCH 2: More user counts (3 queries)
+    const [
       mentorUsers,
       teacherUsers,
-      viewerUsers,
+      viewerUsers
+    ] = await Promise.all([
+      prisma.user.count({ where: { role: "mentor" } }),
+      prisma.user.count({ where: { role: "teacher" } }),
+      prisma.user.count({ where: { role: "viewer" } })
+    ]);
+
+    // BATCH 3: System resources (4 queries)
+    const [
       totalSchools,
       totalStudents,
       totalAssessments,
       totalMentoringVisits
     ] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { is_active: true } }),
-      prisma.user.count({ where: { role: "admin" } }),
-      prisma.user.count({ where: { role: "coordinator" } }),
-      prisma.user.count({ where: { role: "mentor" } }),
-      prisma.user.count({ where: { role: "teacher" } }),
-      prisma.user.count({ where: { role: "viewer" } }),
       prisma.pilotSchool.count(),
       prisma.student.count(),
       prisma.assessment.count(),
@@ -73,6 +84,7 @@ export async function GET(request: NextRequest) {
           }
         },
         user_pilot_school_assignments: {
+          take: 10, // Limit nested assignments to prevent unbounded query
           include: {
             pilot_school: {
               select: {
