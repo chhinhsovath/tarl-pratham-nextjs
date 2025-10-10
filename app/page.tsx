@@ -316,25 +316,25 @@ export default function Home() {
       </section>
 
       {/* Clean Stats Section */}
-      <section id="overview" className="py-8 bg-gray-50">
+      <section id="overview" className="py-6 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">ទិដ្ឋភាពរួមនៃប្រព័ន្ធ</h2>
-            <p className="text-base text-gray-600">
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">ទិដ្ឋភាពរួមនៃប្រព័ន្ធ</h2>
+            <p className="text-sm text-gray-600">
               សង្ខេបនៃទិន្នន័យសំខាន់ៗ និងការវាយតម្លៃក្នុងប្រព័ន្ធ TaRL
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {stats.map((stat) => (
-              <div key={stat.name} className="bg-white rounded-lg shadow-sm p-4 border hover:shadow-md transition-shadow">
-                <div className="flex items-center">
-                  <div className={`flex-shrink-0 p-2.5 rounded-lg ${stat.bgColor}`}>
-                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+              <div key={stat.name} className="bg-white rounded-lg shadow-sm p-3 border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all">
+                <div className="flex items-center gap-2.5">
+                  <div className={`flex-shrink-0 p-2 rounded-lg ${stat.bgColor}`}>
+                    <stat.icon className={`w-4 h-4 ${stat.color}`} />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-xs font-medium text-gray-600">{stat.name}</p>
-                    <p className="text-xl font-bold text-gray-900">{stat.value}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-gray-600 truncate">{stat.name}</p>
+                    <p className="text-lg font-bold text-gray-900">{stat.value}</p>
                   </div>
                 </div>
               </div>
