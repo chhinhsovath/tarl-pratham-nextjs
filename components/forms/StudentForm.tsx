@@ -72,7 +72,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
             <Form.Item
               name="student_id"
               label="លេខសម្គាល់សិស្ស"
-              rules={[{ required: true, message: 'សូមបញ្ចូលលេខសម្គាល់សិស្ស!' }]}
             >
               <Input
                 placeholder="បញ្ចូលលេខសម្គាល់សិស្ស"
@@ -98,7 +97,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
             <Form.Item
               name="gender"
               label="ភេទ"
-              rules={[{ required: true, message: 'សូមជ្រើសរើសភេទ!' }]}
             >
               <Select placeholder="ជ្រើសរើសភេទ" size="large">
                 <Option value="male">ប្រុស</Option>
@@ -112,7 +110,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
             <Form.Item
               name="grade"
               label="ថ្នាក់"
-              rules={[{ required: true, message: 'សូមជ្រើសរើសថ្នាក់!' }]}
             >
               <Select placeholder="ជ្រើសរើសថ្នាក់" size="large">
                 <Option value={4}>ថ្នាក់ទី៤</Option>
