@@ -11,17 +11,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Get overall statistics
+    // BATCH 1: Student & assessment counts (3 queries)
     const [
       totalStudents,
       activeStudents,
-      totalAssessments,
+      totalAssessments
+    ] = await Promise.all([
+      prisma.student.count(),
+      prisma.student.count({ where: { is_active: true } }),
+      prisma.assessment.count()
+    ]);
+
+    // BATCH 2: System counts (3 queries)
+    const [
       totalSchools,
       totalMentoringVisits,
       atRiskStudents
     ] = await Promise.all([
-      prisma.student.count(),
-      prisma.student.count({ where: { is_active: true } }),
-      prisma.assessment.count(),
       prisma.pilotSchool.count(),
       prisma.mentoringVisit.count(),
       prisma.student.count({
@@ -54,6 +60,8 @@ export async function GET(request: NextRequest) {
         age: true,
         is_active: true,
         assessments: {
+          take: 5, // Limit nested assessments to prevent unbounded query
+          orderBy: { assessed_date: 'desc' },
           select: {
             id: true,
             level: true,
