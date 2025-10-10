@@ -28,26 +28,29 @@ export async function GET(request: NextRequest) {
     // For DateTime field comparison in Prisma
     const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 
-    // Fetch all metrics in parallel
+    // Fetch metrics in batches to prevent connection pool exhaustion
+    // Batch 1: Basic counts (5 queries)
     const [
       total_users,
       active_users,
       total_schools,
       total_students,
       total_assessments,
-      assessments_today,
-      assessments_this_week,
-      pending_verifications,
-      baseline_active,
-      midline_active,
-      endline_active,
-      recent_activities_raw,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { is_active: true } }),
       prisma.pilotSchool.count(),
       prisma.student.count({ where: { is_active: true } }),
       prisma.assessment.count(),
+    ]);
+
+    // Batch 2: Time-based assessment counts (4 queries)
+    const [
+      assessments_today,
+      assessments_this_week,
+      pending_verifications,
+      recent_activities_raw,
+    ] = await Promise.all([
       prisma.assessment.count({
         where: {
           created_at: { gte: todayStart },
@@ -64,6 +67,26 @@ export async function GET(request: NextRequest) {
           record_status: 'production',
         },
       }),
+      prisma.assessment.findMany({
+        take: 20,
+        orderBy: { created_at: 'desc' },
+        include: {
+          added_by: {
+            select: { name: true },
+          },
+          student: {
+            select: { name: true },
+          },
+        },
+      }),
+    ]);
+
+    // Batch 3: Active assessment periods (3 queries)
+    const [
+      baseline_active,
+      midline_active,
+      endline_active,
+    ] = await Promise.all([
       prisma.pilotSchool.count({
         where: {
           baseline_start_date: { not: null },
@@ -92,18 +115,6 @@ export async function GET(request: NextRequest) {
             { endline_start_date: { lte: todayDate } },
             { endline_end_date: { gte: todayDate } },
           ],
-        },
-      }),
-      prisma.assessment.findMany({
-        take: 20,
-        orderBy: { created_at: 'desc' },
-        include: {
-          added_by: {
-            select: { name: true },
-          },
-          student: {
-            select: { name: true },
-          },
         },
       }),
     ]);
