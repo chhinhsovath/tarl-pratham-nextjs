@@ -316,25 +316,25 @@ export default function Home() {
       </section>
 
       {/* Clean Stats Section */}
-      <section id="overview" className="py-12 bg-gray-50">
+      <section id="overview" className="py-8 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">ទិដ្ឋភាពរួមនៃប្រព័ន្ធ</h2>
-            <p className="text-lg text-gray-600">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">ទិដ្ឋភាពរួមនៃប្រព័ន្ធ</h2>
+            <p className="text-base text-gray-600">
               សង្ខេបនៃទិន្នន័យសំខាន់ៗ និងការវាយតម្លៃក្នុងប្រព័ន្ធ TaRL
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat) => (
-              <div key={stat.name} className="bg-white rounded-lg shadow-md p-6 border hover:shadow-lg transition-shadow">
+              <div key={stat.name} className="bg-white rounded-lg shadow-sm p-4 border hover:shadow-md transition-shadow">
                 <div className="flex items-center">
-                  <div className={`flex-shrink-0 p-3 rounded-lg ${stat.bgColor}`}>
-                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                  <div className={`flex-shrink-0 p-2.5 rounded-lg ${stat.bgColor}`}>
+                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
                   </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <div className="ml-3">
+                    <p className="text-xs font-medium text-gray-600">{stat.name}</p>
+                    <p className="text-xl font-bold text-gray-900">{stat.value}</p>
                   </div>
                 </div>
               </div>
@@ -344,43 +344,43 @@ export default function Home() {
       </section>
 
       {/* Modern Dashboard Section */}
-      <section id="assessments" className="py-20 bg-gray-50">
+      <section id="assessments" className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">លទ្ធផលការវាយតម្លៃតាមកម្រិត</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">លទ្ធផលការវាយតម្លៃតាមកម្រិត</h2>
+            <p className="text-base text-gray-600 max-w-2xl mx-auto">
               ការបង្ហាញទិន្នន័យអន្តរកម្មសម្រាប់ការវាយតម្លៃសិស្សតាមកម្រិតសមត្ថភាព
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 border-b border-gray-100">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-5 border-b border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
                     ការវិភាគទិន្នន័យសិស្ស
                   </h3>
-                  <p className="text-gray-600">ជ្រើសរើសមុខវិជ្ជាដើម្បីមើលលទ្ធផលការវាយតម្លៃ</p>
+                  <p className="text-sm text-gray-600">ជ្រើសរើសមុខវិជ្ជាដើម្បីមើលលទ្ធផលការវាយតម្លៃ</p>
                 </div>
-                
+
                 {/* Beautiful Ant Design Subject Selector */}
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <Button
                     type={subject === 'khmer' ? 'primary' : 'default'}
-                    size="large"
+                    size="middle"
                     icon={<BookOpenIcon className="w-4 h-4" />}
                     onClick={() => setSubject('khmer')}
-                    className="font-khmer-bold flex items-center h-12 px-6"
+                    className="font-khmer-bold flex items-center h-10 px-5"
                     style={subject === 'khmer' ? { backgroundColor: '#1677ff', borderColor: '#1677ff' } : {}}
                   >
                     ខ្មែរ
                   </Button>
                   <Button
                     type={subject === 'math' ? 'primary' : 'default'}
-                    size="large"
+                    size="middle"
                     icon={<AcademicCapIcon className="w-4 h-4" />}
                     onClick={() => setSubject('math')}
-                    className="font-khmer-bold flex items-center h-12 px-6"
+                    className="font-khmer-bold flex items-center h-10 px-5"
                     style={subject === 'math' ? { backgroundColor: '#52c41a', borderColor: '#52c41a' } : {}}
                   >
                     គណិតវិទ្យា
@@ -390,8 +390,8 @@ export default function Home() {
             </div>
             
             {/* Enhanced Chart Container */}
-            <div className="p-8">
-              <div className="relative bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6" style={{ height: '500px' }}>
+            <div className="p-5">
+              <div className="relative bg-gradient-to-br from-gray-50 to-white rounded-xl p-4" style={{ height: '450px' }}>
                 {loading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-95 z-10 rounded-2xl backdrop-blur-sm">
                     <div className="flex flex-col items-center">
