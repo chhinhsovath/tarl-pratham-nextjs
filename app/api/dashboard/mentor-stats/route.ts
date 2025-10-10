@@ -26,16 +26,22 @@ export async function GET(request: NextRequest) {
       : {}; // If no assigned school, show nothing
 
     // Get statistics filtered by mentor's assigned school
+    // BATCH 1: Student counts (3 queries)
     const [
       totalStudents,
       temporaryStudents,
-      totalPilotSchools,
-      totalAssessments,
-      temporaryAssessments
+      totalPilotSchools
     ] = await Promise.all([
       prisma.student.count({ where: schoolFilter }),
       prisma.student.count({ where: { ...schoolFilter, is_temporary: true } }),
-      mentorUser.pilot_school_id ? 1 : 0, // Mentor assigned to 1 school or 0
+      Promise.resolve(mentorUser.pilot_school_id ? 1 : 0) // Mentor assigned to 1 school or 0
+    ]);
+
+    // BATCH 2: Assessment counts (2 queries)
+    const [
+      totalAssessments,
+      temporaryAssessments
+    ] = await Promise.all([
       prisma.assessment.count({
         where: {
           student: schoolFilter
