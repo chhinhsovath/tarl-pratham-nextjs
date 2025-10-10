@@ -59,13 +59,12 @@ export async function GET(request: NextRequest) {
     }
 
     // 1. Overview Statistics
+    // BATCH 1: Core counts (4 queries)
     const [
       totalStudents,
       totalAssessments,
       totalSchools,
-      totalTeachers,
-      assessments,
-      allStudents
+      totalTeachers
     ] = await Promise.all([
       // Total students count
       prisma.student.count({
@@ -77,10 +76,10 @@ export async function GET(request: NextRequest) {
           ...(school_id && { pilot_school_id: parseInt(school_id) })
         }
       }),
-      
+
       // Total assessments count
       prisma.assessment.count({ where: baseWhere }),
-      
+
       // Total schools count
       prisma.pilotSchool.count({
         where: {
@@ -91,7 +90,7 @@ export async function GET(request: NextRequest) {
           ...(school_id && { id: parseInt(school_id) })
         }
       }),
-      
+
       // Total teachers count
       prisma.user.count({
         where: {
@@ -100,9 +99,12 @@ export async function GET(request: NextRequest) {
             pilot_school_id: session.user.pilot_school_id
           })
         }
-      }),
-      
-      // All assessments for calculations
+      })
+    ]);
+
+    // BATCH 2: Assessment data with limits (2 queries)
+    const [assessments, allStudents] = await Promise.all([
+      // All assessments for calculations - LIMITED
       prisma.assessment.findMany({
         where: baseWhere,
         include: {
@@ -112,10 +114,11 @@ export async function GET(request: NextRequest) {
             }
           }
         },
-        orderBy: { assessment_date: 'desc' }
+        orderBy: { assessment_date: 'desc' },
+        take: 500 // Limit to prevent memory/connection issues
       }),
-      
-      // All students for completion rate calculation
+
+      // All students for completion rate calculation - LIMITED
       prisma.student.findMany({
         where: {
           is_active: true,
@@ -126,9 +129,11 @@ export async function GET(request: NextRequest) {
         },
         include: {
           assessments: {
-            where: baseWhere
+            where: baseWhere,
+            take: 3 // Limit nested assessments per student
           }
-        }
+        },
+        take: 500 // Limit total students fetched
       })
     ]);
 
@@ -249,40 +254,42 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 5. Monthly Trends (last 6 months)
+    // 5. Monthly Trends (last 6 months) - OPTIMIZED: Single query instead of loop
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    sixMonthsAgo.setDate(1);
+
+    // Fetch all assessments for last 6 months in ONE query
+    const monthlyAssessments = await prisma.assessment.findMany({
+      where: {
+        ...baseWhere,
+        assessment_date: {
+          gte: sixMonthsAgo
+        }
+      },
+      select: {
+        assessment_date: true,
+        khmer_level: true,
+        math_level: true
+      }
+    });
+
+    // Group by month in JavaScript (no additional DB queries)
     const monthlyTrends = [];
     for (let i = 5; i >= 0; i--) {
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - i);
       startDate.setDate(1);
-      
+
       const endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + 1);
       endDate.setDate(0);
 
-      const monthAssessments = await prisma.assessment.count({
-        where: {
-          ...baseWhere,
-          assessment_date: {
-            gte: startDate,
-            lte: endDate
-          }
-        }
-      });
+      const monthData = monthlyAssessments.filter(a =>
+        a.assessment_date >= startDate && a.assessment_date <= endDate
+      );
 
-      // Calculate improvements for this month
-      const monthAssessmentsData = await prisma.assessment.findMany({
-        where: {
-          ...baseWhere,
-          assessment_date: {
-            gte: startDate,
-            lte: endDate
-          }
-        }
-      });
-
-      const monthStudentProgress = monthAssessmentsData.reduce((acc, assessment) => {
-        // Simple improvement calculation - can be enhanced
+      const monthStudentProgress = monthData.reduce((acc, assessment) => {
         if (assessment.khmer_level !== 'មិនចេះអាន' || assessment.math_level !== 'មិនចេះរាប់') {
           acc++;
         }
@@ -291,7 +298,7 @@ export async function GET(request: NextRequest) {
 
       monthlyTrends.push({
         month: startDate.toLocaleDateString('km-KH', { month: 'short', year: 'numeric' }),
-        assessments: monthAssessments,
+        assessments: monthData.length,
         improvements: monthStudentProgress
       });
     }
