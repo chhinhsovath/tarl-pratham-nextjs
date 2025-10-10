@@ -4,18 +4,25 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const subject = searchParams.get("subject") || "khmer";
+    const subjectParam = searchParams.get("subject") || "khmer";
 
-    // Define levels based on subject
+    // Map frontend subject parameter to database subject value
+    // Frontend uses "khmer" but database uses "language"
+    const subject = subjectParam === "khmer" ? "language" : subjectParam;
+
+    // Define levels based on subject parameter (khmer or math)
+    // These match the exact level values in the database
     let levels: string[];
     let levelLabels: string[];
-    
-    if (subject === "khmer") {
-      levels = ["Beginner", "Letter", "Word", "Paragraph", "Story", "Comp. 1", "Comp. 2"];
+
+    if (subjectParam === "khmer") {
+      // Database levels: beginner, letter, word, paragraph, story, comprehension1, comprehension2
+      levels = ["beginner", "letter", "word", "paragraph", "story", "comprehension1", "comprehension2"];
       levelLabels = ["ចាប់ផ្តើម", "អក្សរ", "ពាក្យ", "កថាខណ្ឌ", "រឿង", "យល់ដឹង ១", "យល់ដឹង ២"];
     } else {
-      levels = ["Beginner", "1-Digit", "2-Digit", "Subtraction", "Division", "Word Problem"];
-      levelLabels = ["ចាប់ផ្តើម", "លេខ១ខ្ទង់", "លេខ២ខ្ទង់", "ដក", "ចែក", "ល្បាយពាក្យ"];
+      // Database levels: number_2digit, subtraction, division, word_problems
+      levels = ["number_2digit", "subtraction", "division", "word_problems"];
+      levelLabels = ["លេខ២ខ្ទង់", "ដក", "ចែក", "ល្បាយពាក្យ"];
     }
 
     // Get assessment counts by level - OPTIMIZED: Single groupBy query instead of parallel map
@@ -27,8 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Convert grouped results to array matching levels order
     const assessmentCounts = levels.map(level => {
-      const normalizedLevel = level.toLowerCase().replace(/\s+/g, "_").replace(/\./g, "");
-      const found = levelCounts.find(lc => lc.level === normalizedLevel);
+      const found = levelCounts.find(lc => lc.level === level);
       return found?._count.level || 0;
     });
 
@@ -91,18 +97,19 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error("Error fetching assessment data:", error);
-    
-    // Return default data structure on error
-    const defaultLevels = request.nextUrl.searchParams.get("subject") === "math"
-      ? ["Beginner", "1-Digit", "2-Digit", "Subtraction", "Division", "Word Problem"]
-      : ["Beginner", "Letter", "Word", "Paragraph", "Story", "Comp. 1", "Comp. 2"];
-    
+
+    // Return default data structure on error with Khmer labels
+    const subjectParam = request.nextUrl.searchParams.get("subject") || "khmer";
+    const defaultLevelLabels = subjectParam === "math"
+      ? ["លេខ២ខ្ទង់", "ដក", "ចែក", "ល្បាយពាក្យ"]
+      : ["ចាប់ផ្តើម", "អក្សរ", "ពាក្យ", "កថាខណ្ឌ", "រឿង", "យល់ដឹង ១", "យល់ដឹង ២"];
+
     return NextResponse.json({
       chartData: {
-        labels: defaultLevels,
+        labels: defaultLevelLabels,
         datasets: [{
           label: 'Students',
-          data: new Array(defaultLevels.length).fill(0),
+          data: new Array(defaultLevelLabels.length).fill(0),
           backgroundColor: 'rgba(59, 130, 246, 0.8)',
           borderColor: 'rgb(59, 130, 246)',
           borderWidth: 1
