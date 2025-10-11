@@ -29,9 +29,22 @@ function ProfileSetupContent() {
   const isMentor = session?.user?.role === 'mentor';
 
   useEffect(() => {
-    fetchSchools();
-    fetchUserProfile();
+    // Load schools first, then populate profile data
+    loadDataSequentially();
   }, []);
+
+  // Load schools and profile data in correct sequence
+  const loadDataSequentially = async () => {
+    try {
+      // Step 1: Load schools first
+      await fetchSchools();
+
+      // Step 2: After schools are loaded, fetch and populate profile
+      await fetchUserProfile();
+    } catch (error) {
+      console.error('Error loading data:', error);
+    }
+  };
 
   // Fetch user's current profile data
   const fetchUserProfile = async () => {
@@ -39,11 +52,12 @@ function ProfileSetupContent() {
       const response = await fetch('/api/profile', {
         credentials: 'same-origin'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.user) {
           console.log('Loading profile data:', data.user);
+          // Set form values after schools are loaded
           form.setFieldsValue({
             pilot_school_id: data.user.pilot_school_id,
             subject: data.user.subject,
@@ -60,18 +74,18 @@ function ProfileSetupContent() {
   const fetchSchools = async () => {
     try {
       const response = await fetch('/api/pilot-schools');
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
         console.error('Expected JSON but got:', contentType, text.substring(0, 200));
         throw new Error('Expected JSON response but got: ' + contentType);
       }
-      
+
       const data = await response.json();
       if (data.data) {
         setSchools(data.data.map((school: any) => ({
