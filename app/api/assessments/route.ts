@@ -16,8 +16,11 @@ import { getMentorSchoolIds, getMentorAssignedSubjects } from "@/lib/mentorAssig
 const assessmentSchema = z.object({
   student_id: z.number().min(1, "Student ID is required"),
   pilot_school_id: z.number().optional(),
-  assessment_type: z.enum(["baseline", "midline", "endline"], {
-    errorMap: () => ({ message: "Assessment type must be baseline, midline, or endline" })
+  assessment_type: z.enum([
+    "baseline", "midline", "endline",
+    "baseline_verification", "midline_verification", "endline_verification"
+  ], {
+    errorMap: () => ({ message: "Assessment type must be baseline, midline, endline, or their verification variants" })
   }),
   subject: z.enum(["language", "math"], {
     errorMap: () => ({ message: "Subject must be language or math" })
@@ -327,20 +330,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check for duplicate assessment
-    const existingAssessment = await prisma.assessment.findFirst({
-      where: {
-        student_id: validatedData.student_id,
-        assessment_type: validatedData.assessment_type,
-        subject: validatedData.subject
-      }
-    });
+    // Check for duplicate assessment (skip for verification assessments)
+    const isVerification = validatedData.assessment_type.includes('_verification');
 
-    if (existingAssessment) {
-      return NextResponse.json(
-        { error: `${validatedData.assessment_type} ${validatedData.subject} assessment already exists for this student` },
-        { status: 400 }
-      );
+    if (!isVerification) {
+      const existingAssessment = await prisma.assessment.findFirst({
+        where: {
+          student_id: validatedData.student_id,
+          assessment_type: validatedData.assessment_type,
+          subject: validatedData.subject
+        }
+      });
+
+      if (existingAssessment) {
+        return NextResponse.json(
+          { error: `${validatedData.assessment_type} ${validatedData.subject} assessment already exists for this student` },
+          { status: 400 }
+        );
+      }
     }
 
     // Create assessment

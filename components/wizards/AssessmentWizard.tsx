@@ -30,7 +30,7 @@ interface AssessmentWizardProps {
 export interface WizardData {
   student_id?: number;
   student_name?: string;
-  assessment_type: 'baseline' | 'midline' | 'endline';
+  assessment_type: 'baseline' | 'midline' | 'endline' | 'baseline_verification' | 'midline_verification' | 'endline_verification';
   subject: 'language' | 'math';
   level?: string;
   assessment_sample: 'ឧបករណ៍តេស្ត លេខ១' | 'ឧបករណ៍តេស្ត លេខ២' | 'ឧបករណ៍តេស្ត លេខ៣';
@@ -54,10 +54,20 @@ export default function AssessmentWizard({
   // If student is pre-selected, start at step 0 (Assessment Details), otherwise step 0 is Student Selection
   const hasPreSelectedStudent = initialStudentId !== undefined;
   const [currentStep, setCurrentStep] = useState(hasPreSelectedStudent ? 0 : 0);
+
+  // Convert assessment type to verification type if in verification mode
+  const getAssessmentType = (): WizardData['assessment_type'] => {
+    if (!verificationMode || !initialAssessmentType) {
+      return initialAssessmentType || 'baseline';
+    }
+    // Convert: baseline → baseline_verification
+    return `${initialAssessmentType}_verification` as WizardData['assessment_type'];
+  };
+
   const [wizardData, setWizardData] = useState<WizardData>({
     student_id: initialStudentId,
     student_name: initialStudentName,
-    assessment_type: initialAssessmentType || 'baseline',
+    assessment_type: getAssessmentType(),
     subject: initialSubject || 'language',
     assessment_sample: 'ឧបករណ៍តេស្ត លេខ១',
     student_consent: 'Yes',
