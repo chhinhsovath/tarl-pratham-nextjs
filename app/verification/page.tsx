@@ -103,7 +103,22 @@ export default function VerificationPage() {
       }
 
       const data = await response.json();
-      setAssessments(data.assessments || []);
+
+      // Transform assessments to add status field based on is_temporary and record_status
+      const transformedAssessments = (data.assessments || []).map((assessment: any) => {
+        let status = 'pending';
+        if (assessment.is_temporary === false && assessment.record_status === 'production') {
+          status = 'verified';
+        } else if (assessment.record_status === 'rejected') {
+          status = 'rejected';
+        }
+        return {
+          ...assessment,
+          status
+        };
+      });
+
+      setAssessments(transformedAssessments);
 
       if (data.statistics) {
         setStats(data.statistics);
