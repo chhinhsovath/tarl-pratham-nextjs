@@ -14,8 +14,19 @@ function AssessmentCreateContent() {
   const studentId = searchParams.get('studentId');
   const studentName = searchParams.get('studentName');
 
+  // Get verification mode parameters
+  const verificationMode = searchParams.get('verificationMode') === 'true';
+  const originalAssessmentId = searchParams.get('originalAssessmentId');
+  const assessmentType = searchParams.get('assessmentType');
+  const subject = searchParams.get('subject');
+
   const handleComplete = () => {
-    router.push('/dashboard');
+    if (verificationMode) {
+      // After verification, go back to verification list
+      router.push('/verification');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const handleCancel = () => {
@@ -29,6 +40,10 @@ function AssessmentCreateContent() {
         onCancel={handleCancel}
         initialStudentId={studentId ? parseInt(studentId) : undefined}
         initialStudentName={studentName || undefined}
+        verificationMode={verificationMode}
+        originalAssessmentId={originalAssessmentId || undefined}
+        initialAssessmentType={assessmentType as 'baseline' | 'midline' | 'endline' | undefined}
+        initialSubject={subject as 'language' | 'math' | undefined}
       />
     </HorizontalLayout>
   );

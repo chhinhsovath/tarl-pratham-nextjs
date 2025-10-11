@@ -21,6 +21,10 @@ interface AssessmentWizardProps {
   onCancel?: () => void;
   initialStudentId?: number;
   initialStudentName?: string;
+  verificationMode?: boolean;
+  originalAssessmentId?: string;
+  initialAssessmentType?: 'baseline' | 'midline' | 'endline';
+  initialSubject?: 'language' | 'math';
 }
 
 export interface WizardData {
@@ -33,13 +37,19 @@ export interface WizardData {
   student_consent: 'Yes' | 'No';
   assessed_date: string;
   notes?: string;
+  assessed_by_mentor?: boolean;
+  mentor_assessment_id?: string;
 }
 
 export default function AssessmentWizard({
   onComplete,
   onCancel,
   initialStudentId,
-  initialStudentName
+  initialStudentName,
+  verificationMode = false,
+  originalAssessmentId,
+  initialAssessmentType,
+  initialSubject
 }: AssessmentWizardProps) {
   // If student is pre-selected, start at step 0 (Assessment Details), otherwise step 0 is Student Selection
   const hasPreSelectedStudent = initialStudentId !== undefined;
@@ -47,11 +57,13 @@ export default function AssessmentWizard({
   const [wizardData, setWizardData] = useState<WizardData>({
     student_id: initialStudentId,
     student_name: initialStudentName,
-    assessment_type: 'baseline',
-    subject: 'language',
+    assessment_type: initialAssessmentType || 'baseline',
+    subject: initialSubject || 'language',
     assessment_sample: 'ឧបករណ៍តេស្ត លេខ១',
     student_consent: 'Yes',
-    assessed_date: new Date().toISOString()
+    assessed_date: new Date().toISOString(),
+    assessed_by_mentor: verificationMode,
+    mentor_assessment_id: originalAssessmentId
   });
   const [loading, setLoading] = useState(false);
   const [assessmentId, setAssessmentId] = useState<number | null>(null);
@@ -263,7 +275,9 @@ export default function AssessmentWizard({
       {/* Header */}
       <Card
         style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: verificationMode
+            ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           border: 'none',
           marginBottom: '24px',
           color: 'white'
@@ -272,11 +286,18 @@ export default function AssessmentWizard({
       >
         <Space direction="vertical" size={4}>
           <Title level={3} style={{ margin: 0, color: 'white' }}>
-            🎯 ការវាយតម្លៃសិស្ស
+            {verificationMode ? '✅ ផ្ទៀងផ្ទាត់ការវាយតម្លៃ (វាយតម្លៃឡើងវិញ)' : '🎯 ការវាយតម្លៃសិស្ស'}
           </Title>
           <Text style={{ color: 'rgba(255,255,255,0.9)' }}>
-            ធ្វើតាមជំហានដើម្បីបញ្ចូលការវាយតម្លៃថ្មី
+            {verificationMode
+              ? 'វាយតម្លៃសិស្សឡើងវិញដើម្បីផ្ទៀងផ្ទាត់លទ្ធផលពីគ្រូបង្រៀន'
+              : 'ធ្វើតាមជំហានដើម្បីបញ្ចូលការវាយតម្លៃថ្មី'}
           </Text>
+          {verificationMode && originalAssessmentId && (
+            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
+              កំពុងផ្ទៀងផ្ទាត់ការវាយតម្លៃលេខ: {originalAssessmentId}
+            </Text>
+          )}
         </Space>
       </Card>
 

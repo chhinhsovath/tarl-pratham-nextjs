@@ -31,6 +31,8 @@ const assessmentSchema = z.object({
   }),
   notes: z.string().optional(),
   assessed_date: z.string().datetime().optional(),
+  assessed_by_mentor: z.boolean().optional(),
+  mentor_assessment_id: z.string().optional(),
 }).refine((data) => {
   // If level is provided, validate it matches the subject
   if (!data.level) return true;
@@ -346,12 +348,15 @@ export async function POST(request: NextRequest) {
       data: {
         ...validatedData,
         added_by_id: parseInt(session.user.id),
-        assessed_by_mentor: session.user.role === "mentor",
-        is_temporary: session.user.role === "mentor" ? true : false,
+        // Use provided assessed_by_mentor if present (verification mode), otherwise infer from role
+        assessed_by_mentor: validatedData.assessed_by_mentor !== undefined ? validatedData.assessed_by_mentor : (session.user.role === "mentor"),
+        // Verification assessments are NOT temporary - they are production data
+        is_temporary: validatedData.mentor_assessment_id ? false : (session.user.role === "mentor" ? true : false),
         assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : new Date(),
-        record_status: recordStatus,
+        record_status: validatedData.mentor_assessment_id ? 'production' : recordStatus,
         created_by_role: session.user.role,
-        test_session_id: testSessionId
+        test_session_id: testSessionId,
+        mentor_assessment_id: validatedData.mentor_assessment_id || null
       },
       include: {
         student: {

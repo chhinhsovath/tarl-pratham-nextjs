@@ -337,18 +337,29 @@ export default function VerificationPage() {
         <Space size="small">
           {record.status === 'pending' && (
             <>
-              <Tooltip title="ផ្ទៀងផ្ទាត់">
-                <Button 
+              <Tooltip title="ផ្ទៀងផ្ទាត់ (វាយតម្លៃឡើងវិញ)">
+                <Button
                   type="primary"
                   size="small"
                   icon={<CheckOutlined />}
-                  onClick={() => handleVerify(record)}
+                  onClick={() => {
+                    // Redirect to assessment form in verification mode
+                    const params = new URLSearchParams({
+                      verificationMode: 'true',
+                      originalAssessmentId: record.id.toString(),
+                      studentId: record.student?.id?.toString() || '',
+                      studentName: record.student?.name || '',
+                      assessmentType: record.assessment_type || '',
+                      subject: record.subject || ''
+                    });
+                    router.push(`/assessments/create?${params.toString()}`);
+                  }}
                 >
                   ផ្ទៀងផ្ទាត់
                 </Button>
               </Tooltip>
-              <Tooltip title="មើលលម្អិត">
-                <Button 
+              <Tooltip title="មើលការវាយតម្លៃដើម">
+                <Button
                   size="small"
                   icon={<EyeOutlined />}
                   onClick={() => router.push(`/assessments/${record.id}`)}
@@ -357,7 +368,7 @@ export default function VerificationPage() {
             </>
           )}
           {record.status === 'verified' && (
-            <Button 
+            <Button
               size="small"
               icon={<EyeOutlined />}
               onClick={() => router.push(`/assessments/${record.id}`)}
@@ -366,10 +377,18 @@ export default function VerificationPage() {
             </Button>
           )}
           {record.status === 'rejected' && (
-            <Button 
+            <Button
               size="small"
               icon={<ReloadOutlined />}
-              onClick={() => handleVerify(record)}
+              onClick={() => {
+                const params = new URLSearchParams({
+                  verificationMode: 'true',
+                  originalAssessmentId: record.id.toString(),
+                  studentId: record.student?.id?.toString() || '',
+                  studentName: record.student?.name || ''
+                });
+                router.push(`/assessments/create?${params.toString()}`);
+              }}
             >
               ពិនិត្យឡើងវិញ
             </Button>
