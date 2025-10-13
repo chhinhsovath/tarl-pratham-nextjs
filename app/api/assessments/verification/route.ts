@@ -25,7 +25,11 @@ export async function GET(request: NextRequest) {
 
     // Filter by record status
     if (status === 'pending') {
-      where.record_status = { in: ['draft', 'submitted', null] };
+      // Use OR to include null values (Prisma doesn't allow null in enum 'in' arrays)
+      where.OR = [
+        { record_status: { in: ['draft', 'submitted'] } },
+        { record_status: null }
+      ];
     } else if (status === 'verified') {
       where.record_status = 'verified';
     } else if (status === 'rejected') {
