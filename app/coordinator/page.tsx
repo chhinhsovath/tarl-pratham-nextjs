@@ -35,7 +35,8 @@ import {
   CalendarOutlined,
   UserAddOutlined,
   FileDoneOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  BookOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
