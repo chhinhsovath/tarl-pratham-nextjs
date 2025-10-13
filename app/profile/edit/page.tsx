@@ -153,11 +153,10 @@ export default function ProfileEditPage() {
                   label="អ៊ីមែល"
                   name="email"
                   rules={[
-                    { required: true, message: 'សូមបំពេញអ៊ីមែល' },
-                    { type: 'email', message: 'ទ្រង់ទ្រាយអ៊ីមែលមិនត្រឹមត្រូវ' }
+                    { required: true, message: 'សូមបំពេញអ៊ីមែល' }
                   ]}
                 >
-                  <Input 
+                  <Input
                     placeholder="អ៊ីមែលរបស់អ្នក"
                     disabled
                   />
