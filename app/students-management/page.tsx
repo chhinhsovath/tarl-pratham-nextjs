@@ -717,28 +717,6 @@ function StudentsManagementContent() {
           layout="vertical"
         >
           <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="photo"
-                label="រូបថតសិស្ស"
-              >
-                <Input
-                  placeholder="URL រូបថតសិស្ស"
-                  prefix={<UploadOutlined />}
-                  suffix={
-                    form.getFieldValue('photo') && (
-                      <Image
-                        src={form.getFieldValue('photo')}
-                        alt="Preview"
-                        width={30}
-                        height={30}
-                        style={{ borderRadius: '4px' }}
-                      />
-                    )
-                  }
-                />
-              </Form.Item>
-            </Col>
             <Col span={12}>
               <Form.Item
                 name="student_id"
@@ -770,14 +748,6 @@ function StudentsManagementContent() {
             </Col>
             <Col span={8}>
               <Form.Item
-                name="age"
-                label="អាយុ"
-              >
-                <InputNumber placeholder="អាយុ" min={5} max={20} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
                 name="grade"
                 label="ថ្នាក់"
               >
@@ -788,39 +758,7 @@ function StudentsManagementContent() {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name="date_of_birth"
-                label="ថ្ងៃខែឆ្នាំកំណើត"
-              >
-                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="guardian_name"
-                label="ឈ្មោះអាណាព្យាបាល"
-              >
-                <Input placeholder="ឈ្មោះអាណាព្យាបាល" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="guardian_phone"
-                label="លេខទូរស័ព្ទអាណាព្យាបាល"
-              >
-                <Input placeholder="លេខទូរស័ព្ទ" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="address"
-                label="អាសយដ្ឋាន"
-              >
-                <Input placeholder="អាសយដ្ឋាន" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item
                 name="pilot_school_id"
                 label="សាលារៀន"
@@ -829,30 +767,6 @@ function StudentsManagementContent() {
                   {pilotSchools.map(school => (
                     <Option key={school.id} value={school.id}>{school.school_name}</Option>
                   ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="school_class_id"
-                label="ថ្នាក់រៀន"
-              >
-                <Select placeholder="ជ្រើសរើសថ្នាក់រៀន" allowClear>
-                  {classes.map(cls => (
-                    <Option key={cls.id} value={cls.id}>{cls.name}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="is_active"
-                label="ស្ថានភាព"
-                initialValue={true}
-              >
-                <Select>
-                  <Option value={true}>សកម្ម</Option>
-                  <Option value={false}>អសកម្ម</Option>
                 </Select>
               </Form.Item>
             </Col>
