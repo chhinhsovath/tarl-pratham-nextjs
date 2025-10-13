@@ -185,7 +185,11 @@ function StudentsManagementContent() {
 
       if (schoolsRes.ok) {
         const schoolsData = await schoolsRes.json();
-        setPilotSchools(schoolsData.schools || []);
+        console.log('🏫 Pilot schools API response:', schoolsData);
+        setPilotSchools(schoolsData.data || []);
+        console.log('🏫 Pilot schools set:', schoolsData.data?.length || 0, 'schools');
+      } else {
+        console.error('❌ Failed to fetch pilot schools:', schoolsRes.status);
       }
 
       if (classesRes.ok) {
@@ -203,6 +207,7 @@ function StudentsManagementContent() {
       }
     } catch (error) {
       console.error('Error fetching form data:', error);
+      message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យ');
     }
   };
 
@@ -752,9 +757,8 @@ function StudentsManagementContent() {
                 label="ថ្នាក់"
               >
                 <Select placeholder="ជ្រើសរើសថ្នាក់">
-                  {[1, 2, 3, 4, 5, 6].map(grade => (
-                    <Option key={grade} value={grade}>ទី{grade}</Option>
-                  ))}
+                  <Option value={4}>ទី4</Option>
+                  <Option value={5}>ទី5</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -763,9 +767,20 @@ function StudentsManagementContent() {
                 name="pilot_school_id"
                 label="សាលារៀន"
               >
-                <Select placeholder="ជ្រើសរើសសាលារៀន" allowClear>
+                <Select
+                  placeholder="ជ្រើសរើសសាលារៀន"
+                  allowClear
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.children as unknown as string)
+                      ?.toLowerCase()
+                      ?.includes(input.toLowerCase()) ?? false
+                  }
+                >
                   {pilotSchools.map(school => (
-                    <Option key={school.id} value={school.id}>{school.school_name}</Option>
+                    <Option key={school.id} value={school.id}>
+                      {school.school_name}
+                    </Option>
                   ))}
                 </Select>
               </Form.Item>
