@@ -17,22 +17,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Coordinators have admin-like access - NO restrictions
-    // Separate filters for different table types (only use fields that exist on each table)
-    const studentFilter: any = {
-      is_temporary: false,
-      record_status: 'production'
-    };
+    const schoolFilter: any = {};
+    const userFilter: any = {};
 
-    const assessmentFilter: any = {
-      is_temporary: false,
-      record_status: 'production'
-    };
-
-    const userFilter: any = {
-      is_active: true
-    };
-
-    console.log(`[COORDINATOR STATS] User role: ${session.user.role} - Full access granted (production data only)`);
+    console.log(`[COORDINATOR STATS] User role: ${session.user.role} - Full access granted`);
 
     const today = new Date();
     const todayStart = new Date(today.setHours(0, 0, 0, 0));
@@ -48,9 +36,9 @@ export async function GET(request: NextRequest) {
       total_teachers,
       active_teachers,
     ] = await Promise.all([
-      prisma.pilotSchool.count(), // Schools don't have is_temporary/record_status fields
-      prisma.student.count({ where: studentFilter }),
-      prisma.student.count({ where: { ...studentFilter, is_active: true } }),
+      prisma.pilotSchool.count(), // Both admin and coordinator see all schools
+      prisma.student.count({ where: schoolFilter }),
+      prisma.student.count({ where: { ...schoolFilter, is_active: true } }),
       prisma.user.count({ where: { ...userFilter, role: 'teacher' } }),
       prisma.user.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
     ]);
@@ -64,10 +52,10 @@ export async function GET(request: NextRequest) {
       assessments_this_month,
     ] = await Promise.all([
       prisma.user.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
-      prisma.assessment.count({ where: assessmentFilter }),
-      prisma.assessment.count({ where: { ...assessmentFilter, created_at: { gte: todayStart } } }),
-      prisma.assessment.count({ where: { ...assessmentFilter, created_at: { gte: weekStart } } }),
-      prisma.assessment.count({ where: { ...assessmentFilter, created_at: { gte: monthStart } } }),
+      prisma.assessment.count({ where: schoolFilter }),
+      prisma.assessment.count({ where: { ...schoolFilter, created_at: { gte: todayStart } } }),
+      prisma.assessment.count({ where: { ...schoolFilter, created_at: { gte: weekStart } } }),
+      prisma.assessment.count({ where: { ...schoolFilter, created_at: { gte: monthStart } } }),
     ]);
 
     // Batch 3: Assessment types and distributions (6 queries)
@@ -79,20 +67,20 @@ export async function GET(request: NextRequest) {
       students_by_grade,
       schools_by_province,
     ] = await Promise.all([
-      prisma.assessment.count({ where: { ...assessmentFilter, assessment_type: 'baseline' } }),
-      prisma.assessment.count({ where: { ...assessmentFilter, assessment_type: 'midline' } }),
-      prisma.assessment.count({ where: { ...assessmentFilter, assessment_type: 'endline' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'baseline' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'midline' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'endline' } }),
       prisma.student.groupBy({
         by: ['gender'],
-        where: { ...studentFilter, is_active: true },
+        where: { ...schoolFilter, is_active: true },
         _count: { id: true }
       }),
       prisma.student.groupBy({
         by: ['grade'],
-        where: { ...studentFilter, is_active: true },
+        where: { ...schoolFilter, is_active: true },
         _count: { id: true }
       }),
-      prisma.pilotSchool.groupBy({ by: ['province'], _count: { id: true } }), // Schools don't have filters
+      prisma.pilotSchool.groupBy({ by: ['province'], _count: { id: true } }), // Both admin and coordinator see all provinces
     ]);
 
     // Batch 4: Assessment creator and subject breakdown
@@ -103,11 +91,11 @@ export async function GET(request: NextRequest) {
       math_assessments,
       pending_verifications,
     ] = await Promise.all([
-      prisma.assessment.count({ where: { ...assessmentFilter, assessed_by_mentor: true } }),
-      prisma.assessment.count({ where: { ...assessmentFilter, assessed_by_mentor: false } }),
-      prisma.assessment.count({ where: { ...assessmentFilter, subject: 'Language' } }),
-      prisma.assessment.count({ where: { ...assessmentFilter, subject: 'Math' } }),
-      prisma.assessment.count({ where: { ...assessmentFilter, verified_by_id: null } }),
+      prisma.assessment.count({ where: { ...schoolFilter, assessed_by_mentor: true } }),
+      prisma.assessment.count({ where: { ...schoolFilter, assessed_by_mentor: false } }),
+      prisma.assessment.count({ where: { ...schoolFilter, subject: 'Language' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, subject: 'Math' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, verified_by_id: null } }),
     ]);
 
     // Format gender distribution
