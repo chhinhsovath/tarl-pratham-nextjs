@@ -55,8 +55,6 @@ export async function GET(
       { error: 'Failed to fetch class' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -124,8 +122,6 @@ export async function PUT(
       { error: 'Failed to update class' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -176,7 +172,5 @@ export async function DELETE(
       { error: 'Failed to delete class' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

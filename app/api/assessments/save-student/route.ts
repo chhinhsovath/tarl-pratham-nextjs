@@ -154,7 +154,5 @@ export async function POST(request: NextRequest) {
       { error: 'Failed to save assessment' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

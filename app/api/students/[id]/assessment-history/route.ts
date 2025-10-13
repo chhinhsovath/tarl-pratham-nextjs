@@ -162,8 +162,5 @@ export async function GET(
     return NextResponse.json(
       { error: 'Failed to fetch assessment history' },
       { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
+    );  }
 }

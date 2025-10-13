@@ -164,10 +164,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'Failed to import students' },
       { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
+    );  }
 }
 
 export async function GET() {

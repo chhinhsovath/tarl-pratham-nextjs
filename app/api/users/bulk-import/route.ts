@@ -139,10 +139,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'Failed to import users' },
       { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
+    );  }
 }
 
 export async function GET() {

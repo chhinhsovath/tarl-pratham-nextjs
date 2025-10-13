@@ -5,38 +5,52 @@
 ## 🚨 **CRITICAL: Fix Production Database Errors (January 2025)**
 
 ### Current Production Errors
-1. ❌ **Connection pool exhaustion**: "Too many database connections opened"
-2. ❌ **Prepared statement conflict**: "prepared statement s4 already exists" (Error 42P05)
+1. ❌ **Connection pool exhaustion**: "Too many database connections opened: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute"
+2. ❌ **API 500 errors**: `/api/coordinator/stats`, `/api/coordinator/activities`, `/api/bulk-import/history`
 
 ### **IMMEDIATE ACTION REQUIRED: Update DATABASE_URL on Vercel**
 
-#### Quick Fix Steps:
+#### Quick Fix Steps (2 minutes):
 1. Go to Vercel Dashboard: https://vercel.com/dashboard
-2. Select project → **Settings** → **Environment Variables**
-3. Find `DATABASE_URL` and click **Edit**
-4. Replace with this **EXACT** value:
+2. Select project: `tarl-pratham-nextjs`
+3. Navigate to **Settings** → **Environment Variables**
+4. Find `DATABASE_URL` and click **Edit**
+5. Replace with this **EXACT** value (add connection pooling parameters):
 
 ```
-postgres://postgres.uyrmvvwwchzmqtstgwbi:QtMVSsu8uw60WRjK@db.uyrmvvwwchzmqtstgwbi.supabase.co:5432/postgres
+postgres://admin:P@ssw0rd@157.10.73.52:5432/tarl_pratham?sslmode=disable&connect_timeout=10&connection_limit=1&pool_timeout=10
 ```
 
-5. Click **Save**
-6. Go to **Deployments** → Click latest → **Redeploy** (uncheck "Use existing Build Cache")
+**New parameters added:**
+- `connection_limit=1` - Limit each serverless function to 1 connection
+- `pool_timeout=10` - Wait max 10 seconds for a connection
 
-#### What Changed:
-**Switched from pgBouncer (port 6543) to Direct Connection (port 5432):**
-- Uses `db.uyrmvvwwchzmqtstgwbi.supabase.co` (direct host)
-- Port `5432` (direct connection, not pooler)
-- No pgBouncer complexity
-- No prepared statement issues
-- Supabase handles pooling automatically
+6. Click **Save**
+7. Go to **Deployments** → Click latest deployment → **Redeploy**
+8. **IMPORTANT:** Uncheck "Use existing Build Cache"
+
+#### What This Fixes:
+**Problem:**
+- Vercel serverless functions were opening multiple connections per function
+- With ~10 concurrent requests = ~30+ connections opened simultaneously
+- Database only allows ~100 connections total
+- Connection pool quickly exhausted
+
+**Solution:**
+- `connection_limit=1` ensures each function uses only 1 connection
+- With 80 available slots ÷ 1 per function = supports 80 concurrent requests
+- Sufficient for current application load
 
 #### Verify Fix:
-After redeployment, test:
-- https://tarl.openplp.com/api/students?limit=500
-- Should return JSON with 51 students (no errors)
-- https://tarl.openplp.com/students-management
-- Should show "សរុប: 51 សិស្ស"
+After redeployment, test these endpoints:
+- https://tarl.openplp.com/api/coordinator/stats
+  - Should return: `{ total_schools: 33, total_teachers: X, total_assessments: Y, ... }`
+- https://tarl.openplp.com/coordinator
+  - Should display dashboard with assessment statistics
+- https://tarl.openplp.com/coordinator/mentor-assignments
+  - Should show mentor assignments table
+
+**See VERCEL_DATABASE_FIX.md for detailed explanation and alternative PgBouncer setup.**
 
 ---
 
@@ -48,9 +62,9 @@ After redeployment, test:
 - [x] Latest commits include all fixes (coordinator monitoring, mentor assignments, etc.)
 
 ### 2. Local Environment
-- [x] `.env.local` configured with Supabase connection
+- [x] `.env.local` configured with Old Server connection (157.10.73.52)
 - [x] Build tested locally: `npm run build` - SUCCESS ✅
-- [x] Database connection verified with Supabase
+- [x] Database connection verified with Old Server
 
 ---
 
@@ -78,13 +92,16 @@ Navigate to: **Settings → Environment Variables**
 
 | Variable Name | Value | Environment |
 |---------------|-------|-------------|
-| `DATABASE_URL` | `postgres://postgres.uyrmvvwwchzmqtstgwbi:...` | Production |
+| `DATABASE_URL` | `postgres://admin:P@ssw0rd@157.10.73.52:5432/tarl_pratham?sslmode=disable&connect_timeout=10&connection_limit=1&pool_timeout=10` | Production |
 | `NEXTAUTH_URL` | `https://tarl.openplp.com` | Production |
-| `NEXTAUTH_SECRET` | `your-secret-key` | Production |
+| `NEXTAUTH_SECRET` | `5ZIzBW/SBr7fIKlZT4LQCpNRnA1wnn7LTnAwx5bNvO0=` | Production |
 | `NODE_ENV` | `production` | Production |
+| `NEXT_PUBLIC_API_URL` | `https://tarl.openplp.com/api` | Production |
 | `SUPPRESS_ANTD_WARNING` | `true` | Production |
 
-**Important:** Use the full DATABASE_URL from `.env.production.example`
+**CRITICAL:** DATABASE_URL must include `connection_limit=1&pool_timeout=10` parameters to prevent connection pool exhaustion.
+
+**Reference:** See `.env.production.example` for complete list of environment variables.
 
 ### Step 4: Build & Development Settings
 Navigate to: **Settings → General**
@@ -123,10 +140,12 @@ Once deployment shows **Ready**, test these pages:
 
 ### Step 7: Verify Database Connection
 Test API endpoints:
-- [ ] GET https://tarl.openplp.com/api/coordinator/monitoring
-  - Should return: `{ total_users: 92, total_schools: 33, ... }`
+- [ ] GET https://tarl.openplp.com/api/coordinator/stats
+  - Should return: `{ total_schools: 33, total_teachers: X, total_assessments: Y, ... }`
 - [ ] GET https://tarl.openplp.com/api/pilot-schools
   - Should return list of 33 schools
+- [ ] GET https://tarl.openplp.com/api/mentor-assignments
+  - Should return mentor assignments with school details
 
 ### Step 8: Check for Errors
 1. Open browser console (F12)
@@ -134,7 +153,8 @@ Test API endpoints:
 3. Look for:
    - [ ] No JavaScript errors
    - [ ] No "Cannot read properties of undefined" errors
-   - [ ] All data loads correctly from Supabase
+   - [ ] No database connection errors ("Too many database connections")
+   - [ ] All data loads correctly from Old Server (157.10.73.52)
 
 ---
 
@@ -149,9 +169,16 @@ Test API endpoints:
 
 ### Live Site Should Display:
 - ✅ All assessment period labels in Khmer (តេស្តដើមគ្រា, តេស្តពាក់កណ្ដាលគ្រា, តេស្តចុងក្រោយគ្រា)
-- ✅ Coordinator monitoring page loads without errors
-- ✅ Mentor assignments page with multi-select functionality
-- ✅ Real data from Supabase (92 users, 33 schools, 46 students)
+- ✅ Coordinator dashboard with assessment statistics breakdown
+  - By creator (mentor vs teacher)
+  - By subject (Language vs Math)
+  - By type (Baseline, Midline, Endline)
+- ✅ Mentor assignments page showing mentors assigned to schools
+  - Auto-created assignments from profile setup
+- ✅ Real data from Old Server (157.10.73.52):
+  - 33 pilot schools
+  - Active users (teachers, mentors, coordinators)
+  - Student records and assessments
 
 ---
 
@@ -166,15 +193,19 @@ Test API endpoints:
 
 ### If Pages Show Errors:
 1. Check browser console for JavaScript errors
-2. Verify environment variables are set correctly
-3. Check API responses in Network tab
-4. Verify DATABASE_URL is using Supabase connection string
+2. Verify environment variables are set correctly in Vercel
+3. Check API responses in Network tab (F12 → Network)
+4. Verify DATABASE_URL includes connection pooling parameters
 
 ### Common Issues:
-- **"Cannot read properties of undefined"**: Import order issue (fixed in latest commit)
-- **"Invalid enum value"**: RecordStatus enum issue (fixed in latest commit)
-- **"Invalid DateTime"**: DateTime format issue (fixed in latest commit)
-- **Empty data**: Check DATABASE_URL points to Supabase, not local database
+- **"Too many database connections opened"**:
+  - DATABASE_URL missing `connection_limit=1&pool_timeout=10`
+  - Update in Vercel environment variables and redeploy
+  - See VERCEL_DATABASE_FIX.md for detailed fix
+- **"BookOutlined is not defined"**: Missing import (fixed in recent commit)
+- **"Cannot read properties of undefined"**: Check import order and null checks
+- **Empty data**: Verify DATABASE_URL points to correct server (157.10.73.52)
+- **API 500 errors**: Check Vercel function logs for detailed error messages
 
 ---
 
@@ -182,23 +213,37 @@ Test API endpoints:
 
 - **Auto-Deploy**: Once configured, every `git push` to `main` will trigger automatic deployment
 - **Build Time**: Typically takes 3-5 minutes
-- **Database**: Connected to Supabase production database
+- **Database**: Connected to Old Server (157.10.73.52) with connection pooling
 - **Domain**: https://tarl.openplp.com
+- **Critical Fix**: DATABASE_URL must include connection pooling parameters to prevent serverless connection exhaustion
 
 ## 🎉 Success Criteria
 
 Deployment is successful when:
 - [x] Build completes without errors
 - [x] All pages load without JavaScript errors
-- [x] Data loads from Supabase correctly
-- [x] Coordinator monitoring page displays stats
-- [x] Mentor assignments page works with multi-select
+- [x] Data loads from Old Server (157.10.73.52) correctly
+- [x] Coordinator dashboard displays assessment statistics
+  - Shows breakdown by creator (mentor/teacher)
+  - Shows breakdown by subject (Language/Math)
+  - Shows breakdown by type (Baseline/Midline/Endline)
+- [x] Mentor assignments page shows mentors assigned to schools
+  - Auto-created assignments from profile setup appear
+- [x] No "Too many database connections" errors
 - [x] Assessment period labels show in Khmer
 
 ---
 
-**Last Updated:** 2025-10-09
-**Latest Commits:**
-- `3cbc882` - fix: Disable prepared statements to fix pgBouncer transaction mode error
-- `c79975f` - fix: Show all students by default (active + inactive)
-- `0e4b9b5` - fix: Prevent database connection pool exhaustion
+**Last Updated:** 2025-10-13
+
+**Latest Features:**
+- ✅ Auto-create mentor assignments when mentors complete profile setup
+- ✅ Coordinator dashboard displays detailed assessment statistics
+  - Breakdown by creator (mentor vs teacher)
+  - Breakdown by subject (Language vs Math)
+  - Breakdown by type (Baseline, Midline, Endline)
+- ✅ Mentor assignments page shows all mentors assigned to schools
+
+**Critical Fix Required:**
+- ⚠️ Update DATABASE_URL in Vercel to include connection pooling parameters
+- See top of this document for immediate action steps
