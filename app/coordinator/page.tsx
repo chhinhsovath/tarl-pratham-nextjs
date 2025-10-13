@@ -54,6 +54,26 @@ interface WorkspaceStats {
   recent_imports: number;
   active_mentoring_visits: number;
   languages_configured: number;
+  assessments?: {
+    total: number;
+    today: number;
+    this_week: number;
+    this_month: number;
+    by_type: {
+      baseline: number;
+      midline: number;
+      endline: number;
+    };
+    by_creator: {
+      mentor: number;
+      teacher: number;
+    };
+    by_subject: {
+      language: number;
+      math: number;
+    };
+    pending_verification: number;
+  };
 }
 
 interface RecentActivity {
@@ -350,7 +370,17 @@ function CoordinatorWorkspaceContent() {
             />
           </Card>
         </Col>
-        <Col xs={12} sm={8} md={8} lg={8}>
+        <Col xs={12} sm={8} md={8} lg={4}>
+          <Card>
+            <Statistic
+              title="ការធ្វើតេស្តសិស្ស"
+              value={stats.total_assessments}
+              prefix={<FileDoneOutlined />}
+              valueStyle={{ color: '#fa8c16' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={12} sm={8} md={8} lg={4}>
           <Card>
             <Statistic
               title="ការផ្ទៀងផ្ទាត់រងចាំ"
@@ -371,6 +401,85 @@ function CoordinatorWorkspaceContent() {
           </Card>
         </Col>
       </Row>
+
+      {/* Assessment Details Row */}
+      {stats.total_assessments > 0 && (
+        <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Col xs={24} sm={24} md={24} lg={24}>
+            <Card title="ព័ត៌មានលម្អិតការវាយតម្លៃ" style={{ marginBottom: 0 }}>
+              <Row gutter={16}>
+                <Col xs={12} sm={8} md={6}>
+                  <Statistic
+                    title="ដោយគ្រូព្រឹក្សា"
+                    value={stats.assessments?.by_creator?.mentor || 0}
+                    prefix={<TeamOutlined />}
+                    valueStyle={{ color: '#13c2c2', fontSize: 20 }}
+                  />
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <Statistic
+                    title="ដោយគ្រូបង្រៀន"
+                    value={stats.assessments?.by_creator?.teacher || 0}
+                    prefix={<TeamOutlined />}
+                    valueStyle={{ color: '#52c41a', fontSize: 20 }}
+                  />
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <Statistic
+                    title="ភាសា"
+                    value={stats.assessments?.by_subject?.language || 0}
+                    prefix={<BookOutlined />}
+                    valueStyle={{ color: '#1890ff', fontSize: 20 }}
+                  />
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <Statistic
+                    title="គណិតវិទ្យា"
+                    value={stats.assessments?.by_subject?.math || 0}
+                    prefix={<BookOutlined />}
+                    valueStyle={{ color: '#52c41a', fontSize: 20 }}
+                  />
+                </Col>
+              </Row>
+              <Row gutter={16} style={{ marginTop: 16 }}>
+                <Col xs={12} sm={8} md={6}>
+                  <Statistic
+                    title="Baseline"
+                    value={stats.assessments?.by_type?.baseline || 0}
+                    valueStyle={{ fontSize: 20 }}
+                  />
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <Statistic
+                    title="Midline"
+                    value={stats.assessments?.by_type?.midline || 0}
+                    valueStyle={{ fontSize: 20 }}
+                  />
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <Statistic
+                    title="Endline"
+                    value={stats.assessments?.by_type?.endline || 0}
+                    valueStyle={{ fontSize: 20 }}
+                  />
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <div>
+                    <Button
+                      type="primary"
+                      icon={<BarChartOutlined />}
+                      onClick={() => router.push('/assessments')}
+                      style={{ marginTop: 8 }}
+                    >
+                      មើលលម្អិត
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+      )}
 
       {/* Quick Actions Grid */}
       <Card title="សកម្មភាពរហ័ស" style={{ marginBottom: 24 }}>

@@ -17,10 +17,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Coordinators have admin-like access - NO restrictions
-    const schoolFilter: any = {};
-    const userFilter: any = {};
+    // Filter to show only production data (exclude test records)
+    const schoolFilter: any = {
+      is_temporary: false,
+      record_status: 'production'
+    };
+    const userFilter: any = {
+      is_active: true
+    };
 
-    console.log(`[COORDINATOR STATS] User role: ${session.user.role} - Full access granted`);
+    console.log(`[COORDINATOR STATS] User role: ${session.user.role} - Full access granted (production data only)`);
 
     const today = new Date();
     const todayStart = new Date(today.setHours(0, 0, 0, 0));
@@ -72,15 +78,30 @@ export async function GET(request: NextRequest) {
       prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'endline' } }),
       prisma.student.groupBy({
         by: ['gender'],
-        where: { ...schoolFilter, is_active: true },
+        where: { is_active: true, is_temporary: false, record_status: 'production' },
         _count: { id: true }
       }),
       prisma.student.groupBy({
         by: ['grade'],
-        where: { ...schoolFilter, is_active: true },
+        where: { is_active: true, is_temporary: false, record_status: 'production' },
         _count: { id: true }
       }),
       prisma.pilotSchool.groupBy({ by: ['province'], _count: { id: true } }), // Both admin and coordinator see all provinces
+    ]);
+
+    // Batch 4: Assessment creator and subject breakdown
+    const [
+      assessments_by_mentor,
+      assessments_by_teacher,
+      language_assessments,
+      math_assessments,
+      pending_verifications,
+    ] = await Promise.all([
+      prisma.assessment.count({ where: { ...schoolFilter, assessed_by_mentor: true } }),
+      prisma.assessment.count({ where: { ...schoolFilter, assessed_by_mentor: false } }),
+      prisma.assessment.count({ where: { ...schoolFilter, subject: 'Language' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, subject: 'Math' } }),
+      prisma.assessment.count({ where: { ...schoolFilter, verified_by_id: null } }),
     ]);
 
     // Format gender distribution
@@ -111,9 +132,9 @@ export async function GET(request: NextRequest) {
       total_mentors: total_mentors,
       total_students: total_students,
       total_assessments: total_assessments,
-      pending_verifications: 0, // Not tracked yet
-      recent_imports: 0, // Not tracked yet
-      active_mentoring_visits: 0, // Not tracked yet
+      pending_verifications: pending_verifications,
+      recent_imports: 0, // TODO: Track bulk imports
+      active_mentoring_visits: 0, // TODO: Track active mentoring visits
       languages_configured: 2, // EN/KH
 
       // Detailed breakdowns for charts/analytics
@@ -143,7 +164,16 @@ export async function GET(request: NextRequest) {
           baseline: baseline_assessments,
           midline: midline_assessments,
           endline: endline_assessments,
-        }
+        },
+        by_creator: {
+          mentor: assessments_by_mentor,
+          teacher: assessments_by_teacher,
+        },
+        by_subject: {
+          language: language_assessments,
+          math: math_assessments,
+        },
+        pending_verification: pending_verifications,
       },
     });
   } catch (error) {
