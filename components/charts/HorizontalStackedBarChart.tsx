@@ -1,0 +1,210 @@
+'use client';
+
+import React from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
+import { Card } from 'antd';
+
+interface HorizontalStackedBarChartProps {
+  data: {
+    schoolName: string;
+    levels: {
+      [levelName: string]: number; // Original counts
+    };
+  }[];
+  title?: string;
+  colors?: { [levelName: string]: string };
+  maxHeight?: number;
+}
+
+// Level translations
+const levelTranslations: { [key: string]: string } = {
+  'Beginning': 'កម្រិតដំបូង',
+  'Characters': 'តួអក្សរ',
+  'Words': 'ពាក្យ',
+  'Paragraphs': 'កថាខណ្ឌ',
+  'Story': 'រឿង',
+  'Story (Comprehension 1)': 'រឿង (យល់ន័យ១)',
+  'Story (Comprehension 2)': 'រឿង (យល់ន័យ២)',
+  'Single Digit': 'លេខ១ខ្ទង',
+  'Double Digit': 'លេខ២ខ្ទង',
+  'Subtraction': 'ប្រមាណវិធីដក',
+  'Division': 'ប្រមាណវិធីចែក',
+  'Problems': 'ចំណោទ'
+};
+
+// Default colors for levels
+const defaultColors: { [key: string]: string } = {
+  'Beginning': '#EF4444',      // red-500
+  'Characters': '#F59E0B',     // amber-500
+  'Words': '#EAB308',          // yellow-500
+  'Paragraphs': '#84CC16',     // lime-500
+  'Story': '#22C55E',          // green-500
+  'Story (Comprehension 1)': '#10B981', // emerald-500
+  'Story (Comprehension 2)': '#14B8A6', // teal-500
+  'Single Digit': '#F59E0B',   // amber-500
+  'Double Digit': '#EAB308',   // yellow-500
+  'Subtraction': '#84CC16',    // lime-500
+  'Division': '#22C55E',       // green-500
+  'Problems': '#10B981'        // emerald-500
+};
+
+export default function HorizontalStackedBarChart({
+  data,
+  title = 'លទ្ធផលតាមសាលារៀន',
+  colors = defaultColors,
+  maxHeight = 600
+}: HorizontalStackedBarChartProps) {
+  // Get all unique level names from the data
+  const levelNames = React.useMemo(() => {
+    const names = new Set<string>();
+    data.forEach(school => {
+      Object.keys(school.levels).forEach(level => names.add(level));
+    });
+    return Array.from(names);
+  }, [data]);
+
+  // Transform data: convert counts to percentages while preserving original counts
+  const chartData = React.useMemo(() => {
+    return data.map(school => {
+      // Calculate total for this school
+      const total = Object.values(school.levels).reduce((sum, count) => sum + count, 0);
+
+      // Create percentage data with original counts preserved
+      const percentageData: any = {
+        schoolName: school.schoolName,
+        total: total, // Preserve total for tooltip
+      };
+
+      // Add percentage for each level
+      levelNames.forEach(levelName => {
+        const count = school.levels[levelName] || 0;
+        const percentage = total > 0 ? (count / total) * 100 : 0;
+
+        percentageData[levelName] = percentage;
+        percentageData[`${levelName}_count`] = count; // Preserve original count
+      });
+
+      return percentageData;
+    });
+  }, [data, levelNames]);
+
+  // Calculate dynamic height based on number of schools
+  const chartHeight = React.useMemo(() => {
+    const barHeight = 40; // Height per school bar
+    const minHeight = 300;
+    const calculatedHeight = Math.max(minHeight, data.length * barHeight);
+    return Math.min(calculatedHeight, maxHeight);
+  }, [data.length, maxHeight]);
+
+  // Custom tooltip showing both percentage and count
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const total = payload[0].payload.total;
+
+      return (
+        <div style={{
+          backgroundColor: 'white',
+          padding: '12px',
+          border: '1px solid #ccc',
+          borderRadius: '6px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+        }}>
+          <p style={{ margin: 0, fontWeight: 'bold', marginBottom: '8px' }}>{label}</p>
+          <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>
+            សរុប: {total} សិស្ស
+          </p>
+          {payload.map((entry: any, index: number) => {
+            const count = entry.payload[`${entry.dataKey}_count`];
+            const percentage = entry.value;
+
+            return (
+              <p key={index} style={{ margin: '4px 0', color: entry.color, fontSize: '12px' }}>
+                {levelTranslations[entry.dataKey] || entry.dataKey}: {Math.round(percentage * 10) / 10}% ({count})
+              </p>
+            );
+          })}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom label formatter for bars - only show if > 3%
+  const renderCustomLabel = (props: any) => {
+    const { x, y, width, height, value } = props;
+
+    // Only show label if percentage is greater than 3%
+    if (value < 3) return null;
+
+    // Determine text color based on segment size
+    const textColor = value > 30 ? 'white' : '#374151';
+
+    return (
+      <text
+        x={x + width / 2}
+        y={y + height / 2}
+        fill={textColor}
+        textAnchor="middle"
+        dominantBaseline="central"
+        style={{ fontSize: '11px', fontWeight: 'bold' }}
+      >
+        {Math.round(value * 10) / 10}%
+      </text>
+    );
+  };
+
+  return (
+    <Card title={title} style={{ height: '100%' }}>
+      <div style={{ maxHeight: maxHeight, overflowY: 'auto' }}>
+        <ResponsiveContainer width="100%" height={chartHeight}>
+          <BarChart
+            data={chartData}
+            layout="horizontal"
+            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+            <XAxis
+              type="number"
+              domain={[0, 100]}
+              tickFormatter={(value) => `${value}%`}
+              label={{ value: 'ភាគរយ', position: 'insideBottom', offset: -10, style: { fontSize: '12px', fontWeight: 'bold' } }}
+              style={{ fontSize: '11px' }}
+            />
+            <YAxis
+              type="category"
+              dataKey="schoolName"
+              width={150}
+              style={{ fontSize: '11px' }}
+              label={{ value: 'សាលារៀន', angle: -90, position: 'insideLeft', style: { fontSize: '12px', fontWeight: 'bold' } }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend
+              wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }}
+              formatter={(value) => levelTranslations[value as string] || value}
+            />
+
+            {/* Render a Bar for each level */}
+            {levelNames.map((levelName) => (
+              <Bar
+                key={levelName}
+                dataKey={levelName}
+                stackId="levels"
+                fill={colors[levelName] || '#8884d8'}
+                label={renderCustomLabel}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+  );
+}

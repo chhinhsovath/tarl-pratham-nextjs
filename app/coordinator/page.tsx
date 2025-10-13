@@ -44,6 +44,7 @@ import dayjs from 'dayjs';
 import AssessmentCycleChart from '@/components/charts/AssessmentCycleChart';
 import SubjectComparisonChart from '@/components/charts/SubjectComparisonChart';
 import LevelDistributionChart from '@/components/charts/LevelDistributionChart';
+import StackedPercentageBarChart from '@/components/charts/StackedPercentageBarChart';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -82,6 +83,14 @@ interface WorkspaceStats {
       math: number;
     }>;
     pending_verification: number;
+    overall_results_khmer?: Array<{
+      cycle: string;
+      levels: Record<string, number>;
+    }>;
+    overall_results_math?: Array<{
+      cycle: string;
+      levels: Record<string, number>;
+    }>;
   };
 }
 
@@ -99,6 +108,7 @@ function CoordinatorWorkspaceContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<'khmer' | 'math'>('khmer');
   const [stats, setStats] = useState<WorkspaceStats>({
     total_schools: 0,
     total_teachers: 0,
@@ -336,77 +346,46 @@ function CoordinatorWorkspaceContent() {
         </Row>
       </Card>
 
-      {/* Stats Overview */}
-      {/* Statistics Cards - Using verification page pattern */}
+      {/* Stats Overview - Laravel Style */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col xs={12} sm={8} md={8} lg={4}>
-          <Card>
+        <Col xs={12} sm={12} md={12} lg={6}>
+          <Card style={{ backgroundColor: '#eff6ff', borderRadius: 8 }}>
             <Statistic
-              title="សាលារៀនសរុប"
-              value={stats.total_schools}
-              prefix={<BankOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={8} lg={4}>
-          <Card>
-            <Statistic
-              title="គ្រូបង្រៀនសរុប"
-              value={stats.total_teachers}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={8} lg={4}>
-          <Card>
-            <Statistic
-              title="គ្រូព្រឹក្សាគរុកោសល្យសរុប"
-              value={stats.total_mentors}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#13c2c2' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={8} lg={4}>
-          <Card>
-            <Statistic
-              title="សិស្សសរុប"
+              title="និស្សិតសរុប"
               value={stats.total_students}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#722ed1' }}
+              prefix={<TeamOutlined style={{ fontSize: 24, color: '#2563eb' }} />}
+              valueStyle={{ color: '#1e40af', fontSize: 32 }}
             />
           </Card>
         </Col>
-        <Col xs={12} sm={8} md={8} lg={4}>
-          <Card>
+        <Col xs={12} sm={12} md={12} lg={6}>
+          <Card style={{ backgroundColor: '#f0fdf4', borderRadius: 8 }}>
             <Statistic
-              title="ការធ្វើតេស្តសិស្ស"
+              title="ការវាយតម្លៃ"
               value={stats.total_assessments}
-              prefix={<FileDoneOutlined />}
-              valueStyle={{ color: '#fa8c16' }}
+              prefix={<FileDoneOutlined style={{ fontSize: 24, color: '#16a34a' }} />}
+              valueStyle={{ color: '#15803d', fontSize: 32 }}
             />
           </Card>
         </Col>
-        <Col xs={12} sm={8} md={8} lg={4}>
-          <Card>
+        <Col xs={12} sm={12} md={12} lg={6}>
+          <Card style={{ backgroundColor: '#fefce8', borderRadius: 8 }}>
             <Statistic
-              title="ការផ្ទៀងផ្ទាត់រងចាំ"
-              value={stats.pending_verifications}
-              prefix={<ExclamationCircleOutlined />}
-              valueStyle={{ color: stats.pending_verifications > 0 ? '#faad14' : '#52c41a' }}
+              title="សាលារៀន"
+              value={stats.total_schools}
+              prefix={<BankOutlined style={{ fontSize: 24, color: '#ca8a04' }} />}
+              valueStyle={{ color: '#a16207', fontSize: 32 }}
             />
-            {stats.pending_verifications > 0 && (
-              <Button
-                type="link"
-                size="small"
-                onClick={() => router.push('/assessments/verify')}
-                style={{ padding: 0, marginTop: 8 }}
-              >
-                ពិនិត្យឥឡូវ →
-              </Button>
-            )}
+          </Card>
+        </Col>
+        <Col xs={12} sm={12} md={12} lg={6}>
+          <Card style={{ backgroundColor: '#faf5ff', borderRadius: 8 }}>
+            <Statistic
+              title="ដំណើរទស្សនកិច្ច"
+              value={stats.active_mentoring_visits}
+              prefix={<TeamOutlined style={{ fontSize: 24, color: '#9333ea' }} />}
+              valueStyle={{ color: '#7e22ce', fontSize: 32 }}
+            />
           </Card>
         </Col>
       </Row>
@@ -488,6 +467,54 @@ function CoordinatorWorkspaceContent() {
             </Card>
           </Col>
         </Row>
+      )}
+
+      {/* Assessment Results Section with Subject Toggle */}
+      {stats.total_assessments > 0 && (stats.assessments?.overall_results_khmer || stats.assessments?.overall_results_math) && (
+        <Card title="លទ្ធផលការវាយតម្លៃ" style={{ marginBottom: 24 }}>
+          {/* Subject Toggle Buttons */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
+            <Button
+              type={selectedSubject === 'khmer' ? 'primary' : 'default'}
+              onClick={() => setSelectedSubject('khmer')}
+              style={{
+                backgroundColor: selectedSubject === 'khmer' ? '#3b82f6' : '#e5e7eb',
+                color: selectedSubject === 'khmer' ? 'white' : '#374151',
+                border: 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              ខ្មែរ
+            </Button>
+            <Button
+              type={selectedSubject === 'math' ? 'primary' : 'default'}
+              onClick={() => setSelectedSubject('math')}
+              style={{
+                backgroundColor: selectedSubject === 'math' ? '#3b82f6' : '#e5e7eb',
+                color: selectedSubject === 'math' ? 'white' : '#374151',
+                border: 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              គណិតវិទ្យា
+            </Button>
+          </div>
+
+          {/* Overall Results Chart */}
+          {selectedSubject === 'khmer' && stats.assessments?.overall_results_khmer && (
+            <StackedPercentageBarChart
+              data={stats.assessments.overall_results_khmer}
+              title="លទ្ធផលសរុប - ខ្មែរ"
+            />
+          )}
+
+          {selectedSubject === 'math' && stats.assessments?.overall_results_math && (
+            <StackedPercentageBarChart
+              data={stats.assessments.overall_results_math}
+              title="លទ្ធផលសរុប - គណិតវិទ្យា"
+            />
+          )}
+        </Card>
       )}
 
       {/* Charts Section */}

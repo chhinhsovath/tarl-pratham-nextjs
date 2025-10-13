@@ -146,6 +146,99 @@ export async function GET(request: NextRequest) {
         math: level_distribution_math.find(l => l.level === level)?._count.id || 0,
       }));
 
+    // Batch 5: Overall results by cycle and level (for stacked percentage charts)
+    const [
+      baseline_by_level_khmer,
+      midline_by_level_khmer,
+      endline_by_level_khmer,
+      baseline_by_level_math,
+      midline_by_level_math,
+      endline_by_level_math,
+    ] = await Promise.all([
+      // Khmer levels by cycle
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { ...schoolFilter, subject: 'Language', assessment_type: 'baseline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { ...schoolFilter, subject: 'Language', assessment_type: 'midline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { ...schoolFilter, subject: 'Language', assessment_type: 'endline' },
+        _count: { id: true }
+      }),
+      // Math levels by cycle
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { ...schoolFilter, subject: 'Math', assessment_type: 'baseline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { ...schoolFilter, subject: 'Math', assessment_type: 'midline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { ...schoolFilter, subject: 'Math', assessment_type: 'endline' },
+        _count: { id: true }
+      }),
+    ]);
+
+    // Format overall results by cycle for stacked percentage chart (Khmer)
+    const overall_results_khmer = [
+      {
+        cycle: 'តេស្តដើមគ្រា',
+        levels: baseline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តពាក់កណ្ដាលគ្រា',
+        levels: midline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តចុងក្រោយគ្រា',
+        levels: endline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      }
+    ];
+
+    // Format overall results by cycle for stacked percentage chart (Math)
+    const overall_results_math = [
+      {
+        cycle: 'តេស្តដើមគ្រា',
+        levels: baseline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តពាក់កណ្ដាលគ្រា',
+        levels: midline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តចុងក្រោយគ្រា',
+        levels: endline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      }
+    ];
+
     // Return in format expected by coordinator page
     return NextResponse.json({
       // Top-level stats for dashboard cards
@@ -197,6 +290,9 @@ export async function GET(request: NextRequest) {
         },
         by_level: level_distribution,
         pending_verification: pending_verifications,
+        // Overall results by cycle and level for stacked percentage charts
+        overall_results_khmer: overall_results_khmer,
+        overall_results_math: overall_results_math,
       },
     });
   } catch (error) {
