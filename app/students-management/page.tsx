@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Table,
@@ -150,6 +150,21 @@ function StudentsManagementContent() {
   const [classes, setClasses] = useState<any[]>([]);
   const [teachers, setTeachers] = useState<any[]>([]);
   const [mentors, setMentors] = useState<any[]>([]);
+
+  // Extract unique values from students data for dynamic filters
+  const availableGrades = React.useMemo(() => {
+    const grades = students
+      .map(s => s.grade)
+      .filter((grade): grade is number => grade !== null && grade !== undefined);
+    return [...new Set(grades)].sort((a, b) => a - b);
+  }, [students]);
+
+  const availableGenders = React.useMemo(() => {
+    const genders = students
+      .map(s => s.gender)
+      .filter((gender): gender is string => gender !== null && gender !== undefined && gender !== '');
+    return [...new Set(genders)];
+  }, [students]);
 
   useEffect(() => {
     fetchFormData();
@@ -573,8 +588,11 @@ function StudentsManagementContent() {
               style={{ width: '100%' }}
               allowClear
             >
-              <Option value="male">ប្រុស</Option>
-              <Option value="female">ស្រី</Option>
+              {availableGenders.map(gender => (
+                <Option key={gender} value={gender}>
+                  {gender === 'male' ? 'ប្រុស' : gender === 'female' ? 'ស្រី' : gender}
+                </Option>
+              ))}
             </Select>
           </Col>
           <Col xs={12} sm={6} md={4}>
@@ -585,7 +603,7 @@ function StudentsManagementContent() {
               style={{ width: '100%' }}
               allowClear
             >
-              {[1, 2, 3, 4, 5, 6].map(grade => (
+              {availableGrades.map(grade => (
                 <Option key={grade} value={grade}>ទី{grade}</Option>
               ))}
             </Select>
