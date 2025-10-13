@@ -90,12 +90,26 @@ export async function GET(request: NextRequest) {
       language_assessments,
       math_assessments,
       pending_verifications,
+      level_distribution_khmer,
+      level_distribution_math,
     ] = await Promise.all([
       prisma.assessment.count({ where: { ...schoolFilter, assessed_by_mentor: true } }),
       prisma.assessment.count({ where: { ...schoolFilter, assessed_by_mentor: false } }),
       prisma.assessment.count({ where: { ...schoolFilter, subject: 'Language' } }),
       prisma.assessment.count({ where: { ...schoolFilter, subject: 'Math' } }),
       prisma.assessment.count({ where: { ...schoolFilter, verified_by_id: null } }),
+      // Group assessments by level for Khmer (Language)
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { ...schoolFilter, subject: 'Language' },
+        _count: { id: true }
+      }),
+      // Group assessments by level for Math
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { ...schoolFilter, subject: 'Math' },
+        _count: { id: true }
+      }),
     ]);
 
     // Format gender distribution
@@ -117,6 +131,20 @@ export async function GET(request: NextRequest) {
       province: p.province || 'Unknown',
       schools: p._count.id
     }));
+
+    // Format level distribution - combine Khmer and Math by level
+    const allLevels = new Set([
+      ...level_distribution_khmer.map(l => l.level),
+      ...level_distribution_math.map(l => l.level)
+    ]);
+
+    const level_distribution = Array.from(allLevels)
+      .filter(level => level) // Remove null/undefined
+      .map(level => ({
+        level,
+        khmer: level_distribution_khmer.find(l => l.level === level)?._count.id || 0,
+        math: level_distribution_math.find(l => l.level === level)?._count.id || 0,
+      }));
 
     // Return in format expected by coordinator page
     return NextResponse.json({
@@ -167,6 +195,7 @@ export async function GET(request: NextRequest) {
           language: language_assessments,
           math: math_assessments,
         },
+        by_level: level_distribution,
         pending_verification: pending_verifications,
       },
     });

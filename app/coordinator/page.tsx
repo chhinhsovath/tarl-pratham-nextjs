@@ -41,6 +41,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
+import AssessmentCycleChart from '@/components/charts/AssessmentCycleChart';
+import SubjectComparisonChart from '@/components/charts/SubjectComparisonChart';
+import LevelDistributionChart from '@/components/charts/LevelDistributionChart';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -73,6 +76,11 @@ interface WorkspaceStats {
       language: number;
       math: number;
     };
+    by_level?: Array<{
+      level: string;
+      khmer: number;
+      math: number;
+    }>;
     pending_verification: number;
   };
 }
@@ -478,6 +486,74 @@ function CoordinatorWorkspaceContent() {
                 </Col>
               </Row>
             </Card>
+          </Col>
+        </Row>
+      )}
+
+      {/* Charts Section */}
+      {stats.total_assessments > 0 && (
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col xs={24} sm={24} md={12} lg={8}>
+            <AssessmentCycleChart
+              data={stats.assessments?.by_type || { baseline: 0, midline: 0, endline: 0 }}
+              title="ការប្រៀបធៀបតាមវដ្តវាយតម្លៃ"
+              type="bar"
+            />
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={8}>
+            <SubjectComparisonChart
+              data={stats.assessments?.by_subject || { language: 0, math: 0 }}
+              title="ការប្រៀបធៀបតាមមុខវិជ្ជា"
+            />
+          </Col>
+          <Col xs={24} sm={24} md={24} lg={8}>
+            <Card title="ការវាយតម្លៃដោយគ្រូ" style={{ height: '100%' }}>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Statistic
+                    title="គ្រូព្រឹក្សាគរុកោសល្យ"
+                    value={stats.assessments?.by_creator?.mentor || 0}
+                    prefix={<TeamOutlined />}
+                    valueStyle={{ color: '#13c2c2' }}
+                  />
+                </Col>
+                <Col span={12}>
+                  <Statistic
+                    title="គ្រូបង្រៀន"
+                    value={stats.assessments?.by_creator?.teacher || 0}
+                    prefix={<TeamOutlined />}
+                    valueStyle={{ color: '#52c41a' }}
+                  />
+                </Col>
+              </Row>
+              <Row gutter={16} style={{ marginTop: 24 }}>
+                <Col span={24}>
+                  <Progress
+                    percent={stats.total_assessments > 0 ? Math.round(((stats.assessments?.by_creator?.mentor || 0) / stats.total_assessments) * 100) : 0}
+                    strokeColor="#13c2c2"
+                    format={(percent) => `គ្រូព្រឹក្សា ${percent}%`}
+                  />
+                  <Progress
+                    percent={stats.total_assessments > 0 ? Math.round(((stats.assessments?.by_creator?.teacher || 0) / stats.total_assessments) * 100) : 0}
+                    strokeColor="#52c41a"
+                    format={(percent) => `គ្រូបង្រៀន ${percent}%`}
+                    style={{ marginTop: 16 }}
+                  />
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+      {/* Level Distribution Chart - Full Width */}
+      {stats.assessments?.by_level && stats.assessments.by_level.length > 0 && (
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col span={24}>
+            <LevelDistributionChart
+              data={stats.assessments.by_level}
+              title="ការចែកចាយសិស្សតាមកម្រិតវាយតម្លៃ"
+            />
           </Col>
         </Row>
       )}
