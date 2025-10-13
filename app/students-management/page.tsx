@@ -163,7 +163,15 @@ function StudentsManagementContent() {
     const genders = students
       .map(s => s.gender)
       .filter((gender): gender is string => gender !== null && gender !== undefined && gender !== '');
-    return [...new Set(genders)];
+
+    // Normalize to English values to avoid duplicates
+    const normalized = genders.map(g => {
+      if (g === 'ប្រុស' || g === 'male') return 'male';
+      if (g === 'ស្រី' || g === 'female') return 'female';
+      return g;
+    });
+
+    return [...new Set(normalized)];
   }, [students]);
 
   useEffect(() => {
