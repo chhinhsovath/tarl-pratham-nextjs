@@ -17,6 +17,7 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
+    "update-passwords": "ts-node --compiler-options {\\\"module\\\":\\\"CommonJS\\\"} scripts/update-all-passwords.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
