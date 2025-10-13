@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 /**
  * Cleanup function for mentor-created temporary data
@@ -110,8 +108,6 @@ export async function cleanupMentorData() {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     };
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -181,8 +177,6 @@ export async function getTemporaryDataToExpire() {
       total: 0,
       error: error instanceof Error ? error.message : 'Unknown error'
     };
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -239,8 +233,6 @@ export async function markMentorDataAsPermanent(studentIds: number[], assessment
       assessmentsUpdated: 0,
       error: error instanceof Error ? error.message : 'Unknown error'
     };
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -300,7 +292,5 @@ export async function getAllTemporaryMentorData() {
       total: 0,
       error: error instanceof Error ? error.message : 'Unknown error'
     };
-  } finally {
-    await prisma.$disconnect();
   }
 }
