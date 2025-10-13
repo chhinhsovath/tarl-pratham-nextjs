@@ -14,6 +14,7 @@ import QuickActionCard from './QuickActionCard';
 import TaskList from './TaskList';
 import ProgressSummary from './ProgressSummary';
 import AdminDashboard from './AdminDashboard';
+import MentorDashboard from './MentorDashboard';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -59,6 +60,11 @@ export default function SmartDashboard() {
   // Show AdminDashboard for admin users
   if (user?.role === 'admin') {
     return <AdminDashboard />;
+  }
+
+  // Show MentorDashboard for mentor users
+  if (user?.role === 'mentor') {
+    return <MentorDashboard />;
   }
 
   const [loading, setLoading] = useState(true);

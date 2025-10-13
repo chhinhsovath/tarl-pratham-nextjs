@@ -155,6 +155,198 @@ export async function GET(request: NextRequest) {
     // Get recent activities across all schools
     const recentActivities = await getRecentActivities(mentorId, schoolIds);
 
+    // Get comprehensive assessment data for charts (filtered by mentor's assigned schools)
+    // Batch 1: Assessment breakdowns by type and subject
+    const [
+      baseline_assessments,
+      midline_assessments,
+      endline_assessments,
+      language_assessments_count,
+      math_assessments_count,
+      level_distribution_khmer,
+      level_distribution_math,
+    ] = await Promise.all([
+      prisma.assessment.count({
+        where: {
+          pilot_school_id: { in: schoolIds },
+          assessment_type: 'baseline'
+        }
+      }),
+      prisma.assessment.count({
+        where: {
+          pilot_school_id: { in: schoolIds },
+          assessment_type: 'midline'
+        }
+      }),
+      prisma.assessment.count({
+        where: {
+          pilot_school_id: { in: schoolIds },
+          assessment_type: 'endline'
+        }
+      }),
+      prisma.assessment.count({
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Language'
+        }
+      }),
+      prisma.assessment.count({
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Math'
+        }
+      }),
+      // Group assessments by level for Khmer (Language)
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Language'
+        },
+        _count: { id: true }
+      }),
+      // Group assessments by level for Math
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Math'
+        },
+        _count: { id: true }
+      }),
+    ]);
+
+    // Batch 2: Overall results by cycle and level (for stacked percentage charts)
+    const [
+      baseline_by_level_khmer,
+      midline_by_level_khmer,
+      endline_by_level_khmer,
+      baseline_by_level_math,
+      midline_by_level_math,
+      endline_by_level_math,
+    ] = await Promise.all([
+      // Khmer levels by cycle
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Language',
+          assessment_type: 'baseline'
+        },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Language',
+          assessment_type: 'midline'
+        },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Language',
+          assessment_type: 'endline'
+        },
+        _count: { id: true }
+      }),
+      // Math levels by cycle
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Math',
+          assessment_type: 'baseline'
+        },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Math',
+          assessment_type: 'midline'
+        },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: {
+          pilot_school_id: { in: schoolIds },
+          subject: 'Math',
+          assessment_type: 'endline'
+        },
+        _count: { id: true }
+      }),
+    ]);
+
+    // Format overall results by cycle for stacked percentage chart (Khmer)
+    const overall_results_khmer = [
+      {
+        cycle: 'តេស្តដើមគ្រា',
+        levels: baseline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តពាក់កណ្ដាលគ្រា',
+        levels: midline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តចុងក្រោយគ្រា',
+        levels: endline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      }
+    ];
+
+    // Format overall results by cycle for stacked percentage chart (Math)
+    const overall_results_math = [
+      {
+        cycle: 'តេស្តដើមគ្រា',
+        levels: baseline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តពាក់កណ្ដាលគ្រា',
+        levels: midline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តចុងក្រោយគ្រា',
+        levels: endline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      }
+    ];
+
+    // Format level distribution - combine Khmer and Math by level
+    const allLevels = new Set([
+      ...level_distribution_khmer.map(l => l.level),
+      ...level_distribution_math.map(l => l.level)
+    ]);
+
+    const level_distribution = Array.from(allLevels)
+      .filter(level => level) // Remove null/undefined
+      .map(level => ({
+        level,
+        khmer: level_distribution_khmer.find(l => l.level === level)?._count.id || 0,
+        math: level_distribution_math.find(l => l.level === level)?._count.id || 0,
+      }));
+
     return NextResponse.json({
       mentor: {
         id: mentorId,
@@ -174,6 +366,23 @@ export async function GET(request: NextRequest) {
         total_assessments: totalAssessments,
         total_visits: totalVisits,
         pending_verifications: pendingVerifications,
+      },
+      assessments: {
+        total: totalAssessments,
+        by_type: {
+          baseline: baseline_assessments,
+          midline: midline_assessments,
+          endline: endline_assessments,
+        },
+        by_subject: {
+          language: language_assessments_count,
+          math: math_assessments_count,
+        },
+        by_level: level_distribution,
+        pending_verification: pendingVerifications,
+        // Overall results by cycle and level for stacked percentage charts
+        overall_results_khmer: overall_results_khmer,
+        overall_results_math: overall_results_math,
       },
       recent_activities: recentActivities,
       recent_visits: recentVisits,
