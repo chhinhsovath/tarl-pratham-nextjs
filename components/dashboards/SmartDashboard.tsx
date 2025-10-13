@@ -13,6 +13,7 @@ import {
 import QuickActionCard from './QuickActionCard';
 import TaskList from './TaskList';
 import ProgressSummary from './ProgressSummary';
+import AdminDashboard from './AdminDashboard';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -54,6 +55,11 @@ interface Activity {
 export default function SmartDashboard() {
   const { data: session } = useSession();
   const user = session?.user;
+
+  // Show AdminDashboard for admin users
+  if (user?.role === 'admin') {
+    return <AdminDashboard />;
+  }
 
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);

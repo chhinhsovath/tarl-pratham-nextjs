@@ -1,25 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    const session = await getServerSession(authOptions);
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Only admin can access this endpoint
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Get overall statistics
-    // BATCH 1: Student & assessment counts (3 queries)
+    // BATCH 1: Student & assessment counts (5 queries)
     const [
       totalStudents,
       activeStudents,
-      totalAssessments
+      totalAssessments,
+      totalTeachers,
+      totalMentors
     ] = await Promise.all([
       prisma.student.count(),
       prisma.student.count({ where: { is_active: true } }),
-      prisma.assessment.count()
+      prisma.assessment.count(),
+      prisma.user.count({ where: { role: 'teacher' } }),
+      prisma.user.count({ where: { role: 'mentor' } })
     ]);
 
     // BATCH 2: System counts (3 queries)
@@ -39,6 +49,155 @@ export async function GET(request: NextRequest) {
         }
       })
     ]);
+
+    // BATCH 3: Assessment breakdowns (6 queries)
+    const [
+      baseline_assessments,
+      midline_assessments,
+      endline_assessments,
+      language_assessments,
+      math_assessments,
+      pending_verifications
+    ] = await Promise.all([
+      prisma.assessment.count({ where: { assessment_type: 'baseline' } }),
+      prisma.assessment.count({ where: { assessment_type: 'midline' } }),
+      prisma.assessment.count({ where: { assessment_type: 'endline' } }),
+      prisma.assessment.count({ where: { subject: 'Language' } }),
+      prisma.assessment.count({ where: { subject: 'Math' } }),
+      prisma.assessment.count({ where: { verified_by_id: null } })
+    ]);
+
+    // BATCH 4: Level distributions and province data (3 queries)
+    const [
+      level_distribution_khmer,
+      level_distribution_math,
+      schools_by_province
+    ] = await Promise.all([
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { subject: 'Language' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { subject: 'Math' },
+        _count: { id: true }
+      }),
+      prisma.pilotSchool.groupBy({
+        by: ['province'],
+        _count: { id: true }
+      })
+    ]);
+
+    // BATCH 5: Overall results by cycle and level for charts (6 queries)
+    const [
+      baseline_by_level_khmer,
+      midline_by_level_khmer,
+      endline_by_level_khmer,
+      baseline_by_level_math,
+      midline_by_level_math,
+      endline_by_level_math
+    ] = await Promise.all([
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { subject: 'Language', assessment_type: 'baseline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { subject: 'Language', assessment_type: 'midline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { subject: 'Language', assessment_type: 'endline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { subject: 'Math', assessment_type: 'baseline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { subject: 'Math', assessment_type: 'midline' },
+        _count: { id: true }
+      }),
+      prisma.assessment.groupBy({
+        by: ['level'],
+        where: { subject: 'Math', assessment_type: 'endline' },
+        _count: { id: true }
+      })
+    ]);
+
+    // Format overall results by cycle for stacked percentage charts
+    const overall_results_khmer = [
+      {
+        cycle: 'តេស្តដើមគ្រា',
+        levels: baseline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តពាក់កណ្ដាលគ្រា',
+        levels: midline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តចុងក្រោយគ្រា',
+        levels: endline_by_level_khmer.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      }
+    ];
+
+    const overall_results_math = [
+      {
+        cycle: 'តេស្តដើមគ្រា',
+        levels: baseline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តពាក់កណ្ដាលគ្រា',
+        levels: midline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      {
+        cycle: 'តេស្តចុងក្រោយគ្រា',
+        levels: endline_by_level_math.reduce((acc, item) => {
+          if (item.level) acc[item.level] = item._count.id;
+          return acc;
+        }, {} as Record<string, number>)
+      }
+    ];
+
+    // Format level distribution
+    const allLevels = new Set([
+      ...level_distribution_khmer.map(l => l.level),
+      ...level_distribution_math.map(l => l.level)
+    ]);
+
+    const level_distribution = Array.from(allLevels)
+      .filter(level => level)
+      .map(level => ({
+        level,
+        khmer: level_distribution_khmer.find(l => l.level === level)?._count.id || 0,
+        math: level_distribution_math.find(l => l.level === level)?._count.id || 0,
+      }));
+
+    // Format province distribution
+    const province_distribution = schools_by_province.map(p => ({
+      province: p.province || 'Unknown',
+      schools: p._count.id
+    }));
 
     // Calculate average attendance from actual data
     const averageAttendance = 0; // TODO: Implement actual attendance tracking
@@ -107,29 +266,53 @@ export async function GET(request: NextRequest) {
     const interventionEffectiveness = [0, 0, 0, 0];
 
     const response = {
-      statistics: {
-        summary_stats: {
-          total_students: totalStudents,
-          active_students: activeStudents,
-          average_attendance: averageAttendance,
-          assessments_completed: totalAssessments,
-          students_needing_intervention: atRiskStudents
-        },
-        at_risk_students: processedAtRiskStudents
+      // Top-level statistics
+      total_students: totalStudents,
+      active_students: activeStudents,
+      total_schools: totalSchools,
+      total_teachers: totalTeachers,
+      total_mentors: totalMentors,
+      total_assessments: totalAssessments,
+      total_mentoring_visits: totalMentoringVisits,
+      pending_verifications: pending_verifications,
+      at_risk_students_count: atRiskStudents,
+
+      // Detailed breakdowns
+      schools: {
+        total: totalSchools,
+        by_province: province_distribution
       },
-      charts: {
-        enrollment_trends: {
-          active: enrollmentTrends.active,
-          dropped: enrollmentTrends.dropped
+      students: {
+        total: totalStudents,
+        active: activeStudents,
+        at_risk: atRiskStudents,
+        at_risk_details: processedAtRiskStudents
+      },
+      teachers: {
+        total: totalTeachers
+      },
+      mentors: {
+        total: totalMentors
+      },
+      assessments: {
+        total: totalAssessments,
+        by_type: {
+          baseline: baseline_assessments,
+          midline: midline_assessments,
+          endline: endline_assessments
         },
-        level_distribution: {
-          khmer: levelDistribution.khmer,
-          math: levelDistribution.math
+        by_subject: {
+          language: language_assessments,
+          math: math_assessments
         },
-        assessment_performance: assessmentPerformance,
-        attendance_patterns: attendancePatterns,
-        geographic_distribution: geographicDistribution,
-        intervention_effectiveness: interventionEffectiveness
+        by_level: level_distribution,
+        pending_verification: pending_verifications,
+        // Chart data for stacked percentage charts
+        overall_results_khmer: overall_results_khmer,
+        overall_results_math: overall_results_math
+      },
+      mentoring_visits: {
+        total: totalMentoringVisits
       }
     };
 
