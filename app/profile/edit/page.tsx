@@ -28,15 +28,22 @@ export default function ProfileEditPage() {
 
   useEffect(() => {
     fetchSchools();
-    
+
     // Load existing profile data
     if (session?.user) {
+      // Normalize holding_classes: convert comma-separated values to "both"
+      let normalizedClasses = session.user.holding_classes || undefined;
+      if (normalizedClasses && typeof normalizedClasses === 'string' && normalizedClasses.includes(',')) {
+        console.log('⚠️ Normalizing comma-separated holding_classes to "both":', normalizedClasses);
+        normalizedClasses = 'both';
+      }
+
       profileForm.setFieldsValue({
         name: session.user.name || '',
         email: session.user.email || '',
         pilot_school_id: session.user.pilot_school_id || undefined,
         subject: session.user.subject || undefined,
-        holding_classes: session.user.holding_classes || undefined,
+        holding_classes: normalizedClasses,
         phone: session.user.phone || ''
       });
     }
@@ -74,7 +81,9 @@ export default function ProfileEditPage() {
         await update();
         message.success('ព័ត៌មានប្រវត្តិរូបបានធ្វើបច្ចុប្បន្នភាពបានជោគជ័យ!');
       } else {
-        message.error('មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាពព័ត៌មានប្រវត្តិរូប');
+        const errorData = await response.json();
+        console.error('Profile update error:', errorData);
+        message.error(errorData.error || 'មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាពព័ត៌មានប្រវត្តិរូប');
       }
     } catch (error) {
       console.error('Profile update error:', error);

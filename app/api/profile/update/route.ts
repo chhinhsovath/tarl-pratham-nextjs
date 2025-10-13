@@ -51,7 +51,14 @@ export async function POST(request: NextRequest) {
       'ទាំងពីរ': 'both'
     };
 
-    const normalizedClass = classMapping[holding_classes];
+    let normalizedClass = classMapping[holding_classes];
+
+    // Handle comma-separated values (old format) - convert to "both"
+    if (!normalizedClass && holding_classes.includes(',')) {
+      console.log('⚠️ Detected comma-separated holding_classes, converting to "both":', holding_classes);
+      normalizedClass = 'both';
+    }
+
     if (!normalizedClass) {
       return NextResponse.json({
         error: 'Invalid holding_classes value. Must be: grade_4/ថ្នាក់ទី៤, grade_5/ថ្នាក់ទី៥, or both/ទាំងពីរ',
