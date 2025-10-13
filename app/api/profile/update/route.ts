@@ -131,6 +131,52 @@ export async function POST(request: NextRequest) {
     console.log('✅ Updated user successfully:', updatedUser.id);
     console.log('✅ Onboarding marked complete:', wasFirstTime);
 
+    // Auto-create MentorSchoolAssignment records for mentors
+    if (isMentor && pilot_school_id) {
+      // Map subject from user profile format to assignment format
+      const subjectMapping: Record<string, string[]> = {
+        'khmer': ['Language'],
+        'math': ['Math'],
+        'both': ['Language', 'Math']
+      };
+
+      const assignmentSubjects = subjectMapping[normalizedSubject] || [];
+
+      for (const assignmentSubject of assignmentSubjects) {
+        try {
+          // Check if assignment already exists
+          const existingAssignment = await prisma.mentorSchoolAssignment.findFirst({
+            where: {
+              mentor_id: userId,
+              pilot_school_id: parseInt(pilot_school_id),
+              subject: assignmentSubject,
+            }
+          });
+
+          if (!existingAssignment) {
+            // Create new assignment
+            await prisma.mentorSchoolAssignment.create({
+              data: {
+                mentor_id: userId,
+                pilot_school_id: parseInt(pilot_school_id),
+                subject: assignmentSubject,
+                assigned_by_id: userId, // Self-assigned
+                notes: 'Auto-created from profile setup',
+                is_active: true,
+              }
+            });
+
+            console.log(`✅ Created mentor assignment: ${assignmentSubject} at school ${pilot_school_id}`);
+          } else {
+            console.log(`ℹ️ Assignment already exists: ${assignmentSubject} at school ${pilot_school_id}`);
+          }
+        } catch (assignmentError: any) {
+          console.error(`❌ Error creating mentor assignment for ${assignmentSubject}:`, assignmentError.message);
+          // Don't fail the whole profile update if assignment creation fails
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       user: {
