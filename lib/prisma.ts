@@ -14,7 +14,9 @@ const createPrismaClient = () => {
   let pooledUrl = databaseUrl;
   if (process.env.NODE_ENV === 'production' && !databaseUrl.includes('connection_limit')) {
     const separator = databaseUrl.includes('?') ? '&' : '?';
-    pooledUrl = `${databaseUrl}${separator}connection_limit=2&pool_timeout=20`;
+    // connection_limit=10 allows up to 10 concurrent queries per serverless instance
+    // With 100 total DB connections, supports ~10 concurrent serverless instances safely
+    pooledUrl = `${databaseUrl}${separator}connection_limit=10&pool_timeout=20`;
   }
 
   return new PrismaClient({
