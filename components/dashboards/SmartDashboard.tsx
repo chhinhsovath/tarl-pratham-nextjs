@@ -15,6 +15,10 @@ import TaskList from './TaskList';
 import ProgressSummary from './ProgressSummary';
 import AdminDashboard from './AdminDashboard';
 import MentorDashboard from './MentorDashboard';
+import AssessmentCycleChart from '@/components/charts/AssessmentCycleChart';
+import SubjectComparisonChart from '@/components/charts/SubjectComparisonChart';
+import LevelDistributionChart from '@/components/charts/LevelDistributionChart';
+import StackedPercentageBarChart from '@/components/charts/StackedPercentageBarChart';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -28,6 +32,31 @@ interface DashboardStats {
   totalStudents: number;
   upcomingDeadlines: Deadline[];
   recentActivity: Activity[];
+  assessments?: {
+    total: number;
+    by_type: {
+      baseline: number;
+      midline: number;
+      endline: number;
+    };
+    by_subject: {
+      language: number;
+      math: number;
+    };
+    by_level?: Array<{
+      level: string;
+      khmer: number;
+      math: number;
+    }>;
+    overall_results_khmer?: Array<{
+      cycle: string;
+      levels: Record<string, number>;
+    }>;
+    overall_results_math?: Array<{
+      cycle: string;
+      levels: Record<string, number>;
+    }>;
+  };
 }
 
 interface Task {
@@ -69,6 +98,7 @@ export default function SmartDashboard() {
 
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<'khmer' | 'math'>('khmer');
 
   useEffect(() => {
     if (user) {
@@ -381,6 +411,120 @@ export default function SmartDashboard() {
             ))}
           </Space>
         </Card>
+      )}
+
+      {/* Assessment Results Section with Subject Toggle */}
+      {stats?.assessments && stats.assessments.total > 0 && (stats.assessments.overall_results_khmer || stats.assessments.overall_results_math) && (
+        <Card title="លទ្ធផលការវាយតម្លៃសរុប" style={{ marginBottom: 24 }}>
+          {/* Subject Toggle Buttons */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
+            <Button
+              type={selectedSubject === 'khmer' ? 'primary' : 'default'}
+              onClick={() => setSelectedSubject('khmer')}
+              style={{
+                backgroundColor: selectedSubject === 'khmer' ? '#3b82f6' : '#e5e7eb',
+                color: selectedSubject === 'khmer' ? 'white' : '#374151',
+                border: 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              ខ្មែរ
+            </Button>
+            <Button
+              type={selectedSubject === 'math' ? 'primary' : 'default'}
+              onClick={() => setSelectedSubject('math')}
+              style={{
+                backgroundColor: selectedSubject === 'math' ? '#3b82f6' : '#e5e7eb',
+                color: selectedSubject === 'math' ? 'white' : '#374151',
+                border: 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              គណិតវិទ្យា
+            </Button>
+          </div>
+
+          {/* Overall Results Chart */}
+          {selectedSubject === 'khmer' && stats.assessments.overall_results_khmer && (
+            <StackedPercentageBarChart
+              data={stats.assessments.overall_results_khmer}
+              title="លទ្ធផលសរុប - ខ្មែរ"
+            />
+          )}
+
+          {selectedSubject === 'math' && stats.assessments.overall_results_math && (
+            <StackedPercentageBarChart
+              data={stats.assessments.overall_results_math}
+              title="លទ្ធផលសរុប - គណិតវិទ្យា"
+            />
+          )}
+        </Card>
+      )}
+
+      {/* Charts Section */}
+      {stats?.assessments && stats.assessments.total > 0 && (
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col xs={24} sm={24} md={12} lg={8}>
+            <AssessmentCycleChart
+              data={stats.assessments.by_type || { baseline: 0, midline: 0, endline: 0 }}
+              title="ការប្រៀបធៀបតាមវដ្តវាយតម្លៃ"
+              type="bar"
+            />
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={8}>
+            <SubjectComparisonChart
+              data={stats.assessments.by_subject || { language: 0, math: 0 }}
+              title="ការប្រៀបធៀបតាមមុខវិជ្ជា"
+            />
+          </Col>
+          <Col xs={24} sm={24} md={24} lg={8}>
+            <Card title="ស្ថិតិសរុប" style={{ height: '100%' }}>
+              <Row gutter={[16, 16]}>
+                <Col span={12}>
+                  <Statistic
+                    title="ការវាយតម្លៃសរុប"
+                    value={stats.assessments.total}
+                    valueStyle={{ color: '#52c41a', fontSize: 24 }}
+                  />
+                </Col>
+                <Col span={12}>
+                  <Statistic
+                    title="សិស្សសរុប"
+                    value={stats.totalStudents}
+                    valueStyle={{ color: '#1890ff', fontSize: 24 }}
+                  />
+                </Col>
+              </Row>
+              <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+                <Col span={24}>
+                  <Progress
+                    percent={stats.progressPercentage}
+                    strokeColor={{
+                      '0%': '#108ee9',
+                      '100%': '#87d068',
+                    }}
+                    status={stats.progressPercentage === 100 ? 'success' : 'active'}
+                  />
+                  <Text type="secondary" style={{ fontSize: '12px', marginTop: 8, display: 'block' }}>
+                    ដំណើរការវាយតម្លៃ
+                  </Text>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+      {/* Level Distribution Chart - Full Width */}
+      {stats?.assessments?.by_level && stats.assessments.by_level.length > 0 && (
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col span={24}>
+            <LevelDistributionChart
+              data={stats.assessments.by_level}
+              title="ការចែកចាយសិស្សតាមកម្រិតវាយតម្លៃ"
+            />
+          </Col>
+        </Row>
       )}
 
       {/* Achievement Badge (if high progress) */}
