@@ -221,8 +221,8 @@ export async function DELETE(
     // Check permissions based on role
     const userRole = session.user.role;
 
-    if (userRole === 'teacher') {
-      // Teachers can delete students if:
+    if (userRole === 'teacher' || userRole === 'mentor') {
+      // Teachers and mentors can delete students if:
       // 1. Student has NO assessments, OR
       // 2. Student has assessments BUT none are verified/locked
       const verifiedOrLockedCount = await prisma.assessment.count({
@@ -242,7 +242,7 @@ export async function DELETE(
         }, { status: 403 });
       }
     } else if (userRole !== 'admin' && userRole !== 'coordinator') {
-      // Other roles (mentor, viewer) cannot delete
+      // Other roles (viewer) cannot delete
       return NextResponse.json({
         error: 'អ្នកមិនមានសិទ្ធិលុបសិស្សទេ'
       }, { status: 403 });

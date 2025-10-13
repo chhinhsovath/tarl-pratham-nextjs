@@ -33,11 +33,11 @@ function hasPermission(userRole: string, action: string): boolean {
   const permissions = {
     admin: ["view", "create", "update", "delete"],
     coordinator: ["view", "create", "update", "delete"],
-    mentor: ["view", "create", "update"],
-    teacher: ["view", "create", "update"],
+    mentor: ["view", "create", "update", "delete"],
+    teacher: ["view", "create", "update", "delete"],
     viewer: ["view"]
   };
-  
+
   return permissions[userRole as keyof typeof permissions]?.includes(action) || false;
 }
 
