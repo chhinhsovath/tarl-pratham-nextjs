@@ -445,21 +445,21 @@ function CoordinatorWorkspaceContent() {
               <Row gutter={16} style={{ marginTop: 16 }}>
                 <Col xs={12} sm={8} md={6}>
                   <Statistic
-                    title="Baseline"
+                    title="តេស្តដើមគ្រា"
                     value={stats.assessments?.by_type?.baseline || 0}
                     valueStyle={{ fontSize: 20 }}
                   />
                 </Col>
                 <Col xs={12} sm={8} md={6}>
                   <Statistic
-                    title="Midline"
+                    title="តេស្តពាក់កណ្ដាលគ្រា"
                     value={stats.assessments?.by_type?.midline || 0}
                     valueStyle={{ fontSize: 20 }}
                   />
                 </Col>
                 <Col xs={12} sm={8} md={6}>
                   <Statistic
-                    title="Endline"
+                    title="តេស្តចុងក្រោយគ្រា"
                     value={stats.assessments?.by_type?.endline || 0}
                     valueStyle={{ fontSize: 20 }}
                   />
