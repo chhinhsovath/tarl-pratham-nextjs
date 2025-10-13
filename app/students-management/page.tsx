@@ -601,6 +601,7 @@ function StudentsManagementContent() {
               style={{ width: '100%' }}
               allowClear
             >
+              <Option value="">ទាំងអស់</Option>
               {availableGenders.map(gender => (
                 <Option key={gender} value={gender}>
                   {gender === 'male' ? 'ប្រុស' : gender === 'female' ? 'ស្រី' : gender}
@@ -616,6 +617,7 @@ function StudentsManagementContent() {
               style={{ width: '100%' }}
               allowClear
             >
+              <Option value="">ទាំងអស់</Option>
               {availableGrades.map(grade => (
                 <Option key={grade} value={grade}>ទី{grade}</Option>
               ))}
