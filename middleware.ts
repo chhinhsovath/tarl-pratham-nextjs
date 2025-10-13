@@ -104,6 +104,8 @@ export async function middleware(request: NextRequest) {
   // Check if mentor/teacher/viewer has school assignment for school-limited routes
   if (['mentor', 'teacher', 'viewer'].includes(userRole)) {
     const pilotSchoolId = token.pilot_school_id;
+    const subject = token.subject;
+    const holdingClasses = token.holding_classes;
     const schoolRequiredPaths = ['/students', '/assessments', '/mentoring'];
 
     // Check if trying to access school-required paths
@@ -113,31 +115,33 @@ export async function middleware(request: NextRequest) {
     const allowedPaths = ['/profile-setup', '/onboarding', '/dashboard', '/help', '/reports', '/profile'];
     const isAllowedPath = allowedPaths.some(p => path.startsWith(p));
 
-    // Check if coming from onboarding or profile-setup (allow first visit after setup)
-    const referer = request.headers.get('referer');
-    const comingFromOnboarding = referer?.includes('/onboarding');
-    const comingFromProfileSetup = referer?.includes('/profile-setup');
+    // Check if profile is complete (has all required fields)
+    const hasCompleteProfile = Boolean(pilotSchoolId && subject && holdingClasses);
 
     // Debug logging in development
     if (process.env.NODE_ENV === 'development') {
       console.log('🔍 [MIDDLEWARE] School check:', {
         path,
         pilotSchoolId,
+        subject,
+        holdingClasses,
+        hasCompleteProfile,
         userRole,
         needsSchool,
-        isAllowedPath,
-        comingFromOnboarding,
-        comingFromProfileSetup,
-        referer: referer?.substring(referer.length - 30)
+        isAllowedPath
       });
     }
 
-    if (needsSchool && !pilotSchoolId && !isAllowedPath && !comingFromOnboarding && !comingFromProfileSetup) {
-      console.log('🚫 [MIDDLEWARE] BLOCKING access to', path, '- No school assigned');
+    // Only redirect to profile-setup if:
+    // 1. Trying to access school-required path
+    // 2. Profile is NOT complete (missing school, subject, or holding_classes)
+    // 3. Not already on an allowed path
+    if (needsSchool && !hasCompleteProfile && !isAllowedPath) {
+      console.log('🚫 [MIDDLEWARE] BLOCKING access to', path, '- Profile incomplete');
       console.log('📊 [MIDDLEWARE] Token data:', {
         pilot_school_id: pilotSchoolId,
-        subject: token.subject,
-        holding_classes: token.holding_classes,
+        subject: subject,
+        holding_classes: holdingClasses,
         role: userRole,
         user_id: token.id
       });
@@ -145,8 +149,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/profile-setup', request.url));
     }
 
-    if (needsSchool && pilotSchoolId) {
-      console.log('✅ [MIDDLEWARE] ALLOWING access to', path, '- School assigned:', pilotSchoolId);
+    if (needsSchool && hasCompleteProfile) {
+      console.log('✅ [MIDDLEWARE] ALLOWING access to', path, '- Profile complete');
     }
   }
 
