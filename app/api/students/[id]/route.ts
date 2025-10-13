@@ -100,10 +100,15 @@ export async function GET(
       success: true
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get student error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch student' },
+      {
+        error: 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស',
+        message: error.message || 'Failed to fetch student',
+        code: error.code || 'UNKNOWN_ERROR',
+        meta: error.meta || {}
+      },
       { status: 500 }
     );
   }
@@ -166,10 +171,15 @@ export async function PUT(
       message: 'Student updated successfully'
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Update student error:', error);
     return NextResponse.json(
-      { error: 'Failed to update student' },
+      {
+        error: 'មានបញ្ហាក្នុងការកែប្រែទិន្នន័យសិស្ស',
+        message: error.message || 'Failed to update student',
+        code: error.code || 'UNKNOWN_ERROR',
+        meta: error.meta || {}
+      },
       { status: 500 }
     );
   }
@@ -238,10 +248,26 @@ export async function DELETE(
       }, { status: 403 });
     }
 
-    // Admin, coordinator can delete regardless of assessments
-    // Teacher can delete if no assessments
-    await prisma.student.delete({
-      where: { id: studentId }
+    // Delete in transaction to ensure data consistency
+    await prisma.$transaction(async (tx) => {
+      // First, delete related assessment history records
+      await tx.assessmentHistory.deleteMany({
+        where: {
+          assessment: {
+            student_id: studentId
+          }
+        }
+      });
+
+      // Then, delete all assessments for this student
+      await tx.assessment.deleteMany({
+        where: { student_id: studentId }
+      });
+
+      // Finally, delete the student
+      await tx.student.delete({
+        where: { id: studentId }
+      });
     });
 
     return NextResponse.json({
@@ -249,10 +275,30 @@ export async function DELETE(
       message: 'Student deleted successfully'
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Delete student error:', error);
+
+    // Check for foreign key constraint errors (student has related records)
+    if (error.code === 'P2003' || error.message?.includes('Foreign key constraint')) {
+      return NextResponse.json(
+        {
+          error: 'មិនអាចលុបសិស្សបានទេ ព្រោះសិស្សនេះមានទិន្នន័យផ្សេងទៀតទាក់ទង (ការវាយតម្លៃ, ប្រវត្តិការវាយតម្លៃ ។ល។)',
+          message: 'Cannot delete student because they have related records (assessments, assessment history, etc.)',
+          code: error.code || 'FOREIGN_KEY_CONSTRAINT',
+          meta: error.meta
+        },
+        { status: 400 }
+      );
+    }
+
+    // Return detailed error (per AI_DEVELOPMENT_RULES.md)
     return NextResponse.json(
-      { error: 'Failed to delete student' },
+      {
+        error: 'មានបញ្ហាក្នុងការលុបសិស្ស',
+        message: error.message || 'Failed to delete student',
+        code: error.code || 'UNKNOWN_ERROR',
+        meta: error.meta || {}
+      },
       { status: 500 }
     );
   }
