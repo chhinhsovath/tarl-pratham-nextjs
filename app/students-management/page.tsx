@@ -694,6 +694,7 @@ function StudentsManagementContent() {
               style={{ width: '100%' }}
               allowClear
             >
+              <Option value="">ទាំងអស់</Option>
               <Option value="true">បណ្តោះអាសន្ន (គ្រូព្រឹក្សាគរុកោសល្យ)</Option>
               <Option value="false">ផលិតកម្ម</Option>
             </Select>
