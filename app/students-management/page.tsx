@@ -689,10 +689,9 @@ function StudentsManagementContent() {
           <Col xs={12} sm={6} md={5}>
             <Select
               placeholder="ប្រភេទទិន្នន័យ"
-              value={filters.is_temporary || undefined}
-              onChange={(value) => setFilters({ ...filters, is_temporary: value || '' })}
+              value={filters.is_temporary}
+              onChange={(value) => setFilters({ ...filters, is_temporary: value !== undefined ? value : '' })}
               style={{ width: '100%' }}
-              allowClear
             >
               <Option value="">ទាំងអស់</Option>
               <Option value="true">បណ្តោះអាសន្ន (គ្រូព្រឹក្សាគរុកោសល្យ)</Option>
