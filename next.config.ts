@@ -20,12 +20,14 @@ const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
 
-  // Generate stable build IDs in production
+  // Generate unique build IDs to force cache invalidation
   generateBuildId: async () => {
+    // Include timestamp to force new chunk filenames and bypass cache
+    const timestamp = Date.now();
     if (process.env.NODE_ENV === 'production') {
-      return `build-${process.env.VERCEL_GIT_COMMIT_SHA || 'production'}`;
+      return `build-${process.env.VERCEL_GIT_COMMIT_SHA || 'production'}-${timestamp}`;
     }
-    return `build-${Date.now()}`;
+    return `build-${timestamp}`;
   },
 
   // Optimized caching strategy
