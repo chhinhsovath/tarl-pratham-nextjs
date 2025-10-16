@@ -50,10 +50,12 @@ model User {
   attendance_records        AttendanceRecord[]
   mentoring_visits          MentoringVisit[]
   students                  Student[]                 @relation("StudentAddedBy")
-  teaching_activities       TeachingActivity[]
-  mentor_assignments        MentorSchoolAssignment[]  @relation("MentorAssignments")
-  coordinator_assignments   MentorSchoolAssignment[]  @relation("AssignedByCoordinator")
-  pilot_school              PilotSchool?              @relation(fields: [pilot_school_id], references: [id])
+  teaching_activities                 TeachingActivity[]
+  mentor_assignments                  MentorSchoolAssignment[]   @relation("MentorAssignments")
+  coordinator_assignments             MentorSchoolAssignment[]   @relation("AssignedByCoordinator")
+  teacher_assignments                 TeacherSchoolAssignment[]  @relation("TeacherAssignments")
+  coordinator_teacher_assignments     TeacherSchoolAssignment[]  @relation("AssignedByCoordinatorForTeacher")
+  pilot_school                        PilotSchool?               @relation(fields: [pilot_school_id], references: [id])
 
   @@index([email])
   @@index([role])
@@ -90,11 +92,12 @@ model PilotSchool {
   is_locked           Boolean          @default(false)
   created_at          DateTime                   @default(now())
   updated_at          DateTime                   @updatedAt
-  assessments         Assessment[]
-  mentoring_visits    MentoringVisit[]
-  students            Student[]
-  users               User[]
-  mentor_assignments  MentorSchoolAssignment[]   @relation("SchoolMentorAssignments")
+  assessments          Assessment[]
+  mentoring_visits     MentoringVisit[]
+  students             Student[]
+  users                User[]
+  mentor_assignments   MentorSchoolAssignment[]   @relation("SchoolMentorAssignments")
+  teacher_assignments  TeacherSchoolAssignment[]  @relation("SchoolTeacherAssignments")
 
   @@index([school_code])
   @@index([province])
@@ -620,6 +623,29 @@ model MentorSchoolAssignment {
   @@index([subject])
   @@index([is_active])
   @@map("mentor_school_assignments")
+}
+
+model TeacherSchoolAssignment {
+  id              Int          @id @default(autoincrement())
+  teacher_id      Int
+  pilot_school_id Int
+  subject         String
+  assigned_by_id  Int?
+  assigned_date   DateTime     @default(now())
+  is_active       Boolean      @default(true)
+  notes           String?
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+  teacher         User         @relation("TeacherAssignments", fields: [teacher_id], references: [id])
+  pilot_school    PilotSchool  @relation("SchoolTeacherAssignments", fields: [pilot_school_id], references: [id])
+  assigned_by     User?        @relation("AssignedByCoordinatorForTeacher", fields: [assigned_by_id], references: [id])
+
+  @@unique([teacher_id, pilot_school_id, subject])
+  @@index([teacher_id])
+  @@index([pilot_school_id])
+  @@index([subject])
+  @@index([is_active])
+  @@map("teacher_school_assignments")
 }
 
 model ReportExport {
