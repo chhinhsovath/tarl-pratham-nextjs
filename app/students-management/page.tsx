@@ -99,21 +99,13 @@ interface Student {
   pilot_school?: {
     school_name: string;
   };
-  school_class?: {
-    name: string;
-  };
   added_by?: {
-    id: number;
     name: string;
     role: string;
   };
-  assessments?: Array<{
-    id: number;
-    assessment_type: string;
-    subject: string;
-    level: string;
-    assessed_date: string;
-  }>;
+  _count?: {
+    assessments: number;
+  };
 }
 
 function StudentsManagementContent() {
@@ -314,30 +306,20 @@ function StudentsManagementContent() {
     },
     {
       title: 'ការវាយតម្លៃ',
-      dataIndex: 'assessments',
       key: 'assessments',
       width: 120,
-      render: (assessments: any[], record: Student) => {
-        const count = assessments?.length || 0;
-        const verified = assessments?.filter(a => a.verified_by_id).length || 0;
+      render: (_: any, record: Student) => {
+        const count = record._count?.assessments || 0;
         return (
-          <Space direction="vertical" size="small">
-            <Button
-              type="link"
-              size="small"
-              icon={<FileTextOutlined />}
-              onClick={() => router.push(`/assessments?student_id=${record.id}`)}
-              style={{ padding: 0 }}
-            >
-              {count} ការវាយតម្លៃ
-            </Button>
-            {count > 0 && (
-              <div className="text-xs">
-                <CheckCircleOutlined className="text-green-500 mr-1" />
-                {verified} ផ្ទៀងផ្ទាត់
-              </div>
-            )}
-          </Space>
+          <Button
+            type="link"
+            size="small"
+            icon={<FileTextOutlined />}
+            onClick={() => router.push(`/assessments?student_id=${record.id}`)}
+            style={{ padding: 0 }}
+          >
+            {count} ការវាយតម្លៃ
+          </Button>
         );
       }
     },

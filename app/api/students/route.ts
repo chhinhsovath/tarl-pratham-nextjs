@@ -203,6 +203,9 @@ export async function GET(request: NextRequest) {
     }
     // Note: admin and coordinator roles intentionally have no restrictions - they see all students
 
+    // CRITICAL OPTIMIZATION: Minimal joins to prevent connection exhaustion
+    // Removed: school_class (not displayed), assessments (too expensive - 500 records for 100 students)
+    // Kept only: pilot_school (school name), added_by (creator info)
     const [students, total] = await Promise.all([
       prisma.student.findMany({
         where,
@@ -232,45 +235,24 @@ export async function GET(request: NextRequest) {
           updated_at: true,
           pilot_school_id: true,
           school_class_id: true,
+          added_by_id: true,
+          // Only essential joins - 2 joins instead of 5+
           pilot_school: {
             select: {
-              id: true,
-              school_name: true,
-              school_code: true
-            }
-          },
-          school_class: {
-            select: {
-              id: true,
-              name: true,
-              grade: true,
-              school: {
-                select: {
-                  id: true,
-                  name: true,
-                  code: true
-                }
-              }
+              school_name: true
             }
           },
           added_by: {
             select: {
-              id: true,
               name: true,
               role: true
             }
           },
-          assessments: {
+          // Removed assessments join - use _count instead for performance
+          _count: {
             select: {
-              id: true,
-              assessment_type: true,
-              subject: true,
-              level: true,
-              assessed_date: true,
-              verified_by_id: true
-            },
-            orderBy: { assessed_date: "desc" },
-            take: 5 // Limit to 5 most recent assessments per student
+              assessments: true
+            }
           }
         },
         skip,
