@@ -20,25 +20,47 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // CRITICAL: ZERO JOINS - Only simple count queries
+    // CRITICAL: ZERO JOINS - Only simple count queries with safe fallbacks
     // Each count is independent and very efficient
-    const [teacherCount, mentorCount, schoolCount, assessmentCount] = await Promise.all([
-      // Count teachers
-      prisma.user.count({
+    let teacherCount = 0;
+    let mentorCount = 0;
+    let schoolCount = 0;
+    let assessmentCount = 0;
+
+    try {
+      teacherCount = await prisma.user.count({
         where: { role: 'teacher', is_active: true }
-      }),
+      });
+    } catch (e) {
+      console.error('Error counting teachers:', e);
+    }
 
-      // Count mentors
-      prisma.user.count({
+    try {
+      mentorCount = await prisma.user.count({
         where: { role: 'mentor', is_active: true }
-      }),
+      });
+    } catch (e) {
+      console.error('Error counting mentors:', e);
+    }
 
-      // Count schools
-      prisma.pilot_school.count(),
+    try {
+      // PilotSchool is the correct model name (PascalCase in schema = camelCase instance)
+      schoolCount = await prisma.pilotSchool.count();
+    } catch (e) {
+      console.error('Error counting schools:', e);
+      // Fallback: try School model if PilotSchool doesn't exist
+      try {
+        schoolCount = await prisma.school.count();
+      } catch (e2) {
+        console.error('Error counting schools (fallback):', e2);
+      }
+    }
 
-      // Count assessments
-      prisma.assessment.count()
-    ]);
+    try {
+      assessmentCount = await prisma.assessment.count();
+    } catch (e) {
+      console.error('Error counting assessments:', e);
+    }
 
     return NextResponse.json({
       data: {

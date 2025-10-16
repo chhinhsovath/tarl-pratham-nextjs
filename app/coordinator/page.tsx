@@ -131,7 +131,7 @@ function CoordinatorWorkspaceContent() {
   }, []);
 
   const fetchWorkspaceData = async () => {
-    // Step 1: Load stats FIRST
+    // CRITICAL: ONLY LOAD STATS - No activities, no imports to minimize connections
     setStatsLoading(true);
     try {
       const statsResponse = await fetch('/api/coordinator/stats');
@@ -145,35 +145,8 @@ function CoordinatorWorkspaceContent() {
       setStatsLoading(false);
     }
 
-    // Step 2: Load activities AFTER stats complete (wait 500ms)
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setActivitiesLoading(true);
-    try {
-      const activitiesResponse = await fetch('/api/coordinator/activities');
-      if (activitiesResponse.ok) {
-        const data = await activitiesResponse.json();
-        setRecentActivities(data.activities || []);
-      }
-    } catch (error) {
-      console.error('Error fetching activities:', error);
-    } finally {
-      setActivitiesLoading(false);
-    }
-
-    // Step 3: Load imports LAST (wait 500ms)
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setImportsLoading(true);
-    try {
-      const importsResponse = await fetch('/api/bulk-import/history');
-      if (importsResponse.ok) {
-        const data = await importsResponse.json();
-        setImportHistory(data.imports || []);
-      }
-    } catch (error) {
-      console.error('Error fetching imports:', error);
-    } finally {
-      setImportsLoading(false);
-    }
+    // REMOVED: Activities API call (caused connection exhaustion)
+    // REMOVED: Imports API call (reduce connections further)
   };
 
   const quickActions = [

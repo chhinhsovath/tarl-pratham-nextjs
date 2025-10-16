@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       midline_assessments,
       endline_assessments,
     ] = await Promise.all([
-      prisma.pilot_school.count(),
+      prisma.pilotSchool.count(), // Correct: camelCase instance name
       prisma.student.count({ where: schoolFilter }),
       prisma.user.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
       prisma.user.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
