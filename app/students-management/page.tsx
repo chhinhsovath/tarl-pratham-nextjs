@@ -20,7 +20,9 @@ import {
   DatePicker,
   InputNumber,
   Upload,
-  Image
+  Image,
+  Tabs,
+  Statistic
 } from 'antd';
 import {
   PlusOutlined,
@@ -34,7 +36,11 @@ import {
   FileTextOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  UploadOutlined
+  UploadOutlined,
+  TeamOutlined,
+  HomeOutlined,
+  LineChartOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
@@ -111,6 +117,16 @@ function StudentsManagementContent() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [form] = Form.useForm();
   const [pilotSchools, setPilotSchools] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState('students');
+
+  // Statistics state
+  const [stats, setStats] = useState({
+    teachers: 0,
+    mentors: 0,
+    schools: 0,
+    assessments: 0
+  });
+  const [statsLoading, setStatsLoading] = useState(false);
 
   // Pagination - Limit to 100 per page to prevent connection pool exhaustion
   const [pagination, setPagination] = useState({
@@ -165,6 +181,24 @@ function StudentsManagementContent() {
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    setStatsLoading(true);
+    try {
+      const response = await fetch('/api/stats/summary');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch statistics');
+      }
+
+      const result = await response.json();
+      setStats(result.data || { teachers: 0, mentors: 0, schools: 0, assessments: 0 });
+    } catch (error: any) {
+      message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យស្ថិតិ');
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -452,64 +486,156 @@ function StudentsManagementContent() {
     }
   ];
 
+  // Statistics component
+  const StatisticsTab = () => (
+    <Row gutter={[16, 16]}>
+      <Col xs={24} sm={12} md={6}>
+        <Card>
+          <Statistic
+            title="គ្រូបង្រៀន"
+            value={stats.teachers}
+            prefix={<TeamOutlined />}
+            valueStyle={{ color: '#1890ff' }}
+          />
+        </Card>
+      </Col>
+      <Col xs={24} sm={12} md={6}>
+        <Card>
+          <Statistic
+            title="អ្នកណែនាំ"
+            value={stats.mentors}
+            prefix={<UserOutlined />}
+            valueStyle={{ color: '#722ed1' }}
+          />
+        </Card>
+      </Col>
+      <Col xs={24} sm={12} md={6}>
+        <Card>
+          <Statistic
+            title="សាលារៀន"
+            value={stats.schools}
+            prefix={<HomeOutlined />}
+            valueStyle={{ color: '#52c41a' }}
+          />
+        </Card>
+      </Col>
+      <Col xs={24} sm={12} md={6}>
+        <Card>
+          <Statistic
+            title="ការវាយតម្លៃ"
+            value={stats.assessments}
+            prefix={<BarChartOutlined />}
+            valueStyle={{ color: '#fa8c16' }}
+          />
+        </Card>
+      </Col>
+    </Row>
+  );
+
+  // Students table component
+  const StudentsTab = () => (
+    <>
+      {/* Header Actions */}
+      <Row justify="space-between" align="middle" gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+        <Col xs={24} md={12}>
+          <Text type="secondary">ការគ្រប់គ្រងទិន្នន័យសិស្សពេញលេញ</Text>
+        </Col>
+        <Col xs={24} md={12} style={{ textAlign: 'right' }}>
+          <Space wrap>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={fetchStudents}
+            >
+              ផ្ទុកឡើងវិញ
+            </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleExport}
+            >
+              Export
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAdd}
+            >
+              បន្ថែមសិស្សថ្មី
+            </Button>
+          </Space>
+        </Col>
+      </Row>
+
+      {/* Total count - show total from API */}
+      <div style={{ marginBottom: '16px', textAlign: 'right' }}>
+        <Text strong>សរុប: {pagination.total} សិស្ស (បង្ហាញ {students.length} សិស្សក្នុងទំព័រនេះ)</Text>
+      </div>
+
+      {/* Table - With pagination to prevent connection exhaustion */}
+      <Table
+        columns={columns}
+        dataSource={students}
+        rowKey="id"
+        loading={loading}
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+          showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total} សិស្ស`,
+          showSizeChanger: true,
+          pageSizeOptions: ['50', '100'],
+          onChange: (page, pageSize) => {
+            setPagination(prev => ({ ...prev, current: page, pageSize: pageSize || 100 }));
+          }
+        }}
+        scroll={{ x: 2200, y: 600 }}
+        size="small"
+      />
+    </>
+  );
+
+  const tabItems = [
+    {
+      key: 'students',
+      label: (
+        <span>
+          <UserOutlined />
+          បញ្ជីសិស្ស
+        </span>
+      ),
+      children: <StudentsTab />
+    },
+    {
+      key: 'statistics',
+      label: (
+        <span>
+          <LineChartOutlined />
+          ស្ថិតិ
+        </span>
+      ),
+      children: <StatisticsTab />
+    }
+  ];
+
   return (
     <>
       <Card bodyStyle={{ padding: '16px' }}>
         {/* Header */}
-        <Row justify="space-between" align="middle" gutter={[16, 16]} style={{ marginBottom: '16px' }}>
-          <Col xs={24} md={12}>
+        <Row justify="space-between" align="middle" style={{ marginBottom: '16px' }}>
+          <Col>
             <Title level={2} style={{ margin: 0 }}>គ្រប់គ្រងសិស្ស (Admin/Coordinator)</Title>
-            <Text type="secondary">ការគ្រប់គ្រងទិន្នន័យសិស្សពេញលេញ</Text>
-          </Col>
-          <Col xs={24} md={12} style={{ textAlign: 'right' }}>
-            <Space wrap>
-              <Button
-                icon={<ReloadOutlined />}
-                onClick={fetchStudents}
-              >
-                ផ្ទុកឡើងវិញ
-              </Button>
-              <Button
-                icon={<DownloadOutlined />}
-                onClick={handleExport}
-              >
-                Export
-              </Button>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleAdd}
-              >
-                បន្ថែមសិស្សថ្មី
-              </Button>
-            </Space>
           </Col>
         </Row>
 
-        {/* Total count - show total from API */}
-        <div style={{ marginBottom: '16px', textAlign: 'right' }}>
-          <Text strong>សរុប: {pagination.total} សិស្ស (បង្ហាញ {students.length} សិស្សក្នុងទំព័រនេះ)</Text>
-        </div>
-
-        {/* Table - With pagination to prevent connection exhaustion */}
-        <Table
-          columns={columns}
-          dataSource={students}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total} សិស្ស`,
-            showSizeChanger: true,
-            pageSizeOptions: ['50', '100'],
-            onChange: (page, pageSize) => {
-              setPagination(prev => ({ ...prev, current: page, pageSize: pageSize || 100 }));
+        {/* Tabs */}
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => {
+            setActiveTab(key);
+            if (key === 'statistics') {
+              fetchStats();
             }
           }}
-          scroll={{ x: 2200, y: 600 }}
-          size="small"
+          items={tabItems}
         />
       </Card>
 
