@@ -139,10 +139,10 @@ function StudentsManagementContent() {
     is_temporary: ''
   });
 
-  // Pagination - Reasonable limit to prevent DB connection exhaustion
+  // Pagination - Limit to 100 per page to prevent connection pool exhaustion
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 500,
+    pageSize: 100, // Reduced from 500 to prevent "Too many connections" error
     total: 0
   });
 
@@ -179,9 +179,9 @@ function StudentsManagementContent() {
   }, []);
 
   useEffect(() => {
-    // Fetch students when filters change
+    // Fetch students when filters or pagination change
     fetchStudents();
-  }, [filters]);
+  }, [filters, pagination.current, pagination.pageSize]);
 
   const fetchFormData = async () => {
     try {
@@ -700,18 +700,28 @@ function StudentsManagementContent() {
           </Col>
         </Row>
 
-        {/* Total count - show for all users */}
+        {/* Total count - show total from API */}
         <div style={{ marginBottom: '16px', textAlign: 'right' }}>
-          <Text strong>សរុប: {students.length} សិស្ស</Text>
+          <Text strong>សរុប: {pagination.total} សិស្ស (បង្ហាញ {students.length} សិស្សក្នុងទំព័រនេះ)</Text>
         </div>
 
-        {/* Table - No pagination for all roles */}
+        {/* Table - With pagination to prevent connection exhaustion */}
         <Table
           columns={columns}
           dataSource={students}
           rowKey="id"
           loading={loading}
-          pagination={false}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total} សិស្ស`,
+            showSizeChanger: true,
+            pageSizeOptions: ['50', '100'],
+            onChange: (page, pageSize) => {
+              setPagination(prev => ({ ...prev, current: page, pageSize: pageSize || 100 }));
+            }
+          }}
           scroll={{ x: 2200, y: 600 }}
           size="small"
         />

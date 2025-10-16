@@ -5,7 +5,7 @@ const globalForPrisma = global as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Optimized Prisma Client for serverless with connection pooling
+// Optimized Prisma Client for serverless with aggressive connection pooling
 const createPrismaClient = () => {
   // Build DATABASE_URL with connection pooling parameters for serverless
   const databaseUrl = process.env.DATABASE_URL || '';
@@ -14,9 +14,11 @@ const createPrismaClient = () => {
   let pooledUrl = databaseUrl;
   if (process.env.NODE_ENV === 'production' && !databaseUrl.includes('connection_limit')) {
     const separator = databaseUrl.includes('?') ? '&' : '?';
-    // connection_limit=10 allows up to 10 concurrent queries per serverless instance
-    // With 100 total DB connections, supports ~10 concurrent serverless instances safely
-    pooledUrl = `${databaseUrl}${separator}connection_limit=10&pool_timeout=20`;
+    // CRITICAL: Aggressive pooling to prevent "Too many connections" error
+    // connection_limit=5: Max 5 connections per serverless instance (down from 10)
+    // pool_timeout=10: Release idle connections after 10 seconds (down from 20)
+    // This allows more concurrent serverless instances without exhausting DB connections
+    pooledUrl = `${databaseUrl}${separator}connection_limit=5&pool_timeout=10&connect_timeout=10`;
   }
 
   return new PrismaClient({
@@ -35,4 +37,26 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 // In development, store in global to survive HMR (Hot Module Replacement)
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
+}
+
+// CRITICAL: Explicit connection cleanup for serverless
+// Ensures connections are released when serverless function terminates
+if (process.env.NODE_ENV === 'production') {
+  // Graceful shutdown handlers
+  process.on('SIGINT', async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+
+  // Vercel serverless cleanup (called when function is about to be killed)
+  if (typeof window === 'undefined' && process.env.VERCEL) {
+    process.on('beforeExit', async () => {
+      await prisma.$disconnect();
+    });
+  }
 }

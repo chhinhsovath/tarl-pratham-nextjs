@@ -83,9 +83,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
 
-    // Reasonable limit to prevent DB connection exhaustion while showing all data
-    const requestedLimit = parseInt(searchParams.get("limit") || "500");
-    const limit = requestedLimit > 10 ? requestedLimit : 500; // Default to 500, prevents connection pool issues
+    // CRITICAL: Limit to 100 to prevent connection pool exhaustion in serverless
+    // Production issue: limit=500 + concurrent requests = "Too many database connections"
+    const requestedLimit = parseInt(searchParams.get("limit") || "100");
+    const limit = Math.min(requestedLimit, 100); // Max 100 to prevent connection exhaustion
 
     const search = searchParams.get("search") || "";
     const gender = searchParams.get("gender") || "";
