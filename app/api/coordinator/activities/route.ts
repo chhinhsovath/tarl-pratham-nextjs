@@ -25,13 +25,13 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const activity_type = searchParams.get('type') || ''; // assessment, student, user
 
-    // Fetch recent activities from multiple sources
+    // CRITICAL: ZERO JOINS - Only fetch IDs to prevent connection exhaustion
     const [
       recent_assessments,
       recent_students,
       recent_users,
     ] = await Promise.all([
-      // Recent assessments
+      // Recent assessments - NO JOINS
       prisma.assessment.findMany({
         where: schoolFilter,
         take: limit,
@@ -42,29 +42,13 @@ export async function GET(request: NextRequest) {
           subject: true,
           level: true,
           created_at: true,
-          student: {
-            select: {
-              id: true,
-              name: true,
-            }
-          },
-          added_by: {
-            select: {
-              id: true,
-              name: true,
-              role: true,
-            }
-          },
-          pilot_school: {
-            select: {
-              id: true,
-              school_name: true,
-            }
-          }
+          student_id: true, // Just ID, no join
+          added_by_id: true, // Just ID, no join
+          pilot_school_id: true, // Just ID, no join
         }
       }),
 
-      // Recent students added
+      // Recent students - NO JOINS
       prisma.student.findMany({
         where: schoolFilter,
         take: limit,
@@ -75,23 +59,12 @@ export async function GET(request: NextRequest) {
           grade: true,
           gender: true,
           created_at: true,
-          pilot_school: {
-            select: {
-              id: true,
-              school_name: true,
-            }
-          },
-          added_by: {
-            select: {
-              id: true,
-              name: true,
-              role: true,
-            }
-          }
+          pilot_school_id: true, // Just ID, no join
+          added_by_id: true, // Just ID, no join
         }
       }),
 
-      // Recent users added
+      // Recent users - NO JOINS
       prisma.user.findMany({
         where: schoolFilter,
         take: limit,
@@ -102,12 +75,7 @@ export async function GET(request: NextRequest) {
           email: true,
           role: true,
           created_at: true,
-          pilot_school: {
-            select: {
-              id: true,
-              school_name: true,
-            }
-          }
+          pilot_school_id: true, // Just ID, no join
         }
       }),
     ]);
@@ -115,57 +83,37 @@ export async function GET(request: NextRequest) {
     // Transform into unified activity feed
     const activities: any[] = [];
 
-    // Add assessment activities
+    // Add assessment activities - NO JOINS, just display IDs
     if (!activity_type || activity_type === 'assessment') {
       recent_assessments.forEach(assessment => {
         activities.push({
           id: `assessment-${assessment.id}`,
           type: 'assessment',
           title: `${assessment.assessment_type} ការវាយតម្លៃថ្មី`,
-          description: `${assessment.added_by?.name || 'Unknown'} បានធ្វើការវាយតម្លៃ ${assessment.subject} សម្រាប់សិស្ស ${assessment.student?.name || 'Unknown'}`,
+          description: `ការវាយតម្លៃ ${assessment.subject} (Student ID: ${assessment.student_id})`,
           icon: 'FileTextOutlined',
           timestamp: assessment.created_at,
-          metadata: {
-            assessment_id: assessment.id,
-            student_id: assessment.student?.id,
-            student_name: assessment.student?.name,
-            teacher_id: assessment.added_by?.id,
-            teacher_name: assessment.added_by?.name,
-            school_id: assessment.pilot_school?.id,
-            school_name: assessment.pilot_school?.school_name,
-            assessment_type: assessment.assessment_type,
-            subject: assessment.subject,
-            level: assessment.level,
-          }
+          status: 'success',
         });
       });
     }
 
-    // Add student activities
+    // Add student activities - NO JOINS, just display basic info
     if (!activity_type || activity_type === 'student') {
       recent_students.forEach(student => {
         activities.push({
           id: `student-${student.id}`,
           type: 'student',
           title: 'សិស្សថ្មី',
-          description: `${student.added_by?.name || 'Unknown'} បានបន្ថែមសិស្ស ${student.name} (ថ្នាក់ទី${student.grade || '-'})`,
+          description: `បានបន្ថែមសិស្ស ${student.name} (ថ្នាក់ទី${student.grade || '-'})`,
           icon: 'UserAddOutlined',
           timestamp: student.created_at,
-          metadata: {
-            student_id: student.id,
-            student_name: student.name,
-            grade: student.grade,
-            gender: student.gender,
-            teacher_id: student.added_by?.id,
-            teacher_name: student.added_by?.name,
-            school_id: student.pilot_school?.id,
-            school_name: student.pilot_school?.school_name,
-          }
+          status: 'success',
         });
       });
     }
 
-    // Add user activities
+    // Add user activities - NO JOINS, just display basic info
     if (!activity_type || activity_type === 'user') {
       recent_users.forEach(user => {
         activities.push({
@@ -175,14 +123,7 @@ export async function GET(request: NextRequest) {
           description: `អ្នកប្រើប្រាស់ថ្មី ${user.name} (${user.role}) បានបង្កើត`,
           icon: 'TeamOutlined',
           timestamp: user.created_at,
-          metadata: {
-            user_id: user.id,
-            user_name: user.name,
-            email: user.email,
-            role: user.role,
-            school_id: user.pilot_school?.id,
-            school_name: user.pilot_school?.school_name,
-          }
+          status: 'success',
         });
       });
     }

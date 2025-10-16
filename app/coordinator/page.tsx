@@ -107,7 +107,9 @@ interface RecentActivity {
 function CoordinatorWorkspaceContent() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [loading, setLoading] = useState(false);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+  const [importsLoading, setImportsLoading] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<'khmer' | 'math'>('khmer');
   const [stats, setStats] = useState<WorkspaceStats>({
     total_schools: 0,
@@ -124,36 +126,53 @@ function CoordinatorWorkspaceContent() {
   const [importHistory, setImportHistory] = useState([]);
 
   useEffect(() => {
+    // SEQUENTIAL LOADING - One at a time to prevent connection exhaustion
     fetchWorkspaceData();
   }, []);
 
   const fetchWorkspaceData = async () => {
-    setLoading(true);
+    // Step 1: Load stats FIRST
+    setStatsLoading(true);
     try {
-      // Fetch stats
       const statsResponse = await fetch('/api/coordinator/stats');
       if (statsResponse.ok) {
         const data = await statsResponse.json();
         setStats(data);
       }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
 
-      // Fetch recent activities
+    // Step 2: Load activities AFTER stats complete (wait 500ms)
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setActivitiesLoading(true);
+    try {
       const activitiesResponse = await fetch('/api/coordinator/activities');
       if (activitiesResponse.ok) {
         const data = await activitiesResponse.json();
         setRecentActivities(data.activities || []);
       }
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+    } finally {
+      setActivitiesLoading(false);
+    }
 
-      // Fetch import history
+    // Step 3: Load imports LAST (wait 500ms)
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setImportsLoading(true);
+    try {
       const importsResponse = await fetch('/api/bulk-import/history');
       if (importsResponse.ok) {
         const data = await importsResponse.json();
         setImportHistory(data.imports || []);
       }
     } catch (error) {
-      console.error('Error fetching workspace data:', error);
+      console.error('Error fetching imports:', error);
     } finally {
-      setLoading(false);
+      setImportsLoading(false);
     }
   };
 
