@@ -203,9 +203,9 @@ export async function GET(request: NextRequest) {
     }
     // Note: admin and coordinator roles intentionally have no restrictions - they see all students
 
-    // CRITICAL OPTIMIZATION: Minimal joins to prevent connection exhaustion
-    // Removed: school_class (not displayed), assessments (too expensive - 500 records for 100 students)
-    // Kept only: pilot_school (school name), added_by (creator info)
+    // CRITICAL: ZERO JOINS - Only students table to prevent connection exhaustion
+    // Even 2 joins were too expensive under production load
+    // Returns raw student data with IDs only - frontend handles display
     const [students, total] = await Promise.all([
       prisma.student.findMany({
         where,
@@ -236,24 +236,8 @@ export async function GET(request: NextRequest) {
           pilot_school_id: true,
           school_class_id: true,
           added_by_id: true,
-          // Only essential joins - 2 joins instead of 5+
-          pilot_school: {
-            select: {
-              school_name: true
-            }
-          },
-          added_by: {
-            select: {
-              name: true,
-              role: true
-            }
-          },
-          // Removed assessments join - use _count instead for performance
-          _count: {
-            select: {
-              assessments: true
-            }
-          }
+          // NO JOINS AT ALL - just IDs
+          // pilot_school, added_by, _count all removed
         },
         skip,
         take: limit,

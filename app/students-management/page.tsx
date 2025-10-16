@@ -83,6 +83,7 @@ interface Student {
   photo?: string;
   school_class_id?: number;
   pilot_school_id?: number;
+  added_by_id?: number;
   baseline_khmer_level?: string;
   baseline_math_level?: string;
   midline_khmer_level?: string;
@@ -96,16 +97,7 @@ interface Student {
   record_status?: string;
   created_at: string;
   updated_at: string;
-  pilot_school?: {
-    school_name: string;
-  };
-  added_by?: {
-    name: string;
-    role: string;
-  };
-  _count?: {
-    assessments: number;
-  };
+  // NO JOINS - just raw IDs from students table
 }
 
 function StudentsManagementContent() {
@@ -282,46 +274,39 @@ function StudentsManagementContent() {
     },
     {
       title: 'បង្កើតដោយ',
-      dataIndex: 'added_by',
-      key: 'added_by',
-      width: 150,
-      render: (addedBy: any, record: Student) => (
-        <div>
-          {addedBy ? (
-            <>
-              <div className="text-sm font-medium">{addedBy.name}</div>
-              <Tag size="small" color={
-                addedBy.role === 'teacher' ? 'blue' :
-                addedBy.role === 'mentor' ? 'purple' :
-                addedBy.role === 'admin' ? 'red' : 'default'
-              }>
-                {addedBy.role === 'teacher' ? 'គ្រូ' :
-                 addedBy.role === 'mentor' ? 'អ្នកណែនាំ' :
-                 addedBy.role === 'admin' ? 'អ្នកគ្រប់គ្រង' : addedBy.role}
-              </Tag>
-            </>
-          ) : '-'}
-        </div>
-      )
+      key: 'created_by',
+      width: 120,
+      render: (_: any, record: Student) => {
+        // Show role from created_by_role field (no join needed)
+        const role = record.created_by_role || '-';
+        return (
+          <Tag size="small" color={
+            role === 'teacher' ? 'blue' :
+            role === 'mentor' ? 'purple' :
+            role === 'admin' ? 'red' : 'default'
+          }>
+            {role === 'teacher' ? 'គ្រូ' :
+             role === 'mentor' ? 'អ្នកណែនាំ' :
+             role === 'admin' ? 'អ្នកគ្រប់គ្រង' : role}
+          </Tag>
+        );
+      }
     },
     {
       title: 'ការវាយតម្លៃ',
       key: 'assessments',
       width: 120,
-      render: (_: any, record: Student) => {
-        const count = record._count?.assessments || 0;
-        return (
-          <Button
-            type="link"
-            size="small"
-            icon={<FileTextOutlined />}
-            onClick={() => router.push(`/assessments?student_id=${record.id}`)}
-            style={{ padding: 0 }}
-          >
-            {count} ការវាយតម្លៃ
-          </Button>
-        );
-      }
+      render: (_: any, record: Student) => (
+        <Button
+          type="link"
+          size="small"
+          icon={<FileTextOutlined />}
+          onClick={() => router.push(`/assessments?student_id=${record.id}`)}
+          style={{ padding: 0 }}
+        >
+          មើល
+        </Button>
+      )
     },
     {
       title: 'ស្ថានភាពទិន្នន័យ',
@@ -370,11 +355,11 @@ function StudentsManagementContent() {
       render: (grade: number) => grade ? `ទី${grade}` : '-'
     },
     {
-      title: 'សាលារៀន',
-      dataIndex: 'pilot_school',
-      key: 'pilot_school',
-      width: 150,
-      render: (school: any) => school?.school_name || '-'
+      title: 'សាលារៀន ID',
+      dataIndex: 'pilot_school_id',
+      key: 'pilot_school_id',
+      width: 120,
+      render: (id: number) => id || '-'
     },
     {
       title: 'តេស្តដើមគ្រា ភាសា',
