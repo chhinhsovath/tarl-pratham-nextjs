@@ -126,106 +126,43 @@ function StudentsManagementContent() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [form] = Form.useForm();
-
-  // Filters - Show all students by default (active + inactive)
-  const [filters, setFilters] = useState({
-    search: '',
-    gender: '',
-    grade: '',
-    pilot_school_id: '',
-    created_by_user_id: '',
-    mentor_id: '',
-    is_active: '', // Empty = show all (active + inactive)
-    is_temporary: ''
-  });
+  const [pilotSchools, setPilotSchools] = useState<any[]>([]);
 
   // Pagination - Limit to 100 per page to prevent connection pool exhaustion
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 100, // Reduced from 500 to prevent "Too many connections" error
+    pageSize: 100,
     total: 0
   });
 
-  const [pilotSchools, setPilotSchools] = useState<any[]>([]);
-  const [classes, setClasses] = useState<any[]>([]);
-  const [teachers, setTeachers] = useState<any[]>([]);
-  const [mentors, setMentors] = useState<any[]>([]);
-
-  // Extract unique values from students data for dynamic filters
-  const availableGrades = React.useMemo(() => {
-    const grades = students
-      .map(s => s.grade)
-      .filter((grade): grade is number => grade !== null && grade !== undefined);
-    return [...new Set(grades)].sort((a, b) => a - b);
-  }, [students]);
-
-  const availableGenders = React.useMemo(() => {
-    const genders = students
-      .map(s => s.gender)
-      .filter((gender): gender is string => gender !== null && gender !== undefined && gender !== '');
-
-    // Normalize to English values to avoid duplicates
-    const normalized = genders.map(g => {
-      if (g === 'ប្រុស' || g === 'male') return 'male';
-      if (g === 'ស្រី' || g === 'female') return 'female';
-      return g;
-    });
-
-    return [...new Set(normalized)];
-  }, [students]);
-
   useEffect(() => {
-    fetchFormData();
+    fetchPilotSchools();
   }, []);
 
   useEffect(() => {
-    // Fetch students when filters or pagination change
+    // Fetch students when pagination changes
     fetchStudents();
-  }, [filters, pagination.current, pagination.pageSize]);
+  }, [pagination.current, pagination.pageSize]);
 
-  const fetchFormData = async () => {
+  const fetchPilotSchools = async () => {
     try {
-      const [schoolsRes, classesRes, usersRes] = await Promise.all([
-        fetch('/api/pilot-schools'),
-        fetch('/api/classes'),
-        fetch('/api/users')
-      ]);
-
-      if (schoolsRes.ok) {
-        const schoolsData = await schoolsRes.json();
-        console.log('🏫 Pilot schools API response:', schoolsData);
-        setPilotSchools(schoolsData.data || []);
-        console.log('🏫 Pilot schools set:', schoolsData.data?.length || 0, 'schools');
-      } else {
-        console.error('❌ Failed to fetch pilot schools:', schoolsRes.status);
-      }
-
-      if (classesRes.ok) {
-        const classesData = await classesRes.json();
-        setClasses(classesData.data || []);
-      }
-
-      if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        const allUsers = usersData.data || [];
-
-        // Filter teachers and mentors
-        setTeachers(allUsers.filter((u: any) => u.role === 'teacher'));
-        setMentors(allUsers.filter((u: any) => u.role === 'mentor'));
+      const response = await fetch('/api/pilot-schools');
+      if (response.ok) {
+        const data = await response.json();
+        setPilotSchools(data.data || []);
       }
     } catch (error) {
-      console.error('Error fetching form data:', error);
-      message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យ');
+      console.error('Error fetching pilot schools:', error);
     }
   };
 
   const fetchStudents = async () => {
     setLoading(true);
     try {
+      // Only pagination parameters - no filters
       const params = new URLSearchParams({
         page: pagination.current.toString(),
-        limit: pagination.pageSize.toString(),
-        ...filters
+        limit: pagination.pageSize.toString()
       });
 
       const response = await fetch(`/api/students?${params}`);
@@ -579,124 +516,6 @@ function StudentsManagementContent() {
                 បន្ថែមសិស្សថ្មី
               </Button>
             </Space>
-          </Col>
-        </Row>
-
-        {/* Filters */}
-        <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
-          <Col xs={24} sm={12} md={6}>
-            <Input
-              placeholder="ស្វែងរកតាមឈ្មោះ..."
-              prefix={<SearchOutlined />}
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              allowClear
-            />
-          </Col>
-          <Col xs={12} sm={6} md={4}>
-            <Select
-              placeholder="ភេទ"
-              value={filters.gender || undefined}
-              onChange={(value) => setFilters({ ...filters, gender: value || '' })}
-              style={{ width: '100%' }}
-              allowClear
-            >
-              <Option value="">ទាំងអស់</Option>
-              {availableGenders.map(gender => (
-                <Option key={gender} value={gender}>
-                  {gender === 'male' ? 'ប្រុស' : gender === 'female' ? 'ស្រី' : gender}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={4}>
-            <Select
-              placeholder="ថ្នាក់"
-              value={filters.grade || undefined}
-              onChange={(value) => setFilters({ ...filters, grade: value || '' })}
-              style={{ width: '100%' }}
-              allowClear
-            >
-              <Option value="">ទាំងអស់</Option>
-              {availableGrades.map(grade => (
-                <Option key={grade} value={grade}>ទី{grade}</Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={5}>
-            <Select
-              placeholder="សាលារៀន"
-              value={filters.pilot_school_id || undefined}
-              onChange={(value) => setFilters({ ...filters, pilot_school_id: value || '' })}
-              style={{ width: '100%' }}
-              allowClear
-            >
-              {pilotSchools.map(school => (
-                <Option key={school.id} value={school.id}>{school.school_name}</Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={5}>
-            <Select
-              placeholder="គ្រូបង្រៀន"
-              value={filters.created_by_user_id || undefined}
-              onChange={(value) => setFilters({ ...filters, created_by_user_id: value || '' })}
-              style={{ width: '100%' }}
-              allowClear
-              showSearch
-              filterOption={(input, option) =>
-                (option?.children as unknown as string)
-                  ?.toLowerCase()
-                  ?.includes(input.toLowerCase()) ?? false
-              }
-            >
-              {teachers.map(teacher => (
-                <Option key={teacher.id} value={teacher.id}>{teacher.name}</Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={5}>
-            <Select
-              placeholder="អ្នកណែនាំ"
-              value={filters.mentor_id || undefined}
-              onChange={(value) => setFilters({ ...filters, mentor_id: value || '' })}
-              style={{ width: '100%' }}
-              allowClear
-              showSearch
-              filterOption={(input, option) =>
-                (option?.children as unknown as string)
-                  ?.toLowerCase()
-                  ?.includes(input.toLowerCase()) ?? false
-              }
-            >
-              {mentors.map(mentor => (
-                <Option key={mentor.id} value={mentor.id}>{mentor.name}</Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={4}>
-            <Select
-              placeholder="ស្ថានភាព"
-              value={filters.is_active}
-              onChange={(value) => setFilters({ ...filters, is_active: value })}
-              style={{ width: '100%' }}
-            >
-              <Option value="true">សកម្ម</Option>
-              <Option value="false">អសកម្ម</Option>
-              <Option value="">ទាំងអស់</Option>
-            </Select>
-          </Col>
-          <Col xs={12} sm={6} md={5}>
-            <Select
-              placeholder="ប្រភេទទិន្នន័យ"
-              value={filters.is_temporary}
-              onChange={(value) => setFilters({ ...filters, is_temporary: value !== undefined ? value : '' })}
-              style={{ width: '100%' }}
-            >
-              <Option value="">ទាំងអស់</Option>
-              <Option value="true">បណ្តោះអាសន្ន (គ្រូព្រឹក្សាគរុកោសល្យ)</Option>
-              <Option value="false">ផលិតកម្ម</Option>
-            </Select>
           </Col>
         </Row>
 
