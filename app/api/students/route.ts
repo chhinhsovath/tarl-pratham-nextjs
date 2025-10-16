@@ -172,7 +172,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Apply access restrictions for mentors and teachers (coordinators have full access like admin)
+    // Apply access restrictions for mentors and teachers
+    // Admin and Coordinator have full access - no filtering needed
     if (session.user.role === "mentor") {
       // Mentors can access students from ALL their assigned schools
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
@@ -199,6 +200,7 @@ export async function GET(request: NextRequest) {
         where.AND.push({ id: -1 });
       }
     }
+    // Note: admin and coordinator roles intentionally have no restrictions - they see all students
 
     const [students, total] = await Promise.all([
       prisma.student.findMany({
