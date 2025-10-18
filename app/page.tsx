@@ -275,13 +275,23 @@ export default function Home() {
             </Row>
           )}
 
-          {/* Level Distribution Chart - Full Width */}
+          {/* Level Distribution Charts - Side by Side */}
           {stats.assessments?.by_level && stats.assessments.by_level.length > 0 && (
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-              <Col span={24}>
+              {/* Language Chart - Only show levels with language data */}
+              <Col xs={24} sm={24} md={12}>
                 <LevelDistributionChart
-                  data={stats.assessments.by_level}
-                  title="ការចែកចាយសិស្សតាមកម្រិតវាយតម្លៃ"
+                  data={stats.assessments.by_level.filter(item => item.khmer > 0)}
+                  title="ការចែកចាយសិស្សតាមកម្រិត - ភាសា"
+                  showOnlyLanguage={true}
+                />
+              </Col>
+              {/* Math Chart - Only show levels with math data */}
+              <Col xs={24} sm={24} md={12}>
+                <LevelDistributionChart
+                  data={stats.assessments.by_level.filter(item => item.math > 0)}
+                  title="ការចែកចាយសិស្សតាមកម្រិត - គណិតវិទ្យា"
+                  showOnlyMath={true}
                 />
               </Col>
             </Row>
