@@ -36,10 +36,12 @@ import {
   UserAddOutlined,
   FileDoneOutlined,
   ExclamationCircleOutlined,
-  BookOutlined
+  BookOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { message as antdMessage } from 'antd';
 import dayjs from 'dayjs';
 import AssessmentCycleChart from '@/components/charts/AssessmentCycleChart';
 import SubjectComparisonChart from '@/components/charts/SubjectComparisonChart';
@@ -110,6 +112,7 @@ function CoordinatorWorkspaceContent() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [importsLoading, setImportsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<'khmer' | 'math'>('khmer');
   const [stats, setStats] = useState<WorkspaceStats>({
     total_schools: 0,
@@ -147,6 +150,30 @@ function CoordinatorWorkspaceContent() {
 
     // REMOVED: Activities API call (caused connection exhaustion)
     // REMOVED: Imports API call (reduce connections further)
+  };
+
+  const handleRefreshStats = async () => {
+    setRefreshing(true);
+    try {
+      const response = await fetch('/api/admin/refresh-stats', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        antdMessage.success('ស្ថិតិត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ');
+        // Reload stats from cache
+        await fetchWorkspaceData();
+      } else {
+        const error = await response.json();
+        antdMessage.error(error.error || 'បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពស្ថិតិ');
+      }
+    } catch (error) {
+      console.error('Error refreshing stats:', error);
+      antdMessage.error('បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពស្ថិតិ');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const quickActions = [
@@ -320,6 +347,14 @@ function CoordinatorWorkspaceContent() {
           </Col>
           <Col>
             <Space>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleRefreshStats}
+                loading={refreshing}
+                title="ធ្វើបច្ចុប្បន្នភាពស្ថិតិ (Refresh Statistics)"
+              >
+                ធ្វើបច្ចុប្បន្នភាព
+              </Button>
               <Button
                 type="primary"
                 icon={<CloudUploadOutlined />}
