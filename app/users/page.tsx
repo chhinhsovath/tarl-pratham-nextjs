@@ -86,12 +86,10 @@ const ROLES = [
   { value: "viewer", label: "អ្នកមើល", color: "default" }
 ];
 
+// Only working with these two provinces for TaRL program
 const PROVINCES = [
-  "Banteay Meanchey", "Battambang", "Kampong Cham", "Kampong Chhnang", 
-  "Kampong Speu", "Kampong Thom", "Kampot", "Kandal", "Kep", "Koh Kong",
-  "Kratie", "Mondulkiri", "Oddar Meanchey", "Pailin", "Phnom Penh",
-  "Preah Vihear", "Prey Veng", "Pursat", "Ratanakiri", "Siem Reap",
-  "Preah Sihanouk", "Stung Treng", "Svay Rieng", "Takeo", "Tbong Khmum"
+  "កំពង់ចាម", // Kampong Cham
+  "បាត់ដំបង"  // Battambang
 ];
 
 function UsersPageContent() {

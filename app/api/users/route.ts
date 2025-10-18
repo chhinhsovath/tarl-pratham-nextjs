@@ -75,10 +75,16 @@ export async function GET(request: NextRequest) {
       where.pilot_school_id = parseInt(school_id);
     }
 
-    // For mentors: allow viewing users at their assigned school
-    // For teachers: limit to their own data
-    // Admin/coordinator: no restrictions
-    if (session.user.role === "mentor") {
+    // Role-based data filtering
+    if (session.user.role === "coordinator") {
+      // Coordinators can only view users from their assigned province
+      if (session.user.province) {
+        where.province = session.user.province;
+      } else {
+        // Coordinator has no province assigned - restrict to own data
+        where.id = parseInt(session.user.id);
+      }
+    } else if (session.user.role === "mentor") {
       // Mentors can view users at their assigned school
       if (session.user.pilot_school_id) {
         where.pilot_school_id = session.user.pilot_school_id;
@@ -229,9 +235,8 @@ export async function GET(request: NextRequest) {
         }
       }
     ];
-    
-    const { role } = searchParams;
-    const filteredUsers = role ? mockUsers.filter(u => u.role === role) : mockUsers;
+
+    const filteredUsers = mockUsers;
     
     return NextResponse.json({
       data: filteredUsers,
@@ -299,8 +304,8 @@ export async function POST(request: NextRequest) {
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true
+            school_name: true,
+            school_code: true
           }
         }
       }
@@ -314,11 +319,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "Validation failed", details: error.issues },
         { status: 400 }
       );
     }
-    
+
     console.error("Error creating user:", error);
     return NextResponse.json(
       { error: "Internal server error" },
@@ -377,8 +382,8 @@ export async function PUT(request: NextRequest) {
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true
+            school_name: true,
+            school_code: true
           }
         }
       }
@@ -392,11 +397,11 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "Validation failed", details: error.issues },
         { status: 400 }
       );
     }
-    
+
     console.error("Error updating user:", error);
     return NextResponse.json(
       { error: "Internal server error" },

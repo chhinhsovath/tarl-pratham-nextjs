@@ -29,12 +29,10 @@ import Link from 'next/link';
 const { Option } = Select;
 const { Title } = Typography;
 
+// Only working with these two provinces for TaRL program
 const PROVINCES = [
-  "បន្ទាយមានជ័យ", "បាត់ដំបង", "កំពង់ចាម", "កំពង់ឆ្នាំង",
-  "កំពង់ស្ពឺ", "កំពង់ធំ", "កំពត", "កណ្តាល", "កែប", "កោះកុង",
-  "ក្រចេះ", "មណ្ឌលគិរី", "ឧត្តរមានជ័យ", "ប៉ៃលិន", "ភ្នំពេញ",
-  "ព្រះវិហារ", "ព្រៃវែង", "ពោធិ៍សាត់", "រតនគិរី", "សៀមរាប",
-  "ព្រះសីហនុ", "ស្ទឹងត្រែង", "ស្វាយរៀង", "តាកែវ", "ត្បូងឃ្មុំ"
+  "កំពង់ចាម", // Kampong Cham
+  "បាត់ដំបង"  // Battambang
 ];
 
 export default function EditSchoolPage() {

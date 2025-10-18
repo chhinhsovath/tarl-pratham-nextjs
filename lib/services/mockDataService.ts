@@ -78,7 +78,8 @@ const KHMER_LAST_NAMES = [
 ];
 
 const LEVELS = ['beginner', 'letter', 'word', 'paragraph', 'story'];
-const PROVINCES = ['ភ្នំពេញ', 'សៀមរាប', 'បាត់ដំបង', 'ពោធិ៍សាត់', 'កំពង់ចាម'];
+// Only working with these two provinces for TaRL program
+const PROVINCES = ['កំពង់ចាម', 'បាត់ដំបង'];
 const DISTRICTS = ['ដូនពេញ', 'ទួលគោក', 'ចំការមន', 'ច្បារអំពៅ', 'ព្រែកលៀប'];
 
 // Generate random date within range
