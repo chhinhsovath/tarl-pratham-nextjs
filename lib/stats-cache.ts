@@ -54,23 +54,33 @@ export async function getCoordinatorStats(): Promise<CoordinatorStatsData> {
     // Cache miss or stale - calculate fresh stats
     const freshStats = await calculateCoordinatorStats();
 
-    // Store in cache (upsert to handle both create and update)
-    await prisma.dashboardStats.upsert({
-      where: { cache_key: cacheKey },
-      create: {
-        cache_key: cacheKey,
-        role: 'coordinator',
-        ...freshStats
-      },
-      update: freshStats
-    });
+    // Try to store in cache (may fail if table doesn't exist yet)
+    try {
+      await prisma.dashboardStats.upsert({
+        where: { cache_key: cacheKey },
+        create: {
+          cache_key: cacheKey,
+          role: 'coordinator',
+          ...freshStats
+        },
+        update: freshStats
+      });
+      console.log('[STATS CACHE] Stored fresh stats');
+    } catch (cacheError: any) {
+      // Gracefully handle cache storage failure (table might not exist yet)
+      if (cacheError.code === 'P2021' || cacheError.message?.includes('does not exist')) {
+        console.warn('[STATS CACHE] Table does not exist yet - skipping cache storage');
+      } else {
+        console.error('[STATS CACHE] Failed to store cache:', cacheError.message);
+      }
+    }
 
-    console.log('[STATS CACHE] Stored fresh stats');
     return freshStats;
 
-  } catch (error) {
-    console.error('[STATS CACHE] Error:', error);
+  } catch (error: any) {
+    console.error('[STATS CACHE] Error accessing cache:', error.message);
     // Fallback: calculate without caching if cache fails
+    console.log('[STATS CACHE] FALLBACK - Calculating without cache');
     return await calculateCoordinatorStats();
   }
 }
