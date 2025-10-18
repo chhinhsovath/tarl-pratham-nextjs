@@ -73,11 +73,11 @@ export default function Home() {
     active_mentoring_visits: 0,
   });
 
-  // Fetch data - EXACTLY like coordinator dashboard
+  // Fetch data from PUBLIC endpoint (no authentication required)
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/coordinator/stats');
+      const response = await fetch('/api/public/stats');
       if (!response.ok) throw new Error('Failed to fetch data');
 
       const data = await response.json();
