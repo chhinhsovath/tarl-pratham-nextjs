@@ -369,12 +369,14 @@ function CoordinatorWorkspaceContent() {
               >
                 នាំចូលជាបណ្តុំ
               </Button>
-              <Button
-                icon={<SettingOutlined />}
-                onClick={() => router.push('/coordinator/settings')}
-              >
-                ការកំណត់
-              </Button>
+              {session?.user?.role === 'admin' && (
+                <Button
+                  icon={<SettingOutlined />}
+                  onClick={() => router.push('/settings')}
+                >
+                  ការកំណត់
+                </Button>
+              )}
             </Space>
           </Col>
         </Row>
