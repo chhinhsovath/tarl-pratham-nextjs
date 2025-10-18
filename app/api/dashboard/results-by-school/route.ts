@@ -58,10 +58,33 @@ export async function GET(request: NextRequest) {
       total: number;
     }> = {};
 
+    // Level mappings for chart display
+    // Map database level names to standardized chart levels (Level 1-5)
+    const levelMapping: Record<string, string> = {
+      // Language levels → standardized levels
+      'beginner': 'beginner',
+      'letter': 'letter',
+      'word': 'word',
+      'paragraph': 'paragraph',
+      'story': 'story',
+      'comprehension1': 'comprehension1',
+      'comprehension2': 'comprehension2',
+
+      // Math levels → standardized levels (map to equivalent proficiency)
+      'number_1digit': 'letter',       // Level 2: 1-Digit = Letter
+      'number_2digit': 'word',         // Level 3: 2-Digit = Word
+      'subtraction': 'paragraph',      // Level 4: Subtraction = Paragraph
+      'division': 'story',             // Level 5: Division = Story
+      'word_problems': 'comprehension1' // Advanced: Word Problems = Comprehension 1
+    };
+
     assessments.forEach(assessment => {
       const schoolId = assessment.student?.pilot_school?.id;
       const schoolName = assessment.student?.pilot_school?.school_name || 'Unknown School';
-      const level = assessment.level || 'beginner';
+      const rawLevel = assessment.level || 'beginner';
+
+      // Map to standardized level for consistent chart display
+      const level = levelMapping[rawLevel] || rawLevel;
 
       if (!schoolId) return;
 
@@ -69,13 +92,7 @@ export async function GET(request: NextRequest) {
         schoolStats[schoolId] = {
           school_name: schoolName,
           school_id: schoolId,
-          levels: {
-            beginner: 0,
-            letter: 0,
-            word: 0,
-            paragraph: 0,
-            story: 0
-          },
+          levels: {},
           total: 0
         };
       }
@@ -88,45 +105,47 @@ export async function GET(request: NextRequest) {
     const schoolData = Object.values(schoolStats).map(school => ({
       school: school.school_name,
       school_id: school.school_id,
-      beginner: school.total > 0 ? (school.levels.beginner / school.total) * 100 : 0,
-      letter: school.total > 0 ? (school.levels.letter / school.total) * 100 : 0,
-      word: school.total > 0 ? (school.levels.word / school.total) * 100 : 0,
-      paragraph: school.total > 0 ? (school.levels.paragraph / school.total) * 100 : 0,
-      story: school.total > 0 ? (school.levels.story / school.total) * 100 : 0,
+      beginner: school.total > 0 ? ((school.levels.beginner || 0) / school.total) * 100 : 0,
+      letter: school.total > 0 ? ((school.levels.letter || 0) / school.total) * 100 : 0,
+      word: school.total > 0 ? ((school.levels.word || 0) / school.total) * 100 : 0,
+      paragraph: school.total > 0 ? ((school.levels.paragraph || 0) / school.total) * 100 : 0,
+      story: school.total > 0 ? ((school.levels.story || 0) / school.total) * 100 : 0,
       total_students: school.total
     }));
 
     // Format data for horizontal bar chart (Chart.js format)
+    // CONSISTENT COLORS: Same as StackedPercentageBarChart component
+    // Each proficiency level uses ONE color across both Language and Math
     const chartData = {
       labels: schoolData.map(s => s.school),
       datasets: [
         {
-          label: subject === 'khmer' ? 'ដំណាក់កាលដើម' : 'លេខ 1-9',
-          backgroundColor: 'rgba(239, 68, 68, 0.8)',
+          label: subject === 'khmer' ? 'Beginner' : 'Beginner',
+          backgroundColor: 'rgba(220, 38, 38, 0.8)',  // RED - Level 1
           data: schoolData.map(s => s.beginner),
           counts: schoolData.map(s => Math.round((s.beginner / 100) * s.total_students))
         },
         {
-          label: subject === 'khmer' ? 'អក្សរ' : 'លេខ 10-99',
-          backgroundColor: 'rgba(245, 158, 11, 0.8)',
+          label: subject === 'khmer' ? 'Letter' : '1-Digit',
+          backgroundColor: 'rgba(249, 115, 22, 0.8)',  // ORANGE - Level 2 (same for Letter/1-Digit)
           data: schoolData.map(s => s.letter),
           counts: schoolData.map(s => Math.round((s.letter / 100) * s.total_students))
         },
         {
-          label: subject === 'khmer' ? 'ពាក្យ' : 'បូក/ដក',
-          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+          label: subject === 'khmer' ? 'Word' : '2-Digit',
+          backgroundColor: 'rgba(234, 179, 8, 0.8)',  // YELLOW - Level 3 (same for Word/2-Digit)
           data: schoolData.map(s => s.word),
           counts: schoolData.map(s => Math.round((s.word / 100) * s.total_students))
         },
         {
-          label: subject === 'khmer' ? 'កថាខណ្ឌ' : 'គុណ/ចែក',
-          backgroundColor: 'rgba(34, 197, 94, 0.8)',
+          label: subject === 'khmer' ? 'Paragraph' : 'Subtraction',
+          backgroundColor: 'rgba(132, 204, 22, 0.8)',  // GREEN - Level 4 (same for Paragraph/Subtraction)
           data: schoolData.map(s => s.paragraph),
           counts: schoolData.map(s => Math.round((s.paragraph / 100) * s.total_students))
         },
         {
-          label: subject === 'khmer' ? 'សាច់រឿង' : 'ចម្រុះ',
-          backgroundColor: 'rgba(168, 85, 247, 0.8)',
+          label: subject === 'khmer' ? 'Story' : 'Division',
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',  // BLUE - Level 5 (same for Story/Division)
           data: schoolData.map(s => s.story),
           counts: schoolData.map(s => Math.round((s.story / 100) * s.total_students))
         }
