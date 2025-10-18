@@ -14,6 +14,7 @@ import StackedPercentageBarChart from '@/components/charts/StackedPercentageBarC
 import AssessmentCycleChart from '@/components/charts/AssessmentCycleChart';
 import SubjectComparisonChart from '@/components/charts/SubjectComparisonChart';
 import LevelDistributionChart from '@/components/charts/LevelDistributionChart';
+import HorizontalStackedBarChart from '@/components/charts/HorizontalStackedBarChart';
 
 const { Title, Paragraph } = require('antd').Typography;
 
@@ -59,7 +60,9 @@ interface WorkspaceStats {
 
 export default function Home() {
   const [selectedSubject, setSelectedSubject] = useState<'khmer' | 'math'>('khmer');
+  const [selectedCycle, setSelectedCycle] = useState<'baseline' | 'midline' | 'endline'>('baseline');
   const [loading, setLoading] = useState(true);
+  const [schoolDataLoading, setSchoolDataLoading] = useState(false);
   const [stats, setStats] = useState<WorkspaceStats>({
     total_students: 0,
     total_schools: 0,
@@ -71,6 +74,10 @@ export default function Home() {
     endline_assessments: 0,
     active_mentoring_visits: 0,
   });
+  const [schoolData, setSchoolData] = useState<Array<{
+    schoolName: string;
+    levels: Record<string, number>;
+  }>>([]);
 
   // Fetch data from PUBLIC endpoint (no authentication required)
   const fetchData = async () => {
@@ -88,9 +95,31 @@ export default function Home() {
     }
   };
 
+  // Fetch school comparison data
+  const fetchSchoolData = async (cycle: string) => {
+    setSchoolDataLoading(true);
+    try {
+      const response = await fetch(`/api/public/results-by-school?cycle=${cycle}&subject=language`);
+      if (!response.ok) throw new Error('Failed to fetch school data');
+
+      const data = await response.json();
+      setSchoolData(data.schools || []);
+    } catch (error) {
+      console.error('Error fetching school data:', error);
+      setSchoolData([]);
+    } finally {
+      setSchoolDataLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchSchoolData(selectedCycle);
   }, []);
+
+  useEffect(() => {
+    fetchSchoolData(selectedCycle);
+  }, [selectedCycle]);
 
   return (
     <div className="max-w-full overflow-x-hidden" style={{ padding: '24px', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
@@ -358,6 +387,64 @@ export default function Home() {
                 />
               </Col>
             </Row>
+          )}
+
+          {/* School Comparison Chart - Full Width */}
+          {!schoolDataLoading && schoolData.length > 0 && (
+            <Card title="Results by School" style={{ marginBottom: 24 }}>
+              {/* Cycle Toggle Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
+                <Button
+                  type={selectedCycle === 'baseline' ? 'primary' : 'default'}
+                  onClick={() => setSelectedCycle('baseline')}
+                  style={{
+                    backgroundColor: selectedCycle === 'baseline' ? '#3b82f6' : '#e5e7eb',
+                    color: selectedCycle === 'baseline' ? 'white' : '#374151',
+                    border: 'none',
+                    transition: 'all 0.2s',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}
+                >
+                  baseline
+                </Button>
+                <Button
+                  type={selectedCycle === 'midline' ? 'primary' : 'default'}
+                  onClick={() => setSelectedCycle('midline')}
+                  style={{
+                    backgroundColor: selectedCycle === 'midline' ? '#3b82f6' : '#e5e7eb',
+                    color: selectedCycle === 'midline' ? 'white' : '#374151',
+                    border: 'none',
+                    transition: 'all 0.2s',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}
+                >
+                  midline
+                </Button>
+                <Button
+                  type={selectedCycle === 'endline' ? 'primary' : 'default'}
+                  onClick={() => setSelectedCycle('endline')}
+                  style={{
+                    backgroundColor: selectedCycle === 'endline' ? '#3b82f6' : '#e5e7eb',
+                    color: selectedCycle === 'endline' ? 'white' : '#374151',
+                    border: 'none',
+                    transition: 'all 0.2s',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}
+                >
+                  endline
+                </Button>
+              </div>
+
+              {/* Horizontal Stacked Bar Chart */}
+              <HorizontalStackedBarChart
+                data={schoolData}
+                title=""
+                maxHeight={600}
+              />
+            </Card>
           )}
 
           {/* No data message */}

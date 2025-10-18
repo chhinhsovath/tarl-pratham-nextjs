@@ -41,20 +41,40 @@ const levelTranslations: { [key: string]: string } = {
   'Problems': 'ចំណោទ'
 };
 
-// Default colors for levels
+// Default colors for levels (CONSISTENT with StackedPercentageBarChart)
 const defaultColors: { [key: string]: string } = {
-  'Beginning': '#EF4444',      // red-500
-  'Characters': '#F59E0B',     // amber-500
-  'Words': '#EAB308',          // yellow-500
-  'Paragraphs': '#84CC16',     // lime-500
-  'Story': '#22C55E',          // green-500
-  'Story (Comprehension 1)': '#10B981', // emerald-500
-  'Story (Comprehension 2)': '#14B8A6', // teal-500
-  'Single Digit': '#F59E0B',   // amber-500
-  'Double Digit': '#EAB308',   // yellow-500
-  'Subtraction': '#84CC16',    // lime-500
-  'Division': '#22C55E',       // green-500
-  'Problems': '#10B981'        // emerald-500
+  // Level 1: Beginner (Red)
+  'beginner': '#DC2626',       // RED
+
+  // Level 2: Letter/1-Digit (Orange)
+  'letter': '#F97316',         // ORANGE
+
+  // Level 3: Word/2-Digit (Yellow)
+  'word': '#EAB308',           // YELLOW
+
+  // Level 4: Paragraph/Subtraction (Green)
+  'paragraph': '#84CC16',      // GREEN
+
+  // Level 5: Story/Division (Blue)
+  'story': '#3B82F6',          // BLUE
+
+  // Advanced levels (Purple/Pink)
+  'comprehension1': '#8B5CF6', // PURPLE
+  'comprehension2': '#EC4899', // PINK
+
+  // Legacy support (old naming)
+  'Beginning': '#DC2626',
+  'Characters': '#F97316',
+  'Words': '#EAB308',
+  'Paragraphs': '#84CC16',
+  'Story': '#3B82F6',
+  'Story (Comprehension 1)': '#8B5CF6',
+  'Story (Comprehension 2)': '#EC4899',
+  'Single Digit': '#F97316',
+  'Double Digit': '#EAB308',
+  'Subtraction': '#84CC16',
+  'Division': '#3B82F6',
+  'Problems': '#8B5CF6'
 };
 
 export default function HorizontalStackedBarChart({
