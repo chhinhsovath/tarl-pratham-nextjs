@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/users/quick-login - Public endpoint for getting DEMO users only
-// SECURITY: This endpoint is public and should NEVER expose real user data
+// GET /api/users/quick-login - Public endpoint for getting quick login users
 export async function GET(request: NextRequest) {
   try {
-    // SECURITY FIX: Only return users marked as test/demo users
-    // Never expose real production user accounts in the login dropdown
+    // This is a public endpoint - no authentication required
+    // It provides users for the quick login dropdown
 
     let users;
 
     try {
-      // Only show users with test_mode_enabled = true OR record_status = 'demo'
-      // This prevents exposing real user accounts to the public
+      // Query unified users table - return ALL users with usernames (both email and username login types)
       users = await prisma.user.findMany({
         select: {
           id: true,
@@ -23,14 +21,7 @@ export async function GET(request: NextRequest) {
         },
         where: {
           is_active: true,
-          username: { not: null },
-          // SECURITY: Only show demo/test accounts
-          OR: [
-            { test_mode_enabled: true },
-            // Add a name pattern check for demo accounts
-            { username: { startsWith: 'demo_' } },
-            { username: { startsWith: 'test_' } }
-          ]
+          username: { not: null } // Show all users that have a username
         },
         orderBy: [
           { role: 'asc' },
@@ -38,58 +29,44 @@ export async function GET(request: NextRequest) {
         ]
       });
     } catch (dbError) {
-      console.warn("Database not available, providing hardcoded demo users:", dbError);
+      console.warn("Database not available, providing demo users:", dbError);
       users = [];
     }
 
-    // If no demo users found, provide hardcoded demo users
+    // If no users in database, provide demo users for development
     if (users.length === 0) {
       users = [
         {
           id: 1,
-          username: "demo_admin",
+          username: "admin123",
           role: "admin",
           province: null,
           subject: null
         },
         {
           id: 2,
-          username: "demo_coordinator",
+          username: "coordinator_pp",
           role: "coordinator",
-          province: "កំពង់ចាម",
+          province: "Phnom Penh",
           subject: null
         },
         {
           id: 3,
-          username: "demo_mentor_math",
+          username: "mentor_math",
           role: "mentor",
-          province: "កណ្តាល",
+          province: "Kandal",
           subject: "Math"
         },
         {
           id: 4,
-          username: "demo_mentor_language",
-          role: "mentor",
-          province: "សៀមរាប",
-          subject: "Language"
+          username: "teacher_khmer",
+          role: "teacher",
+          province: "Siem Reap",
+          subject: "Khmer"
         },
         {
           id: 5,
-          username: "demo_teacher_math",
-          role: "teacher",
-          province: "បាត់ដំបង",
-          subject: "Math"
-        },
-        {
-          id: 6,
-          username: "demo_teacher_language",
-          role: "teacher",
-          province: "ព្រះសីហនុ",
-          subject: "Language"
-        },
-        {
-          id: 7,
-          username: "demo_viewer",
+          username: "viewer_report",
           role: "viewer",
           province: null,
           subject: null
@@ -99,18 +76,17 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       users,
-      total: users.length,
-      message: "Demo users only - real accounts not shown for security"
+      total: users.length
     });
 
   } catch (error) {
     console.error("Error fetching quick login users:", error);
 
-    // Fallback demo users
+    // Even if there's an error, provide demo users so the login page works
     const demoUsers = [
       {
         id: 1,
-        username: "demo_admin",
+        username: "admin123",
         role: "admin",
         province: null,
         subject: null
