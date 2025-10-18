@@ -393,12 +393,15 @@ export default function Home() {
 
           {/* School Comparison Chart - Full Width */}
           {!schoolDataLoading && schoolData.length > 0 && (
-            <Card title="Results by School" style={{ marginBottom: 24 }}>
+            <Card title="Results by School" style={{ marginBottom: 24 }} id="school-comparison-chart">
               {/* Cycle Toggle Buttons */}
               <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
                 <Button
                   type={selectedCycle === 'baseline' ? 'primary' : 'default'}
-                  onClick={() => setSelectedCycle('baseline')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedCycle('baseline');
+                  }}
                   style={{
                     backgroundColor: selectedCycle === 'baseline' ? '#3b82f6' : '#e5e7eb',
                     color: selectedCycle === 'baseline' ? 'white' : '#374151',
@@ -412,7 +415,10 @@ export default function Home() {
                 </Button>
                 <Button
                   type={selectedCycle === 'midline' ? 'primary' : 'default'}
-                  onClick={() => setSelectedCycle('midline')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedCycle('midline');
+                  }}
                   style={{
                     backgroundColor: selectedCycle === 'midline' ? '#3b82f6' : '#e5e7eb',
                     color: selectedCycle === 'midline' ? 'white' : '#374151',
@@ -426,7 +432,10 @@ export default function Home() {
                 </Button>
                 <Button
                   type={selectedCycle === 'endline' ? 'primary' : 'default'}
-                  onClick={() => setSelectedCycle('endline')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedCycle('endline');
+                  }}
                   style={{
                     backgroundColor: selectedCycle === 'endline' ? '#3b82f6' : '#e5e7eb',
                     color: selectedCycle === 'endline' ? 'white' : '#374151',
