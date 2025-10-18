@@ -167,7 +167,7 @@ export default function StackedPercentageBarChart({
         dominantBaseline="central"
         style={{ fontSize: '11px', fontWeight: 'bold' }}
       >
-        {Math.round(value)}%
+        {Math.round(value * 10) / 10}%
       </text>
     );
   };
@@ -218,7 +218,7 @@ export default function StackedPercentageBarChart({
               <th style={{ padding: '8px', textAlign: 'left', border: '1px solid #E5E7EB' }}>វដ្តវាយតម្លៃ</th>
               {data.map((cycle) => (
                 <th key={cycle.cycle} style={{ padding: '8px', textAlign: 'center', border: '1px solid #E5E7EB' }}>
-                  {cycle.cycle}
+                  {cycleTranslations[cycle.cycle] || cycle.cycle}
                 </th>
               ))}
             </tr>
