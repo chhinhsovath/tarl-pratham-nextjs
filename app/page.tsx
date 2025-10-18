@@ -393,7 +393,7 @@ export default function Home() {
 
           {/* School Comparison Chart - Full Width */}
           {!schoolDataLoading && schoolData.length > 0 && (
-            <Card title="Results by School" style={{ marginBottom: 24 }} id="school-comparison-chart">
+            <Card title="លទ្ធផលតាមសាលារៀន" style={{ marginBottom: 24 }} id="school-comparison-chart">
               {/* Cycle Toggle Buttons */}
               <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
                 <Button
@@ -411,7 +411,7 @@ export default function Home() {
                     fontWeight: '600'
                   }}
                 >
-                  baseline
+                  តេស្តដើមគ្រា
                 </Button>
                 <Button
                   type={selectedCycle === 'midline' ? 'primary' : 'default'}
@@ -428,7 +428,7 @@ export default function Home() {
                     fontWeight: '600'
                   }}
                 >
-                  midline
+                  តេស្តពាក់កណ្ដាលគ្រា
                 </Button>
                 <Button
                   type={selectedCycle === 'endline' ? 'primary' : 'default'}
@@ -445,7 +445,7 @@ export default function Home() {
                     fontWeight: '600'
                   }}
                 >
-                  endline
+                  តេស្តចុងក្រោយគ្រា
                 </Button>
               </div>
 

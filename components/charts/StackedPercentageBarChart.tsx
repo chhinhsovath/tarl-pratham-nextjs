@@ -25,23 +25,23 @@ interface StackedPercentageBarChartProps {
   colors?: { [levelName: string]: string };
 }
 
-// Level translations - from database level values to display labels
+// Level translations - from database level values to display labels (Khmer)
 const levelTranslations: { [key: string]: string } = {
   // Language levels (database → display)
-  'beginner': 'Beginner',
-  'letter': 'Letter',
-  'word': 'Word',
-  'paragraph': 'Paragraph',
-  'story': 'Story',
-  'comprehension1': 'Comprehension 1',
-  'comprehension2': 'Comprehension 2',
+  'beginner': 'កម្រិតដំបូង',
+  'letter': 'តួអក្សរ',
+  'word': 'ពាក្យ',
+  'paragraph': 'កថាខណ្ឌ',
+  'story': 'រឿង',
+  'comprehension1': 'យល់ន័យ១',
+  'comprehension2': 'យល់ន័យ២',
 
   // Math levels (database → display)
-  'number_1digit': '1-Digit',
-  'number_2digit': '2-Digit',
-  'subtraction': 'Subtraction',
-  'division': 'Division',
-  'word_problems': 'Word Problems',
+  'number_1digit': 'លេខ១ខ្ទង',
+  'number_2digit': 'លេខ២ខ្ទង',
+  'subtraction': 'ប្រមាណវិធីដក',
+  'division': 'ប្រមាណវិធីចែក',
+  'word_problems': 'ចំណោទ',
 };
 
 // Default colors for levels (CONSISTENT across all charts)
@@ -207,7 +207,7 @@ export default function StackedPercentageBarChart({
         <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#F3F4F6' }}>
-              <th style={{ padding: '8px', textAlign: 'left', border: '1px solid #E5E7EB' }}>Test Cycle</th>
+              <th style={{ padding: '8px', textAlign: 'left', border: '1px solid #E5E7EB' }}>វដ្តវាយតម្លៃ</th>
               {data.map((cycle) => (
                 <th key={cycle.cycle} style={{ padding: '8px', textAlign: 'center', border: '1px solid #E5E7EB' }}>
                   {cycle.cycle}
@@ -217,7 +217,7 @@ export default function StackedPercentageBarChart({
           </thead>
           <tbody>
             <tr>
-              <td style={{ padding: '8px', fontWeight: 'bold', border: '1px solid #E5E7EB' }}>students</td>
+              <td style={{ padding: '8px', fontWeight: 'bold', border: '1px solid #E5E7EB' }}>និស្សិត</td>
               {data.map((cycle) => {
                 const total = Object.values(cycle.levels).reduce((sum, count) => sum + count, 0);
                 return (
