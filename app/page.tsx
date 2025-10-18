@@ -207,72 +207,6 @@ export default function Home() {
             </Col>
           </Row>
 
-          {/* Assessment Details Card (EXACTLY like coordinator) */}
-          {stats.total_assessments > 0 && (
-            <Row gutter={16} style={{ marginBottom: 24 }}>
-              <Col xs={24} sm={24} md={24} lg={24}>
-                <Card title="ព័ត៌មានលម្អិតការវាយតម្លៃ" style={{ marginBottom: 0 }}>
-                  <Row gutter={16}>
-                    <Col xs={12} sm={8} md={6}>
-                      <Statistic
-                        title="ដោយគ្រូព្រឹក្សា"
-                        value={stats.assessments?.by_creator?.mentor || 0}
-                        prefix={<TeamOutlined />}
-                        valueStyle={{ color: '#13c2c2', fontSize: 20 }}
-                      />
-                    </Col>
-                    <Col xs={12} sm={8} md={6}>
-                      <Statistic
-                        title="ដោយគ្រូបង្រៀន"
-                        value={stats.assessments?.by_creator?.teacher || 0}
-                        prefix={<TeamOutlined />}
-                        valueStyle={{ color: '#52c41a', fontSize: 20 }}
-                      />
-                    </Col>
-                    <Col xs={12} sm={8} md={6}>
-                      <Statistic
-                        title="ភាសា"
-                        value={stats.assessments?.by_subject?.language || 0}
-                        prefix={<BookOutlined />}
-                        valueStyle={{ color: '#1890ff', fontSize: 20 }}
-                      />
-                    </Col>
-                    <Col xs={12} sm={8} md={6}>
-                      <Statistic
-                        title="គណិតវិទ្យា"
-                        value={stats.assessments?.by_subject?.math || 0}
-                        prefix={<BookOutlined />}
-                        valueStyle={{ color: '#52c41a', fontSize: 20 }}
-                      />
-                    </Col>
-                  </Row>
-                  <Row gutter={16} style={{ marginTop: 16 }}>
-                    <Col xs={12} sm={8} md={6}>
-                      <Statistic
-                        title="តេស្តដើមគ្រា"
-                        value={stats.assessments?.by_type?.baseline || 0}
-                        valueStyle={{ fontSize: 20 }}
-                      />
-                    </Col>
-                    <Col xs={12} sm={8} md={6}>
-                      <Statistic
-                        title="តេស្តពាក់កណ្ដាលគ្រា"
-                        value={stats.assessments?.by_type?.midline || 0}
-                        valueStyle={{ fontSize: 20 }}
-                      />
-                    </Col>
-                    <Col xs={12} sm={8} md={6}>
-                      <Statistic
-                        title="តេស្តចុងក្រោយគ្រា"
-                        value={stats.assessments?.by_type?.endline || 0}
-                        valueStyle={{ fontSize: 20 }}
-                      />
-                    </Col>
-                  </Row>
-                </Card>
-              </Col>
-            </Row>
-          )}
 
           {/* Assessment Results Section with Subject Toggle - EXACTLY like coordinator */}
           {stats.total_assessments > 0 && (stats.assessments?.overall_results_khmer || stats.assessments?.overall_results_math) && (
@@ -322,59 +256,21 @@ export default function Home() {
             </Card>
           )}
 
-          {/* Charts Section - 3 columns (EXACTLY like coordinator) */}
+          {/* Charts Section - 2 columns */}
           {stats.total_assessments > 0 && (
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-              <Col xs={24} sm={24} md={12} lg={8}>
+              <Col xs={24} sm={24} md={12}>
                 <AssessmentCycleChart
                   data={stats.assessments?.by_type || { baseline: 0, midline: 0, endline: 0 }}
                   title="ការប្រៀបធៀបតាមវដ្តវាយតម្លៃ"
                   type="bar"
                 />
               </Col>
-              <Col xs={24} sm={24} md={12} lg={8}>
+              <Col xs={24} sm={24} md={12}>
                 <SubjectComparisonChart
                   data={stats.assessments?.by_subject || { language: 0, math: 0 }}
                   title="ការប្រៀបធៀបតាមមុខវិជ្ជា"
                 />
-              </Col>
-              {/* Teacher Creator Card with Progress Bars (EXACTLY like coordinator) */}
-              <Col xs={24} sm={24} md={24} lg={8}>
-                <Card title="ការវាយតម្លៃដោយគ្រូ" style={{ height: '100%' }}>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Statistic
-                        title="គ្រូព្រឹក្សាគរុកោសល្យ"
-                        value={stats.assessments?.by_creator?.mentor || 0}
-                        prefix={<TeamOutlined />}
-                        valueStyle={{ color: '#13c2c2' }}
-                      />
-                    </Col>
-                    <Col span={12}>
-                      <Statistic
-                        title="គ្រូបង្រៀន"
-                        value={stats.assessments?.by_creator?.teacher || 0}
-                        prefix={<TeamOutlined />}
-                        valueStyle={{ color: '#52c41a' }}
-                      />
-                    </Col>
-                  </Row>
-                  <Row gutter={16} style={{ marginTop: 24 }}>
-                    <Col span={24}>
-                      <Progress
-                        percent={stats.total_assessments > 0 ? Math.round(((stats.assessments?.by_creator?.mentor || 0) / stats.total_assessments) * 100) : 0}
-                        strokeColor="#13c2c2"
-                        format={(percent) => `គ្រូព្រឹក្សា ${percent}%`}
-                      />
-                      <Progress
-                        percent={stats.total_assessments > 0 ? Math.round(((stats.assessments?.by_creator?.teacher || 0) / stats.total_assessments) * 100) : 0}
-                        strokeColor="#52c41a"
-                        format={(percent) => `គ្រូបង្រៀន ${percent}%`}
-                        style={{ marginTop: 16 }}
-                      />
-                    </Col>
-                  </Row>
-                </Card>
               </Col>
             </Row>
           )}
