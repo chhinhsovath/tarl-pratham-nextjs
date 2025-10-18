@@ -206,6 +206,13 @@ function CoordinatorWorkspaceContent() {
       path: '/coordinator/mentor-assignments'
     },
     {
+      title: 'ចាត់តាំងគ្រូបង្រៀន',
+      icon: <TeamOutlined style={{ fontSize: 24 }} />,
+      color: '#52c41a',
+      description: 'ចាត់តាំងគ្រូបង្រៀនទៅថ្នាក់រៀននិងសាលារៀន',
+      path: '/coordinator/teacher-assignments'
+    },
+    {
       title: 'រយៈពេលវាយតម្លៃ',
       icon: <CalendarOutlined style={{ fontSize: 24 }} />,
       color: '#fa8c16',
