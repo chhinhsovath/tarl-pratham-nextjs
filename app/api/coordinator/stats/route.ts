@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { getCoordinatorStats } from '@/lib/stats-cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,75 +16,50 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Coordinators have admin-like access - NO restrictions
-    const schoolFilter: any = {};
-    const userFilter: any = {};
+    console.log(`[COORDINATOR STATS] User role: ${session.user.role} - Using cached stats`);
 
-    console.log(`[COORDINATOR STATS] User role: ${session.user.role} - Full access granted`);
+    // CRITICAL OPTIMIZATION: Use cached stats (1 query instead of 8)
+    // Cache TTL: 5 minutes - dramatically reduces database load
+    const stats = await getCoordinatorStats();
 
-    // CRITICAL: REDUCED FROM 29 QUERIES TO 8 QUERIES
-    // Only fetch essential stats to prevent connection exhaustion
-    const [
-      total_schools,
-      total_students,
-      total_teachers,
-      total_mentors,
-      total_assessments,
-      baseline_assessments,
-      midline_assessments,
-      endline_assessments,
-    ] = await Promise.all([
-      prisma.pilotSchool.count(), // Correct: camelCase instance name
-      prisma.student.count({ where: schoolFilter }),
-      prisma.user.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
-      prisma.user.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
-      prisma.assessment.count({ where: schoolFilter }),
-      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'baseline' } }),
-      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'midline' } }),
-      prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'endline' } }),
-    ]);
+    // Calculate derived values
+    const assessments_by_mentor = Math.floor(stats.total_assessments * 0.3); // Approximate
+    const assessments_by_teacher = stats.total_assessments - assessments_by_mentor;
 
-    // Simple calculations from counts
-    const language_assessments = Math.floor(total_assessments / 2); // Approximate
-    const math_assessments = total_assessments - language_assessments;
-    const assessments_by_mentor = Math.floor(total_assessments * 0.3); // Approximate
-    const assessments_by_teacher = total_assessments - assessments_by_mentor;
-
-    // Return simplified stats (8 queries total - down from 29)
+    // Return cached stats (1 query - down from 8-29!)
     return NextResponse.json({
       // Top-level stats for dashboard cards
-      total_schools: total_schools,
-      total_teachers: total_teachers,
-      total_mentors: total_mentors,
-      total_students: total_students,
-      total_assessments: total_assessments,
-      pending_verifications: 0, // Removed expensive query
+      total_schools: stats.total_schools,
+      total_teachers: stats.total_teachers,
+      total_mentors: stats.total_mentors,
+      total_students: stats.total_students,
+      total_assessments: stats.total_assessments,
+      pending_verifications: 0,
       recent_imports: 0,
       active_mentoring_visits: 0,
       languages_configured: 2,
 
-      // Simplified assessments data
+      // Cached assessments data
       assessments: {
-        total: total_assessments,
-        today: 0, // Removed expensive time-based query
-        this_week: 0, // Removed expensive time-based query
-        this_month: 0, // Removed expensive time-based query
+        total: stats.total_assessments,
+        today: 0,
+        this_week: 0,
+        this_month: 0,
         by_type: {
-          baseline: baseline_assessments,
-          midline: midline_assessments,
-          endline: endline_assessments,
+          baseline: stats.baseline_assessments,
+          midline: stats.midline_assessments,
+          endline: stats.endline_assessments,
         },
         by_creator: {
-          mentor: assessments_by_mentor, // Approximate
-          teacher: assessments_by_teacher, // Approximate
+          mentor: assessments_by_mentor,
+          teacher: assessments_by_teacher,
         },
         by_subject: {
-          language: language_assessments, // Approximate
-          math: math_assessments, // Approximate
+          language: stats.language_assessments,
+          math: stats.math_assessments,
         },
-        by_level: [], // Removed expensive groupBy query
-        pending_verification: 0, // Removed expensive query
-        // Removed complex groupBy queries for charts
+        by_level: [],
+        pending_verification: 0,
         overall_results_khmer: [],
         overall_results_math: [],
       },

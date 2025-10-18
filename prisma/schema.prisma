@@ -769,6 +769,32 @@ model IpWhitelist {
   @@map("ip_whitelist")
 }
 
+model DashboardStats {
+  id                    Int      @id @default(autoincrement())
+  cache_key             String   @unique // 'global', 'user_123', 'coordinator_456', etc.
+  role                  String   // 'admin', 'coordinator', 'teacher', 'mentor'
+  user_id               Int?     // Null for global stats, specific for user-scoped
+  total_schools         Int      @default(0)
+  total_students        Int      @default(0)
+  total_teachers        Int      @default(0)
+  total_mentors         Int      @default(0)
+  total_assessments     Int      @default(0)
+  baseline_assessments  Int      @default(0)
+  midline_assessments   Int      @default(0)
+  endline_assessments   Int      @default(0)
+  language_assessments  Int      @default(0)
+  math_assessments      Int      @default(0)
+  stats_data            Json?    // Flexible storage for complex stats (charts, distributions, etc.)
+  last_updated          DateTime @updatedAt
+  created_at            DateTime @default(now())
+
+  @@index([cache_key])
+  @@index([role])
+  @@index([user_id])
+  @@index([last_updated])
+  @@map("dashboard_stats")
+}
+
 model quick_login_users {
   id                      Int       @id @default(autoincrement())
   username                String    @unique
