@@ -48,7 +48,8 @@ import {
   SecurityScanOutlined,
   ThunderboltOutlined,
   BookOutlined,
-  HistoryOutlined
+  HistoryOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import OnboardingTour from '@/components/tour/OnboardingTour';
 import { trackActivity } from '@/lib/trackActivity';
