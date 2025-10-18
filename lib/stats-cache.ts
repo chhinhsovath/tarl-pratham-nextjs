@@ -47,6 +47,10 @@ export async function getCoordinatorStats(): Promise<CoordinatorStatsData> {
       const age = Date.now() - cached.last_updated.getTime();
       if (age < CACHE_TTL_MS) {
         console.log('[STATS CACHE] HIT - Returning cached stats', { age_seconds: Math.floor(age / 1000) });
+
+        // Parse chart data from stats_data JSON field
+        const statsData = cached.stats_data as any;
+
         return {
           total_schools: cached.total_schools,
           total_students: cached.total_students,
@@ -58,6 +62,9 @@ export async function getCoordinatorStats(): Promise<CoordinatorStatsData> {
           endline_assessments: cached.endline_assessments,
           language_assessments: cached.language_assessments,
           math_assessments: cached.math_assessments,
+          by_level: statsData?.by_level || [],
+          overall_results_khmer: statsData?.overall_results_khmer || [],
+          overall_results_math: statsData?.overall_results_math || [],
         };
       }
     }
@@ -69,16 +76,33 @@ export async function getCoordinatorStats(): Promise<CoordinatorStatsData> {
 
     // Try to store in cache (may fail if table doesn't exist yet)
     try {
+      // Separate scalar fields from complex data (charts)
+      const { by_level, overall_results_khmer, overall_results_math, ...scalarStats } = freshStats;
+
       await prisma.dashboardStats.upsert({
         where: { cache_key: cacheKey },
         create: {
           cache_key: cacheKey,
           role: 'coordinator',
-          ...freshStats
+          ...scalarStats,
+          // Store chart data in stats_data JSON field
+          stats_data: {
+            by_level,
+            overall_results_khmer,
+            overall_results_math,
+          },
         },
-        update: freshStats
+        update: {
+          ...scalarStats,
+          // Store chart data in stats_data JSON field
+          stats_data: {
+            by_level,
+            overall_results_khmer,
+            overall_results_math,
+          },
+        }
       });
-      console.log('[STATS CACHE] Stored fresh stats');
+      console.log('[STATS CACHE] Stored fresh stats with chart data');
     } catch (cacheError: any) {
       // Gracefully handle cache storage failure (table might not exist yet)
       if (cacheError.code === 'P2021' || cacheError.message?.includes('does not exist')) {
@@ -137,12 +161,12 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
 
   if (total_assessments > 0) {
     try {
-      // Get all assessments with level achieved data
+      // Get all assessments with level data
       const assessments = await prisma.assessment.findMany({
         where: schoolFilter,
         select: {
           subject: true,
-          level_achieved: true,
+          level: true,  // Fixed: was 'level_achieved' (doesn't exist in schema)
           assessment_type: true,
         },
       });
@@ -151,9 +175,9 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
       const levelCounts: Record<string, { khmer: number; math: number }> = {};
 
       assessments.forEach(assessment => {
-        if (!assessment.level_achieved) return;
+        if (!assessment.level) return;
 
-        const level = assessment.level_achieved;
+        const level = assessment.level;
         if (!levelCounts[level]) {
           levelCounts[level] = { khmer: 0, math: 0 };
         }
@@ -191,12 +215,12 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
       };
 
       assessments.forEach(assessment => {
-        if (!assessment.level_achieved || !assessment.assessment_type) return;
+        if (!assessment.level || !assessment.assessment_type) return;
 
         const cycle = cycleMap[assessment.assessment_type];
         if (!cycle) return;
 
-        const level = assessment.level_achieved;
+        const level = assessment.level;
 
         if (assessment.subject === 'language') {
           khmerByType[cycle][level] = (khmerByType[cycle][level] || 0) + 1;
