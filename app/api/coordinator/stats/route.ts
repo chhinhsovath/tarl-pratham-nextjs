@@ -58,10 +58,10 @@ export async function GET(request: NextRequest) {
           language: stats.language_assessments,
           math: stats.math_assessments,
         },
-        by_level: [],
+        by_level: stats.by_level || [],
         pending_verification: 0,
-        overall_results_khmer: [],
-        overall_results_math: [],
+        overall_results_khmer: stats.overall_results_khmer || [],
+        overall_results_math: stats.overall_results_math || [],
       },
     });
   } catch (error) {

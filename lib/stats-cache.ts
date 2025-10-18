@@ -14,6 +14,19 @@ interface CoordinatorStatsData {
   endline_assessments: number;
   language_assessments: number;
   math_assessments: number;
+  by_level?: Array<{
+    level: string;
+    khmer: number;
+    math: number;
+  }>;
+  overall_results_khmer?: Array<{
+    cycle: string;
+    levels: Record<string, number>;
+  }>;
+  overall_results_math?: Array<{
+    cycle: string;
+    levels: Record<string, number>;
+  }>;
 }
 
 /**
@@ -86,7 +99,7 @@ export async function getCoordinatorStats(): Promise<CoordinatorStatsData> {
 }
 
 /**
- * Calculate fresh coordinator stats (8 queries)
+ * Calculate fresh coordinator stats (8 queries + chart data)
  * Only called when cache is stale or missing
  */
 async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
@@ -117,6 +130,96 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
   const language_assessments = Math.floor(total_assessments / 2);
   const math_assessments = total_assessments - language_assessments;
 
+  // Calculate chart data if there are assessments
+  let by_level: Array<{ level: string; khmer: number; math: number; }> = [];
+  let overall_results_khmer: Array<{ cycle: string; levels: Record<string, number>; }> = [];
+  let overall_results_math: Array<{ cycle: string; levels: Record<string, number>; }> = [];
+
+  if (total_assessments > 0) {
+    try {
+      // Get all assessments with level achieved data
+      const assessments = await prisma.assessment.findMany({
+        where: schoolFilter,
+        select: {
+          subject: true,
+          level_achieved: true,
+          assessment_type: true,
+        },
+      });
+
+      // Calculate by_level distribution
+      const levelCounts: Record<string, { khmer: number; math: number }> = {};
+
+      assessments.forEach(assessment => {
+        if (!assessment.level_achieved) return;
+
+        const level = assessment.level_achieved;
+        if (!levelCounts[level]) {
+          levelCounts[level] = { khmer: 0, math: 0 };
+        }
+
+        if (assessment.subject === 'language') {
+          levelCounts[level].khmer++;
+        } else if (assessment.subject === 'math') {
+          levelCounts[level].math++;
+        }
+      });
+
+      by_level = Object.entries(levelCounts).map(([level, counts]) => ({
+        level,
+        khmer: counts.khmer,
+        math: counts.math,
+      }));
+
+      // Calculate overall_results_khmer by cycle
+      const khmerByType: Record<string, Record<string, number>> = {
+        'តេស្តដើមគ្រា': {},
+        'តេស្តពាក់កណ្ដាលគ្រា': {},
+        'តេស្តចុងក្រោយគ្រា': {},
+      };
+
+      const mathByType: Record<string, Record<string, number>> = {
+        'តេស្តដើមគ្រា': {},
+        'តេស្តពាក់កណ្ដាលគ្រា': {},
+        'តេស្តចុងក្រោយគ្រា': {},
+      };
+
+      const cycleMap: Record<string, string> = {
+        'baseline': 'តេស្តដើមគ្រា',
+        'midline': 'តេស្តពាក់កណ្ដាលគ្រា',
+        'endline': 'តេស្តចុងក្រោយគ្រា',
+      };
+
+      assessments.forEach(assessment => {
+        if (!assessment.level_achieved || !assessment.assessment_type) return;
+
+        const cycle = cycleMap[assessment.assessment_type];
+        if (!cycle) return;
+
+        const level = assessment.level_achieved;
+
+        if (assessment.subject === 'language') {
+          khmerByType[cycle][level] = (khmerByType[cycle][level] || 0) + 1;
+        } else if (assessment.subject === 'math') {
+          mathByType[cycle][level] = (mathByType[cycle][level] || 0) + 1;
+        }
+      });
+
+      // Convert to array format for charts
+      overall_results_khmer = Object.entries(khmerByType)
+        .filter(([_, levels]) => Object.keys(levels).length > 0)
+        .map(([cycle, levels]) => ({ cycle, levels }));
+
+      overall_results_math = Object.entries(mathByType)
+        .filter(([_, levels]) => Object.keys(levels).length > 0)
+        .map(([cycle, levels]) => ({ cycle, levels }));
+
+    } catch (error) {
+      console.error('[STATS CACHE] Error calculating chart data:', error);
+      // Continue with empty chart data if calculation fails
+    }
+  }
+
   return {
     total_schools,
     total_students,
@@ -128,6 +231,9 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
     endline_assessments,
     language_assessments,
     math_assessments,
+    by_level,
+    overall_results_khmer,
+    overall_results_math,
   };
 }
 
