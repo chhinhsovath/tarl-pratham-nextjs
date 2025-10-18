@@ -131,10 +131,11 @@ function AssessmentPeriodsPageContent() {
 
   const handleUpdatePeriod = async (values: any) => {
     try {
-      const response = await fetch(`/api/assessments/periods/${selectedPeriod?.pilot_school_id}`, {
+      const response = await fetch('/api/pilot-schools', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          id: selectedPeriod?.pilot_school_id,
           baseline_start_date: values.baseline?.[0]?.format('YYYY-MM-DD'),
           baseline_end_date: values.baseline?.[1]?.format('YYYY-MM-DD'),
           midline_start_date: values.midline?.[0]?.format('YYYY-MM-DD'),
@@ -145,69 +146,92 @@ function AssessmentPeriodsPageContent() {
       });
 
       if (response.ok) {
-        message.success('Assessment periods updated successfully');
+        message.success('រយៈពេលវាយតម្លៃត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ');
         setEditModalVisible(false);
         fetchPeriods();
         fetchStats();
       } else {
-        throw new Error('Failed to update periods');
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update periods');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating periods:', error);
-      message.error('Failed to update assessment periods');
+      message.error(error.message || 'មិនអាចធ្វើបច្ចុប្បន្នភាពរយៈពេលវាយតម្លៃ');
     }
   };
 
   const handleBulkUpdate = async (values: any) => {
     if (selectedSchools.length === 0) {
-      message.warning('Please select schools to update');
+      message.warning('សូមជ្រើសរើសសាលារៀនដើម្បីធ្វើបច្ចុប្បន្នភាព');
       return;
     }
 
     try {
-      const response = await fetch('/api/assessments/periods/bulk', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          school_ids: selectedSchools,
-          baseline_start_date: values.baseline?.[0]?.format('YYYY-MM-DD'),
-          baseline_end_date: values.baseline?.[1]?.format('YYYY-MM-DD'),
-          midline_start_date: values.midline?.[0]?.format('YYYY-MM-DD'),
-          midline_end_date: values.midline?.[1]?.format('YYYY-MM-DD'),
-          endline_start_date: values.endline?.[0]?.format('YYYY-MM-DD'),
-          endline_end_date: values.endline?.[1]?.format('YYYY-MM-DD'),
-        })
-      });
+      const updateData = {
+        baseline_start_date: values.baseline?.[0]?.format('YYYY-MM-DD'),
+        baseline_end_date: values.baseline?.[1]?.format('YYYY-MM-DD'),
+        midline_start_date: values.midline?.[0]?.format('YYYY-MM-DD'),
+        midline_end_date: values.midline?.[1]?.format('YYYY-MM-DD'),
+        endline_start_date: values.endline?.[0]?.format('YYYY-MM-DD'),
+        endline_end_date: values.endline?.[1]?.format('YYYY-MM-DD'),
+      };
 
-      if (response.ok) {
-        message.success(`Updated periods for ${selectedSchools.length} schools`);
-        setBulkEditModalVisible(false);
-        setSelectedSchools([]);
-        fetchPeriods();
-        fetchStats();
+      // Update each school individually
+      const promises = selectedSchools.map(schoolId =>
+        fetch('/api/pilot-schools', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: schoolId,
+            ...updateData
+          })
+        })
+      );
+
+      const results = await Promise.all(promises);
+      const successCount = results.filter(r => r.ok).length;
+      const failCount = results.length - successCount;
+
+      if (successCount > 0) {
+        message.success(`បានធ្វើបច្ចុប្បន្នភាព ${successCount} សាលារៀនដោយជោគជ័យ${failCount > 0 ? ` (បរាជ័យ ${failCount})` : ''}`);
       }
+
+      if (failCount > 0 && successCount === 0) {
+        message.error('មិនអាចធ្វើបច្ចុប្បន្នភាពសាលារៀន');
+      }
+
+      setBulkEditModalVisible(false);
+      setSelectedSchools([]);
+      fetchPeriods();
+      fetchStats();
     } catch (error) {
       console.error('Error bulk updating:', error);
-      message.error('Failed to update periods');
+      message.error('មិនអាចធ្វើបច្ចុប្បន្នភាពរយៈពេល');
     }
   };
 
   const handleLockToggle = async (schoolId: number, lock: boolean) => {
     try {
-      const response = await fetch(`/api/assessments/periods/${schoolId}/lock`, {
-        method: 'POST',
+      const response = await fetch('/api/pilot-schools', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lock })
+        body: JSON.stringify({
+          id: schoolId,
+          is_locked: lock
+        })
       });
 
       if (response.ok) {
-        message.success(`School ${lock ? 'locked' : 'unlocked'} successfully`);
+        message.success(`សាលារៀនត្រូវបាន${lock ? 'ជាប់សោ' : 'ដោះសោ'}ដោយជោគជ័យ`);
         fetchPeriods();
         fetchStats();
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update lock status');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling lock:', error);
-      message.error('Failed to update lock status');
+      message.error(error.message || 'មិនអាចធ្វើបច្ចុប្បន្នភាពស្ថានភាពសោ');
     }
   };
 
@@ -236,30 +260,42 @@ function AssessmentPeriodsPageContent() {
       width: 600,
       onOk: async () => {
         try {
-          const response = await fetch('/api/assessments/periods/set-all', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              baseline_start_date: '2025-11-10',
-              baseline_end_date: '2025-11-13',
-              midline_start_date: '2025-12-18',
-              midline_end_date: '2025-12-19',
-              endline_start_date: '2026-01-27',
-              endline_end_date: '2026-01-28',
-            })
-          });
+          const updateData = {
+            baseline_start_date: '2025-11-10',
+            baseline_end_date: '2025-11-13',
+            midline_start_date: '2025-12-18',
+            midline_end_date: '2025-12-19',
+            endline_start_date: '2026-01-27',
+            endline_end_date: '2026-01-28',
+          };
 
-          if (response.ok) {
-            const result = await response.json();
+          // Get all unlocked schools
+          const unlockedSchools = periods.filter(p => !p.is_locked);
+
+          // Update each unlocked school
+          const promises = unlockedSchools.map(school =>
+            fetch('/api/pilot-schools', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: school.pilot_school_id,
+                ...updateData
+              })
+            })
+          );
+
+          const results = await Promise.all(promises);
+          const successCount = results.filter(r => r.ok).length;
+
+          if (successCount > 0) {
             message.success(
-              `បានធ្វើបច្ចុប្បន្នភាព ${result.updated_count} សាលារៀនដោយជោគជ័យ`,
+              `បានធ្វើបច្ចុប្បន្នភាព ${successCount} សាលារៀនដោយជោគជ័យ`,
               5
             );
             fetchPeriods();
             fetchStats();
           } else {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to update');
+            throw new Error('No schools were updated');
           }
         } catch (error) {
           console.error('Error setting all periods:', error);
