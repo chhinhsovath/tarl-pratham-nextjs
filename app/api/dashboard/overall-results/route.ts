@@ -16,33 +16,33 @@ export async function GET(request: NextRequest) {
     const district = searchParams.get('district');
     const cluster = searchParams.get('cluster');
 
-    // Mock data matching Laravel dashboard format exactly
+    // Mock data with CONSISTENT COLORS matching StackedPercentageBarChart
     const chartData = {
-      labels: ['ដើមគ្រា', 'ពាក់កណ្តាលគ្រា', 'ចុងគ្រា'],
+      labels: ['baseline', 'midline', 'endline'],  // English labels
       datasets: [
         {
-          label: 'ដំណាក់កាលដើម',
-          backgroundColor: 'rgba(239, 68, 68, 0.8)',
+          label: subject === 'khmer' ? 'Beginner' : 'Beginner',
+          backgroundColor: 'rgba(220, 38, 38, 0.8)',  // RED - Level 1
           data: subject === 'khmer' ? [45, 25, 15] : [50, 30, 20]
         },
         {
-          label: 'អក្សរ',
-          backgroundColor: 'rgba(245, 158, 11, 0.8)',
+          label: subject === 'khmer' ? 'Letter' : '1-Digit',
+          backgroundColor: 'rgba(249, 115, 22, 0.8)',  // ORANGE - Level 2
           data: subject === 'khmer' ? [30, 35, 25] : [25, 30, 25]
         },
         {
-          label: 'ពាក្យ',
-          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+          label: subject === 'khmer' ? 'Word' : '2-Digit',
+          backgroundColor: 'rgba(234, 179, 8, 0.8)',  // YELLOW - Level 3
           data: subject === 'khmer' ? [20, 30, 35] : [15, 25, 30]
         },
         {
-          label: 'កថាខណ្ឌ',
-          backgroundColor: 'rgba(34, 197, 94, 0.8)',
+          label: subject === 'khmer' ? 'Paragraph' : 'Subtraction',
+          backgroundColor: 'rgba(132, 204, 22, 0.8)',  // GREEN - Level 4
           data: subject === 'khmer' ? [5, 8, 15] : [7, 10, 15]
         },
         {
-          label: 'សាច់រឿង',
-          backgroundColor: 'rgba(168, 85, 247, 0.8)',
+          label: subject === 'khmer' ? 'Story' : 'Division',
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',  // BLUE - Level 5
           data: subject === 'khmer' ? [0, 2, 10] : [3, 5, 10]
         }
       ]
