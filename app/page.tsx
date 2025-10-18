@@ -45,9 +45,10 @@ export default function Home() {
         endline_assessments: data.endline_assessments || 0,
       });
 
+      // Chart data is nested under assessments
       setChartData({
-        overall_results_khmer: data.overall_results_khmer || [],
-        overall_results_math: data.overall_results_math || [],
+        overall_results_khmer: data.assessments?.overall_results_khmer || data.overall_results_khmer || [],
+        overall_results_math: data.assessments?.overall_results_math || data.overall_results_math || [],
       });
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -249,7 +250,7 @@ export default function Home() {
                         </svg>
                       </div>
                       <p className="text-gray-500 text-lg">No data available for {selectedSubject === 'khmer' ? 'Language' : 'Math'}</p>
-                      <p className="text-gray-400 text-sm mt-2">Assessment data will appear here once available</p>
+                      <p className="text-gray-400 text-sm mt-2">Please refresh stats cache from coordinator dashboard</p>
                     </div>
                   )}
                 </div>
