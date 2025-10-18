@@ -69,6 +69,17 @@ export default function LevelDistributionChart({
       levelKh: levelTranslations[item.level] || item.level
     }));
 
+  // If no data after filtering, show empty state
+  if (chartData.length === 0) {
+    return (
+      <Card title={title} style={{ height: '100%' }}>
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666' }}>
+          មិនមានទិន្នន័យ
+        </div>
+      </Card>
+    );
+  }
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (

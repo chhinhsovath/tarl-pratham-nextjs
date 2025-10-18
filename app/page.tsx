@@ -276,26 +276,35 @@ export default function Home() {
           )}
 
           {/* Level Distribution Charts - Side by Side */}
-          {stats.assessments?.by_level && stats.assessments.by_level.length > 0 && (
-            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-              {/* Language Chart - Only show levels with language data */}
-              <Col xs={24} sm={24} md={12}>
-                <LevelDistributionChart
-                  data={stats.assessments.by_level.filter(item => item.khmer > 0)}
-                  title="ការចែកចាយសិស្សតាមកម្រិត - ភាសា"
-                  showOnlyLanguage={true}
-                />
-              </Col>
-              {/* Math Chart - Only show levels with math data */}
-              <Col xs={24} sm={24} md={12}>
-                <LevelDistributionChart
-                  data={stats.assessments.by_level.filter(item => item.math > 0)}
-                  title="ការចែកចាយសិស្សតាមកម្រិត - គណិតវិទ្យា"
-                  showOnlyMath={true}
-                />
-              </Col>
-            </Row>
-          )}
+          {stats.assessments?.by_level && stats.assessments.by_level.length > 0 && (() => {
+            const languageLevels = stats.assessments.by_level.filter(item => item.khmer > 0);
+            const mathLevels = stats.assessments.by_level.filter(item => item.math > 0);
+
+            return (
+              <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                {/* Language Chart - Only show if there's language data */}
+                {languageLevels.length > 0 && (
+                  <Col xs={24} sm={24} md={mathLevels.length > 0 ? 12 : 24}>
+                    <LevelDistributionChart
+                      data={languageLevels}
+                      title="ការចែកចាយសិស្សតាមកម្រិត - ភាសា"
+                      showOnlyLanguage={true}
+                    />
+                  </Col>
+                )}
+                {/* Math Chart - Only show if there's math data */}
+                {mathLevels.length > 0 && (
+                  <Col xs={24} sm={24} md={languageLevels.length > 0 ? 12 : 24}>
+                    <LevelDistributionChart
+                      data={mathLevels}
+                      title="ការចែកចាយសិស្សតាមកម្រិត - គណិតវិទ្យា"
+                      showOnlyMath={true}
+                    />
+                  </Col>
+                )}
+              </Row>
+            );
+          })()}
 
           {/* School Comparison Chart - Full Width */}
           {!schoolDataLoading && schoolData.length > 0 && (
