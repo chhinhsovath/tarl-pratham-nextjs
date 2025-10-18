@@ -119,9 +119,9 @@ export default function HorizontalStackedBarChart({
 
   // Calculate dynamic height based on number of schools
   const chartHeight = React.useMemo(() => {
-    const barHeight = 40; // Height per school bar
-    const minHeight = 300;
-    const calculatedHeight = Math.max(minHeight, data.length * barHeight);
+    const barHeight = 60; // Height per school bar (increased for better visibility)
+    const minHeight = 400;
+    const calculatedHeight = Math.max(minHeight, data.length * barHeight + 100);
     return Math.min(calculatedHeight, maxHeight);
   }, [data.length, maxHeight]);
 
@@ -188,23 +188,21 @@ export default function HorizontalStackedBarChart({
         <ResponsiveContainer width="100%" height={chartHeight}>
           <BarChart
             data={chartData}
-            layout="horizontal"
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            layout="vertical"
+            margin={{ top: 20, right: 30, left: 180, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
             <XAxis
               type="number"
               domain={[0, 100]}
               tickFormatter={(value) => `${value}%`}
-              label={{ value: 'ភាគរយ', position: 'insideBottom', offset: -10, style: { fontSize: '12px', fontWeight: 'bold' } }}
               style={{ fontSize: '11px' }}
             />
             <YAxis
               type="category"
               dataKey="schoolName"
-              width={150}
-              style={{ fontSize: '11px' }}
-              label={{ value: 'សាលារៀន', angle: -90, position: 'insideLeft', style: { fontSize: '12px', fontWeight: 'bold' } }}
+              width={170}
+              style={{ fontSize: '12px' }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
