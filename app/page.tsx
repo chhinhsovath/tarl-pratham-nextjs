@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Button } from 'antd';
+import { Button, Card, Row, Col } from 'antd';
 import StackedPercentageBarChart from '@/components/charts/StackedPercentageBarChart';
+import AssessmentCycleChart from '@/components/charts/AssessmentCycleChart';
+import SubjectComparisonChart from '@/components/charts/SubjectComparisonChart';
+import LevelDistributionChart from '@/components/charts/LevelDistributionChart';
 import {
   HomeIcon,
   ArrowRightIcon,
-  BookOpenIcon,
-  AcademicCapIcon,
 } from '@heroicons/react/24/outline';
 
 interface WorkspaceStats {
@@ -19,6 +20,20 @@ interface WorkspaceStats {
   midline_assessments: number;
   endline_assessments: number;
   assessments?: {
+    by_type?: {
+      baseline: number;
+      midline: number;
+      endline: number;
+    };
+    by_subject?: {
+      language: number;
+      math: number;
+    };
+    by_level?: Array<{
+      level: string;
+      khmer: number;
+      math: number;
+    }>;
     overall_results_khmer?: Array<{
       cycle: string;
       levels: Record<string, number>;
@@ -119,7 +134,7 @@ export default function Home() {
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto p-8">
+        <div className="max-w-full p-8">
           {/* Page Header */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -155,66 +170,83 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Charts Section - EXACTLY like coordinator dashboard */}
+              {/* Assessment Results Section with Subject Toggle - EXACTLY like coordinator */}
               {stats.total_assessments > 0 && (stats.assessments?.overall_results_khmer || stats.assessments?.overall_results_math) && (
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                  {/* Subject Toggle - EXACTLY like coordinator */}
-                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200 p-6">
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
-                      <Button
-                        type={selectedSubject === 'khmer' ? 'primary' : 'default'}
-                        onClick={() => setSelectedSubject('khmer')}
-                        style={{
-                          backgroundColor: selectedSubject === 'khmer' ? '#3b82f6' : '#e5e7eb',
-                          color: selectedSubject === 'khmer' ? 'white' : '#374151',
-                          border: 'none',
-                          transition: 'all 0.2s',
-                          fontSize: '16px',
-                          fontWeight: '600',
-                          height: '40px',
-                          paddingLeft: '24px',
-                          paddingRight: '24px'
-                        }}
-                      >
-                        ខ្មែរ
-                      </Button>
-                      <Button
-                        type={selectedSubject === 'math' ? 'primary' : 'default'}
-                        onClick={() => setSelectedSubject('math')}
-                        style={{
-                          backgroundColor: selectedSubject === 'math' ? '#3b82f6' : '#e5e7eb',
-                          color: selectedSubject === 'math' ? 'white' : '#374151',
-                          border: 'none',
-                          transition: 'all 0.2s',
-                          fontSize: '16px',
-                          fontWeight: '600',
-                          height: '40px',
-                          paddingLeft: '24px',
-                          paddingRight: '24px'
-                        }}
-                      >
-                        គណិតវិទ្យា
-                      </Button>
-                    </div>
-
-                    {/* Chart Display - EXACTLY like coordinator */}
-                    <div className="bg-white rounded-lg p-4">
-                      {selectedSubject === 'khmer' && stats.assessments?.overall_results_khmer && (
-                        <StackedPercentageBarChart
-                          data={stats.assessments.overall_results_khmer}
-                          title="លទ្ធផលសរុប - ខ្មែរ"
-                        />
-                      )}
-
-                      {selectedSubject === 'math' && stats.assessments?.overall_results_math && (
-                        <StackedPercentageBarChart
-                          data={stats.assessments.overall_results_math}
-                          title="លទ្ធផលសរុប - គណិតវិទ្យា"
-                        />
-                      )}
-                    </div>
+                <Card title="លទ្ធផលការវាយតម្លៃ" style={{ marginBottom: 24 }}>
+                  {/* Subject Toggle Buttons */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
+                    <Button
+                      type={selectedSubject === 'khmer' ? 'primary' : 'default'}
+                      onClick={() => setSelectedSubject('khmer')}
+                      style={{
+                        backgroundColor: selectedSubject === 'khmer' ? '#3b82f6' : '#e5e7eb',
+                        color: selectedSubject === 'khmer' ? 'white' : '#374151',
+                        border: 'none',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      ខ្មែរ
+                    </Button>
+                    <Button
+                      type={selectedSubject === 'math' ? 'primary' : 'default'}
+                      onClick={() => setSelectedSubject('math')}
+                      style={{
+                        backgroundColor: selectedSubject === 'math' ? '#3b82f6' : '#e5e7eb',
+                        color: selectedSubject === 'math' ? 'white' : '#374151',
+                        border: 'none',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      គណិតវិទ្យា
+                    </Button>
                   </div>
-                </div>
+
+                  {/* Overall Results Chart */}
+                  {selectedSubject === 'khmer' && stats.assessments?.overall_results_khmer && (
+                    <StackedPercentageBarChart
+                      data={stats.assessments.overall_results_khmer}
+                      title="លទ្ធផលសរុប - ខ្មែរ"
+                    />
+                  )}
+
+                  {selectedSubject === 'math' && stats.assessments?.overall_results_math && (
+                    <StackedPercentageBarChart
+                      data={stats.assessments.overall_results_math}
+                      title="លទ្ធផលសរុប - គណិតវិទ្យា"
+                    />
+                  )}
+                </Card>
+              )}
+
+              {/* Charts Section - EXACTLY like coordinator */}
+              {stats.total_assessments > 0 && (
+                <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                  <Col xs={24} sm={24} md={12} lg={12}>
+                    <AssessmentCycleChart
+                      data={stats.assessments?.by_type || { baseline: 0, midline: 0, endline: 0 }}
+                      title="ការប្រៀបធៀបតាមវដ្តវាយតម្លៃ"
+                      type="bar"
+                    />
+                  </Col>
+                  <Col xs={24} sm={24} md={12} lg={12}>
+                    <SubjectComparisonChart
+                      data={stats.assessments?.by_subject || { language: 0, math: 0 }}
+                      title="ការប្រៀបធៀបតាមមុខវិជ្ជា"
+                    />
+                  </Col>
+                </Row>
+              )}
+
+              {/* Level Distribution Chart - Full Width */}
+              {stats.assessments?.by_level && stats.assessments.by_level.length > 0 && (
+                <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                  <Col span={24}>
+                    <LevelDistributionChart
+                      data={stats.assessments.by_level}
+                      title="ការចែកចាយសិស្សតាមកម្រិតវាយតម្លៃ"
+                    />
+                  </Col>
+                </Row>
               )}
 
               {/* No data message */}
