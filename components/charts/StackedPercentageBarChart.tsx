@@ -155,8 +155,14 @@ export default function StackedPercentageBarChart({
   const renderCustomLabel = (props: any) => {
     const { x, y, width, height, payload, dataKey } = props;
 
+    // Safety check: ensure payload and dataKey exist
+    if (!payload || !dataKey) return null;
+
     // Get the actual segment value (not cumulative)
     const segmentValue = payload[dataKey];
+
+    // Safety check: ensure segmentValue is a valid number
+    if (typeof segmentValue !== 'number' || isNaN(segmentValue)) return null;
 
     // Only show label if percentage is greater than 5%
     if (segmentValue < 5) return null;
