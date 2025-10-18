@@ -76,15 +76,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Role-based data filtering
-    if (session.user.role === "coordinator") {
-      // Coordinators can only view users from their assigned province
-      if (session.user.province) {
-        where.province = session.user.province;
-      } else {
-        // Coordinator has no province assigned - restrict to own data
-        where.id = parseInt(session.user.id);
-      }
-    } else if (session.user.role === "mentor") {
+    // Admins and coordinators have full system access (no filtering)
+    if (session.user.role === "mentor") {
       // Mentors can view users at their assigned school
       if (session.user.pilot_school_id) {
         where.pilot_school_id = session.user.pilot_school_id;
@@ -92,8 +85,8 @@ export async function GET(request: NextRequest) {
         // Mentor has no school assigned - restrict to own data
         where.id = parseInt(session.user.id);
       }
-    } else if (session.user.role === "teacher") {
-      // Teachers can only see their own data
+    } else if (session.user.role === "teacher" || session.user.role === "viewer") {
+      // Teachers and viewers can only see their own data
       where.id = parseInt(session.user.id);
     }
 
