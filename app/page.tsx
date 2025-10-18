@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Card, Row, Col, Statistic, Progress } from 'antd';
 import {
   TeamOutlined,
@@ -122,15 +122,6 @@ export default function Home() {
   useEffect(() => {
     fetchSchoolData(selectedCycle);
   }, [selectedCycle]);
-
-  // Pre-filter level data for language and math charts
-  const languageLevels = useMemo(() => {
-    return stats.assessments?.by_level?.filter(item => item.khmer > 0) || [];
-  }, [stats.assessments?.by_level]);
-
-  const mathLevels = useMemo(() => {
-    return stats.assessments?.by_level?.filter(item => item.math > 0) || [];
-  }, [stats.assessments?.by_level]);
 
   return (
     <div className="max-w-full overflow-x-hidden" style={{ padding: '24px', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
@@ -284,29 +275,15 @@ export default function Home() {
             </Row>
           )}
 
-          {/* Level Distribution Charts - Side by Side */}
-          {(languageLevels.length > 0 || mathLevels.length > 0) && (
+          {/* Level Distribution Chart - Full Width */}
+          {stats.assessments?.by_level && stats.assessments.by_level.length > 0 && (
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-              {/* Language Chart - Only show if there's language data */}
-              {languageLevels.length > 0 && (
-                <Col xs={24} sm={24} md={mathLevels.length > 0 ? 12 : 24}>
-                  <LevelDistributionChart
-                    data={languageLevels}
-                    title="ការចែកចាយសិស្សតាមកម្រិត - ភាសា"
-                    showOnlyLanguage={true}
-                  />
-                </Col>
-              )}
-              {/* Math Chart - Only show if there's math data */}
-              {mathLevels.length > 0 && (
-                <Col xs={24} sm={24} md={languageLevels.length > 0 ? 12 : 24}>
-                  <LevelDistributionChart
-                    data={mathLevels}
-                    title="ការចែកចាយសិស្សតាមកម្រិត - គណិតវិទ្យា"
-                    showOnlyMath={true}
-                  />
-                </Col>
-              )}
+              <Col span={24}>
+                <LevelDistributionChart
+                  data={stats.assessments.by_level}
+                  title="ការចែកចាយសិស្សតាមកម្រិតវាយតម្លៃ"
+                />
+              </Col>
             </Row>
           )}
 

@@ -20,8 +20,6 @@ interface LevelDistributionChartProps {
     math: number;
   }[];
   title?: string;
-  showOnlyLanguage?: boolean;
-  showOnlyMath?: boolean;
 }
 
 // Translation map for levels - supports both database field names and legacy display names
@@ -57,9 +55,7 @@ const levelTranslations: { [key: string]: string } = {
 
 export default function LevelDistributionChart({
   data,
-  title = 'ការចែកចាយតាមកម្រិត',
-  showOnlyLanguage = false,
-  showOnlyMath = false
+  title = 'ការចែកចាយតាមកម្រិត'
 }: LevelDistributionChartProps) {
   // Filter out levels where both subjects have 0, then translate to Khmer
   const chartData = data
@@ -68,17 +64,6 @@ export default function LevelDistributionChart({
       ...item,
       levelKh: levelTranslations[item.level] || item.level
     }));
-
-  // If no data after filtering, show empty state
-  if (chartData.length === 0) {
-    return (
-      <Card title={title} style={{ height: '100%' }}>
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666' }}>
-          មិនមានទិន្នន័យ
-        </div>
-      </Card>
-    );
-  }
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -126,10 +111,8 @@ export default function LevelDistributionChart({
               return value;
             }}
           />
-          {/* Show only language bar if showOnlyLanguage is true */}
-          {!showOnlyMath && <Bar dataKey="khmer" name="ភាសា" fill="#1890ff" />}
-          {/* Show only math bar if showOnlyMath is true */}
-          {!showOnlyLanguage && <Bar dataKey="math" name="គណិតវិទ្យា" fill="#52c41a" />}
+          <Bar dataKey="khmer" name="ភាសា" fill="#1890ff" />
+          <Bar dataKey="math" name="គណិតវិទ្យា" fill="#52c41a" />
         </BarChart>
       </ResponsiveContainer>
     </Card>
