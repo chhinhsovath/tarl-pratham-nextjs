@@ -70,18 +70,11 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
   useEffect(() => {
     fetchSchools();
 
-    // Auto-fill mentor name and school for create mode
+    // Auto-fill mentor name for create mode
     if (mode === 'create' && user) {
       form.setFieldsValue({
-        mentor_name: user.name,
-        pilot_school_id: user.pilot_school_id
+        mentor_name: user.name
       });
-
-      // Auto-select school and fetch teachers
-      if (user.pilot_school_id) {
-        setSelectedSchool(user.pilot_school_id);
-        fetchTeachers(user.pilot_school_id);
-      }
     }
 
     if (mode === 'edit' && initialValues) {
@@ -93,10 +86,38 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
 
   const fetchSchools = async () => {
     try {
-      const response = await fetch('/api/pilot-schools');
-      if (response.ok) {
-        const data = await response.json();
-        setSchools(data.data || []);
+      // For mentors, fetch their assigned schools
+      if (user?.role === 'mentor') {
+        const response = await fetch('/api/mentor/schools');
+        if (response.ok) {
+          const data = await response.json();
+          // Transform mentor assignments to school format
+          const mentorSchools = data.schools?.map((assignment: any) => ({
+            id: assignment.pilot_school_id,
+            school_name: assignment.school_name,
+            province: assignment.province,
+            district: assignment.district,
+            subject: assignment.subject // Keep subject info for reference
+          })) || [];
+
+          // Remove duplicate schools (mentor might have same school for Language and Math)
+          const uniqueSchools = mentorSchools.reduce((acc: any[], current: any) => {
+            const exists = acc.find(item => item.id === current.id);
+            if (!exists) {
+              acc.push(current);
+            }
+            return acc;
+          }, []);
+
+          setSchools(uniqueSchools);
+        }
+      } else {
+        // For admin/coordinator, fetch all pilot schools
+        const response = await fetch('/api/pilot-schools');
+        if (response.ok) {
+          const data = await response.json();
+          setSchools(data.data || []);
+        }
       }
     } catch (error) {
       console.error('Error fetching schools:', error);
@@ -333,10 +354,8 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
                 <Select
                   placeholder="ជ្រើសរើសសាលារៀន"
                   onChange={onSchoolChange}
-                  disabled={mode === 'create'}
                   showSearch
                   optionFilterProp="children"
-                  style={mode === 'create' ? { backgroundColor: '#f5f5f5' } : {}}
                 >
                   {schools.map((school: any) => (
                     <Select.Option key={school.id} value={school.id}>

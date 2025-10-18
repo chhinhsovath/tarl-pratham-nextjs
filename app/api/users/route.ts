@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { getMentorSchoolIds } from "@/lib/mentorAssignments";
 
 // Validation schema
 const userSchema = z.object({
@@ -71,16 +72,27 @@ export async function GET(request: NextRequest) {
       where.province = province;
     }
 
-    if (school_id) {
-      where.pilot_school_id = parseInt(school_id);
-    }
-
     // Role-based data filtering
     // Admins and coordinators have full system access (no filtering)
     if (session.user.role === "mentor") {
-      // Mentors can view users at their assigned school
-      if (session.user.pilot_school_id) {
-        where.pilot_school_id = session.user.pilot_school_id;
+      // Mentors can view users at their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+
+      if (mentorSchoolIds.length > 0) {
+        // If school_id parameter is provided, verify it's one of mentor's assigned schools
+        if (school_id) {
+          const requestedSchoolId = parseInt(school_id);
+          if (mentorSchoolIds.includes(requestedSchoolId)) {
+            // Mentor has access to this school - filter by this specific school
+            where.pilot_school_id = requestedSchoolId;
+          } else {
+            // Mentor doesn't have access to requested school - return empty result
+            where.pilot_school_id = -1; // No school has ID -1
+          }
+        } else {
+          // No specific school requested - show users from all assigned schools
+          where.pilot_school_id = { in: mentorSchoolIds };
+        }
       } else {
         // Mentor has no school assigned - restrict to own data
         where.id = parseInt(session.user.id);
@@ -88,6 +100,11 @@ export async function GET(request: NextRequest) {
     } else if (session.user.role === "teacher" || session.user.role === "viewer") {
       // Teachers and viewers can only see their own data
       where.id = parseInt(session.user.id);
+    } else {
+      // Admin/Coordinator - apply school_id filter if provided
+      if (school_id) {
+        where.pilot_school_id = parseInt(school_id);
+      }
     }
 
     const [users, total] = await Promise.all([
