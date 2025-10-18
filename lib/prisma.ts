@@ -14,11 +14,12 @@ const createPrismaClient = () => {
   let pooledUrl = databaseUrl;
   if (process.env.NODE_ENV === 'production' && !databaseUrl.includes('connection_limit')) {
     const separator = databaseUrl.includes('?') ? '&' : '?';
-    // CRITICAL: Aggressive pooling to prevent "Too many connections" error
-    // connection_limit=5: Max 5 connections per serverless instance (down from 10)
-    // pool_timeout=10: Release idle connections after 10 seconds (down from 20)
-    // This allows more concurrent serverless instances without exhausting DB connections
-    pooledUrl = `${databaseUrl}${separator}connection_limit=5&pool_timeout=10&connect_timeout=10`;
+    // CRITICAL: ULTRA-AGGRESSIVE pooling to prevent "Too many connections" error
+    // connection_limit=1: Max 1 connection per serverless instance (down from 5)
+    // pool_timeout=5: Release idle connections after 5 seconds (down from 10)
+    // connect_timeout=10: Timeout for new connections
+    // This trades per-function performance for system-wide stability in serverless
+    pooledUrl = `${databaseUrl}${separator}connection_limit=1&pool_timeout=5&connect_timeout=10`;
   }
 
   return new PrismaClient({
