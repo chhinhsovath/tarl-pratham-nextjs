@@ -9,21 +9,25 @@ import { prisma } from '@/lib/prisma';
  *
  * Query params:
  * - cycle: 'baseline' | 'midline' | 'endline' (default: 'baseline')
- * - subject: 'language' | 'math' (default: 'language')
+ * - subject: 'language' | 'math' | null (optional - if not provided, returns ALL subjects combined)
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const cycle = searchParams.get('cycle') || 'baseline';
-    const subject = searchParams.get('subject') || 'language';
+    const subject = searchParams.get('subject'); // Don't default - null means ALL subjects
 
-    console.log(`[PUBLIC RESULTS BY SCHOOL] Fetching for cycle=${cycle}, subject=${subject}`);
+    console.log(`[PUBLIC RESULTS BY SCHOOL] Fetching for cycle=${cycle}, subject=${subject || 'ALL'}`);
 
     // Build where clause for filtering
     const where: any = {
-      subject: subject,
       assessment_type: cycle
     };
+
+    // Only filter by subject if provided
+    if (subject) {
+      where.subject = subject;
+    }
 
     // Get assessments grouped by school
     const assessments = await prisma.assessment.findMany({
@@ -108,7 +112,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       schools: schoolData,
       cycle: cycle,
-      subject: subject,
+      subject: subject || 'all',
       total_schools: schoolData.length
     });
 

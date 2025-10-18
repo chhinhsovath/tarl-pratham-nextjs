@@ -95,14 +95,16 @@ export default function Home() {
     }
   };
 
-  // Fetch school comparison data
+  // Fetch school comparison data (ALL subjects combined)
   const fetchSchoolData = async (cycle: string) => {
     setSchoolDataLoading(true);
     try {
-      const response = await fetch(`/api/public/results-by-school?cycle=${cycle}&subject=language`);
+      // Fetch ALL subjects (no subject parameter = get both language + math)
+      const response = await fetch(`/api/public/results-by-school?cycle=${cycle}`);
       if (!response.ok) throw new Error('Failed to fetch school data');
 
       const data = await response.json();
+      console.log(`[HOMEPAGE] Fetched ${data.schools?.length || 0} schools for ${cycle}`);
       setSchoolData(data.schools || []);
     } catch (error) {
       console.error('Error fetching school data:', error);
