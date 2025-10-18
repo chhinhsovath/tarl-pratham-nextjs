@@ -2,9 +2,9 @@ the most criticle part of this project is student assement, mentor assessment, a
 
 
 
-baseline តេស្តដើមគ្រា
-mideline តេស្តពាក់កណ្ដាលគ្រា
-endline តេស្តចុងក្រោយគ្រា
+Baseline តេស្តដើមគ្រា
+Mideline តេស្តពាក់កណ្ដាលគ្រា
+Endline តេស្តចុងក្រោយគ្រា
 
 
 កម្រិត TaRL

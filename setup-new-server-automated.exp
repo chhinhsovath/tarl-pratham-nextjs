@@ -1,0 +1,80 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+puts "Connecting to new server and setting up PostgreSQL..."
+
+spawn ssh ubuntu@157.10.73.82
+
+expect {
+    "password:" {
+        send "FJBPCWMd\$jhkz+7A(oRgQXmv&HiE)!\r"
+        exp_continue
+    }
+    "ubuntu@*" {
+        # Now we're logged in, run setup commands
+        send "PG_VERSION=\$(ls /etc/postgresql/ | head -n 1) && echo \"PostgreSQL Version: \$PG_VERSION\"\r"
+        expect "ubuntu@*"
+
+        # Create database and user
+        send "sudo -u postgres psql -c \"CREATE USER admin WITH PASSWORD 'P@ssw0rd';\" 2>/dev/null || echo 'User exists'\r"
+        expect "ubuntu@*"
+
+        send "sudo -u postgres psql -c \"CREATE DATABASE tarl_pratham OWNER admin;\" 2>/dev/null || echo 'Database exists'\r"
+        expect "ubuntu@*"
+
+        send "sudo -u postgres psql -c \"GRANT ALL PRIVILEGES ON DATABASE tarl_pratham TO admin;\"\r"
+        expect "ubuntu@*"
+
+        # Configure remote access
+        send "PG_VERSION=\$(ls /etc/postgresql/ | head -n 1) && sudo sed -i \"s/#listen_addresses = 'localhost'/listen_addresses = '*'/\" /etc/postgresql/\$PG_VERSION/main/postgresql.conf\r"
+        expect "ubuntu@*"
+
+        send "PG_VERSION=\$(ls /etc/postgresql/ | head -n 1) && sudo sed -i \"s/listen_addresses = 'localhost'/listen_addresses = '*'/\" /etc/postgresql/\$PG_VERSION/main/postgresql.conf\r"
+        expect "ubuntu@*"
+
+        # Add remote access rules
+        send "PG_VERSION=\$(ls /etc/postgresql/ | head -n 1) && echo -e \"\\n# Remote access for TaRL Pratham\\nhost    all             all             0.0.0.0/0               md5\\nhost    all             all             ::/0                    md5\" | sudo tee -a /etc/postgresql/\$PG_VERSION/main/pg_hba.conf\r"
+        expect "ubuntu@*"
+
+        # Configure firewall
+        send "sudo ufw allow 22/tcp\r"
+        expect "ubuntu@*"
+
+        send "sudo ufw allow 5432/tcp\r"
+        expect "ubuntu@*"
+
+        send "echo y | sudo ufw enable\r"
+        expect "ubuntu@*"
+
+        # Restart PostgreSQL
+        send "sudo systemctl restart postgresql\r"
+        expect "ubuntu@*"
+
+        send "sleep 5\r"
+        expect "ubuntu@*"
+
+        # Restore database if backup exists
+        send "if \[ -f /tmp/tarl_pratham_backup.sql \]; then sudo -u postgres pg_restore -d tarl_pratham /tmp/tarl_pratham_backup.sql 2>&1 | head -n 20; fi\r"
+        expect "ubuntu@*"
+
+        # Verify setup
+        send "echo '=== PostgreSQL Listening On ==='\r"
+        expect "ubuntu@*"
+        send "sudo netstat -plnt | grep 5432\r"
+        expect "ubuntu@*"
+
+        send "echo '=== Database Counts ==='\r"
+        expect "ubuntu@*"
+        send "sudo -u postgres psql tarl_pratham -c \"SELECT 'users' as table, COUNT(*) FROM users UNION ALL SELECT 'schools', COUNT(*) FROM pilot_schools UNION ALL SELECT 'students', COUNT(*) FROM students UNION ALL SELECT 'assessments', COUNT(*) FROM assessments;\"\r"
+        expect "ubuntu@*"
+
+        send "echo '=== SETUP COMPLETE ==='\r"
+        expect "ubuntu@*"
+
+        send "exit\r"
+    }
+}
+
+expect eof
+puts "\nScript completed!"

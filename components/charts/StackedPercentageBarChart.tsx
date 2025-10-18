@@ -25,36 +25,42 @@ interface StackedPercentageBarChartProps {
   colors?: { [levelName: string]: string };
 }
 
-// Level translations
+// Level translations - from database level values to display labels
 const levelTranslations: { [key: string]: string } = {
-  'Beginning': 'កម្រិតដំបូង',
-  'Characters': 'តួអក្សរ',
-  'Words': 'ពាក្យ',
-  'Paragraphs': 'កថាខណ្ឌ',
-  'Story': 'រឿង',
-  'Story (Comprehension 1)': 'រឿង (យល់ន័យ១)',
-  'Story (Comprehension 2)': 'រឿង (យល់ន័យ២)',
-  'Single Digit': 'លេខ១ខ្ទង',
-  'Double Digit': 'លេខ២ខ្ទង',
-  'Subtraction': 'ប្រមាណវិធីដក',
-  'Division': 'ប្រមាណវិធីចែក',
-  'Problems': 'ចំណោទ'
+  // Language levels (database → display)
+  'beginner': 'Beginner',
+  'letter': 'Letter',
+  'word': 'Word',
+  'paragraph': 'Paragraph',
+  'story': 'Story',
+  'comprehension1': 'Comprehension 1',
+  'comprehension2': 'Comprehension 2',
+
+  // Math levels (database → display)
+  'number_1digit': '1-Digit',
+  'number_2digit': '2-Digit',
+  'subtraction': 'Subtraction',
+  'division': 'Division',
+  'word_problems': 'Word Problems',
 };
 
-// Default colors for levels
+// Default colors for levels (matching client requirements from screenshots)
 const defaultColors: { [key: string]: string } = {
-  'Beginning': '#EF4444',      // red-500
-  'Characters': '#F59E0B',     // amber-500
-  'Words': '#EAB308',          // yellow-500
-  'Paragraphs': '#84CC16',     // lime-500
-  'Story': '#22C55E',          // green-500
-  'Story (Comprehension 1)': '#10B981', // emerald-500
-  'Story (Comprehension 2)': '#14B8A6', // teal-500
-  'Single Digit': '#F59E0B',   // amber-500
-  'Double Digit': '#EAB308',   // yellow-500
-  'Subtraction': '#84CC16',    // lime-500
-  'Division': '#22C55E',       // green-500
-  'Problems': '#10B981'        // emerald-500
+  // Language levels - progression from red to blue to yellow
+  'beginner': '#DC2626',       // red - Beginner
+  'letter': '#F97316',         // orange - Letter
+  'paragraph': '#84CC16',      // green - Paragraph
+  'story': '#3B82F6',          // blue - Story
+  'word': '#EAB308',           // yellow - Word
+  'comprehension1': '#8B5CF6', // purple - Comprehension 1
+  'comprehension2': '#EC4899', // pink - Comprehension 2
+
+  // Math levels - progression from orange to yellow to colors
+  'number_1digit': '#F97316',  // orange - 1-Digit
+  'number_2digit': '#EAB308',  // yellow - 2-Digit
+  'subtraction': '#84CC16',    // green - Subtraction
+  'division': '#3B82F6',       // blue - Division
+  'word_problems': '#8B5CF6', // purple - Word Problems
 };
 
 export default function StackedPercentageBarChart({
@@ -192,7 +198,7 @@ export default function StackedPercentageBarChart({
         <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#F3F4F6' }}>
-              <th style={{ padding: '8px', textAlign: 'left', border: '1px solid #E5E7EB' }}>វដ្តការវាយតម្លៃ</th>
+              <th style={{ padding: '8px', textAlign: 'left', border: '1px solid #E5E7EB' }}>Test Cycle</th>
               {data.map((cycle) => (
                 <th key={cycle.cycle} style={{ padding: '8px', textAlign: 'center', border: '1px solid #E5E7EB' }}>
                   {cycle.cycle}
@@ -202,12 +208,12 @@ export default function StackedPercentageBarChart({
           </thead>
           <tbody>
             <tr>
-              <td style={{ padding: '8px', fontWeight: 'bold', border: '1px solid #E5E7EB' }}>និស្សិត</td>
+              <td style={{ padding: '8px', fontWeight: 'bold', border: '1px solid #E5E7EB' }}>students</td>
               {data.map((cycle) => {
                 const total = Object.values(cycle.levels).reduce((sum, count) => sum + count, 0);
                 return (
                   <td key={cycle.cycle} style={{ padding: '8px', textAlign: 'center', border: '1px solid #E5E7EB' }}>
-                    {total}
+                    {total > 0 ? total : '—'}
                   </td>
                 );
               })}

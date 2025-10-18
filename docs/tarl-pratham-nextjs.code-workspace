@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": ".."
+		},
+		{
+			"path": "../../tarlprathom_laravel"
 		}
 	],
 	"settings": {}

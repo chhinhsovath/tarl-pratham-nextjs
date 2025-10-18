@@ -1,0 +1,67 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+puts "========================================="
+puts "Step 1: Create backup on OLD server"
+puts "========================================="
+
+spawn ssh ubuntu@157.10.73.52
+expect {
+    "password:" {
+        send "en_&xdX#!N(^OqCQzc3RE0B)m6ogU!\r"
+    }
+}
+
+expect "ubuntu@*"
+send "sudo -u postgres pg_dump tarl_pratham -F c -f /tmp/tarl_pratham_backup.sql\r"
+expect "ubuntu@*"
+send "ls -lh /tmp/tarl_pratham_backup.sql\r"
+expect "ubuntu@*"
+send "exit\r"
+expect eof
+
+puts "\n========================================="
+puts "Step 2: Transfer backup old -> new server"
+puts "========================================="
+
+spawn scp ubuntu@157.10.73.52:/tmp/tarl_pratham_backup.sql ubuntu@157.10.73.82:/tmp/
+expect {
+    "password:" {
+        send "en_&xdX#!N(^OqCQzc3RE0B)m6ogU!\r"
+        exp_continue
+    }
+    "ubuntu@157.10.73.82's password:" {
+        send "FJBPCWMd\$jhkz+7A(oRgQXmv&HiE)!\r"
+    }
+}
+expect eof
+
+puts "\n========================================="
+puts "Step 3: Restore database on NEW server"
+puts "========================================="
+
+spawn ssh ubuntu@157.10.73.82
+expect {
+    "password:" {
+        send "FJBPCWMd\$jhkz+7A(oRgQXmv&HiE)!\r"
+    }
+}
+
+expect "ubuntu@*"
+send "sudo -u postgres pg_restore -d tarl_pratham /tmp/tarl_pratham_backup.sql\r"
+expect -timeout 180 "ubuntu@*"
+
+send "echo '=== Database Record Counts ==='\r"
+expect "ubuntu@*"
+
+send "sudo -u postgres psql tarl_pratham -c \"SELECT 'users' as table, COUNT(*) FROM users UNION ALL SELECT 'schools', COUNT(*) FROM pilot_schools UNION ALL SELECT 'students', COUNT(*) FROM students UNION ALL SELECT 'assessments', COUNT(*) FROM assessments;\"\r"
+expect "ubuntu@*"
+
+send "echo '=== RESTORE COMPLETE ==='\r"
+expect "ubuntu@*"
+
+send "exit\r"
+expect eof
+
+puts "\nDatabase migration completed!"

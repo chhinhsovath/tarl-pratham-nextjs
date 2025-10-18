@@ -1,0 +1,12 @@
+#!/usr/bin/expect -f
+
+set timeout 120
+
+puts "Downloading backup from old server..."
+
+spawn scp ubuntu@157.10.73.52:/tmp/tarl_pratham_backup.sql /tmp/tarl_pratham_backup.sql
+expect "password:"
+send "en_&xdX#!N(^OqCQzc3RE0B)m6ogU!\r"
+expect eof
+
+puts "Download complete!"

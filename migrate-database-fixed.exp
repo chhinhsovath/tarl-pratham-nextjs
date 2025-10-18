@@ -1,0 +1,88 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+set old_password "en_&xdX#!N(^OqCQzc3RE0B)m6ogU!"
+set new_password "FJBPCWMd\$jhkz+7A(oRgQXmv&HiE)!"
+
+puts "========================================="
+puts "Step 1: Create backup on OLD server"
+puts "========================================="
+
+spawn ssh ubuntu@157.10.73.52
+expect "password:"
+send "$old_password\r"
+
+expect "ubuntu@*"
+send "sudo -u postgres pg_dump tarl_pratham -F c -f /tmp/tarl_pratham_backup.sql\r"
+
+expect {
+    "password for ubuntu:" {
+        send "$old_password\r"
+        exp_continue
+    }
+    "ubuntu@*" {}
+}
+
+send "ls -lh /tmp/tarl_pratham_backup.sql\r"
+expect "ubuntu@*"
+send "exit\r"
+expect eof
+
+puts "\n========================================="
+puts "Step 2: Transfer backup to NEW server"
+puts "========================================="
+
+spawn scp ubuntu@157.10.73.52:/tmp/tarl_pratham_backup.sql ubuntu@157.10.73.82:/tmp/
+expect {
+    "password:" {
+        send "$old_password\r"
+        exp_continue
+    }
+    "ubuntu@157.10.73.82's password:" {
+        send "$new_password\r"
+    }
+}
+expect eof
+
+puts "\n========================================="
+puts "Step 3: Restore on NEW server"
+puts "========================================="
+
+spawn ssh ubuntu@157.10.73.82
+expect "password:"
+send "$new_password\r"
+
+expect "ubuntu@*"
+send "sudo -u postgres pg_restore -d tarl_pratham /tmp/tarl_pratham_backup.sql 2>&1 | grep -v '^pg_restore: error: could not execute'\r"
+
+expect {
+    "password for ubuntu:" {
+        send "$new_password\r"
+        exp_continue
+    }
+    "ubuntu@*" {}
+}
+
+send "echo ''\r"
+expect "ubuntu@*"
+send "echo '=== Verification: Database Counts ==='\r"
+expect "ubuntu@*"
+
+send "sudo -u postgres psql tarl_pratham -c \"SELECT 'users' as table, COUNT(*) FROM users UNION ALL SELECT 'pilot_schools', COUNT(*) FROM pilot_schools UNION ALL SELECT 'students', COUNT(*) FROM students UNION ALL SELECT 'assessments', COUNT(*) FROM assessments ORDER BY table;\"\r"
+
+expect {
+    "password for ubuntu:" {
+        send "$new_password\r"
+        exp_continue
+    }
+    "ubuntu@*" {}
+}
+
+send "echo '=== MIGRATION COMPLETE ==='\r"
+expect "ubuntu@*"
+send "exit\r"
+expect eof
+
+puts "\n========================================="
+puts "SUCCESS: Database migrated to new server!"
+puts "========================================="

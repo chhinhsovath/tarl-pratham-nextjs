@@ -1,0 +1,58 @@
+#!/usr/bin/expect -f
+
+set timeout 180
+set new_password "FJBPCWMd\$jhkz+7A(oRgQXmv&HiE)!"
+
+puts "========================================="
+puts "Uploading backup to new server..."
+puts "========================================="
+
+spawn scp /tmp/tarl_pratham_backup.sql ubuntu@157.10.73.82:/tmp/
+expect "password:"
+send "$new_password\r"
+expect eof
+
+puts "\n========================================="
+puts "Restoring database on new server..."
+puts "========================================="
+
+spawn ssh ubuntu@157.10.73.82
+expect "password:"
+send "$new_password\r"
+
+expect "ubuntu@*"
+send "sudo -u postgres pg_restore -d tarl_pratham /tmp/tarl_pratham_backup.sql 2>&1 | grep -E '(processing|creating|^$)' | head -n 30\r"
+
+expect {
+    "password for ubuntu:" {
+        send "$new_password\r"
+        exp_continue
+    }
+    "ubuntu@*" {}
+}
+
+send "echo ''\r"
+expect "ubuntu@*"
+send "echo '=== Verifying Data Migration ==='\r"
+expect "ubuntu@*"
+
+send "sudo -u postgres psql tarl_pratham -c \"SELECT 'users' as table_name, COUNT(*) as count FROM users UNION ALL SELECT 'pilot_schools', COUNT(*) FROM pilot_schools UNION ALL SELECT 'students', COUNT(*) FROM students UNION ALL SELECT 'assessments', COUNT(*) FROM assessments ORDER BY table_name;\"\r"
+
+expect {
+    "password for ubuntu:" {
+        send "$new_password\r"
+        exp_continue
+    }
+    "ubuntu@*" {}
+}
+
+send "echo ''\r"
+expect "ubuntu@*"
+send "echo '=== DATABASE MIGRATION COMPLETE ==='\r"
+expect "ubuntu@*"
+send "exit\r"
+expect eof
+
+puts "\n========================================="
+puts "SUCCESS!"
+puts "========================================="

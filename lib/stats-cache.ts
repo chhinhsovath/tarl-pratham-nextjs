@@ -195,23 +195,23 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
         math: counts.math,
       }));
 
-      // Calculate overall_results_khmer by cycle
+      // Calculate overall_results by cycle (ENGLISH labels for charts)
       const khmerByType: Record<string, Record<string, number>> = {
-        'តេស្តដើមគ្រា': {},
-        'តេស្តពាក់កណ្ដាលគ្រា': {},
-        'តេស្តចុងក្រោយគ្រា': {},
+        'baseline': {},
+        'midline': {},
+        'endline': {},
       };
 
       const mathByType: Record<string, Record<string, number>> = {
-        'តេស្តដើមគ្រា': {},
-        'តេស្តពាក់កណ្ដាលគ្រា': {},
-        'តេស្តចុងក្រោយគ្រា': {},
+        'baseline': {},
+        'midline': {},
+        'endline': {},
       };
 
       const cycleMap: Record<string, string> = {
-        'baseline': 'តេស្តដើមគ្រា',
-        'midline': 'តេស្តពាក់កណ្ដាលគ្រា',
-        'endline': 'តេស្តចុងក្រោយគ្រា',
+        'baseline': 'baseline',
+        'midline': 'midline',
+        'endline': 'endline',
       };
 
       assessments.forEach(assessment => {
@@ -230,13 +230,16 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
       });
 
       // Convert to array format for charts
-      overall_results_khmer = Object.entries(khmerByType)
-        .filter(([_, levels]) => Object.keys(levels).length > 0)
-        .map(([cycle, levels]) => ({ cycle, levels }));
+      // IMPORTANT: Always include all 3 cycles (baseline, midline, endline) even if empty
+      overall_results_khmer = Object.entries(khmerByType).map(([cycle, levels]) => ({
+        cycle,
+        levels
+      }));
 
-      overall_results_math = Object.entries(mathByType)
-        .filter(([_, levels]) => Object.keys(levels).length > 0)
-        .map(([cycle, levels]) => ({ cycle, levels }));
+      overall_results_math = Object.entries(mathByType).map(([cycle, levels]) => ({
+        cycle,
+        levels
+      }));
 
     } catch (error) {
       console.error('[STATS CACHE] Error calculating chart data:', error);

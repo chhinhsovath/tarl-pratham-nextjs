@@ -1,0 +1,247 @@
+================================================================================
+VERCEL ENVIRONMENT VARIABLES - COPY THIS TO VERCEL DASHBOARD
+================================================================================
+Updated: 2025-10-18
+New Server: 157.10.73.82
+Project: TaRL Pratham (tarl.openplp.com)
+================================================================================
+
+INSTRUCTIONS:
+1. Go to https://vercel.com/dashboard
+2. Select your project
+3. Go to Settings → Environment Variables
+4. Update each variable below (or add if missing)
+5. Make sure to select: Production, Preview, Development
+6. Click Save for each one
+7. Redeploy your application
+
+================================================================================
+
+Variable Name: DATABASE_URL
+Value:
+postgres://admin:P@ssw0rd@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=10&connection_limit=1&pool_timeout=10
+
+================================================================================
+
+Variable Name: POSTGRES_PRISMA_URL
+Value:
+postgres://admin:P@ssw0rd@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=10&connection_limit=1&pool_timeout=10
+
+================================================================================
+
+Variable Name: POSTGRES_URL_NON_POOLING
+Value:
+postgres://admin:P@ssw0rd@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=10
+
+================================================================================
+
+Variable Name: POSTGRES_HOST
+Value:
+157.10.73.82
+
+================================================================================
+
+Variable Name: POSTGRES_PORT
+Value:
+5432
+
+================================================================================
+
+Variable Name: POSTGRES_USER
+Value:
+admin
+
+================================================================================
+
+Variable Name: POSTGRES_PASSWORD
+Value:
+P@ssw0rd
+
+================================================================================
+
+Variable Name: POSTGRES_DATABASE
+Value:
+tarl_pratham
+
+================================================================================
+
+IMPORTANT NOTES:
+- connection_limit=1 is CRITICAL for Vercel (prevents connection exhaustion)
+- DO NOT remove pool_timeout=10 or connect_timeout=10
+- After saving all variables, you MUST redeploy for changes to take effect
+
+================================================================================
+
+AFTER UPDATING:
+1. Go to Deployments tab
+2. Click "Redeploy" on latest deployment
+3. Wait 2-3 minutes for deployment to complete
+4. Test https://tarl.openplp.com
+
+================================================================================
+
+ROLLBACK (if needed):
+Change POSTGRES_HOST back to: 157.10.73.52
+Update all URLs to use 157.10.73.52 instead of 157.10.73.82
+Redeploy
+
+Old server (157.10.73.52) is still running as backup!
+
+================================================================================
+https://tarl.openplp.com/api/coordinator/stats
+{
+  "total_schools": 45,
+  "total_teachers": 69,
+  "total_mentors": 23,
+  "total_students": 290,
+  "total_assessments": 434,
+  "pending_verifications": 0,
+  "recent_imports": 0,
+  "active_mentoring_visits": 0,
+  "languages_configured": 2,
+  "assessments": {
+    "total": 434,
+    "today": 0,
+    "this_week": 0,
+    "this_month": 0,
+    "by_type": {
+      "baseline": 266,
+      "midline": 46,
+      "endline": 122
+    },
+    "by_creator": {
+      "mentor": 130,
+      "teacher": 304
+    },
+    "by_subject": {
+      "language": 217,
+      "math": 217
+    },
+    "by_level": [
+      {
+        "level": "word",
+        "khmer": 14,
+        "math": 0
+      },
+      {
+        "level": "beginner",
+        "khmer": 6,
+        "math": 0
+      },
+      {
+        "level": "story",
+        "khmer": 39,
+        "math": 0
+      },
+      {
+        "level": "paragraph",
+        "khmer": 47,
+        "math": 0
+      },
+      {
+        "level": "comprehension2",
+        "khmer": 83,
+        "math": 0
+      },
+      {
+        "level": "letter",
+        "khmer": 8,
+        "math": 0
+      },
+      {
+        "level": "word_problems",
+        "khmer": 0,
+        "math": 56
+      },
+      {
+        "level": "division",
+        "khmer": 0,
+        "math": 56
+      },
+      {
+        "level": "number_2digit",
+        "khmer": 0,
+        "math": 40
+      },
+      {
+        "level": "subtraction",
+        "khmer": 0,
+        "math": 51
+      },
+      {
+        "level": "comprehension1",
+        "khmer": 32,
+        "math": 0
+      },
+      {
+        "level": "number_1digit",
+        "khmer": 0,
+        "math": 2
+      }
+    ],
+    "pending_verification": 0,
+    "overall_results_khmer": [
+      {
+        "cycle": "តេស្តដើមគ្រា",
+        "levels": {
+          "word": 10,
+          "beginner": 6,
+          "story": 24,
+          "paragraph": 43,
+          "comprehension2": 58,
+          "letter": 7,
+          "comprehension1": 12
+        }
+      },
+      {
+        "cycle": "តេស្តពាក់កណ្ដាលគ្រា",
+        "levels": {
+          "paragraph": 4,
+          "comprehension2": 5,
+          "story": 6,
+          "letter": 1,
+          "word": 1,
+          "comprehension1": 10
+        }
+      },
+      {
+        "cycle": "តេស្តចុងក្រោយគ្រា",
+        "levels": {
+          "comprehension2": 20,
+          "word": 3,
+          "story": 9,
+          "comprehension1": 10
+        }
+      }
+    ],
+    "overall_results_math": [
+      {
+        "cycle": "តេស្តដើមគ្រា",
+        "levels": {
+          "word_problems": 16,
+          "division": 21,
+          "number_2digit": 36,
+          "subtraction": 31,
+          "number_1digit": 2
+        }
+      },
+      {
+        "cycle": "តេស្តពាក់កណ្ដាលគ្រា",
+        "levels": {
+          "division": 5,
+          "word_problems": 5,
+          "subtraction": 9
+        }
+      },
+      {
+        "cycle": "តេស្តចុងក្រោយគ្រា",
+        "levels": {
+          "word_problems": 35,
+          "division": 30,
+          "subtraction": 11,
+          "number_2digit": 4
+        }
+      }
+    ]
+  }
+}
