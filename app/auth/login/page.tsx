@@ -27,6 +27,7 @@ function LoginContent() {
   const [groupedUsers, setGroupedUsers] = useState<Record<string, QuickUser[]>>({});
   const [selectedUser, setSelectedUser] = useState<QuickUser | null>(null);
   const [usersLoading, setUsersLoading] = useState(true);
+  const [useManualLogin, setUseManualLogin] = useState(false);
 
   useEffect(() => {
     fetchQuickUsers();
@@ -64,9 +65,9 @@ function LoginContent() {
   };
 
   const onFinish = async (values: { username: string; password: string }) => {
-    // Extra validation - this should not be needed if form validation works correctly
-    if (!values.username || !selectedUser) {
-      message.error('សូមជ្រើសអ្នកប្រើប្រាស់!');
+    // Validation
+    if (!values.username) {
+      message.error(useManualLogin ? 'សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់!' : 'សូមជ្រើសអ្នកប្រើប្រាស់!');
       return;
     }
 
@@ -91,7 +92,7 @@ function LoginContent() {
         message.error('ឈ្មោះអ្នកប្រើប្រាស់ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ');
       } else if (result?.ok) {
         console.log('✅ [LOGIN] Success! Redirecting to dashboard...');
-        message.success(`សូមស្វាគមន៍ ${selectedUser.username}!`);
+        message.success(`សូមស្វាគមន៍ ${useManualLogin ? values.username : selectedUser?.username}!`);
 
         // Give time for session to establish
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -171,19 +172,55 @@ function LoginContent() {
           onFinish={onFinish}
           autoComplete="off"
         >
+          {/* Toggle between Quick Login and Manual Login */}
+          <div style={{ marginBottom: 16, textAlign: 'center' }}>
+            <Space>
+              <Button
+                type={!useManualLogin ? 'primary' : 'default'}
+                onClick={() => {
+                  setUseManualLogin(false);
+                  form.resetFields(['username']);
+                }}
+                size="small"
+              >
+                ចូលរហ័ស (Demo)
+              </Button>
+              <Button
+                type={useManualLogin ? 'primary' : 'default'}
+                onClick={() => {
+                  setUseManualLogin(true);
+                  form.resetFields(['username']);
+                  setSelectedUser(null);
+                }}
+                size="small"
+              >
+                ចូលដោយឈ្មោះ
+              </Button>
+            </Space>
+          </div>
+
           <Form.Item
             name="username"
             label={
               <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                <span>ជ្រើសអ្នកប្រើប្រាស់</span>
-                <Link href="/auth/signup" style={{ fontSize: 12, fontWeight: 400 }}>
-                  រកមិនឃើញឈ្មោះ? ចុះឈ្មោះថ្មី →
-                </Link>
+                <span>{useManualLogin ? 'ឈ្មោះអ្នកប្រើប្រាស់' : 'ជ្រើសអ្នកប្រើប្រាស់ Demo'}</span>
+                {!useManualLogin && (
+                  <Link href="/auth/signup" style={{ fontSize: 12, fontWeight: 400 }}>
+                    រកមិនឃើញឈ្មោះ? ចុះឈ្មោះថ្មី →
+                  </Link>
+                )}
               </Space>
             }
-            rules={[{ required: true, message: 'សូមជ្រើសអ្នកប្រើប្រាស់!' }]}
+            rules={[{ required: true, message: useManualLogin ? 'សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់!' : 'សូមជ្រើសអ្នកប្រើប្រាស់!' }]}
           >
-            <Select
+            {useManualLogin ? (
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="បញ្ចូលឈ្មោះអ្នកប្រើប្រាស់ ឬអ៊ីម៉ែល"
+                size="large"
+              />
+            ) : (
+              <Select
               placeholder="-- ជ្រើសរើសអ្នកប្រើប្រាស់ --"
               size="large"
               loading={usersLoading}
@@ -227,6 +264,7 @@ function LoginContent() {
                 </OptGroup>
               ))}
             </Select>
+            )}
           </Form.Item>
 
           <Form.Item
@@ -254,11 +292,11 @@ function LoginContent() {
             </Button>
           </Form.Item>
 
-          {selectedUser && (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '12px', 
-              background: '#f0f9ff', 
+          {!useManualLogin && selectedUser && (
+            <div style={{
+              textAlign: 'center',
+              padding: '12px',
+              background: '#f0f9ff',
               borderRadius: '8px',
               marginTop: 16
             }}>
@@ -273,17 +311,19 @@ function LoginContent() {
           )}
         </Form>
 
-        <div style={{
-          textAlign: 'center',
-          marginTop: 24,
-          padding: '16px',
-          background: '#fef3c7',
-          borderRadius: '8px'
-        }}>
-          <Text style={{ fontSize: 13, color: '#92400e' }}>
-            <strong>សម្រាប់សាកល្បង:</strong> ប្រើពាក្យសម្ងាត់ <strong>admin123</strong>
-          </Text>
-        </div>
+        {!useManualLogin && (
+          <div style={{
+            textAlign: 'center',
+            marginTop: 24,
+            padding: '16px',
+            background: '#fef3c7',
+            borderRadius: '8px'
+          }}>
+            <Text style={{ fontSize: 13, color: '#92400e' }}>
+              <strong>សម្រាប់សាកល្បង Demo:</strong> ប្រើពាក្យសម្ងាត់ <strong>admin123</strong>
+            </Text>
+          </div>
+        )}
 
         <div style={{ textAlign: 'center', marginTop: 16 }}>
           <Text type="secondary">
