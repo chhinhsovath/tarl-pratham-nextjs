@@ -175,13 +175,16 @@ export default function HorizontalStackedBarChart({
 
   // Custom label formatter for bars - only show if > 3%
   const renderCustomLabel = (props: any) => {
-    const { x, y, width, height, value } = props;
+    const { x, y, width, height, payload, dataKey } = props;
+
+    // Get the actual segment value (not cumulative)
+    const segmentValue = payload[dataKey];
 
     // Only show label if percentage is greater than 3%
-    if (value < 3) return null;
+    if (segmentValue < 3) return null;
 
     // Determine text color based on segment size
-    const textColor = value > 30 ? 'white' : '#374151';
+    const textColor = segmentValue > 30 ? 'white' : '#374151';
 
     return (
       <text
@@ -192,7 +195,7 @@ export default function HorizontalStackedBarChart({
         dominantBaseline="central"
         style={{ fontSize: '11px', fontWeight: 'bold' }}
       >
-        {Math.round(value * 10) / 10}%
+        {Math.round(segmentValue * 10) / 10}%
       </text>
     );
   };

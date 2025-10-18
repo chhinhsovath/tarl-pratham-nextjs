@@ -153,10 +153,13 @@ export default function StackedPercentageBarChart({
 
   // Custom label formatter for bars - only show if > 5%
   const renderCustomLabel = (props: any) => {
-    const { x, y, width, height, value } = props;
+    const { x, y, width, height, payload, dataKey } = props;
+
+    // Get the actual segment value (not cumulative)
+    const segmentValue = payload[dataKey];
 
     // Only show label if percentage is greater than 5%
-    if (value < 5) return null;
+    if (segmentValue < 5) return null;
 
     return (
       <text
@@ -167,7 +170,7 @@ export default function StackedPercentageBarChart({
         dominantBaseline="central"
         style={{ fontSize: '11px', fontWeight: 'bold' }}
       >
-        {Math.round(value * 10) / 10}%
+        {Math.round(segmentValue * 10) / 10}%
       </text>
     );
   };

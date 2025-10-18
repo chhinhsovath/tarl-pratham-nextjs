@@ -57,11 +57,13 @@ export default function LevelDistributionChart({
   data,
   title = 'ការចែកចាយតាមកម្រិត'
 }: LevelDistributionChartProps) {
-  // Translate levels to Khmer
-  const chartData = data.map(item => ({
-    ...item,
-    levelKh: levelTranslations[item.level] || item.level
-  }));
+  // Filter out levels where both subjects have 0, then translate to Khmer
+  const chartData = data
+    .filter(item => item.khmer > 0 || item.math > 0) // Only show levels with actual data
+    .map(item => ({
+      ...item,
+      levelKh: levelTranslations[item.level] || item.level
+    }));
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
