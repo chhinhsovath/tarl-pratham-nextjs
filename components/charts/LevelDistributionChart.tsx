@@ -22,8 +22,23 @@ interface LevelDistributionChartProps {
   title?: string;
 }
 
-// Translation map for levels
+// Translation map for levels - supports both database field names and legacy display names
 const levelTranslations: { [key: string]: string } = {
+  // Database field names (lowercase with underscores) - PRIMARY
+  'beginner': 'កម្រិតដំបូង',
+  'letter': 'តួអក្សរ',
+  'word': 'ពាក្យ',
+  'paragraph': 'កថាខណ្ឌ',
+  'story': 'រឿង',
+  'comprehension1': 'យល់ន័យ១',
+  'comprehension2': 'យល់ន័យ២',
+  'number_1digit': 'លេខ១ខ្ទង',
+  'number_2digit': 'លេខ២ខ្ទង',
+  'subtraction': 'ប្រមាណវិធីដក',
+  'division': 'ប្រមាណវិធីចែក',
+  'word_problems': 'ចំណោទ',
+
+  // Legacy display names (for backward compatibility)
   'Beginning': 'កម្រិតដំបូង',
   'Characters': 'តួអក្សរ',
   'Words': 'ពាក្យ',
