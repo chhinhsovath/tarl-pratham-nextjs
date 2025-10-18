@@ -25,6 +25,13 @@ interface StackedPercentageBarChartProps {
   colors?: { [levelName: string]: string };
 }
 
+// Cycle translations - from database values to display labels (Khmer)
+const cycleTranslations: { [key: string]: string } = {
+  'baseline': 'តេស្តដើមគ្រា',
+  'midline': 'តេស្តពាក់កណ្ដាលគ្រា',
+  'endline': 'តេស្តចុងក្រោយគ្រា',
+};
+
 // Level translations - from database level values to display labels (Khmer)
 const levelTranslations: { [key: string]: string } = {
   // Language levels (database → display)
@@ -124,7 +131,7 @@ export default function StackedPercentageBarChart({
           borderRadius: '6px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
         }}>
-          <p style={{ margin: 0, fontWeight: 'bold', marginBottom: '8px' }}>{label}</p>
+          <p style={{ margin: 0, fontWeight: 'bold', marginBottom: '8px' }}>{cycleTranslations[label] || label}</p>
           <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>
             សរុប: {total} សិស្ស
           </p>
@@ -175,6 +182,7 @@ export default function StackedPercentageBarChart({
           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
           <XAxis
             dataKey="cycle"
+            tickFormatter={(value) => cycleTranslations[value] || value}
             style={{ fontSize: '12px' }}
           />
           <YAxis
