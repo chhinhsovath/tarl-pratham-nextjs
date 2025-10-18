@@ -44,23 +44,32 @@ const levelTranslations: { [key: string]: string } = {
   'word_problems': 'Word Problems',
 };
 
-// Default colors for levels (matching client requirements from screenshots)
+// Default colors for levels (CONSISTENT across all charts)
+// Each proficiency level gets ONE color, used in both Language and Math charts
 const defaultColors: { [key: string]: string } = {
-  // Language levels - progression from red to blue to yellow
-  'beginner': '#DC2626',       // red - Beginner
-  'letter': '#F97316',         // orange - Letter
-  'paragraph': '#84CC16',      // green - Paragraph
-  'story': '#3B82F6',          // blue - Story
-  'word': '#EAB308',           // yellow - Word
-  'comprehension1': '#8B5CF6', // purple - Comprehension 1
-  'comprehension2': '#EC4899', // pink - Comprehension 2
+  // Level 1: Beginner (Red)
+  'beginner': '#DC2626',       // RED - Beginner (both Language & Math)
 
-  // Math levels - progression from orange to yellow to colors
-  'number_1digit': '#F97316',  // orange - 1-Digit
-  'number_2digit': '#EAB308',  // yellow - 2-Digit
-  'subtraction': '#84CC16',    // green - Subtraction
-  'division': '#3B82F6',       // blue - Division
-  'word_problems': '#8B5CF6', // purple - Word Problems
+  // Level 2: Letter/1-Digit (Orange)
+  'letter': '#F97316',         // ORANGE - Letter (Language)
+  'number_1digit': '#F97316',  // ORANGE - 1-Digit (Math) - SAME as Letter
+
+  // Level 3: Word/2-Digit (Yellow)
+  'word': '#EAB308',           // YELLOW - Word (Language)
+  'number_2digit': '#EAB308',  // YELLOW - 2-Digit (Math) - SAME as Word
+
+  // Level 4: Paragraph/Subtraction (Green)
+  'paragraph': '#84CC16',      // GREEN - Paragraph (Language)
+  'subtraction': '#84CC16',    // GREEN - Subtraction (Math) - SAME as Paragraph
+
+  // Level 5: Story/Division (Blue)
+  'story': '#3B82F6',          // BLUE - Story (Language)
+  'division': '#3B82F6',       // BLUE - Division (Math) - SAME as Story
+
+  // Advanced levels (Purple/Pink)
+  'comprehension1': '#8B5CF6', // PURPLE - Comprehension 1
+  'comprehension2': '#EC4899', // PINK - Comprehension 2
+  'word_problems': '#8B5CF6',  // PURPLE - Word Problems (same as Comprehension 1)
 };
 
 export default function StackedPercentageBarChart({
