@@ -310,7 +310,7 @@ export default function SimpleReportsPage() {
       </div>
 
       {/* Reports-specific tour */}
-      <OnboardingTour page="reports" autoStart={true} showStartButton={false} />
+      <OnboardingTour page="reports" autoStart={false} showStartButton={false} />
     </HorizontalLayout>
   );
 }

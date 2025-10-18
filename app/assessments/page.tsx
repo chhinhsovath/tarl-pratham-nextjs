@@ -514,7 +514,7 @@ export default function AssessmentsPage() {
     <HorizontalLayout>
       <AssessmentsContent />
       {/* Assessments-specific tour */}
-      <OnboardingTour page="assessments" autoStart={true} showStartButton={false} />
+      <OnboardingTour page="assessments" autoStart={false} showStartButton={false} />
     </HorizontalLayout>
   );
 }
