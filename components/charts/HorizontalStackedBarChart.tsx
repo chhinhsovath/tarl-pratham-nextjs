@@ -189,7 +189,7 @@ export default function HorizontalStackedBarChart({
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 20, right: 60, left: 180, bottom: 20 }}
+            margin={{ top: 20, right: 10, left: 10, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
             <XAxis
@@ -201,8 +201,8 @@ export default function HorizontalStackedBarChart({
             <YAxis
               type="category"
               dataKey="schoolName"
-              width={170}
-              style={{ fontSize: '12px' }}
+              width={200}
+              style={{ fontSize: '11px' }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
