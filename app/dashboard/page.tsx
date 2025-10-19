@@ -33,8 +33,8 @@ export default function DashboardPage() {
   return (
     <HorizontalLayout>
       <SmartDashboard />
-      {/* Dashboard-specific tour */}
-      <OnboardingTour page="dashboard" autoStart={false} showStartButton={false} />
+      {/* Dashboard-specific tour - Disabled */}
+      {/* <OnboardingTour page="dashboard" autoStart={false} showStartButton={false} /> */}
     </HorizontalLayout>
   );
 }

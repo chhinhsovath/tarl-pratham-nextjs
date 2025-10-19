@@ -513,8 +513,8 @@ export default function AssessmentsPage() {
   return (
     <HorizontalLayout>
       <AssessmentsContent />
-      {/* Assessments-specific tour */}
-      <OnboardingTour page="assessments" autoStart={false} showStartButton={false} />
+      {/* Assessments-specific tour - Disabled */}
+      {/* <OnboardingTour page="assessments" autoStart={false} showStartButton={false} /> */}
     </HorizontalLayout>
   );
 }

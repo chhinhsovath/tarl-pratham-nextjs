@@ -372,8 +372,8 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
         </div>
       </main>
 
-      {/* Onboarding Tour */}
-      <OnboardingTour page="navigation" autoStart={false} showStartButton={true} />
+      {/* Onboarding Tour - Disabled */}
+      {/* <OnboardingTour page="navigation" autoStart={false} showStartButton={true} /> */}
     </div>
   );
 }

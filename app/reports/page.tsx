@@ -676,7 +676,8 @@ export default function EnhancedReportsPage() {
         </div>
       </div>
 
-      <OnboardingTour page="reports" autoStart={false} showStartButton={false} />
+      {/* Onboarding Tour - Disabled */}
+      {/* <OnboardingTour page="reports" autoStart={false} showStartButton={false} /> */}
     </HorizontalLayout>
   );
 }
