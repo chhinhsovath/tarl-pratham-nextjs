@@ -37,13 +37,23 @@ export async function GET(
         id: true,
         name: true,
         email: true,
+        username: true,
         role: true,
         province: true,
+        district: true,
+        commune: true,
+        village: true,
         subject: true,
         phone: true,
+        sex: true,
+        holding_classes: true,
+        assigned_subject: true,
         pilot_school_id: true,
-        teacher_profile_setup: true,
-        mentor_profile_complete: true,
+        school_id: true,
+        is_active: true,
+        onboarding_completed: true,
+        onboarding_completed_at: true,
+        show_onboarding: true,
         created_at: true,
         updated_at: true,
         pilot_school: {
@@ -51,7 +61,9 @@ export async function GET(
             id: true,
             school_name: true,
             school_code: true,
-            province: true // province is a string, not a relation
+            province: true,
+            district: true,
+            cluster: true
           }
         }
       }
