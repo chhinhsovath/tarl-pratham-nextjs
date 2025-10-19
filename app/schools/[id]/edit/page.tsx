@@ -1,18 +1,24 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 import {
   Card,
   Form,
   Input,
+  InputNumber,
   Select,
+  DatePicker,
   Button,
   message,
   Spin,
   Row,
   Col,
   Breadcrumb,
-  Typography
+  Typography,
+  Divider,
+  Switch,
+  Tag
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -28,6 +34,7 @@ import Link from 'next/link';
 
 const { Option } = Select;
 const { Title } = Typography;
+const { RangePicker } = DatePicker;
 
 // Only working with these two provinces for TaRL program
 const PROVINCES = [
@@ -76,11 +83,40 @@ export default function EditSchoolPage() {
       const data = await response.json();
       const school = data.data || data.school;
 
-      // Set form values - only name and province (user editable fields)
-      form.setFieldsValue({
+      // Prepare form values with all fields
+      const formValues: any = {
         school_name: school.school_name,
-        province: school.province
-      });
+        school_code: school.school_code,
+        province: school.province,
+        district: school.district,
+        cluster: school.cluster,
+        cluster_id: school.cluster_id,
+        is_locked: school.is_locked || false,
+      };
+
+      // Convert date strings to dayjs objects for RangePicker
+      if (school.baseline_start_date && school.baseline_end_date) {
+        formValues.baseline_dates = [
+          dayjs(school.baseline_start_date),
+          dayjs(school.baseline_end_date)
+        ];
+      }
+
+      if (school.midline_start_date && school.midline_end_date) {
+        formValues.midline_dates = [
+          dayjs(school.midline_start_date),
+          dayjs(school.midline_end_date)
+        ];
+      }
+
+      if (school.endline_start_date && school.endline_end_date) {
+        formValues.endline_dates = [
+          dayjs(school.endline_start_date),
+          dayjs(school.endline_end_date)
+        ];
+      }
+
+      form.setFieldsValue(formValues);
     } catch (error) {
       console.error('Error fetching school:', error);
       message.error('មិនអាចទាញយកទិន្នន័យសាលារៀនបានទេ');
@@ -94,12 +130,43 @@ export default function EditSchoolPage() {
     try {
       setSubmitting(true);
 
-      const response = await fetch(`/api/pilot-schools/${params.id}`, {
+      // Transform date ranges to separate start/end dates
+      const formattedValues: any = {
+        id: parseInt(params.id as string),
+        school_name: values.school_name,
+        school_code: values.school_code,
+        province: values.province,
+        district: values.district,
+        cluster: values.cluster,
+        cluster_id: values.cluster_id || null,
+        is_locked: values.is_locked || false,
+      };
+
+      // Handle baseline dates
+      if (values.baseline_dates && values.baseline_dates.length === 2) {
+        formattedValues.baseline_start_date = values.baseline_dates[0].toISOString();
+        formattedValues.baseline_end_date = values.baseline_dates[1].toISOString();
+      }
+
+      // Handle midline dates
+      if (values.midline_dates && values.midline_dates.length === 2) {
+        formattedValues.midline_start_date = values.midline_dates[0].toISOString();
+        formattedValues.midline_end_date = values.midline_dates[1].toISOString();
+      }
+
+      // Handle endline dates
+      if (values.endline_dates && values.endline_dates.length === 2) {
+        formattedValues.endline_start_date = values.endline_dates[0].toISOString();
+        formattedValues.endline_end_date = values.endline_dates[1].toISOString();
+      }
+
+      // Use the more flexible /api/pilot-schools PUT endpoint instead of /api/pilot-schools/[id]
+      const response = await fetch(`/api/pilot-schools`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(values)
+        body: JSON.stringify(formattedValues)
       });
 
       if (!response.ok) {
@@ -172,41 +239,121 @@ export default function EditSchoolPage() {
             onFinish={handleSubmit}
             autoComplete="off"
           >
-            <Form.Item
-              name="school_name"
-              label="ឈ្មោះសាលារៀន"
-              rules={[
-                { required: true, message: 'សូមបញ្ចូលឈ្មោះសាលារៀន' },
-                { min: 3, message: 'ឈ្មោះសាលារៀនត្រូវតែមានយ៉ាងតិច ៣ តួអក្សរ' }
-              ]}
-            >
-              <Input placeholder="បញ្ចូលឈ្មោះសាលារៀន" size="large" />
-            </Form.Item>
+            <Divider orientation="left">ព័ត៌មានមូលដ្ឋាន</Divider>
 
-            <Form.Item
-              name="province"
-              label="ខេត្ត"
-              rules={[
-                { required: true, message: 'សូមជ្រើសរើសខេត្ត' }
-              ]}
-            >
-              <Select
-                placeholder="ជ្រើសរើសខេត្ត"
-                size="large"
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.children as unknown as string)
-                    ?.toLowerCase()
-                    ?.includes(input.toLowerCase()) ?? false
-                }
-              >
-                {PROVINCES.map(province => (
-                  <Option key={province} value={province}>
-                    {province}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="school_name"
+                  label="ឈ្មោះសាលារៀន"
+                  rules={[
+                    { required: true, message: 'សូមបញ្ចូលឈ្មោះសាលារៀន' },
+                    { min: 3, message: 'ឈ្មោះសាលារៀនត្រូវតែមានយ៉ាងតិច ៣ តួអក្សរ' }
+                  ]}
+                >
+                  <Input placeholder="បញ្ចូលឈ្មោះសាលារៀន" size="large" />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  name="school_code"
+                  label="លេខកូដសាលារៀន"
+                  rules={[
+                    { required: true, message: 'សូមបញ្ចូលលេខកូដសាលារៀន' }
+                  ]}
+                >
+                  <Input placeholder="បញ្ចូលលេខកូដសាលារៀន (តែមួយគត់)" size="large" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  name="province"
+                  label="ខេត្ត"
+                  rules={[
+                    { required: true, message: 'សូមជ្រើសរើសខេត្ត' }
+                  ]}
+                >
+                  <Select placeholder="ជ្រើសរើសខេត្ត" size="large" showSearch>
+                    {PROVINCES.map(province => (
+                      <Option key={province} value={province}>
+                        {province}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+
+              <Col span={8}>
+                <Form.Item
+                  name="district"
+                  label="ស្រុក/ខណ្ឌ"
+                  rules={[
+                    { required: true, message: 'សូមបញ្ចូលស្រុក/ខណ្ឌ' }
+                  ]}
+                >
+                  <Input placeholder="បញ្ចូលស្រុក/ខណ្ឌ" size="large" />
+                </Form.Item>
+              </Col>
+
+              <Col span={8}>
+                <Form.Item
+                  name="cluster"
+                  label="Cluster"
+                  rules={[
+                    { required: true, message: 'សូមបញ្ចូល Cluster' }
+                  ]}
+                >
+                  <Input placeholder="បញ្ចូល Cluster" size="large" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="cluster_id"
+                  label="Cluster ID (ជម្រើស)"
+                >
+                  <InputNumber placeholder="បញ្ចូល Cluster ID" style={{ width: "100%" }} size="large" />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  name="is_locked"
+                  label="Lock Status"
+                  valuePropName="checked"
+                >
+                  <Switch checkedChildren="Locked" unCheckedChildren="Active" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Divider orientation="left">Assessment Periods (ជម្រើស)</Divider>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item name="baseline_dates" label="Baseline Period">
+                  <RangePicker style={{ width: "100%" }} size="large" />
+                </Form.Item>
+              </Col>
+
+              <Col span={8}>
+                <Form.Item name="midline_dates" label="Midline Period">
+                  <RangePicker style={{ width: "100%" }} size="large" />
+                </Form.Item>
+              </Col>
+
+              <Col span={8}>
+                <Form.Item name="endline_dates" label="Endline Period">
+                  <RangePicker style={{ width: "100%" }} size="large" />
+                </Form.Item>
+              </Col>
+            </Row>
 
             {/* Form Actions */}
             <div style={{ marginTop: "32px" }}>

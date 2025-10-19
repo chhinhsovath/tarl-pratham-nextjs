@@ -28,8 +28,7 @@ import {
   DeleteOutlined,
   HomeOutlined,
   BankOutlined,
-  EnvironmentOutlined,
-  PhoneOutlined
+  EnvironmentOutlined
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import Link from "next/link";
@@ -37,46 +36,27 @@ import Link from "next/link";
 const { Title } = Typography;
 const { Option } = Select;
 
-interface School {
+interface PilotSchool {
   id: number;
-  name: string;
-  code: string;
-  province_id: number;
-  district?: string;
-  commune?: string;
-  village?: string;
-  school_type?: string;
-  level?: string;
-  total_students?: number;
-  total_teachers?: number;
-  latitude?: number;
-  longitude?: number;
-  phone?: string;
-  email?: string;
+  school_name: string;
+  school_code: string;
+  province: string;
+  district: string;
+  cluster: string;
+  cluster_id?: number | null;
+  baseline_start_date?: string | null;
+  baseline_end_date?: string | null;
+  midline_start_date?: string | null;
+  midline_end_date?: string | null;
+  endline_start_date?: string | null;
+  endline_end_date?: string | null;
+  is_locked: boolean;
   created_at: string;
-  province: {
-    id: number;
-    name_english: string;
-    name_khmer?: string;
-    code: string;
-  };
-  classes: {
-    id: number;
-    name: string;
-    grade: number;
-    student_count?: number;
-  }[];
-}
-
-interface Province {
-  id: number;
-  name_english: string;
-  name_khmer?: string;
-  code: string;
+  updated_at?: string;
 }
 
 interface ApiResponse {
-  data: School[];
+  data: PilotSchool[];
   pagination: {
     page: number;
     limit: number;
@@ -85,14 +65,12 @@ interface ApiResponse {
   };
 }
 
-const SCHOOL_TYPES = ["បឋមសិក្សា", "អនុវិទ្យាល័យ", "វិទ្យាល័យ", "បច្ចេកទេស", "បណ្តុះបណ្តាលជំនាញ"];
-const LEVELS = ["បឋមសិក្សា", "អនុវិទ្យាល័យ", "វិទ្យាល័យ", "ផ្សំ"];
+const PROVINCES = ["កំពង់ចាម", "បាត់ដំបង"]; // TaRL program provinces
 
 function SchoolsPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [schools, setSchools] = useState<School[]>([]);
-  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [schools, setSchools] = useState<PilotSchool[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -104,8 +82,6 @@ function SchoolsPageContent() {
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedSchoolType, setSelectedSchoolType] = useState("");
-  const [selectedLevel, setSelectedLevel] = useState("");
 
   // Check permissions
   const canCreate = session?.user?.role === "admin" || session?.user?.role === "coordinator";
@@ -118,10 +94,9 @@ function SchoolsPageContent() {
       router.push("/auth/login");
       return;
     }
-    
+
     fetchSchools();
-    fetchProvinces();
-  }, [session, status, pagination.page, searchTerm, selectedProvince, selectedSchoolType, selectedLevel]);
+  }, [session, status, pagination.page, searchTerm, selectedProvince]);
 
   const fetchSchools = async () => {
     setLoading(true);
@@ -133,12 +108,10 @@ function SchoolsPageContent() {
 
       if (searchTerm) params.append("search", searchTerm);
       if (selectedProvince) params.append("province_id", selectedProvince);
-      if (selectedSchoolType) params.append("school_type", selectedSchoolType);
-      if (selectedLevel) params.append("level", selectedLevel);
 
       const response = await fetch(`/api/schools?${params}`);
       if (!response.ok) throw new Error("Failed to fetch schools");
-      
+
       const data: ApiResponse = await response.json();
       setSchools(data.data);
       setPagination(prev => ({ ...prev, ...data.pagination }));
@@ -147,18 +120,6 @@ function SchoolsPageContent() {
       message.error("មិនអាចផ្ទុកសាលារៀនបានទេ");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchProvinces = async () => {
-    try {
-      const response = await fetch("/api/provinces");
-      if (!response.ok) throw new Error("Failed to fetch provinces");
-      
-      const data = await response.json();
-      setProvinces(data.data);
-    } catch (error) {
-      console.error("Error fetching provinces:", error);
     }
   };
 
@@ -185,16 +146,15 @@ function SchoolsPageContent() {
     setPagination(prev => ({ ...prev, page }));
   };
 
-  const columns: ColumnsType<School> = [
+  const columns: ColumnsType<PilotSchool> = [
     {
       title: "សាលារៀន",
       key: "school",
       render: (_, record) => (
         <div>
-          <div style={{ fontWeight: 500, fontSize: "14px" }}>{record.name}</div>
+          <div style={{ fontWeight: 500, fontSize: "14px" }}>{record.school_name}</div>
           <div style={{ color: "#666", fontSize: "12px" }}>
-            <Tag color="blue">{record.code}</Tag>
-            {record.email && <span>{record.email}</span>}
+            <Tag color="blue">{record.school_code}</Tag>
           </div>
         </div>
       ),
@@ -206,72 +166,54 @@ function SchoolsPageContent() {
         <div>
           <div style={{ fontWeight: 500 }}>
             <EnvironmentOutlined style={{ color: "#1890ff", marginRight: "4px" }} />
-            {record.province.name_english}
+            {record.province}
           </div>
           {record.district && (
             <div style={{ color: "#666", fontSize: "12px" }}>
               {record.district}
-              {record.commune && `, ${record.commune}`}
-              {record.village && `, ${record.village}`}
             </div>
           )}
         </div>
       ),
     },
     {
-      title: "ប្រភេទ & កម្រិត",
-      key: "type_level",
+      title: "Cluster",
+      key: "cluster",
+      render: (_, record) => (
+        <div>
+          <div style={{ fontWeight: 500 }}>{record.cluster}</div>
+          {record.cluster_id && (
+            <div style={{ color: "#666", fontSize: "12px" }}>
+              ID: {record.cluster_id}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Assessment Periods",
+      key: "assessment_periods",
       render: (_, record) => (
         <Space direction="vertical" size="small">
-          {record.school_type && <Tag color="green">{record.school_type}</Tag>}
-          {record.level && <Tag color="orange">{record.level}</Tag>}
+          {record.baseline_start_date && (
+            <Tag color="blue">Baseline</Tag>
+          )}
+          {record.midline_start_date && (
+            <Tag color="orange">Midline</Tag>
+          )}
+          {record.endline_start_date && (
+            <Tag color="green">Endline</Tag>
+          )}
         </Space>
       ),
     },
     {
-      title: "សិស្ស",
-      dataIndex: "total_students",
-      key: "total_students",
-      render: (count: number, record) => (
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontWeight: 500, fontSize: "16px" }}>
-            {count || 0}
-          </div>
-          <div style={{ color: "#666", fontSize: "12px" }}>
-            {record.classes.length} ថ្នាក់រៀន
-          </div>
-        </div>
-      ),
-      sorter: true,
-    },
-    {
-      title: "គ្រូបង្រៀន",
-      dataIndex: "total_teachers",
-      key: "total_teachers",
-      render: (count: number) => (
-        <div style={{ textAlign: "center", fontWeight: 500 }}>
-          {count || 0}
-        </div>
-      ),
-      sorter: true,
-    },
-    {
-      title: "ទំនាក់ទំនង",
-      key: "contact",
+      title: "Status",
+      key: "status",
       render: (_, record) => (
-        <div>
-          {record.phone && (
-            <div style={{ marginBottom: "2px" }}>
-              <PhoneOutlined style={{ color: "#52c41a", marginRight: "4px" }} />
-              {record.phone}
-            </div>
-          )}
-          {record.latitude && record.longitude && (
-            <Tooltip title={`Coordinates: ${record.latitude}, ${record.longitude}`}>
-              <Tag color="cyan" style={{ fontSize: "10px" }}>GPS</Tag>
-            </Tooltip>
-          )}
-        </div>
+        <Tag color={record.is_locked ? "red" : "green"}>
+          {record.is_locked ? "Locked" : "Active"}
+        </Tag>
       ),
     },
     {
@@ -296,7 +238,7 @@ function SchoolsPageContent() {
           {canDelete && (
             <Popconfirm
               title="លុបសាលារៀន"
-              description="តើអ្នកប្រាកដជាចង់លុបសាលារៀននេះមែនទេ? នេះនឹងប៉ះពាល់ដល់ថ្នាក់រៀន និងសិស្សទាំងអស់ផងដែរ។"
+              description="តើអ្នកប្រាកដជាចង់លុបសាលារៀននេះមែនទេ? នេះនឹងប៉ះពាល់ដល់សិស្ស និងគ្រូបង្រៀនទាំងអស់ផងដែរ។"
               onConfirm={() => handleDelete(record.id)}
               okText="បាទ/ចាស"
               cancelText="ទេ"
@@ -313,9 +255,9 @@ function SchoolsPageContent() {
 
   const schoolStats = {
     total: pagination.total,
-    totalStudents: schools.reduce((sum, school) => sum + (school.total_students || 0), 0),
-    totalTeachers: schools.reduce((sum, school) => sum + (school.total_teachers || 0), 0),
-    totalClasses: schools.reduce((sum, school) => sum + school.classes.length, 0),
+    totalClusters: new Set(schools.map(s => s.cluster)).size,
+    totalProvinces: new Set(schools.map(s => s.province)).size,
+    lockedSchools: schools.filter(s => s.is_locked).length,
   };
 
   return (
@@ -365,8 +307,8 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="សិស្សសរុប"
-              value={schoolStats.totalStudents}
+              title="Clusters"
+              value={schoolStats.totalClusters}
               valueStyle={{ color: "#3f8600" }}
             />
           </Card>
@@ -374,8 +316,8 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="គ្រូបង្រៀនសរុប"
-              value={schoolStats.totalTeachers}
+              title="ខេត្ត"
+              value={schoolStats.totalProvinces}
               valueStyle={{ color: "#cf1322" }}
             />
           </Card>
@@ -383,8 +325,8 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="ថ្នាក់រៀនសរុប"
-              value={schoolStats.totalClasses}
+              title="Locked Schools"
+              value={schoolStats.lockedSchools}
               valueStyle={{ color: "#1890ff" }}
             />
           </Card>
@@ -410,35 +352,9 @@ function SchoolsPageContent() {
             allowClear
             showSearch
           >
-            {provinces.map(province => (
-              <Option key={province.id} value={province.id.toString()}>
-                {province.name_english}
-              </Option>
-            ))}
-          </Select>
-          <Select
-            placeholder="ច្រោះតាមប្រភេទ"
-            value={selectedSchoolType}
-            onChange={setSelectedSchoolType}
-            style={{ width: 150 }}
-            allowClear
-          >
-            {SCHOOL_TYPES.map(type => (
-              <Option key={type} value={type}>
-                {type}
-              </Option>
-            ))}
-          </Select>
-          <Select
-            placeholder="ច្រោះតាមកម្រិត"
-            value={selectedLevel}
-            onChange={setSelectedLevel}
-            style={{ width: 150 }}
-            allowClear
-          >
-            {LEVELS.map(level => (
-              <Option key={level} value={level}>
-                {level}
+            {PROVINCES.map(province => (
+              <Option key={province} value={province}>
+                {province}
               </Option>
             ))}
           </Select>
