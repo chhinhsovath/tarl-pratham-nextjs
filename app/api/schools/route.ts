@@ -111,23 +111,13 @@ export async function GET(request: NextRequest) {
       prisma.pilotSchool.count({ where: pilotWhere })
     ]);
 
-    // Transform pilot_schools data to match schools API format
+    // Transform pilot_schools data to match updated API format
     const schools = pilotSchools.map(ps => ({
       id: ps.id,
-      name: ps.school_name,
-      code: ps.school_code,
-      province_id: 0, // Not used in pilot_schools
+      school_name: ps.school_name,
+      school_code: ps.school_code,
+      province: ps.province, // String field from pilot_schools
       district: ps.district,
-      commune: null, // Not in pilot_schools schema
-      village: null, // Not in pilot_schools schema
-      school_type: null, // Not in pilot_schools schema
-      level: null, // Not in pilot_schools schema
-      total_students: null, // Not in pilot_schools schema
-      total_teachers: null, // Not in pilot_schools schema
-      latitude: null, // Not in pilot_schools schema
-      longitude: null, // Not in pilot_schools schema
-      phone: null, // Not in pilot_schools schema
-      email: null, // Not in pilot_schools schema
       cluster: ps.cluster,
       cluster_id: ps.cluster_id,
       baseline_start_date: ps.baseline_start_date,
@@ -138,13 +128,7 @@ export async function GET(request: NextRequest) {
       endline_end_date: ps.endline_end_date,
       is_locked: ps.is_locked,
       created_at: ps.created_at,
-      province: {
-        id: 0,
-        name_english: ps.province || "",
-        name_khmer: ps.province || "",
-        code: ps.province || ""
-      },
-      classes: [] // pilot_schools doesn't have classes relation
+      updated_at: ps.updated_at,
     }));
 
     return NextResponse.json({
