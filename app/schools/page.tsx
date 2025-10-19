@@ -177,42 +177,42 @@ function SchoolsPageContent() {
       ),
     },
     {
-      title: "Cluster",
+      title: "ក្រុម",
       key: "cluster",
       render: (_, record) => (
         <div>
           <div style={{ fontWeight: 500 }}>{record.cluster}</div>
           {record.cluster_id && (
             <div style={{ color: "#666", fontSize: "12px" }}>
-              ID: {record.cluster_id}
+              លេខសម្គាល់: {record.cluster_id}
             </div>
           )}
         </div>
       ),
     },
     {
-      title: "Assessment Periods",
+      title: "រយៈពេលវាយតម្លៃ",
       key: "assessment_periods",
       render: (_, record) => (
         <Space direction="vertical" size="small">
           {record.baseline_start_date && (
-            <Tag color="blue">Baseline</Tag>
+            <Tag color="blue">ដំបូង</Tag>
           )}
           {record.midline_start_date && (
-            <Tag color="orange">Midline</Tag>
+            <Tag color="orange">កណ្តាល</Tag>
           )}
           {record.endline_start_date && (
-            <Tag color="green">Endline</Tag>
+            <Tag color="green">ចុងក្រោយ</Tag>
           )}
         </Space>
       ),
     },
     {
-      title: "Status",
+      title: "ស្ថានភាព",
       key: "status",
       render: (_, record) => (
         <Tag color={record.is_locked ? "red" : "green"}>
-          {record.is_locked ? "Locked" : "Active"}
+          {record.is_locked ? "ជាប់សោ" : "សកម្ម"}
         </Tag>
       ),
     },
@@ -307,7 +307,7 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Clusters"
+              title="ក្រុមសរុប"
               value={schoolStats.totalClusters}
               valueStyle={{ color: "#3f8600" }}
             />
@@ -316,7 +316,7 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="ខេត្ត"
+              title="ខេត្តសរុប"
               value={schoolStats.totalProvinces}
               valueStyle={{ color: "#cf1322" }}
             />
@@ -325,7 +325,7 @@ function SchoolsPageContent() {
         <Col span={6}>
           <Card>
             <Statistic
-              title="Locked Schools"
+              title="សាលាជាប់សោ"
               value={schoolStats.lockedSchools}
               valueStyle={{ color: "#1890ff" }}
             />

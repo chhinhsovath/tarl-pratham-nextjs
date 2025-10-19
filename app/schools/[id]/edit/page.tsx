@@ -302,12 +302,12 @@ export default function EditSchoolPage() {
               <Col span={8}>
                 <Form.Item
                   name="cluster"
-                  label="Cluster"
+                  label="ក្រុម"
                   rules={[
-                    { required: true, message: 'សូមបញ្ចូល Cluster' }
+                    { required: true, message: 'សូមបញ្ចូលក្រុម' }
                   ]}
                 >
-                  <Input placeholder="បញ្ចូល Cluster" size="large" />
+                  <Input placeholder="បញ្ចូលក្រុម" size="large" />
                 </Form.Item>
               </Col>
             </Row>
@@ -316,40 +316,40 @@ export default function EditSchoolPage() {
               <Col span={12}>
                 <Form.Item
                   name="cluster_id"
-                  label="Cluster ID (ជម្រើស)"
+                  label="លេខសម្គាល់ក្រុម (ជម្រើស)"
                 >
-                  <InputNumber placeholder="បញ្ចូល Cluster ID" style={{ width: "100%" }} size="large" />
+                  <InputNumber placeholder="បញ្ចូលលេខសម្គាល់ក្រុម" style={{ width: "100%" }} size="large" />
                 </Form.Item>
               </Col>
 
               <Col span={12}>
                 <Form.Item
                   name="is_locked"
-                  label="Lock Status"
+                  label="ស្ថានភាពសោ"
                   valuePropName="checked"
                 >
-                  <Switch checkedChildren="Locked" unCheckedChildren="Active" />
+                  <Switch checkedChildren="ជាប់សោ" unCheckedChildren="សកម្ម" />
                 </Form.Item>
               </Col>
             </Row>
 
-            <Divider orientation="left">Assessment Periods (ជម្រើស)</Divider>
+            <Divider orientation="left">រយៈពេលវាយតម្លៃ (ជម្រើស)</Divider>
 
             <Row gutter={16}>
               <Col span={8}>
-                <Form.Item name="baseline_dates" label="Baseline Period">
+                <Form.Item name="baseline_dates" label="រយៈពេលដំបូង">
                   <RangePicker style={{ width: "100%" }} size="large" />
                 </Form.Item>
               </Col>
 
               <Col span={8}>
-                <Form.Item name="midline_dates" label="Midline Period">
+                <Form.Item name="midline_dates" label="រយៈពេលកណ្តាល">
                   <RangePicker style={{ width: "100%" }} size="large" />
                 </Form.Item>
               </Col>
 
               <Col span={8}>
-                <Form.Item name="endline_dates" label="Endline Period">
+                <Form.Item name="endline_dates" label="រយៈពេលចុងក្រោយ">
                   <RangePicker style={{ width: "100%" }} size="large" />
                 </Form.Item>
               </Col>
