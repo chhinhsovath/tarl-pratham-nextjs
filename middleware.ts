@@ -8,11 +8,8 @@ export async function middleware(request: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET
   });
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
-  const isOnboardingPage = request.nextUrl.pathname.startsWith('/onboarding');
-  const isProfileSetupPage = request.nextUrl.pathname.startsWith('/profile-setup');
-  const isBypassPage = request.nextUrl.pathname.startsWith('/bypass');
   const isAPIRoute = request.nextUrl.pathname.startsWith('/api/');
-  const isPublicPage = request.nextUrl.pathname === '/' || 
+  const isPublicPage = request.nextUrl.pathname === '/' ||
                        request.nextUrl.pathname.startsWith('/api/auth') ||
                        request.nextUrl.pathname.startsWith('/api/public') ||
                        request.nextUrl.pathname.startsWith('/api/pilot-schools') ||
@@ -28,32 +25,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
+  // After login, redirect to dashboard (no onboarding or profile-setup)
   if (token && isAuthPage) {
-    // DISABLED: Profile setup and onboarding checks
-    // Coordinators handle all user assignments, so users go directly to dashboard
-    // const needsProfileSetup = needsProfileSetupCheck(token);
-    // const shouldShowOnboarding = token.show_onboarding !== false && !hasCompletedOnboarding(token);
-    //
-    // if (needsProfileSetup) {
-    //   return NextResponse.redirect(new URL('/profile-setup', request.url));
-    // } else if (shouldShowOnboarding) {
-    //   return NextResponse.redirect(new URL('/onboarding', request.url));
-    // }
-
-    // After login, go directly to dashboard
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-
-  // TEMPORARILY DISABLED - Skip all onboarding and profile setup checks
-  // if (token && !isOnboardingPage && !isProfileSetupPage && !isPublicPage && !isBypassPage) {
-  //   const needsProfileSetup = needsProfileSetupCheck(token);
-  //   const shouldShowOnboarding = token.show_onboarding !== false && !hasCompletedOnboarding(token);
-  //   if (needsProfileSetup) {
-  //     return NextResponse.redirect(new URL('/profile-setup', request.url));
-  //   } else if (shouldShowOnboarding && request.nextUrl.pathname !== '/dashboard') {
-  //     return NextResponse.redirect(new URL('/onboarding', request.url));
-  //   }
-  // }
 
   // Enhanced Role-Based Access Control (100% Compliance)
   const path = request.nextUrl.pathname;
@@ -103,30 +78,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 
-  // DISABLED: Profile setup check (coordinators handle all user assignments)
-  // Coordinators set up profiles for mentors and teachers, so no need for self-service profile-setup
-  // if (['mentor', 'teacher', 'viewer'].includes(userRole)) {
-  //   const pilotSchoolId = token.pilot_school_id;
-  //   const subject = token.subject;
-  //   const holdingClasses = token.holding_classes;
-  //   const schoolRequiredPaths = ['/students', '/assessments', '/mentoring'];
-  //   const needsSchool = schoolRequiredPaths.some(p => path.startsWith(p));
-  //   const allowedPaths = ['/profile-setup', '/onboarding', '/dashboard', '/help', '/reports', '/profile'];
-  //   const isAllowedPath = allowedPaths.some(p => path.startsWith(p));
-  //
-  //   let hasCompleteProfile = false;
-  //   if (userRole === 'teacher') {
-  //     hasCompleteProfile = Boolean(pilotSchoolId && subject && holdingClasses);
-  //   } else if (userRole === 'mentor') {
-  //     hasCompleteProfile = Boolean(pilotSchoolId && subject);
-  //   } else if (userRole === 'viewer') {
-  //     hasCompleteProfile = Boolean(pilotSchoolId);
-  //   }
-  //
-  //   if (needsSchool && !hasCompleteProfile && !isAllowedPath) {
-  //     return NextResponse.redirect(new URL('/profile-setup', request.url));
-  //   }
-  // }
+  // NOTE: Profile setup and onboarding checks are DISABLED
+  // Coordinators assign mentors/teachers to schools via:
+  // - /coordinator/mentor-assignments
+  // - /coordinator/teacher-assignments
+  // Users no longer need to complete profile-setup themselves
 
   // Add security headers to response
   const response = NextResponse.next();
@@ -140,37 +96,6 @@ export async function middleware(request: NextRequest) {
   }
 
   return response;
-}
-
-function needsProfileSetupCheck(token: any): boolean {
-  // TEMPORARILY DISABLED - Always return false to bypass profile setup
-  return false;
-}
-
-function hasCompletedOnboarding(token: any): boolean {
-  // Check if user has completed initial onboarding steps
-  const onboardingCompleted = token.onboarding_completed;
-  if (!onboardingCompleted) return false;
-  
-  try {
-    const completed = typeof onboardingCompleted === 'string' 
-      ? JSON.parse(onboardingCompleted) 
-      : onboardingCompleted;
-    
-    // Check if user has completed at least one step for their role
-    const roleBasedSteps = {
-      'admin': ['setup_system'],
-      'teacher': ['complete_profile'],
-      'mentor': ['complete_profile'],
-      'coordinator': ['system_overview'],
-      'viewer': ['explore_dashboard']
-    };
-    
-    const requiredSteps = roleBasedSteps[token.role as keyof typeof roleBasedSteps] || [];
-    return requiredSteps.some(step => completed.includes && completed.includes(step));
-  } catch (e) {
-    return false;
-  }
 }
 
 export const config = {
