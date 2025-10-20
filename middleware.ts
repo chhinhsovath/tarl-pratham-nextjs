@@ -29,17 +29,19 @@ export async function middleware(request: NextRequest) {
   }
 
   if (token && isAuthPage) {
-    // Check if user needs onboarding
-    const needsProfileSetup = needsProfileSetupCheck(token);
-    const shouldShowOnboarding = token.show_onboarding !== false && !hasCompletedOnboarding(token);
-    
-    if (needsProfileSetup) {
-      return NextResponse.redirect(new URL('/profile-setup', request.url));
-    } else if (shouldShowOnboarding) {
-      return NextResponse.redirect(new URL('/onboarding', request.url));
-    } else {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
+    // DISABLED: Profile setup and onboarding checks
+    // Coordinators handle all user assignments, so users go directly to dashboard
+    // const needsProfileSetup = needsProfileSetupCheck(token);
+    // const shouldShowOnboarding = token.show_onboarding !== false && !hasCompletedOnboarding(token);
+    //
+    // if (needsProfileSetup) {
+    //   return NextResponse.redirect(new URL('/profile-setup', request.url));
+    // } else if (shouldShowOnboarding) {
+    //   return NextResponse.redirect(new URL('/onboarding', request.url));
+    // }
+
+    // After login, go directly to dashboard
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // TEMPORARILY DISABLED - Skip all onboarding and profile setup checks
@@ -101,79 +103,30 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 
-  // Check if mentor/teacher/viewer has school assignment for school-limited routes
-  if (['mentor', 'teacher', 'viewer'].includes(userRole)) {
-    const pilotSchoolId = token.pilot_school_id;
-    const subject = token.subject;
-    const holdingClasses = token.holding_classes;
-    const schoolRequiredPaths = ['/students', '/assessments', '/mentoring'];
-
-    // Check if trying to access school-required paths
-    const needsSchool = schoolRequiredPaths.some(p => path.startsWith(p));
-
-    // Allow access to onboarding and profile-setup pages
-    const allowedPaths = ['/profile-setup', '/onboarding', '/dashboard', '/help', '/reports', '/profile'];
-    const isAllowedPath = allowedPaths.some(p => path.startsWith(p));
-
-    // Check if profile is complete based on role requirements
-    let hasCompleteProfile = false;
-    if (userRole === 'teacher') {
-      // Teachers need: school + subject + classes
-      hasCompleteProfile = Boolean(pilotSchoolId && subject && holdingClasses);
-    } else if (userRole === 'mentor') {
-      // Mentors need: school + subject (NO holding_classes required)
-      hasCompleteProfile = Boolean(pilotSchoolId && subject);
-    } else if (userRole === 'viewer') {
-      // Viewers only need: school (read-only access)
-      hasCompleteProfile = Boolean(pilotSchoolId);
-    }
-
-    // Debug logging in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 [MIDDLEWARE] School check:', {
-        path,
-        userRole,
-        pilotSchoolId,
-        subject,
-        holdingClasses: holdingClasses || '(not required for mentor)',
-        hasCompleteProfile,
-        needsSchool,
-        isAllowedPath,
-        requirements: userRole === 'teacher'
-          ? 'school + subject + classes'
-          : userRole === 'mentor'
-          ? 'school + subject'
-          : 'school only'
-      });
-    }
-
-    // Only redirect to profile-setup if:
-    // 1. Trying to access school-required path
-    // 2. Profile is NOT complete (missing required fields based on role)
-    // 3. Not already on an allowed path
-    if (needsSchool && !hasCompleteProfile && !isAllowedPath) {
-      const missingFields = [];
-      if (!pilotSchoolId) missingFields.push('pilot_school_id');
-      if (!subject && userRole !== 'viewer') missingFields.push('subject');
-      if (!holdingClasses && userRole === 'teacher') missingFields.push('holding_classes');
-
-      console.log('🚫 [MIDDLEWARE] BLOCKING access to', path, '- Profile incomplete for', userRole);
-      console.log('📊 [MIDDLEWARE] Token data:', {
-        pilot_school_id: pilotSchoolId,
-        subject: subject,
-        holding_classes: holdingClasses,
-        role: userRole,
-        user_id: token.id,
-        missing_fields: missingFields
-      });
-      console.log('📍 [MIDDLEWARE] Redirecting to /profile-setup');
-      return NextResponse.redirect(new URL('/profile-setup', request.url));
-    }
-
-    if (needsSchool && hasCompleteProfile) {
-      console.log('✅ [MIDDLEWARE] ALLOWING access to', path, '- Profile complete for', userRole);
-    }
-  }
+  // DISABLED: Profile setup check (coordinators handle all user assignments)
+  // Coordinators set up profiles for mentors and teachers, so no need for self-service profile-setup
+  // if (['mentor', 'teacher', 'viewer'].includes(userRole)) {
+  //   const pilotSchoolId = token.pilot_school_id;
+  //   const subject = token.subject;
+  //   const holdingClasses = token.holding_classes;
+  //   const schoolRequiredPaths = ['/students', '/assessments', '/mentoring'];
+  //   const needsSchool = schoolRequiredPaths.some(p => path.startsWith(p));
+  //   const allowedPaths = ['/profile-setup', '/onboarding', '/dashboard', '/help', '/reports', '/profile'];
+  //   const isAllowedPath = allowedPaths.some(p => path.startsWith(p));
+  //
+  //   let hasCompleteProfile = false;
+  //   if (userRole === 'teacher') {
+  //     hasCompleteProfile = Boolean(pilotSchoolId && subject && holdingClasses);
+  //   } else if (userRole === 'mentor') {
+  //     hasCompleteProfile = Boolean(pilotSchoolId && subject);
+  //   } else if (userRole === 'viewer') {
+  //     hasCompleteProfile = Boolean(pilotSchoolId);
+  //   }
+  //
+  //   if (needsSchool && !hasCompleteProfile && !isAllowedPath) {
+  //     return NextResponse.redirect(new URL('/profile-setup', request.url));
+  //   }
+  // }
 
   // Add security headers to response
   const response = NextResponse.next();
