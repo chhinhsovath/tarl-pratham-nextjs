@@ -51,13 +51,15 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
   const [teachers, setTeachers] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [classInSession, setClassInSession] = useState(true);
+  const [fullSessionObserved, setFullSessionObserved] = useState(true); // FIXED: Added missing state
   const [subjectObserved, setSubjectObserved] = useState('');
   const [classStartedOnTime, setClassStartedOnTime] = useState(null);
   const [hasSessionPlan, setHasSessionPlan] = useState(null);
   const [followedSessionPlan, setFollowedSessionPlan] = useState(null);
   const [numberOfActivities, setNumberOfActivities] = useState(0);
+  const [numActivities, setNumActivities] = useState(0); // FIXED: Added missing state (used in populateFormData)
   const [progressPercentage, setProgressPercentage] = useState(0);
-  
+
   // Activity conditional states
   const [activity1ClearInstructions, setActivity1ClearInstructions] = useState(null);
   const [activity1FollowedProcess, setActivity1FollowedProcess] = useState(null);
