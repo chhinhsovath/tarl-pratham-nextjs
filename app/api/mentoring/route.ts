@@ -340,6 +340,7 @@ export async function POST(request: NextRequest) {
       activity3_followed_process,
       activity3_not_followed_reason,
       mentor_name, // Form sends this but we override with session
+      session_plan_notes, // Map to lesson_plan_feedback
       ...cleanedData
     } = validatedData;
 
@@ -347,6 +348,7 @@ export async function POST(request: NextRequest) {
       ...cleanedData,
       mentor_id: parseInt(session.user.id),
       visit_date: new Date(validatedData.visit_date),
+      lesson_plan_feedback: session_plan_notes || null, // Map session_plan_notes to lesson_plan_feedback
       photos: validatedData.photos ? JSON.stringify(validatedData.photos) : null,
       grades_observed: validatedData.grades_observed ? JSON.stringify(validatedData.grades_observed) : null,
       language_levels_observed: validatedData.language_levels_observed ? JSON.stringify(validatedData.language_levels_observed) : null,
@@ -482,12 +484,14 @@ export async function PUT(request: NextRequest) {
       activity3_followed_process: _activity3_followed,
       activity3_not_followed_reason: _activity3_not_followed,
       mentor_name: _mentor_name,
+      session_plan_notes, // Map to lesson_plan_feedback
       ...cleanedUpdateData
     } = validatedData;
 
     const updateDbData = {
       ...cleanedUpdateData,
       visit_date: validatedData.visit_date ? new Date(validatedData.visit_date) : undefined,
+      lesson_plan_feedback: session_plan_notes || undefined, // Map session_plan_notes to lesson_plan_feedback
       photos: validatedData.photos ? JSON.stringify(validatedData.photos) : undefined,
       grades_observed: validatedData.grades_observed ? JSON.stringify(validatedData.grades_observed) : undefined,
       language_levels_observed: validatedData.language_levels_observed ? JSON.stringify(validatedData.language_levels_observed) : undefined,
