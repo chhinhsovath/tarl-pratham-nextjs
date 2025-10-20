@@ -92,14 +92,14 @@ const mentoringVisitSchema = z.object({
   activity2_small_groups: z.string().optional(),
   activity2_individual: z.string().optional(),
 
-  // Activity 3
+  // Activity 3 (Note: followed_process and not_followed_reason accepted but not saved - DB doesn't support them)
   activity3_name_language: z.string().optional(),
   activity3_name_numeracy: z.string().optional(),
   activity3_duration: z.number().min(0).optional(),
   activity3_clear_instructions: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity3_no_clear_instructions_reason: z.string().optional(),
-  activity3_followed_process: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
-  activity3_not_followed_reason: z.string().optional(),
+  activity3_followed_process: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true), // Accepted but not saved
+  activity3_not_followed_reason: z.string().optional(), // Accepted but not saved
   activity3_demonstrated: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity3_students_practice: z.string().optional(),
   activity3_small_groups: z.string().optional(),
@@ -335,14 +335,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Prepare data for database - stringify array fields and remove unsupported fields
+    const {
+      activity3_followed_process,
+      activity3_not_followed_reason,
+      mentor_name, // Form sends this but we override with session
+      ...cleanedData
+    } = validatedData;
+
+    const dbData = {
+      ...cleanedData,
+      mentor_id: parseInt(session.user.id),
+      visit_date: new Date(validatedData.visit_date),
+      photos: validatedData.photos ? JSON.stringify(validatedData.photos) : null,
+      grades_observed: validatedData.grades_observed ? JSON.stringify(validatedData.grades_observed) : null,
+      language_levels_observed: validatedData.language_levels_observed ? JSON.stringify(validatedData.language_levels_observed) : null,
+      numeracy_levels_observed: validatedData.numeracy_levels_observed ? JSON.stringify(validatedData.numeracy_levels_observed) : null,
+      materials_present: validatedData.materials_present ? JSON.stringify(validatedData.materials_present) : null,
+      teaching_materials: validatedData.teaching_materials ? JSON.stringify(validatedData.teaching_materials) : null,
+    };
+
     // Create mentoring visit
     const visit = await prisma.mentoringVisit.create({
-      data: {
-        ...validatedData,
-        mentor_id: parseInt(session.user.id),
-        visit_date: new Date(validatedData.visit_date),
-        photos: validatedData.photos ? JSON.stringify(validatedData.photos) : null
-      },
+      data: dbData,
       include: {
         mentor: {
           select: {
@@ -450,14 +465,29 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Prepare data for database - stringify array fields and remove unsupported fields
+    const {
+      activity3_followed_process: _activity3_followed,
+      activity3_not_followed_reason: _activity3_not_followed,
+      mentor_name: _mentor_name,
+      ...cleanedUpdateData
+    } = validatedData;
+
+    const updateDbData = {
+      ...cleanedUpdateData,
+      visit_date: validatedData.visit_date ? new Date(validatedData.visit_date) : undefined,
+      photos: validatedData.photos ? JSON.stringify(validatedData.photos) : undefined,
+      grades_observed: validatedData.grades_observed ? JSON.stringify(validatedData.grades_observed) : undefined,
+      language_levels_observed: validatedData.language_levels_observed ? JSON.stringify(validatedData.language_levels_observed) : undefined,
+      numeracy_levels_observed: validatedData.numeracy_levels_observed ? JSON.stringify(validatedData.numeracy_levels_observed) : undefined,
+      materials_present: validatedData.materials_present ? JSON.stringify(validatedData.materials_present) : undefined,
+      teaching_materials: validatedData.teaching_materials ? JSON.stringify(validatedData.teaching_materials) : undefined,
+    };
+
     // Update mentoring visit
     const visit = await prisma.mentoringVisit.update({
       where: { id: parseInt(id) },
-      data: {
-        ...validatedData,
-        visit_date: validatedData.visit_date ? new Date(validatedData.visit_date) : undefined,
-        photos: validatedData.photos ? JSON.stringify(validatedData.photos) : undefined
-      },
+      data: updateDbData,
       include: {
         mentor: {
           select: {
