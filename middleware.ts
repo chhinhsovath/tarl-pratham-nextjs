@@ -115,42 +115,63 @@ export async function middleware(request: NextRequest) {
     const allowedPaths = ['/profile-setup', '/onboarding', '/dashboard', '/help', '/reports', '/profile'];
     const isAllowedPath = allowedPaths.some(p => path.startsWith(p));
 
-    // Check if profile is complete (has all required fields)
-    const hasCompleteProfile = Boolean(pilotSchoolId && subject && holdingClasses);
+    // Check if profile is complete based on role requirements
+    let hasCompleteProfile = false;
+    if (userRole === 'teacher') {
+      // Teachers need: school + subject + classes
+      hasCompleteProfile = Boolean(pilotSchoolId && subject && holdingClasses);
+    } else if (userRole === 'mentor') {
+      // Mentors need: school + subject (NO holding_classes required)
+      hasCompleteProfile = Boolean(pilotSchoolId && subject);
+    } else if (userRole === 'viewer') {
+      // Viewers only need: school (read-only access)
+      hasCompleteProfile = Boolean(pilotSchoolId);
+    }
 
     // Debug logging in development
     if (process.env.NODE_ENV === 'development') {
       console.log('🔍 [MIDDLEWARE] School check:', {
         path,
+        userRole,
         pilotSchoolId,
         subject,
-        holdingClasses,
+        holdingClasses: holdingClasses || '(not required for mentor)',
         hasCompleteProfile,
-        userRole,
         needsSchool,
-        isAllowedPath
+        isAllowedPath,
+        requirements: userRole === 'teacher'
+          ? 'school + subject + classes'
+          : userRole === 'mentor'
+          ? 'school + subject'
+          : 'school only'
       });
     }
 
     // Only redirect to profile-setup if:
     // 1. Trying to access school-required path
-    // 2. Profile is NOT complete (missing school, subject, or holding_classes)
+    // 2. Profile is NOT complete (missing required fields based on role)
     // 3. Not already on an allowed path
     if (needsSchool && !hasCompleteProfile && !isAllowedPath) {
-      console.log('🚫 [MIDDLEWARE] BLOCKING access to', path, '- Profile incomplete');
+      const missingFields = [];
+      if (!pilotSchoolId) missingFields.push('pilot_school_id');
+      if (!subject && userRole !== 'viewer') missingFields.push('subject');
+      if (!holdingClasses && userRole === 'teacher') missingFields.push('holding_classes');
+
+      console.log('🚫 [MIDDLEWARE] BLOCKING access to', path, '- Profile incomplete for', userRole);
       console.log('📊 [MIDDLEWARE] Token data:', {
         pilot_school_id: pilotSchoolId,
         subject: subject,
         holding_classes: holdingClasses,
         role: userRole,
-        user_id: token.id
+        user_id: token.id,
+        missing_fields: missingFields
       });
       console.log('📍 [MIDDLEWARE] Redirecting to /profile-setup');
       return NextResponse.redirect(new URL('/profile-setup', request.url));
     }
 
     if (needsSchool && hasCompleteProfile) {
-      console.log('✅ [MIDDLEWARE] ALLOWING access to', path, '- Profile complete');
+      console.log('✅ [MIDDLEWARE] ALLOWING access to', path, '- Profile complete for', userRole);
     }
   }
 
