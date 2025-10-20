@@ -62,7 +62,7 @@ const mentoringVisitSchema = z.object({
   teacher_feedback: z.string().optional(), // Form sends this
   
   // Activities
-  number_of_activities: z.number().min(1).max(10).optional(), // Allow up to 10 activities
+  number_of_activities: z.number().min(1).max(5).optional(), // User can select up to 5, but detailed records only support 3
   
   // Activity 1
   activity1_name_language: z.string().optional(),
