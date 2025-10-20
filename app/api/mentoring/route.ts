@@ -388,17 +388,29 @@ export async function POST(request: NextRequest) {
       data: visit 
     }, { status: 201 });
 
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation failed", details: error.errors },
         { status: 400 }
       );
     }
-    
+
+    // DETAILED ERROR LOGGING - Following AI_DEVELOPMENT_RULES.md
     console.error("Error creating mentoring visit:", error);
+    console.error("Error message:", error.message);
+    console.error("Error code:", error.code);
+    console.error("Error meta:", error.meta);
+
+    // Return detailed error information to help debugging
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        message: error.message || "Unknown error",
+        code: error.code || "UNKNOWN",
+        meta: error.meta || {},
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
@@ -518,17 +530,28 @@ export async function PUT(request: NextRequest) {
       data: visit 
     });
 
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation failed", details: error.errors },
         { status: 400 }
       );
     }
-    
+
+    // DETAILED ERROR LOGGING
     console.error("Error updating mentoring visit:", error);
+    console.error("Error message:", error.message);
+    console.error("Error code:", error.code);
+    console.error("Error meta:", error.meta);
+
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        message: error.message || "Unknown error",
+        code: error.code || "UNKNOWN",
+        meta: error.meta || {},
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
@@ -576,10 +599,20 @@ export async function DELETE(request: NextRequest) {
       message: "Mentoring visit deleted successfully" 
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting mentoring visit:", error);
+    console.error("Error message:", error.message);
+    console.error("Error code:", error.code);
+    console.error("Error meta:", error.meta);
+
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        message: error.message || "Unknown error",
+        code: error.code || "UNKNOWN",
+        meta: error.meta || {},
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
