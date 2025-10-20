@@ -62,7 +62,7 @@ const mentoringVisitSchema = z.object({
   teacher_feedback: z.string().optional(), // Form sends this
   
   // Activities
-  number_of_activities: z.number().min(1).max(3).optional(),
+  number_of_activities: z.number().min(1).max(10).optional(), // Allow up to 10 activities
   
   // Activity 1
   activity1_name_language: z.string().optional(),
@@ -98,6 +98,8 @@ const mentoringVisitSchema = z.object({
   activity3_duration: z.number().min(0).optional(),
   activity3_clear_instructions: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity3_no_clear_instructions_reason: z.string().optional(),
+  activity3_followed_process: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity3_not_followed_reason: z.string().optional(),
   activity3_demonstrated: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity3_students_practice: z.string().optional(),
   activity3_small_groups: z.string().optional(),
