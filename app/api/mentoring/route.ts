@@ -258,14 +258,11 @@ export async function GET(request: NextRequest) {
           pilot_school: {
             select: {
               id: true,
-              name: true,
-              code: true,
-              province: {
-                select: {
-                  name_english: true,
-                  name_khmer: true
-                }
-              }
+              school_name: true,
+              school_code: true,
+              province: true,
+              district: true,
+              cluster: true
             }
           }
         },
@@ -286,10 +283,20 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching mentoring visits:", error);
+    console.error("Error message:", error.message);
+    console.error("Error code:", error.code);
+    console.error("Error meta:", error.meta);
+
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        message: error.message || "Unknown error",
+        code: error.code || "UNKNOWN",
+        meta: error.meta || {},
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
