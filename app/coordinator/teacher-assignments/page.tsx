@@ -143,15 +143,26 @@ function TeacherAssignmentsPageContent() {
       if (selectedSubject) params.append("subject", selectedSubject);
       if (selectedStatus) params.append("is_active", selectedStatus);
 
-      const response = await fetch(`/api/teacher-assignments?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch assignments");
+      const url = `/api/teacher-assignments?${params}`;
+      console.log("📡 Fetching teacher assignments from:", url);
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("❌ API Error:", errorData);
+        throw new Error(errorData.error || "Failed to fetch assignments");
+      }
 
       const data: ApiResponse = await response.json();
-      setAssignments(data.data);
+      console.log("✅ Received data:", data);
+      console.log("📊 Assignments count:", data.data?.length || 0);
+      console.log("📄 Pagination:", data.pagination);
+
+      setAssignments(data.data || []);
       setPagination((prev) => ({ ...prev, ...data.pagination }));
     } catch (error) {
-      console.error("Error fetching assignments:", error);
-      message.error("មានបញ្ហាក្នុងការទាញយកទិន្នន័យ");
+      console.error("💥 Error fetching assignments:", error);
+      message.error(error instanceof Error ? error.message : "មានបញ្ហាក្នុងការទាញយកទិន្នន័យ");
     } finally {
       setLoading(false);
     }
@@ -517,6 +528,19 @@ function TeacherAssignmentsPageContent() {
             dataSource={assignments}
             rowKey="id"
             loading={loading}
+            locale={{
+              emptyText: (
+                <div style={{ padding: "40px", textAlign: "center" }}>
+                  <UserOutlined style={{ fontSize: 48, color: "#d9d9d9", marginBottom: 16 }} />
+                  <div style={{ fontSize: 16, color: "#666", marginBottom: 8 }}>
+                    មិនមានការចាត់តាំងគ្រូបង្រៀន
+                  </div>
+                  <div style={{ fontSize: 14, color: "#999" }}>
+                    សូមចុចប៊ូតុង "បង្កើតការចាត់តាំងថ្មី" ដើម្បីចាត់តាំងគ្រូបង្រៀនទៅសាលារៀន
+                  </div>
+                </div>
+              ),
+            }}
             pagination={{
               current: pagination.page,
               pageSize: pagination.limit,
