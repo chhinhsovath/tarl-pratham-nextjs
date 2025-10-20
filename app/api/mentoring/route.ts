@@ -372,14 +372,11 @@ export async function POST(request: NextRequest) {
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true,
-            province: {
-              select: {
-                name_english: true,
-                name_khmer: true
-              }
-            }
+            school_name: true,
+            school_code: true,
+            province: true,
+            district: true,
+            cluster: true
           }
         }
       }
@@ -516,14 +513,11 @@ export async function PUT(request: NextRequest) {
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true,
-            province: {
-              select: {
-                name_english: true,
-                name_khmer: true
-              }
-            }
+            school_name: true,
+            school_code: true,
+            province: true,
+            district: true,
+            cluster: true
           }
         }
       }
