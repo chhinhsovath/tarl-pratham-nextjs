@@ -1,14 +1,14 @@
 'use client';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
-import React, { useState } from 'react';
-import { 
-  Card, 
-  Upload, 
-  Button, 
-  Table, 
-  message, 
-  Steps, 
-  Space, 
+import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  Upload,
+  Button,
+  Table,
+  message,
+  Steps,
+  Space,
   Alert,
   Typography,
   Row,
@@ -37,12 +37,22 @@ function BulkImportStudentsPageContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const user = session?.user;
-  
+
+  const [isClient, setIsClient] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
   const [importResults, setImportResults] = useState<any>(null);
+
+  // Wait for client-side hydration
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null;
+  }
 
   // Check permissions
   if (!hasPermission(user, 'students.bulk_import')) {

@@ -1,6 +1,6 @@
 'use client';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { message } from 'antd';
 import { useSession } from 'next-auth/react';
@@ -12,9 +12,18 @@ function CreateStudentPageContent() {
   const router = useRouter();
   const { data: session } = useSession();
   const user = session?.user;
+  const [isClient, setIsClient] = useState(false);
 
   // VERSION CHECK: v2.0 - Body stream fix deployed
-  console.log('🔵 Student Create Page Version: 2.0 (Fixed body stream error)');
+  useEffect(() => {
+    console.log('🔵 Student Create Page Version: 2.0 (Fixed body stream error)');
+    setIsClient(true);
+  }, []);
+
+  // Wait for client-side hydration
+  if (!isClient) {
+    return null;
+  }
 
   // Check permissions
   if (!hasPermission(user, 'students.create')) {
