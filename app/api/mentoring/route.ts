@@ -175,12 +175,16 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const pageParam = searchParams.get("page");
+    const limitParam = searchParams.get("limit");
+    const page = pageParam && /^\d+$/.test(pageParam) ? Math.max(1, parseInt(pageParam)) : 1;
+    const limit = limitParam && /^\d+$/.test(limitParam) ? Math.max(1, Math.min(100, parseInt(limitParam))) : 10; // Limit max to 100
     const search = searchParams.get("search") || "";
     const status = searchParams.get("status") || "";
-    const pilot_school_id = searchParams.get("pilot_school_id") || "";
-    const mentor_id = searchParams.get("mentor_id") || "";
+    const pilot_school_id_param = searchParams.get("pilot_school_id") || "";
+    const pilot_school_id = pilot_school_id_param && /^\d+$/.test(pilot_school_id_param) ? parseInt(pilot_school_id_param) : "";
+    const mentor_id_param = searchParams.get("mentor_id") || "";
+    const mentor_id = mentor_id_param && /^\d+$/.test(mentor_id_param) ? parseInt(mentor_id_param) : "";
     const date_from = searchParams.get("date_from") || "";
     const date_to = searchParams.get("date_to") || "";
     
@@ -202,12 +206,12 @@ export async function GET(request: NextRequest) {
       where.status = status;
     }
     
-    if (pilot_school_id) {
-      where.pilot_school_id = parseInt(pilot_school_id);
+    if (pilot_school_id && typeof pilot_school_id === 'number' && !isNaN(pilot_school_id)) {
+      where.pilot_school_id = pilot_school_id;
     }
     
-    if (mentor_id) {
-      where.mentor_id = parseInt(mentor_id);
+    if (mentor_id && typeof mentor_id === 'number' && !isNaN(mentor_id)) {
+      where.mentor_id = mentor_id;
     }
     
     if (date_from) {
@@ -227,15 +231,56 @@ export async function GET(request: NextRequest) {
     // Apply access restrictions for mentors and teachers
     if (session.user.role === "mentor") {
       if (session.user.pilot_school_id) {
-        where.OR = [
-          { mentor_id: parseInt(session.user.id) },
-          { pilot_school_id: session.user.pilot_school_id }
-        ];
+        // For mentors with pilot school, they can view their own visits OR visits at their pilot school
+        const hasMentorIdFilter = mentor_id && mentor_id !== "";
+        
+        if (hasMentorIdFilter) {
+          const requestedMentorId = mentor_id; // already converted to number
+          const currentUserId = parseInt(session.user.id.toString());
+          // If filtering by a specific mentor_id
+          if (!isNaN(currentUserId) && requestedMentorId === currentUserId) {
+            // Mentor is filtering by their own visits, which is allowed
+            // The where.mentor_id condition is already set, just ensure it's not overridden
+          } else {
+            // Filtering by another mentor's visits - need to combine conditions
+            // Allow if it matches both the requested mentor_id AND the mentor has access to that pilot school
+            const hasPilotSchoolFilter = pilot_school_id && typeof pilot_school_id === 'number' && !isNaN(pilot_school_id);
+            where = {
+              AND: [
+                { mentor_id: requestedMentorId },
+                { pilot_school_id: hasPilotSchoolFilter ? pilot_school_id : session.user.pilot_school_id }
+              ]
+            };
+          }
+        } else {
+          // No specific mentor_id filter, so mentor can view their own visits OR visits at their pilot school
+          // Preserve any existing OR conditions (like search) and combine with access restrictions
+          const currentUserId = parseInt(session.user.id.toString());
+          if (!isNaN(currentUserId)) {
+            const mentorAccessConditions = [
+              { mentor_id: currentUserId },
+              { pilot_school_id: session.user.pilot_school_id }
+            ];
+            
+            if (where.OR) {
+              // If there are existing OR conditions (like search), combine properly
+              // Create a single OR condition that includes both access conditions and search conditions
+              where.OR = [...mentorAccessConditions, ...where.OR];
+            } else {
+              where.OR = mentorAccessConditions;
+            }
+          }
+        }
       } else {
-        where.mentor_id = parseInt(session.user.id);
+        // Mentor without pilot school can only access their own visits
+        const currentUserId = parseInt(session.user.id.toString());
+        if (!isNaN(currentUserId)) {
+          where.mentor_id = currentUserId;
+        }
       }
     } else if (session.user.role === "teacher") {
       if (session.user.pilot_school_id) {
+        // Teachers can only access visits at their pilot school
         where.pilot_school_id = session.user.pilot_school_id;
       } else {
         // If teacher has no pilot school, they can't see any visits
