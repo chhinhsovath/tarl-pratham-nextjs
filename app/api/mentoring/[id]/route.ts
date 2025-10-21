@@ -18,14 +18,25 @@ function hasPermission(userRole: string, action: string): boolean {
 }
 
 // Helper function to check if user can access mentoring visit data
-function canAccessVisit(userRole: string, userPilotSchoolId: number | null, visitPilotSchoolId: number | null, mentorId: number, userId: string): boolean {
+function canAccessVisit(userRole: string, userPilotSchoolId: number | null, visitPilotSchoolId: number | null, mentorId: number, userId: string | number): boolean {
   if (userRole === "admin" || userRole === "coordinator") {
     return true;
   }
   
   if (userRole === "mentor") {
     // Mentors can only access their own visits or visits at their pilot school
-    return mentorId === parseInt(userId) || (userPilotSchoolId && visitPilotSchoolId === userPilotSchoolId);
+    let currentUserId: number;
+    if (typeof userId === 'string') {
+      currentUserId = parseInt(userId);
+    } else {
+      currentUserId = userId;
+    }
+    
+    if (isNaN(currentUserId)) {
+      return false; // If user ID is not a valid number, deny access
+    }
+    
+    return mentorId === currentUserId || (userPilotSchoolId && visitPilotSchoolId === userPilotSchoolId);
   }
   
   if (userRole === "teacher" && userPilotSchoolId) {
@@ -69,25 +80,14 @@ export async function GET(
             role: true
           }
         },
-        teacher: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true
-          }
-        },
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true,
-            province: {
-              select: {
-                name_english: true,
-                name_khmer: true
-              }
-            }
+            school_name: true,
+            school_code: true,
+            province: true,
+            district: true,
+            cluster: true
           }
         }
       }
@@ -313,25 +313,14 @@ export async function PUT(
             role: true
           }
         },
-        teacher: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true
-          }
-        },
         pilot_school: {
           select: {
             id: true,
-            name: true,
-            code: true,
-            province: {
-              select: {
-                name_english: true,
-                name_khmer: true
-              }
-            }
+            school_name: true,
+            school_code: true,
+            province: true,
+            district: true,
+            cluster: true
           }
         }
       }
