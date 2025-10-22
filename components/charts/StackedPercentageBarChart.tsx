@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -113,36 +113,6 @@ const CustomTooltip = memo(({ active, payload, label, cycleTranslations, levelTr
 
 CustomTooltip.displayName = 'CustomTooltip';
 
-// Custom label renderer - memoized
-const renderCustomLabel = useCallback((props: any) => {
-  const { x, y, width, height, payload, dataKey } = props;
-
-  // Safety check: ensure payload and dataKey exist
-  if (!payload || !dataKey) return null;
-
-  // Get the actual segment value (not cumulative)
-  const segmentValue = payload[dataKey];
-
-  // Safety check: ensure segmentValue is a valid number
-  if (typeof segmentValue !== 'number' || isNaN(segmentValue)) return null;
-
-  // Only show label if percentage is greater than 5%
-  if (segmentValue < 5) return null;
-
-  return (
-    <text
-      x={x + width / 2}
-      y={y + height / 2}
-      fill="white"
-      textAnchor="middle"
-      dominantBaseline="central"
-      style={{ fontSize: '11px', fontWeight: 'bold' }}
-    >
-      {Math.round(segmentValue * 10) / 10}%
-    </text>
-  );
-}, []);
-
 function StackedPercentageBarChart({
   data,
   title = 'លទ្ធផលការវាយតម្លៃ',
@@ -181,6 +151,36 @@ function StackedPercentageBarChart({
       return percentageData;
     });
   }, [data, levelNames]);
+
+  // Custom label renderer inside component (not at module level)
+  const renderCustomLabel = (props: any) => {
+    const { x, y, width, height, payload, dataKey } = props;
+
+    // Safety check: ensure payload and dataKey exist
+    if (!payload || !dataKey) return null;
+
+    // Get the actual segment value (not cumulative)
+    const segmentValue = payload[dataKey];
+
+    // Safety check: ensure segmentValue is a valid number
+    if (typeof segmentValue !== 'number' || isNaN(segmentValue)) return null;
+
+    // Only show label if percentage is greater than 5%
+    if (segmentValue < 5) return null;
+
+    return (
+      <text
+        x={x + width / 2}
+        y={y + height / 2}
+        fill="white"
+        textAnchor="middle"
+        dominantBaseline="central"
+        style={{ fontSize: '11px', fontWeight: 'bold' }}
+      >
+        {Math.round(segmentValue * 10) / 10}%
+      </text>
+    );
+  };
 
   return (
     <Card title={title} style={{ height: '100%' }}>
