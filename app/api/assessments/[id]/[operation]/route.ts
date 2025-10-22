@@ -37,17 +37,17 @@ function canAccessAssessment(userRole: string, userId: number, assessment: any):
 // POST /api/assessments/[id]/[operation] - Perform individual operations
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string; operation: string } }
+  { params }: { params: Promise<{ id: string; operation: string }> }
 ) {
+  const { id, operation } = await params;
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const assessmentId = parseInt(params.id);
-    const operation = params.operation;
+    const assessmentId = parseInt(id);
     
     if (isNaN(assessmentId)) {
       return NextResponse.json({ error: 'Invalid assessment ID' }, { status: 400 });
