@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -53,38 +53,43 @@ const levelTranslations: { [key: string]: string } = {
   'Problems': 'ចំណោទ'
 };
 
-export default function LevelDistributionChart({
+const CustomTooltip = memo(({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{
+        backgroundColor: 'white',
+        padding: '10px',
+        border: '1px solid #ccc',
+        borderRadius: '4px'
+      }}>
+        <p style={{ margin: 0, fontWeight: 'bold' }}>{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} style={{ margin: '4px 0 0 0', color: entry.color }}>
+            {entry.name}: {entry.value} សិស្ស
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+});
+
+CustomTooltip.displayName = 'CustomTooltip';
+
+function LevelDistributionChart({
   data,
   title = 'ការចែកចាយតាមកម្រិត'
 }: LevelDistributionChartProps) {
-  // Filter out levels where both subjects have 0, then translate to Khmer
-  const chartData = data
-    .filter(item => item.khmer > 0 || item.math > 0) // Only show levels with actual data
-    .map(item => ({
-      ...item,
-      levelKh: levelTranslations[item.level] || item.level
-    }));
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div style={{
-          backgroundColor: 'white',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px'
-        }}>
-          <p style={{ margin: 0, fontWeight: 'bold' }}>{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ margin: '4px 0 0 0', color: entry.color }}>
-              {entry.name}: {entry.value} សិស្ស
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
+  // Memoize chart data transformation
+  const chartData = useMemo(() =>
+    data
+      .filter(item => item.khmer > 0 || item.math > 0) // Only show levels with actual data
+      .map(item => ({
+        ...item,
+        levelKh: levelTranslations[item.level] || item.level
+      })),
+    [data]
+  );
 
   return (
     <Card title={title} style={{ height: '100%' }}>
@@ -118,3 +123,13 @@ export default function LevelDistributionChart({
     </Card>
   );
 }
+
+export default memo(LevelDistributionChart, (prevProps, nextProps) => {
+  if (prevProps.title !== nextProps.title) return false;
+  if (prevProps.data.length !== nextProps.data.length) return false;
+  return prevProps.data.every((item, index) =>
+    item.level === nextProps.data[index].level &&
+    item.khmer === nextProps.data[index].khmer &&
+    item.math === nextProps.data[index].math
+  );
+});

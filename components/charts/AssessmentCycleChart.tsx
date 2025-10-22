@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import {
   BarChart,
   Bar,
@@ -25,12 +25,35 @@ interface AssessmentCycleChartProps {
   type?: 'bar' | 'line';
 }
 
-export default function AssessmentCycleChart({
+// Memoized tooltip component
+const CustomTooltip = memo(({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{
+        backgroundColor: 'white',
+        padding: '10px',
+        border: '1px solid #ccc',
+        borderRadius: '4px'
+      }}>
+        <p style={{ margin: 0, fontWeight: 'bold' }}>{payload[0].payload.name}</p>
+        <p style={{ margin: '4px 0 0 0', color: payload[0].fill }}>
+          សិស្ស: {payload[0].value}
+        </p>
+      </div>
+    );
+  }
+  return null;
+});
+
+CustomTooltip.displayName = 'CustomTooltip';
+
+function AssessmentCycleChart({
   data,
   title = 'ការប្រៀបធៀបតាមវដ្តវាយតម្លៃ',
   type = 'bar'
 }: AssessmentCycleChartProps) {
-  const chartData = [
+  // Memoize chart data - only recompute when data actually changes
+  const chartData = useMemo(() => [
     {
       name: 'តេស្តដើមគ្រា',
       count: data.baseline || 0,
@@ -46,26 +69,7 @@ export default function AssessmentCycleChart({
       count: data.endline || 0,
       fill: '#ffc658'
     }
-  ];
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div style={{
-          backgroundColor: 'white',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px'
-        }}>
-          <p style={{ margin: 0, fontWeight: 'bold' }}>{payload[0].payload.name}</p>
-          <p style={{ margin: '4px 0 0 0', color: payload[0].fill }}>
-            សិស្ស: {payload[0].value}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
+  ], [data.baseline, data.midline, data.endline]);
 
   return (
     <Card title={title} style={{ height: '100%' }}>
@@ -107,3 +111,14 @@ export default function AssessmentCycleChart({
     </Card>
   );
 }
+
+// Export memoized component with custom comparison
+export default memo(AssessmentCycleChart, (prevProps, nextProps) => {
+  return (
+    prevProps.data.baseline === nextProps.data.baseline &&
+    prevProps.data.midline === nextProps.data.midline &&
+    prevProps.data.endline === nextProps.data.endline &&
+    prevProps.title === nextProps.title &&
+    prevProps.type === nextProps.type
+  );
+});

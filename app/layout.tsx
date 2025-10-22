@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Hanuman } from "next/font/google";
 import "./globals.css";
 import "@/styles/mobile-optimized.css";
-import StyledComponentsRegistry from "@/lib/antd-registry";
+import StyledComponentsRegistry, { AntdStyleProvider } from "@/lib/antd-registry";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
 import AntdProvider from "@/components/providers/AntdProvider";
 import WarningSuppressor from "@/components/providers/WarningSuppressor";
@@ -13,11 +13,15 @@ import TourProvider from "@/components/tour/TourProvider";
 import OfflineIndicator from "@/components/mobile/OfflineIndicator";
 import BottomNavigation from "@/components/mobile/BottomNavigation";
 
-const hanuman = Hanuman({ 
+// Optimized font loading: Load only essential weights (400 and 700)
+// Reduces font file size by ~50% while maintaining readability
+const hanuman = Hanuman({
   subsets: ["khmer"],
-  weight: ["300", "400", "700", "900"],
+  weight: ["400", "700"],
   display: "swap",
-  variable: "--font-hanuman"
+  preload: true,
+  variable: "--font-hanuman",
+  fallback: ["Khmer OS", "sans-serif"]
 });
 
 export const metadata: Metadata = {
@@ -54,9 +58,11 @@ export default function RootLayout({
               <AntdProvider>
                 <PWAProvider>
                   <TourProvider>
-                    <OfflineIndicator />
-                    {children}
-                    <BottomNavigation />
+                    <AntdStyleProvider>
+                      <OfflineIndicator />
+                      {children}
+                      <BottomNavigation />
+                    </AntdStyleProvider>
                   </TourProvider>
                 </PWAProvider>
               </AntdProvider>

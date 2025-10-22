@@ -3,13 +3,17 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     domains: ['localhost', 'plp.moeys.gov.kh', 'tarl.dashboardkh.com'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 86400, // 24 hours caching for images
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
+    dirs: ['app', 'components', 'lib'],
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   output: 'standalone',
 
@@ -20,14 +24,18 @@ const nextConfig: NextConfig = {
   // Enable compression
   compress: true,
 
-  // Generate unique build IDs to force cache invalidation
+  // Use git commit hash for stable build IDs (better CDN cache hit rate)
   generateBuildId: async () => {
-    // Include timestamp to force new chunk filenames and bypass cache
-    const timestamp = Date.now();
-    if (process.env.NODE_ENV === 'production') {
-      return `build-${process.env.VERCEL_GIT_COMMIT_SHA || 'production'}-${timestamp}`;
+    if (process.env.VERCEL_GIT_COMMIT_SHA) {
+      return process.env.VERCEL_GIT_COMMIT_SHA;
     }
-    return `build-${timestamp}`;
+    // Fallback to git commit hash locally
+    try {
+      const { execSync } = require('child_process');
+      return execSync('git rev-parse HEAD').toString().trim();
+    } catch {
+      return 'development';
+    }
   },
 
   // Optimized caching strategy

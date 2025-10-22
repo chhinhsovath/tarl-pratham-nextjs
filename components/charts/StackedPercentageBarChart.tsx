@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import {
   BarChart,
   Bar,
@@ -79,13 +79,77 @@ const defaultColors: { [key: string]: string } = {
   'word_problems': '#8B5CF6',  // PURPLE - Word Problems (same as Comprehension 1)
 };
 
-export default function StackedPercentageBarChart({
+const CustomTooltip = memo(({ active, payload, label, cycleTranslations, levelTranslations }: any) => {
+  if (active && payload && payload.length) {
+    const total = payload[0].payload.total;
+
+    return (
+      <div style={{
+        backgroundColor: 'white',
+        padding: '12px',
+        border: '1px solid #ccc',
+        borderRadius: '6px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+      }}>
+        <p style={{ margin: 0, fontWeight: 'bold', marginBottom: '8px' }}>{cycleTranslations[label] || label}</p>
+        <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>
+          សរុប: {total} សិស្ស
+        </p>
+        {payload.map((entry: any, index: number) => {
+          const count = entry.payload[`${entry.dataKey}_count`];
+          const percentage = entry.value;
+
+          return (
+            <p key={index} style={{ margin: '4px 0', color: entry.color, fontSize: '12px' }}>
+              {levelTranslations[entry.dataKey] || entry.dataKey}: {Math.round(percentage)}% ({count})
+            </p>
+          );
+        })}
+      </div>
+    );
+  }
+  return null;
+});
+
+CustomTooltip.displayName = 'CustomTooltip';
+
+// Custom label renderer - memoized
+const renderCustomLabel = useCallback((props: any) => {
+  const { x, y, width, height, payload, dataKey } = props;
+
+  // Safety check: ensure payload and dataKey exist
+  if (!payload || !dataKey) return null;
+
+  // Get the actual segment value (not cumulative)
+  const segmentValue = payload[dataKey];
+
+  // Safety check: ensure segmentValue is a valid number
+  if (typeof segmentValue !== 'number' || isNaN(segmentValue)) return null;
+
+  // Only show label if percentage is greater than 5%
+  if (segmentValue < 5) return null;
+
+  return (
+    <text
+      x={x + width / 2}
+      y={y + height / 2}
+      fill="white"
+      textAnchor="middle"
+      dominantBaseline="central"
+      style={{ fontSize: '11px', fontWeight: 'bold' }}
+    >
+      {Math.round(segmentValue * 10) / 10}%
+    </text>
+  );
+}, []);
+
+function StackedPercentageBarChart({
   data,
   title = 'លទ្ធផលការវាយតម្លៃ',
   colors = defaultColors
 }: StackedPercentageBarChartProps) {
   // Get all unique level names from the data
-  const levelNames = React.useMemo(() => {
+  const levelNames = useMemo(() => {
     const names = new Set<string>();
     data.forEach(cycle => {
       Object.keys(cycle.levels).forEach(level => names.add(level));
@@ -94,7 +158,7 @@ export default function StackedPercentageBarChart({
   }, [data]);
 
   // Transform data: convert counts to percentages while preserving original counts
-  const chartData = React.useMemo(() => {
+  const chartData = useMemo(() => {
     return data.map(cycle => {
       // Calculate total for this cycle
       const total = Object.values(cycle.levels).reduce((sum, count) => sum + count, 0);
@@ -118,69 +182,6 @@ export default function StackedPercentageBarChart({
     });
   }, [data, levelNames]);
 
-  // Custom tooltip showing both percentage and count
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const total = payload[0].payload.total;
-
-      return (
-        <div style={{
-          backgroundColor: 'white',
-          padding: '12px',
-          border: '1px solid #ccc',
-          borderRadius: '6px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-        }}>
-          <p style={{ margin: 0, fontWeight: 'bold', marginBottom: '8px' }}>{cycleTranslations[label] || label}</p>
-          <p style={{ margin: '4px 0', fontSize: '12px', color: '#666' }}>
-            សរុប: {total} សិស្ស
-          </p>
-          {payload.map((entry: any, index: number) => {
-            const count = entry.payload[`${entry.dataKey}_count`];
-            const percentage = entry.value;
-
-            return (
-              <p key={index} style={{ margin: '4px 0', color: entry.color, fontSize: '12px' }}>
-                {levelTranslations[entry.dataKey] || entry.dataKey}: {Math.round(percentage)}% ({count})
-              </p>
-            );
-          })}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Custom label formatter for bars - only show if > 5%
-  const renderCustomLabel = (props: any) => {
-    const { x, y, width, height, payload, dataKey } = props;
-
-    // Safety check: ensure payload and dataKey exist
-    if (!payload || !dataKey) return null;
-
-    // Get the actual segment value (not cumulative)
-    const segmentValue = payload[dataKey];
-
-    // Safety check: ensure segmentValue is a valid number
-    if (typeof segmentValue !== 'number' || isNaN(segmentValue)) return null;
-
-    // Only show label if percentage is greater than 5%
-    if (segmentValue < 5) return null;
-
-    return (
-      <text
-        x={x + width / 2}
-        y={y + height / 2}
-        fill="white"
-        textAnchor="middle"
-        dominantBaseline="central"
-        style={{ fontSize: '11px', fontWeight: 'bold' }}
-      >
-        {Math.round(segmentValue * 10) / 10}%
-      </text>
-    );
-  };
-
   return (
     <Card title={title} style={{ height: '100%' }}>
       <ResponsiveContainer width="100%" height={400}>
@@ -200,7 +201,7 @@ export default function StackedPercentageBarChart({
             label={{ value: 'ភាគរយនិស្សិត', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
             style={{ fontSize: '11px' }}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip cycleTranslations={cycleTranslations} levelTranslations={levelTranslations} />} />
           <Legend
             wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }}
             formatter={(value) => levelTranslations[value as string] || value}
@@ -250,3 +251,17 @@ export default function StackedPercentageBarChart({
     </Card>
   );
 }
+
+export default memo(StackedPercentageBarChart, (prevProps, nextProps) => {
+  if (prevProps.title !== nextProps.title) return false;
+  if (prevProps.data.length !== nextProps.data.length) return false;
+  return prevProps.data.every((item, index) => {
+    const nextItem = nextProps.data[index];
+    if (item.cycle !== nextItem.cycle) return false;
+    const itemLevels = Object.keys(item.levels);
+    if (itemLevels.length !== Object.keys(nextItem.levels).length) return false;
+    return itemLevels.every(level =>
+      item.levels[level] === nextItem.levels[level]
+    );
+  });
+});

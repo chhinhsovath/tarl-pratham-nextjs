@@ -134,132 +134,87 @@ export async function GET(req: NextRequest) {
       ? { pilot_school_id: user.pilot_school_id }
       : {};
 
-    // Batch 1: Assessment breakdowns by type and subject
-    const [
-      baseline_assessments,
-      midline_assessments,
-      endline_assessments,
-      language_assessments,
-      math_assessments,
-      level_distribution_khmer,
-      level_distribution_math,
-    ] = await Promise.all([
-      prisma.assessment.count({
-        where: {
-          student: schoolFilter,
-          assessment_type: 'baseline'
-        }
-      }),
-      prisma.assessment.count({
-        where: {
-          student: schoolFilter,
-          assessment_type: 'midline'
-        }
-      }),
-      prisma.assessment.count({
-        where: {
-          student: schoolFilter,
-          assessment_type: 'endline'
-        }
-      }),
-      prisma.assessment.count({
-        where: {
-          student: schoolFilter,
-          subject: 'Language'
-        }
-      }),
-      prisma.assessment.count({
-        where: {
-          student: schoolFilter,
-          subject: 'Math'
-        }
-      }),
-      // Group assessments by level for Khmer (Language)
-      prisma.assessment.groupBy({
-        by: ['level'],
-        where: {
-          student: schoolFilter,
-          subject: 'Language'
-        },
-        _count: { id: true }
-      }),
-      // Group assessments by level for Math
-      prisma.assessment.groupBy({
-        by: ['level'],
-        where: {
-          student: schoolFilter,
-          subject: 'Math'
-        },
-        _count: { id: true }
-      }),
-    ]);
+    // Optimized: Single aggregated query instead of 13 separate calls
+    const assessmentStats = await prisma.assessment.groupBy({
+      by: ['assessment_type', 'subject', 'level'],
+      where: {
+        student: schoolFilter,
+      },
+      _count: { id: true }
+    });
 
-    // Batch 2: Overall results by cycle and level (for stacked percentage charts)
-    const [
-      baseline_by_level_khmer,
-      midline_by_level_khmer,
-      endline_by_level_khmer,
-      baseline_by_level_math,
-      midline_by_level_math,
-      endline_by_level_math,
-    ] = await Promise.all([
-      // Khmer levels by cycle
-      prisma.assessment.groupBy({
-        by: ['level'],
-        where: {
-          student: schoolFilter,
-          subject: 'Language',
-          assessment_type: 'baseline'
-        },
-        _count: { id: true }
-      }),
-      prisma.assessment.groupBy({
-        by: ['level'],
-        where: {
-          student: schoolFilter,
-          subject: 'Language',
-          assessment_type: 'midline'
-        },
-        _count: { id: true }
-      }),
-      prisma.assessment.groupBy({
-        by: ['level'],
-        where: {
-          student: schoolFilter,
-          subject: 'Language',
-          assessment_type: 'endline'
-        },
-        _count: { id: true }
-      }),
-      // Math levels by cycle
-      prisma.assessment.groupBy({
-        by: ['level'],
-        where: {
-          student: schoolFilter,
-          subject: 'Math',
-          assessment_type: 'baseline'
-        },
-        _count: { id: true }
-      }),
-      prisma.assessment.groupBy({
-        by: ['level'],
-        where: {
-          student: schoolFilter,
-          subject: 'Math',
-          assessment_type: 'midline'
-        },
-        _count: { id: true }
-      }),
-      prisma.assessment.groupBy({
-        by: ['level'],
-        where: {
-          student: schoolFilter,
-          subject: 'Math',
-          assessment_type: 'endline'
-        },
-        _count: { id: true }
-      }),
-    ]);
+    // Process aggregated results in memory (much faster)
+    const stats: Record<string, any> = {
+      baseline: 0,
+      midline: 0,
+      endline: 0,
+      language: 0,
+      math: 0,
+      levels: {} as Record<string, { khmer: number; math: number }>,
+      by_cycle_level: {
+        baseline: { khmer: {} as Record<string, number>, math: {} as Record<string, number> },
+        midline: { khmer: {} as Record<string, number>, math: {} as Record<string, number> },
+        endline: { khmer: {} as Record<string, number>, math: {} as Record<string, number> }
+      }
+    };
+
+    // Aggregate data in memory
+    assessmentStats.forEach(stat => {
+      const { assessment_type, subject, level, _count } = stat;
+      const count = _count.id;
+
+      // By type
+      stats[assessment_type] = (stats[assessment_type] || 0) + count;
+
+      // By subject
+      stats[subject === 'Language' ? 'language' : 'math'] =
+        (stats[subject === 'Language' ? 'language' : 'math'] || 0) + count;
+
+      // By level (combined)
+      if (!stats.levels[level]) {
+        stats.levels[level] = { khmer: 0, math: 0 };
+      }
+      if (subject === 'Language') {
+        stats.levels[level].khmer += count;
+      } else {
+        stats.levels[level].math += count;
+      }
+
+      // By cycle and level
+      if (subject === 'Language') {
+        stats.by_cycle_level[assessment_type].khmer[level] =
+          (stats.by_cycle_level[assessment_type].khmer[level] || 0) + count;
+      } else {
+        stats.by_cycle_level[assessment_type].math[level] =
+          (stats.by_cycle_level[assessment_type].math[level] || 0) + count;
+      }
+    });
+
+    const baseline_assessments = stats.baseline;
+    const midline_assessments = stats.midline;
+    const endline_assessments = stats.endline;
+    const language_assessments = stats.language;
+    const math_assessments = stats.math;
+    const level_distribution_khmer = Object.entries(stats.levels)
+      .map(([level, data]) => ({ level, _count: { id: data.khmer } }))
+      .filter(item => item.level);
+    const level_distribution_math = Object.entries(stats.levels)
+      .map(([level, data]) => ({ level, _count: { id: data.math } }))
+      .filter(item => item.level);
+
+    // Format results for charts
+    const baseline_by_level_khmer = Object.entries(stats.by_cycle_level.baseline.khmer)
+      .map(([level, count]) => ({ level, _count: { id: count } }));
+    const midline_by_level_khmer = Object.entries(stats.by_cycle_level.midline.khmer)
+      .map(([level, count]) => ({ level, _count: { id: count } }));
+    const endline_by_level_khmer = Object.entries(stats.by_cycle_level.endline.khmer)
+      .map(([level, count]) => ({ level, _count: { id: count } }));
+    const baseline_by_level_math = Object.entries(stats.by_cycle_level.baseline.math)
+      .map(([level, count]) => ({ level, _count: { id: count } }));
+    const midline_by_level_math = Object.entries(stats.by_cycle_level.midline.math)
+      .map(([level, count]) => ({ level, _count: { id: count } }));
+    const endline_by_level_math = Object.entries(stats.by_cycle_level.endline.math)
+      .map(([level, count]) => ({ level, _count: { id: count } }));
 
     // Format overall results by cycle for stacked percentage chart (Khmer)
     const overall_results_khmer = [

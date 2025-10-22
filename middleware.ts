@@ -99,5 +99,16 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    /*
+     * Optimized matcher - runs middleware only where needed
+     * Excludes:
+     * - _next/static (static files)
+     * - _next/image (image optimization)
+     * - favicon.ico, icons, manifests
+     * - public assets (.png, .jpg, .webp, .css, .js, .svg)
+     * - health checks
+     */
+    '/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|gif|webp|svg|css|js|woff|woff2)).*))',
+  ],
 };
