@@ -44,9 +44,19 @@ export async function GET(request: NextRequest) {
     // Use standardized pilot schools function
     const schools = await getAllPilotSchools();
 
-    return NextResponse.json({
+    // Cache this response - schools list changes infrequently
+    const response = NextResponse.json({
       data: schools
     });
+
+    // Set cache headers for frequently-accessed dropdown data
+    // Public cache: safe to cache, revalidate every 1 hour
+    response.headers.set(
+      'Cache-Control',
+      'public, s-maxage=3600, stale-while-revalidate=86400'
+    );
+
+    return response;
 
   } catch (error) {
     console.error("Error fetching pilot schools:", error);

@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       students: undefined // Remove students array to avoid large response
     }));
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       classes: classesWithCounts,
       pagination: {
         page,
@@ -77,6 +77,17 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(total / limit)
       }
     });
+
+    // Cache class list for 30 minutes - changes infrequently
+    // Only cache when there's no search query (exact matches should not be cached)
+    if (!search && !school_id && !grade) {
+      response.headers.set(
+        'Cache-Control',
+        'public, s-maxage=1800, stale-while-revalidate=3600'
+      );
+    }
+
+    return response;
 
   } catch (error) {
     console.error('Classes fetch error:', error);
