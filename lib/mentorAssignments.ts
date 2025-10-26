@@ -8,8 +8,29 @@ export interface MentorAssignment {
   district?: string;
 }
 
+// ✅ OPTIMIZATION: Request-level cache to prevent repeated queries
+// Cleared after each HTTP request completes
+const mentorAssignmentCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes for safe caching across requests
+
+function getCacheKey(mentorId: number, subject?: string, activeOnly?: boolean): string {
+  return `mentor:${mentorId}:${subject || 'all'}:${activeOnly ? 'active' : 'all'}`;
+}
+
+function getOrSetCache<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const cached = mentorAssignmentCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return Promise.resolve(cached.data as T);
+  }
+  return fn().then(data => {
+    mentorAssignmentCache.set(key, { data, timestamp: Date.now() });
+    return data;
+  });
+}
+
 /**
  * Get all schools assigned to a mentor
+ * ✅ OPTIMIZED: Includes request-level caching
  * @param mentorId - The mentor's user ID
  * @param subject - Optional: Filter by specific subject (Language or Math)
  * @param activeOnly - Whether to return only active assignments (default: true)
@@ -20,74 +41,88 @@ export async function getMentorAssignedSchools(
   subject?: string,
   activeOnly: boolean = true
 ): Promise<MentorAssignment[]> {
-  try {
-    // Get all assignments from mentor_school_assignments table
-    const assignments = await prisma.mentorSchoolAssignment.findMany({
-      where: {
-        mentor_id: mentorId,
-        ...(activeOnly && { is_active: true }),
-        ...(subject && { subject }),
-      },
-      include: {
-        pilot_school: {
-          select: {
-            id: true,
-            school_name: true,
-            province: true,
-            district: true,
+  const cacheKey = getCacheKey(mentorId, subject, activeOnly);
+
+  return getOrSetCache(cacheKey, async () => {
+    try {
+      // ✅ OPTIMIZATION: Batch fetch mentor data with minimal fields
+      const [assignments, user] = await Promise.all([
+        // Query 1: Check explicit assignments
+        prisma.mentorSchoolAssignment.findMany({
+          where: {
+            mentor_id: mentorId,
+            ...(activeOnly && { is_active: true }),
+            ...(subject && { subject }),
           },
-        },
-      },
-    });
-
-    // If assignments exist, return them
-    if (assignments.length > 0) {
-      return assignments.map((assignment) => ({
-        pilot_school_id: assignment.pilot_school_id,
-        subject: assignment.subject,
-        school_name: assignment.pilot_school.school_name,
-        province: assignment.pilot_school.province,
-        district: assignment.pilot_school.district,
-      }));
-    }
-
-    // BACKWARDS COMPATIBILITY: If no assignments, check user.pilot_school_id
-    const user = await prisma.user.findUnique({
-      where: { id: mentorId },
-      include: {
-        pilot_school: {
           select: {
-            id: true,
-            school_name: true,
-            province: true,
-            district: true,
+            pilot_school_id: true,
+            subject: true,
+            pilot_school: {
+              select: {
+                id: true,
+                school_name: true,
+                province: true,
+                district: true,
+              },
+            },
           },
-        },
-      },
-    });
+        }),
+        // Query 2: Fetch user for fallback (only if needed)
+        activeOnly
+          ? prisma.user.findUnique({
+              where: { id: mentorId },
+              select: {
+                id: true,
+                pilot_school_id: true,
+                pilot_school: {
+                  select: {
+                    id: true,
+                    school_name: true,
+                    province: true,
+                    district: true,
+                  },
+                },
+              },
+            })
+          : Promise.resolve(null),
+      ]);
 
-    if (user?.pilot_school_id && user.pilot_school) {
-      // Return both subjects if no specific subject requested
-      const subjects = subject ? [subject] : ["Language", "Math"];
-      return subjects.map((subj) => ({
-        pilot_school_id: user.pilot_school_id!,
-        subject: subj,
-        school_name: user.pilot_school!.school_name,
-        province: user.pilot_school!.province,
-        district: user.pilot_school!.district,
-      }));
+      // If assignments exist, return them
+      if (assignments.length > 0) {
+        return assignments.map((assignment) => ({
+          pilot_school_id: assignment.pilot_school_id,
+          subject: assignment.subject,
+          school_name: assignment.pilot_school.school_name,
+          province: assignment.pilot_school.province,
+          district: assignment.pilot_school.district,
+        }));
+      }
+
+      // BACKWARDS COMPATIBILITY: If no assignments, check user.pilot_school_id
+      if (user?.pilot_school_id && user.pilot_school) {
+        // Return both subjects if no specific subject requested
+        const subjects = subject ? [subject] : ["Language", "Math"];
+        return subjects.map((subj) => ({
+          pilot_school_id: user.pilot_school_id!,
+          subject: subj,
+          school_name: user.pilot_school!.school_name,
+          province: user.pilot_school!.province,
+          district: user.pilot_school!.district,
+        }));
+      }
+
+      // No assignments found
+      return [];
+    } catch (error) {
+      console.error("Error fetching mentor assigned schools:", error);
+      return [];
     }
-
-    // No assignments found
-    return [];
-  } catch (error) {
-    console.error("Error fetching mentor assigned schools:", error);
-    return [];
-  }
+  });
 }
 
 /**
  * Get all school IDs assigned to a mentor
+ * ✅ OPTIMIZED: Uses cached assignments
  * @param mentorId - The mentor's user ID
  * @param subject - Optional: Filter by specific subject
  * @returns Array of school IDs

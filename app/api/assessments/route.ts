@@ -436,7 +436,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Helper function for bulk assessment creation
+// Helper function for bulk assessment creation - OPTIMIZED with batch queries
 async function handleBulkAssessment(body: any, session: any) {
   try {
     const validatedData = bulkAssessmentSchema.parse(body);
@@ -471,34 +471,63 @@ async function handleBulkAssessment(body: any, session: any) {
       }
     }
 
+    // ✅ OPTIMIZATION: Batch fetch all students at once (N+1 fix)
+    const studentIds = validatedData.assessments.map(a => a.student_id);
+    const students = await prisma.student.findMany({
+      where: { id: { in: studentIds } },
+      select: {
+        id: true,
+        name: true,
+        record_status: true
+      }
+    });
+    const studentMap = new Map(students.map(s => [s.id, s]));
+
+    // ✅ OPTIMIZATION: Batch check for existing assessments (N+1 fix)
+    const assessmentQueries = validatedData.assessments.map(a => ({
+      student_id: a.student_id,
+      assessment_type: a.assessment_type,
+      subject: a.subject
+    }));
+
+    const existingAssessments = await prisma.assessment.findMany({
+      where: {
+        OR: assessmentQueries
+      },
+      select: {
+        id: true,
+        student_id: true,
+        assessment_type: true,
+        subject: true
+      }
+    });
+
+    // Create lookup for quick access
+    const existingAssessmentSet = new Set(
+      existingAssessments.map(
+        a => `${a.student_id}:${a.assessment_type}:${a.subject}`
+      )
+    );
+
     const results = [];
     const errors = [];
 
-    // Process each assessment in a transaction
+    // ✅ OPTIMIZATION: Process assessments with pre-fetched data
     for (let i = 0; i < validatedData.assessments.length; i++) {
       const assessmentData = validatedData.assessments[i];
-      
+
       try {
-        // Check if student exists
-        const student = await prisma.student.findUnique({
-          where: { id: assessmentData.student_id }
-        });
-        
+        // Check if student exists (O(1) lookup)
+        const student = studentMap.get(assessmentData.student_id);
+
         if (!student) {
           errors.push(`Assessment ${i + 1}: Student with ID ${assessmentData.student_id} not found`);
           continue;
         }
 
-        // Check for duplicate assessment
-        const existingAssessment = await prisma.assessment.findFirst({
-          where: {
-            student_id: assessmentData.student_id,
-            assessment_type: assessmentData.assessment_type,
-            subject: assessmentData.subject
-          }
-        });
-
-        if (existingAssessment) {
+        // Check for duplicate assessment (O(1) lookup)
+        const key = `${assessmentData.student_id}:${assessmentData.assessment_type}:${assessmentData.subject}`;
+        if (existingAssessmentSet.has(key)) {
           errors.push(`Assessment ${i + 1}: ${assessmentData.assessment_type} ${assessmentData.subject} assessment already exists for student ${student.name}`);
           continue;
         }
@@ -509,12 +538,13 @@ async function handleBulkAssessment(body: any, session: any) {
             ...assessmentData,
             pilot_school_id: pilot_school_id,
             added_by_id: parseInt(session.user.id),
-            assessed_by_mentor: session.user.role === "mentor",
-            is_temporary: session.user.role === "mentor" ? true : false,
+            assessed_by_mentor: assessmentData.assessed_by_mentor !== undefined ? assessmentData.assessed_by_mentor : (session.user.role === "mentor"),
+            is_temporary: assessmentData.mentor_assessment_id ? false : (session.user.role === "mentor" ? true : false),
             assessed_date: assessmentData.assessed_date ? new Date(assessmentData.assessed_date) : new Date(),
-            record_status: recordStatus,
+            record_status: assessmentData.mentor_assessment_id ? 'production' : recordStatus,
             created_by_role: session.user.role,
-            test_session_id: testSessionId
+            test_session_id: testSessionId,
+            mentor_assessment_id: assessmentData.mentor_assessment_id || null
           },
           include: {
             student: {
@@ -527,7 +557,7 @@ async function handleBulkAssessment(body: any, session: any) {
         });
 
         // Update student assessment level
-        const levelField = `${assessmentData.assessment_type}_${assessmentData.subject}_level`;
+        const levelField = buildLevelFieldName(assessmentData.assessment_type, assessmentData.subject);
         await prisma.student.update({
           where: { id: assessmentData.student_id },
           data: {
@@ -561,7 +591,7 @@ async function handleBulkAssessment(body: any, session: any) {
         { status: 400 }
       );
     }
-    
+
     console.error("Error creating bulk assessments:", error);
     return NextResponse.json(
       { error: "Internal server error" },
