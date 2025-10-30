@@ -98,6 +98,7 @@ export async function GET(request: NextRequest) {
     const is_active = searchParams.get("is_active");
     const is_temporary = searchParams.get("is_temporary");
     const include_test_data = searchParams.get("include_test_data") === "true";
+    const include_assessment_status = searchParams.get("include_assessment_status") === "true";
 
     const skip = (page - 1) * limit;
 
@@ -246,8 +247,44 @@ export async function GET(request: NextRequest) {
       prisma.student.count({ where })
     ]);
 
+    // Fetch assessment status if requested
+    let studentsWithStatus = students;
+    if (include_assessment_status && students.length > 0) {
+      const studentIds = students.map(s => s.id);
+
+      // Fetch assessments for all students in a single query
+      const assessments = await prisma.assessment.findMany({
+        where: {
+          student_id: { in: studentIds }
+        },
+        select: {
+          student_id: true,
+          assessment_type: true,
+          subject: true
+        }
+      });
+
+      // Build assessment status map
+      const statusMap: Record<number, any> = {};
+      assessments.forEach(a => {
+        if (!statusMap[a.student_id]) {
+          statusMap[a.student_id] = {};
+        }
+        const type = a.assessment_type.replace('_verification', ''); // Remove _verification suffix
+        const subject = a.subject.toLowerCase();
+        const key = `${type}_${subject}`;
+        statusMap[a.student_id][key] = true;
+      });
+
+      // Add assessment_status to each student
+      studentsWithStatus = students.map(student => ({
+        ...student,
+        assessment_status: statusMap[student.id] || {}
+      }));
+    }
+
     return NextResponse.json({
-      data: students,
+      data: studentsWithStatus,
       pagination: {
         page,
         limit,

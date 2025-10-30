@@ -24,6 +24,14 @@ interface Student {
   baseline_khmer_level?: string | null;
   baseline_math_level?: string | null;
   record_status?: string;
+  assessment_status?: {
+    baseline_language?: boolean;
+    baseline_math?: boolean;
+    midline_language?: boolean;
+    midline_math?: boolean;
+    endline_language?: boolean;
+    endline_math?: boolean;
+  };
 }
 
 interface StudentSelectionStepProps {
@@ -75,8 +83,8 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
           message.error('រកមិនឃើញសិស្ស');
         }
       } else {
-        // Otherwise, fetch all students
-        const response = await fetch('/api/students');
+        // Otherwise, fetch all students with assessment status
+        const response = await fetch('/api/students?include_assessment_status=true');
         if (response.ok) {
           const result = await response.json();
           setStudents(result.data || []);
@@ -137,16 +145,61 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
       }
     },
     {
-      title: 'ស្ថានភាព',
-      key: 'status',
-      width: 120,
+      title: 'ការវាយតម្លៃ',
+      key: 'assessments',
+      width: 250,
       className: 'mobile-hide',
       render: (_: any, record: Student) => {
-        const hasBaseline = record.baseline_khmer_level || record.baseline_math_level;
-        return hasBaseline ? (
-          <Tag color="green">បានធ្វើតេស្ត</Tag>
-        ) : (
-          <Tag color="orange">មិនទាន់ធ្វើ</Tag>
+        const status = record.assessment_status || {};
+
+        return (
+          <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            <Space size={4} wrap>
+              <Text type="secondary" style={{ fontSize: '11px', width: '35px' }}>ដើម:</Text>
+              <Tag
+                color={status.baseline_language ? 'blue' : 'default'}
+                style={{ fontSize: '10px', padding: '0 4px', margin: 0 }}
+              >
+                {status.baseline_language ? '✓' : '−'} ខ្មែរ
+              </Tag>
+              <Tag
+                color={status.baseline_math ? 'green' : 'default'}
+                style={{ fontSize: '10px', padding: '0 4px', margin: 0 }}
+              >
+                {status.baseline_math ? '✓' : '−'} គណិត
+              </Tag>
+            </Space>
+            <Space size={4} wrap>
+              <Text type="secondary" style={{ fontSize: '11px', width: '35px' }}>កណ្ដាល:</Text>
+              <Tag
+                color={status.midline_language ? 'blue' : 'default'}
+                style={{ fontSize: '10px', padding: '0 4px', margin: 0 }}
+              >
+                {status.midline_language ? '✓' : '−'} ខ្មែរ
+              </Tag>
+              <Tag
+                color={status.midline_math ? 'green' : 'default'}
+                style={{ fontSize: '10px', padding: '0 4px', margin: 0 }}
+              >
+                {status.midline_math ? '✓' : '−'} គណិត
+              </Tag>
+            </Space>
+            <Space size={4} wrap>
+              <Text type="secondary" style={{ fontSize: '11px', width: '35px' }}>ចុង:</Text>
+              <Tag
+                color={status.endline_language ? 'blue' : 'default'}
+                style={{ fontSize: '10px', padding: '0 4px', margin: 0 }}
+              >
+                {status.endline_language ? '✓' : '−'} ខ្មែរ
+              </Tag>
+              <Tag
+                color={status.endline_math ? 'green' : 'default'}
+                style={{ fontSize: '10px', padding: '0 4px', margin: 0 }}
+              >
+                {status.endline_math ? '✓' : '−'} គណិត
+              </Tag>
+            </Space>
+          </Space>
         );
       }
     },
