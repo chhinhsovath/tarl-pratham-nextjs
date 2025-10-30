@@ -15,6 +15,7 @@ interface Student {
   name: string;
   sex?: string;
   gender?: string;
+  grade?: number;
   grade_level?: number;
   school_class?: {
     id: number;
@@ -104,43 +105,40 @@ export default function StudentSelectionStep({ selectedStudentId, onSelect }: St
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: Student) => (
-        <Space direction="vertical" size={4}>
-          <Space>
-            <Text strong>{text}</Text>
-            {record.id === selectedStudentId && (
-              <CheckCircleOutlined style={{ color: '#52c41a' }} />
-            )}
-          </Space>
-          <Space size={8}>
-            {(record.sex || record.gender) && (
-              <Text type="secondary" style={{ fontSize: '12px' }}>
-                {record.sex || record.gender}
-              </Text>
-            )}
-            {(record.school_class?.grade || record.grade_level) && (
-              <Text type="secondary" style={{ fontSize: '12px' }}>
-                ថ្នាក់ទី{record.school_class?.grade || record.grade_level}
-              </Text>
-            )}
-          </Space>
+        <Space>
+          <Text strong>{text}</Text>
+          {record.id === selectedStudentId && (
+            <CheckCircleOutlined style={{ color: '#52c41a' }} />
+          )}
         </Space>
       )
     },
     {
       title: 'ភេទ',
-      dataIndex: 'sex',
-      key: 'sex',
-      width: 80,
-      className: 'mobile-hide',
-      render: (_: any, record: Student) => record.sex || record.gender || '-'
+      dataIndex: 'gender',
+      key: 'gender',
+      width: 100,
+      render: (_: any, record: Student) => {
+        const gender = record.sex || record.gender;
+        const genderMap: Record<string, string> = {
+          'male': 'ប្រុស',
+          'female': 'ស្រី',
+          'other': 'ផ្សេងទៀត',
+          'ប្រុស': 'ប្រុស',
+          'ស្រី': 'ស្រី'
+        };
+        const label = genderMap[gender as string] || gender || '-';
+        const color = (gender === 'male' || gender === 'ប្រុស') ? 'blue' :
+                     (gender === 'female' || gender === 'ស្រី') ? 'pink' : 'default';
+        return <Tag color={color}>{label}</Tag>;
+      }
     },
     {
       title: 'ថ្នាក់',
       key: 'grade',
       width: 100,
-      className: 'mobile-hide',
       render: (_: any, record: Student) => {
-        const grade = record.school_class?.grade || record.grade_level;
+        const grade = record.grade || record.school_class?.grade || record.grade_level;
         return grade ? `ថ្នាក់ទី${grade}` : '-';
       }
     },
