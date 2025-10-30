@@ -50,9 +50,16 @@ export async function GET(request: NextRequest) {
     // Filter by verification status
     if (status === 'verified') {
       where.is_temporary = false;
-      where.record_status = 'production';
+      where.verified_at = { not: null };
     } else if (status === 'rejected') {
-      where.record_status = 'rejected';
+      // Rejected assessments: verified but still temporary (rejected means not approved)
+      where.is_temporary = true;
+      where.verified_at = { not: null };
+      where.verification_notes = { contains: 'Rejected', mode: 'insensitive' };
+    } else if (status === 'pending') {
+      // Pending: temporary and not verified yet
+      where.is_temporary = true;
+      where.verified_at = null;
     }
 
     // Additional filters
@@ -115,19 +122,43 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Get statistics
-    const stats = await prisma.assessment.groupBy({
-      by: ['is_temporary', 'record_status'],
-      where: session.user.role === 'mentor' && session.user.pilot_school_id
-        ? { pilot_school_id: session.user.pilot_school_id }
-        : {},
-      _count: true
-    });
+    const baseWhere = session.user.role === 'mentor' && session.user.pilot_school_id
+      ? { pilot_school_id: session.user.pilot_school_id }
+      : {};
+
+    const [pendingCount, verifiedCount, rejectedCount] = await Promise.all([
+      // Pending: temporary and not verified
+      prisma.assessment.count({
+        where: {
+          ...baseWhere,
+          is_temporary: true,
+          verified_at: null
+        }
+      }),
+      // Verified: not temporary and verified
+      prisma.assessment.count({
+        where: {
+          ...baseWhere,
+          is_temporary: false,
+          verified_at: { not: null }
+        }
+      }),
+      // Rejected: temporary but verified with rejection note
+      prisma.assessment.count({
+        where: {
+          ...baseWhere,
+          is_temporary: true,
+          verified_at: { not: null },
+          verification_notes: { contains: 'Rejected', mode: 'insensitive' }
+        }
+      })
+    ]);
 
     const statistics = {
-      pending: stats.find(s => s.is_temporary === true)?._count || 0,
-      verified: stats.find(s => s.is_temporary === false && s.record_status === 'production')?._count || 0,
-      rejected: stats.find(s => s.record_status === 'rejected')?._count || 0,
-      total: stats.reduce((sum, s) => sum + s._count, 0)
+      pending: pendingCount,
+      verified: verifiedCount,
+      rejected: rejectedCount,
+      total: pendingCount + verifiedCount + rejectedCount
     };
 
     return NextResponse.json({
@@ -255,14 +286,15 @@ export async function POST(request: NextRequest) {
 
         return { approved: updated.count };
       } else {
-        // Reject
+        // Reject - keep as temporary but mark as verified with rejection note
+        const rejectionNote = notes ? `Rejected: ${notes}` : 'Rejected';
         const updated = await tx.assessment.updateMany({
           where: { id: { in: assessment_ids } },
           data: {
-            record_status: 'rejected',
-            verified_by_id: session.user.id,
+            is_temporary: true, // Keep as temporary
+            verified_by_id: parseInt(session.user.id),
             verified_at: new Date(),
-            verification_notes: notes || null
+            verification_notes: rejectionNote
           }
         });
 
