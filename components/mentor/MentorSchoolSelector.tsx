@@ -50,7 +50,8 @@ export default function MentorSchoolSelector({
       if (!response.ok) throw new Error('Failed to fetch schools');
 
       const data = await response.json();
-      setSchools(data.schools || []);
+      // API returns { data: [...schools] }
+      setSchools(data.data || []);
     } catch (err: any) {
       console.error('Error fetching schools:', err);
       setError('មិនអាចទាញយកបញ្ជីសាលារៀន');
