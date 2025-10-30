@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getRecordStatus } from '@/lib/utils/recordStatus';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 // Helper function to check permissions
 function hasPermission(userRole: string, action: string): boolean {
@@ -18,12 +19,24 @@ function hasPermission(userRole: string, action: string): boolean {
 }
 
 // Helper function to check if user can access student data
-function canAccessStudent(userRole: string, userPilotSchoolId: number | null, studentPilotSchoolId: number | null): boolean {
+async function canAccessStudent(
+  userRole: string,
+  userId: string,
+  userPilotSchoolId: number | null,
+  studentPilotSchoolId: number | null
+): Promise<boolean> {
   if (userRole === "admin" || userRole === "coordinator") {
     return true;
   }
 
-  if ((userRole === "mentor" || userRole === "teacher") && userPilotSchoolId) {
+  if (userRole === "mentor") {
+    // Mentors can access students from ALL their assigned schools
+    if (!studentPilotSchoolId) return false;
+    const mentorSchoolIds = await getMentorSchoolIds(parseInt(userId));
+    return mentorSchoolIds.includes(studentPilotSchoolId);
+  }
+
+  if (userRole === "teacher" && userPilotSchoolId) {
     return studentPilotSchoolId === userPilotSchoolId;
   }
 
@@ -91,7 +104,8 @@ export async function GET(
     }
 
     // Check if user can access this student
-    if (!canAccessStudent(session.user.role, session.user.pilot_school_id, student.pilot_school_id)) {
+    const hasAccess = await canAccessStudent(session.user.role, session.user.id, session.user.pilot_school_id, student.pilot_school_id);
+    if (!hasAccess) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -148,7 +162,8 @@ export async function PUT(
     }
 
     // Check if user can access this student
-    if (!canAccessStudent(session.user.role, session.user.pilot_school_id, existingStudent.pilot_school_id)) {
+    const hasAccess = await canAccessStudent(session.user.role, session.user.id, session.user.pilot_school_id, existingStudent.pilot_school_id);
+    if (!hasAccess) {
       return NextResponse.json({ error: 'Forbidden - Cannot update students from other schools' }, { status: 403 });
     }
 
@@ -214,7 +229,8 @@ export async function DELETE(
     }
 
     // Check if user can access this student
-    if (!canAccessStudent(session.user.role, session.user.pilot_school_id, existingStudent.pilot_school_id)) {
+    const hasAccess = await canAccessStudent(session.user.role, session.user.id, session.user.pilot_school_id, existingStudent.pilot_school_id);
+    if (!hasAccess) {
       return NextResponse.json({ error: 'Forbidden - Cannot delete students from other schools' }, { status: 403 });
     }
 
