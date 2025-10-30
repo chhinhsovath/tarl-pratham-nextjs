@@ -387,7 +387,7 @@ function StudentsContent() {
           </Card>
 
           {/* Mobile: Show Cards */}
-          <div className="md:hidden space-y-3">
+          <div className="md:hidden space-y-4">
             {loading ? (
               <Card>
                 <div className="text-center py-8">
@@ -404,99 +404,276 @@ function StudentsContent() {
               filteredStudents.slice(0, 50).map((student) => (
                 <Card
                   key={student.id}
-                  className="student-card"
+                  className="student-card-modern"
                   style={{
-                    borderLeft: '1px solid #f0f0f0',
-                    backgroundColor: 'white'
+                    borderRadius: '16px',
+                    border: '1px solid #e8e8e8',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                    overflow: 'hidden',
+                    transition: 'all 0.3s ease'
                   }}
-                  bodyStyle={{ padding: '16px' }}
+                  bodyStyle={{ padding: 0 }}
+                  hoverable
                 >
-                  {/* លេខសម្គាល់សិស្ស */}
-                  <Text type="secondary" style={{ fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-                    លេខសម្គាល់: {student.student_id || '-'}
-                  </Text>
-
-                  {/* ឈ្មោះសិស្ស */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <UserOutlined
-                      style={{
-                        color: student.gender === 'male' || student.gender === 'ប្រុស' ? '#1890ff' : '#f759ab',
-                        fontSize: '16px'
-                      }}
-                    />
-                    <Text strong style={{ fontSize: '15px' }}>{student.name}</Text>
-                  </div>
-
-                  {/* ភេទ + ថ្នាក់ */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <Text type="secondary" style={{ fontSize: '11px' }}>ភេទ:</Text>
-                    <Tag size="small" color={student.gender === 'male' || student.gender === 'ប្រុស' ? 'blue' : student.gender === 'female' || student.gender === 'ស្រី' ? 'pink' : 'default'}>
-                      {student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender || '-'}
-                    </Tag>
-                    {student.grade && (
-                      <>
-                        <Text type="secondary" style={{ fontSize: '11px' }}>ថ្នាក់:</Text>
-                        <Tag size="small" color="blue">ទី{student.grade}</Tag>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Baseline Assessment */}
-                  <div className="mb-1">
-                    <Text type="secondary" style={{ fontSize: '11px' }}>មូលដ្ឋាន: </Text>
-                    {student.baseline_khmer_level && (
-                      <Tag size="small" color="purple">ភាសា: {student.baseline_khmer_level}</Tag>
-                    )}
-                    {student.baseline_math_level && (
-                      <Tag size="small" color="cyan">គណិត: {student.baseline_math_level}</Tag>
-                    )}
-                    {!student.baseline_khmer_level && !student.baseline_math_level && (
-                      <Text style={{ fontSize: '11px' }}>-</Text>
-                    )}
-                  </div>
-
-                  {/* Midline Assessment */}
-                  {(student.midline_khmer_level || student.midline_math_level) && (
-                    <div className="mb-1">
-                      <Text type="secondary" style={{ fontSize: '11px' }}>កណ្តាល: </Text>
-                      {student.midline_khmer_level && (
-                        <Tag size="small" color="orange">ភាសា: {student.midline_khmer_level}</Tag>
-                      )}
-                      {student.midline_math_level && (
-                        <Tag size="small" color="gold">គណិត: {student.midline_math_level}</Tag>
-                      )}
+                  {/* Card Header with Gradient */}
+                  <div style={{
+                    background: student.gender === 'male' || student.gender === 'ប្រុស'
+                      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                      : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    padding: '20px',
+                    position: 'relative'
+                  }}>
+                    {/* Student ID Badge */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      background: 'rgba(255,255,255,0.25)',
+                      backdropFilter: 'blur(10px)',
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '11px',
+                      color: 'white',
+                      fontWeight: 600
+                    }}>
+                      #{student.student_id || student.id}
                     </div>
-                  )}
 
-                  {/* Endline Assessment */}
-                  {(student.endline_khmer_level || student.endline_math_level) && (
-                    <div className="mb-1">
-                      <Text type="secondary" style={{ fontSize: '11px' }}>បញ្ចប់: </Text>
-                      {student.endline_khmer_level && (
-                        <Tag size="small" color="green">ភាសា: {student.endline_khmer_level}</Tag>
-                      )}
-                      {student.endline_math_level && (
-                        <Tag size="small" color="lime">គណិត: {student.endline_math_level}</Tag>
-                      )}
+                    {/* Student Name and Icon */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.25)',
+                        backdropFilter: 'blur(10px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '24px',
+                        color: 'white'
+                      }}>
+                        <UserOutlined />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{
+                          color: 'white',
+                          fontSize: '18px',
+                          fontWeight: 700,
+                          marginBottom: '4px',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}>
+                          {student.name}
+                        </div>
+                        <div style={{
+                          display: 'flex',
+                          gap: '8px',
+                          flexWrap: 'wrap'
+                        }}>
+                          <span style={{
+                            background: 'rgba(255,255,255,0.25)',
+                            backdropFilter: 'blur(10px)',
+                            padding: '4px 10px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            color: 'white',
+                            fontWeight: 600
+                          }}>
+                            {student.gender === 'male' || student.gender === 'ប្រុស' ? 'ប្រុស' : student.gender === 'female' || student.gender === 'ស្រី' ? 'ស្រី' : student.gender || '-'}
+                          </span>
+                          {student.grade && (
+                            <span style={{
+                              background: 'rgba(255,255,255,0.25)',
+                              backdropFilter: 'blur(10px)',
+                              padding: '4px 10px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              color: 'white',
+                              fontWeight: 600
+                            }}>
+                              ថ្នាក់ទី{student.grade}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Card Actions */}
-                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
+                  {/* Card Body - Assessment Levels */}
+                  <div style={{ padding: '20px' }}>
+                    {/* Baseline */}
+                    <div style={{ marginBottom: '12px' }}>
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#8c8c8c',
+                        marginBottom: '8px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        មូលដ្ឋាន (Baseline)
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {student.baseline_khmer_level ? (
+                          <span style={{
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: 'white',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            boxShadow: '0 2px 4px rgba(102,126,234,0.3)'
+                          }}>
+                            📚 ភាសា: {student.baseline_khmer_level}
+                          </span>
+                        ) : null}
+                        {student.baseline_math_level ? (
+                          <span style={{
+                            background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                            color: 'white',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            boxShadow: '0 2px 4px rgba(17,153,142,0.3)'
+                          }}>
+                            🔢 គណិត: {student.baseline_math_level}
+                          </span>
+                        ) : null}
+                        {!student.baseline_khmer_level && !student.baseline_math_level && (
+                          <span style={{ fontSize: '13px', color: '#bfbfbf' }}>មិនទាន់មាន</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Midline */}
+                    {(student.midline_khmer_level || student.midline_math_level) && (
+                      <div style={{ marginBottom: '12px' }}>
+                        <div style={{
+                          fontSize: '12px',
+                          color: '#8c8c8c',
+                          marginBottom: '8px',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          កណ្តាល (Midline)
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {student.midline_khmer_level && (
+                            <span style={{
+                              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                              color: 'white',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              boxShadow: '0 2px 4px rgba(240,147,251,0.3)'
+                            }}>
+                              📚 ភាសា: {student.midline_khmer_level}
+                            </span>
+                          )}
+                          {student.midline_math_level && (
+                            <span style={{
+                              background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                              color: 'white',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              boxShadow: '0 2px 4px rgba(250,112,154,0.3)'
+                            }}>
+                              🔢 គណិត: {student.midline_math_level}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Endline */}
+                    {(student.endline_khmer_level || student.endline_math_level) && (
+                      <div style={{ marginBottom: '12px' }}>
+                        <div style={{
+                          fontSize: '12px',
+                          color: '#8c8c8c',
+                          marginBottom: '8px',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          បញ្ចប់ (Endline)
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {student.endline_khmer_level && (
+                            <span style={{
+                              background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                              color: '#333',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              boxShadow: '0 2px 4px rgba(168,237,234,0.3)'
+                            }}>
+                              📚 ភាសា: {student.endline_khmer_level}
+                            </span>
+                          )}
+                          {student.endline_math_level && (
+                            <span style={{
+                              background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                              color: '#333',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              boxShadow: '0 2px 4px rgba(255,236,210,0.3)'
+                            }}>
+                              🔢 គណិត: {student.endline_math_level}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Footer - Actions */}
+                  <div style={{
+                    padding: '16px 20px',
+                    background: '#fafafa',
+                    borderTop: '1px solid #f0f0f0',
+                    display: 'flex',
+                    gap: '8px',
+                    flexWrap: 'wrap'
+                  }}>
                     <Button
                       type="primary"
                       icon={<FileTextOutlined />}
                       onClick={() => router.push(`/assessments/create?student_id=${student.id}`)}
+                      style={{
+                        flex: 1,
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        height: '40px'
+                      }}
                     >
                       វាយតម្លៃ
                     </Button>
                     <Button
                       icon={<EyeOutlined />}
                       onClick={() => router.push(`/students/${student.id}`)}
+                      style={{
+                        borderRadius: '8px',
+                        height: '40px',
+                        width: '40px'
+                      }}
                     />
                     <Button
                       icon={<EditOutlined />}
                       onClick={() => handleEdit(student)}
+                      style={{
+                        borderRadius: '8px',
+                        height: '40px',
+                        width: '40px'
+                      }}
                     />
                     <Popconfirm
                       title="លុបសិស្ស"
@@ -508,6 +685,11 @@ function StudentsContent() {
                       <Button
                         danger
                         icon={<DeleteOutlined />}
+                        style={{
+                          borderRadius: '8px',
+                          height: '40px',
+                          width: '40px'
+                        }}
                       />
                     </Popconfirm>
                   </div>

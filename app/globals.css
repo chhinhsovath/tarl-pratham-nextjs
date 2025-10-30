@@ -80,6 +80,25 @@ time, mark, audio, video, button, input, textarea, select {
   letter-spacing: 0.05em;
 }
 
+/* Modern Student Card Styles */
+.student-card-modern {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.student-card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12) !important;
+}
+
+.student-card-modern:active {
+  transform: translateY(-2px);
+}
+
+/* Smooth spacing utility */
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
 /* Utility Classes */
 .text-center { text-align: center; }
 .text-white { color: #ffffff; }
