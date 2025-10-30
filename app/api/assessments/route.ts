@@ -345,8 +345,28 @@ export async function POST(request: NextRequest) {
       });
 
       if (existingAssessment) {
+        // Localize assessment type
+        const typeMap: Record<string, string> = {
+          'baseline': 'តេស្តដើមគ្រា',
+          'midline': 'តេស្តពាក់កណ្ដាលគ្រា',
+          'endline': 'តេស្តចុងក្រោយគ្រា'
+        };
+
+        // Localize subject
+        const subjectMap: Record<string, string> = {
+          'language': 'ភាសា',
+          'math': 'គណិតវិទ្យា'
+        };
+
+        const typeKh = typeMap[validatedData.assessment_type] || validatedData.assessment_type;
+        const subjectKh = subjectMap[validatedData.subject] || validatedData.subject;
+
         return NextResponse.json(
-          { error: `${validatedData.assessment_type} ${validatedData.subject} assessment already exists for this student` },
+          {
+            error: `ការវាយតម្លៃ${typeKh} ${subjectKh} មានរួចហើយសម្រាប់សិស្សនេះ`,
+            message: `${validatedData.assessment_type} ${validatedData.subject} assessment already exists for this student`,
+            code: 'DUPLICATE_ASSESSMENT'
+          },
           { status: 400 }
         );
       }
