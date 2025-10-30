@@ -155,23 +155,8 @@ export async function GET(request: NextRequest) {
     // Apply access restrictions for mentors and teachers
     // Admin and Coordinator have full access - no filtering needed
     if (session.user.role === "mentor") {
-      // Mentors can access assessments from ALL their assigned schools
-      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
-
-      if (mentorSchoolIds.length > 0) {
-        where.pilot_school_id = { in: mentorSchoolIds };
-
-        // Optional: Filter by assigned subjects (if you want strict subject filtering)
-        // Uncomment the following to enable strict subject filtering:
-        // const assignedSubjects = await getMentorAssignedSubjects(parseInt(session.user.id));
-        // if (assignedSubjects.length > 0 && !subject) {
-        //   // Convert "Language"/"Math" to "language"/"math" to match DB values
-        //   where.subject = { in: assignedSubjects.map(s => s.toLowerCase()) };
-        // }
-      } else {
-        // No schools assigned - no access
-        where.id = -1;
-      }
+      // Mentors can ONLY see assessments they personally created
+      where.added_by_id = parseInt(session.user.id);
     } else if (session.user.role === "teacher") {
       // Teachers remain restricted to their single school
       if (session.user.pilot_school_id) {
