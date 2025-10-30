@@ -12,6 +12,7 @@ import StudentSelectionStep from './steps/StudentSelectionStep';
 import AssessmentDetailsStep from './steps/AssessmentDetailsStep';
 import ReviewStep from './steps/ReviewStep';
 import SuccessStep from './steps/SuccessStep';
+import MentorSchoolSelector from '@/components/mentor/MentorSchoolSelector';
 import { trackActivity } from '@/lib/trackActivity';
 
 const { Title, Text } = Typography;
@@ -77,6 +78,7 @@ export default function AssessmentWizard({
   });
   const [loading, setLoading] = useState(false);
   const [assessmentId, setAssessmentId] = useState<number | null>(null);
+  const [showSchoolSelector, setShowSchoolSelector] = useState(false);
 
   // Define steps based on whether student is pre-selected
   const steps = hasPreSelectedStudent ? [
@@ -160,6 +162,13 @@ export default function AssessmentWizard({
       const result = await response.json();
 
       if (!response.ok) {
+        // Check if error is due to missing school assignment
+        if (result.code === 'SCHOOL_REQUIRED') {
+          setLoading(false);
+          setShowSchoolSelector(true);
+          message.warning('សូមជ្រើសរើសសាលារៀនរបស់អ្នកជាមុនសិន');
+          return;
+        }
         throw new Error(result.error || 'Failed to create assessment');
       }
 
@@ -176,6 +185,14 @@ export default function AssessmentWizard({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSchoolSelected = () => {
+    setShowSchoolSelector(false);
+    // After school is selected, automatically retry submission
+    setTimeout(() => {
+      handleSubmit();
+    }, 1500);
   };
 
   const handleFinish = () => {
@@ -379,6 +396,14 @@ export default function AssessmentWizard({
           </Space>
         </Card>
       )}
+
+      {/* Mentor School Selector Modal */}
+      <MentorSchoolSelector
+        visible={showSchoolSelector}
+        onSuccess={handleSchoolSelected}
+        onCancel={() => setShowSchoolSelector(false)}
+        forceSelection={true}
+      />
     </div>
   );
 }
