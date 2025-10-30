@@ -1,5 +1,4 @@
-/* Import Google Fonts first */
-@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@300;400;700;900&display=swap');
+/* Import Google Fonts first - Removed duplicate import (now in layout.tsx head) */
 
 @tailwind base;
 @tailwind components;
@@ -7,7 +6,8 @@
 
 /* CSS Variables */
 :root {
-  --font-khmer: 'Hanuman', 'Khmer OS', sans-serif;
+  --font-khmer: 'Hanuman', 'Khmer OS', 'Moul', sans-serif;
+  --font-khmer-display: 'Moul', 'Hanuman', 'Khmer OS', sans-serif;
   --font-latin: 'Inter', system-ui, sans-serif;
   --text-base: 1rem;
   --text-lg: 1.125rem;
@@ -31,13 +31,34 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Base Styles */
+/* Base Styles - Apply Khmer fonts globally */
+* {
+  font-family: var(--font-khmer);
+}
+
 body {
   font-family: var(--font-khmer);
   font-size: var(--text-base);
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--color-gray-900);
   background-color: var(--color-gray-50);
+}
+
+/* Apply fonts to all HTML elements */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, button, input, textarea, select {
+  font-family: var(--font-khmer) !important;
 }
 
 /* Khmer Font Classes */
@@ -50,6 +71,13 @@ body {
 .font-khmer-bold {
   font-family: var(--font-khmer) !important;
   font-weight: 700;
+}
+
+/* Moul font for decorative headings */
+.font-moul {
+  font-family: var(--font-khmer-display) !important;
+  font-weight: 400;
+  letter-spacing: 0.05em;
 }
 
 /* Utility Classes */

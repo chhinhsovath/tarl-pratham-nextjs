@@ -50,6 +50,11 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png?v=2" />
         <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png?v=2" />
         <link rel="shortcut icon" href="/favicon.ico?v=2" />
+
+        {/* Khmer Fonts - Preconnect for faster loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Hanuman:wght@100;300;400;700;900&family=Moul&display=swap" rel="stylesheet" />
       </head>
       <body className={`${hanuman.variable} font-khmer bg-white`} style={{ fontFamily: "'Hanuman', 'Khmer OS', sans-serif", backgroundColor: 'white' }}>
         <WarningSuppressor>
