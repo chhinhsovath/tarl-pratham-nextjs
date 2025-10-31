@@ -141,7 +141,9 @@ export async function GET(
 
 // Update schema for editing
 const updateMentoringVisitSchema = z.object({
-  // Basic Information
+  // Basic Information (mentor_id and mentor_name sent by form but ignored - mentor cannot be changed)
+  mentor_id: z.union([z.number(), z.string()]).optional(),
+  mentor_name: z.string().optional(),
   pilot_school_id: z.number().min(1, "Pilot school is required").optional(),
   teacher_id: z.number().optional(),
   school_id: z.number().optional(),
@@ -322,13 +324,21 @@ export async function PUT(
       }
     }
 
+    // Remove fields that should not be updated (mentor_id and mentor_name from form)
+    const { mentor_id, mentor_name, ...updateData } = validatedData;
+
     // Update mentoring visit
     const visit = await prisma.mentoringVisit.update({
       where: { id: visitId },
       data: {
-        ...validatedData,
-        visit_date: validatedData.visit_date ? new Date(validatedData.visit_date) : undefined,
-        photos: validatedData.photos ? JSON.stringify(validatedData.photos) : undefined
+        ...updateData,
+        visit_date: updateData.visit_date ? new Date(updateData.visit_date) : undefined,
+        photos: updateData.photos ? JSON.stringify(updateData.photos) : undefined,
+        grades_observed: updateData.grades_observed ? JSON.stringify(updateData.grades_observed) : undefined,
+        language_levels_observed: updateData.language_levels_observed ? JSON.stringify(updateData.language_levels_observed) : undefined,
+        numeracy_levels_observed: updateData.numeracy_levels_observed ? JSON.stringify(updateData.numeracy_levels_observed) : undefined,
+        materials_present: updateData.materials_present ? JSON.stringify(updateData.materials_present) : undefined,
+        teaching_materials: updateData.teaching_materials ? JSON.stringify(updateData.teaching_materials) : undefined
       },
       include: {
         mentor: {
