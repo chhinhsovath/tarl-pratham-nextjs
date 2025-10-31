@@ -398,15 +398,18 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Update student assessment level using proper field name builder
-    const levelField = buildLevelFieldName(validatedData.assessment_type, validatedData.subject);
-    await prisma.student.update({
-      where: { id: validatedData.student_id },
-      data: {
-        [levelField]: validatedData.level,
-        assessed_by_mentor: session.user.role === "mentor" ? true : undefined
-      }
-    });
+    // Update student assessment level ONLY for regular assessments (not verifications)
+    // Verification assessments should NOT overwrite the original teacher's assessment
+    if (!isVerification) {
+      const levelField = buildLevelFieldName(validatedData.assessment_type, validatedData.subject);
+      await prisma.student.update({
+        where: { id: validatedData.student_id },
+        data: {
+          [levelField]: validatedData.level,
+          assessed_by_mentor: session.user.role === "mentor" ? true : undefined
+        }
+      });
+    }
 
     return NextResponse.json({ 
       message: "Assessment created successfully",
@@ -561,15 +564,18 @@ async function handleBulkAssessment(body: any, session: any) {
           }
         });
 
-        // Update student assessment level
-        const levelField = buildLevelFieldName(assessmentData.assessment_type, assessmentData.subject);
-        await prisma.student.update({
-          where: { id: assessmentData.student_id },
-          data: {
-            [levelField]: assessmentData.level,
-            assessed_by_mentor: session.user.role === "mentor" ? true : undefined
-          }
-        });
+        // Update student assessment level ONLY for regular assessments (not verifications)
+        const isVerification = assessmentData.assessment_type.includes('_verification');
+        if (!isVerification) {
+          const levelField = buildLevelFieldName(assessmentData.assessment_type, assessmentData.subject);
+          await prisma.student.update({
+            where: { id: assessmentData.student_id },
+            data: {
+              [levelField]: assessmentData.level,
+              assessed_by_mentor: session.user.role === "mentor" ? true : undefined
+            }
+          });
+        }
 
         results.push(assessment);
 

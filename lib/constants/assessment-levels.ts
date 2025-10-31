@@ -195,13 +195,17 @@ export function getSubjectLabelEN(subject: string): string {
 /**
  * Helper function to build student level field name
  * Examples: 'baseline_khmer_level', 'midline_math_level'
+ * Note: Verification types (baseline_verification, etc.) are stripped to base type
+ *       because verification assessments should not update student level fields
  */
 export function buildLevelFieldName(
   assessmentType: string,
   subject: string
 ): string {
+  // Strip '_verification' suffix if present - verifications don't get their own fields
+  const baseType = assessmentType.replace('_verification', '');
   const subjectKey = subject === 'language' ? 'khmer' : 'math';
-  return `${assessmentType}_${subjectKey}_level`;
+  return `${baseType}_${subjectKey}_level`;
 }
 
 /**
