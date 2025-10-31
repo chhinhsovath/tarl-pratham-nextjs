@@ -409,11 +409,23 @@ export async function POST(request: NextRequest) {
           assessed_by_mentor: session.user.role === "mentor" ? true : undefined
         }
       });
+    } else if (validatedData.mentor_assessment_id) {
+      // If this is a verification assessment, mark the original teacher assessment as verified
+      await prisma.assessment.update({
+        where: { id: parseInt(validatedData.mentor_assessment_id) },
+        data: {
+          is_temporary: false,
+          record_status: 'production',
+          verified_by_id: parseInt(session.user.id),
+          verified_at: new Date(),
+          verification_notes: `Verified by mentor assessment #${assessment.id}`
+        }
+      });
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: "Assessment created successfully",
-      data: assessment 
+      data: assessment
     }, { status: 201 });
 
   } catch (error: any) {
@@ -573,6 +585,18 @@ async function handleBulkAssessment(body: any, session: any) {
             data: {
               [levelField]: assessmentData.level,
               assessed_by_mentor: session.user.role === "mentor" ? true : undefined
+            }
+          });
+        } else if (assessmentData.mentor_assessment_id) {
+          // If this is a verification assessment, mark the original teacher assessment as verified
+          await prisma.assessment.update({
+            where: { id: parseInt(assessmentData.mentor_assessment_id) },
+            data: {
+              is_temporary: false,
+              record_status: 'production',
+              verified_by_id: parseInt(session.user.id),
+              verified_at: new Date(),
+              verification_notes: `Verified by mentor assessment #${assessment.id}`
             }
           });
         }
