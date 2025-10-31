@@ -18,9 +18,10 @@ const { TextArea } = Input;
 interface AssessmentDetailsStepProps {
   data: WizardData;
   onChange: (data: Partial<WizardData>) => void;
+  verificationMode?: boolean;
 }
 
-export default function AssessmentDetailsStep({ data, onChange }: AssessmentDetailsStepProps) {
+export default function AssessmentDetailsStep({ data, onChange, verificationMode = false }: AssessmentDetailsStepProps) {
   const [selectedSubject, setSelectedSubject] = useState<'language' | 'math'>(data.subject);
   const [availableLevels, setAvailableLevels] = useState(getLevelOptions(data.subject));
 
@@ -33,7 +34,7 @@ export default function AssessmentDetailsStep({ data, onChange }: AssessmentDeta
     onChange({ subject: value, level: undefined });
   };
 
-  const assessmentTypes = getAssessmentTypeOptions();
+  const assessmentTypes = getAssessmentTypeOptions(verificationMode);
   const subjects = getSubjectOptions();
 
   return (

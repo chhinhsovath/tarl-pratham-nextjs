@@ -210,6 +210,7 @@ export default function AssessmentWizard({
             <AssessmentDetailsStep
               data={wizardData}
               onChange={updateWizardData}
+              verificationMode={verificationMode}
             />
           );
         case 1: // Review
@@ -263,6 +264,7 @@ export default function AssessmentWizard({
             <AssessmentDetailsStep
               data={wizardData}
               onChange={updateWizardData}
+              verificationMode={verificationMode}
             />
           );
         case 2:

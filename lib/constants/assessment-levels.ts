@@ -11,19 +11,28 @@
 export const ASSESSMENT_TYPES = {
   BASELINE: 'baseline',
   MIDLINE: 'midline',
-  ENDLINE: 'endline'
+  ENDLINE: 'endline',
+  BASELINE_VERIFICATION: 'baseline_verification',
+  MIDLINE_VERIFICATION: 'midline_verification',
+  ENDLINE_VERIFICATION: 'endline_verification'
 } as const;
 
 export const ASSESSMENT_TYPE_LABELS_KM = {
   baseline: 'តេស្តដើមគ្រា',
   midline: 'តេស្តពាក់កណ្ដាលគ្រា',
-  endline: 'តេស្តចុងក្រោយគ្រា'
+  endline: 'តេស្តចុងក្រោយគ្រា',
+  baseline_verification: 'តេស្តដើមគ្រា (ផ្ទៀងផ្ទាត់)',
+  midline_verification: 'តេស្តពាក់កណ្ដាលគ្រា (ផ្ទៀងផ្ទាត់)',
+  endline_verification: 'តេស្តចុងក្រោយគ្រា (ផ្ទៀងផ្ទាត់)'
 } as const;
 
 export const ASSESSMENT_TYPE_LABELS_EN = {
   baseline: 'Baseline',
   midline: 'Midline',
-  endline: 'Endline'
+  endline: 'Endline',
+  baseline_verification: 'Baseline (Verification)',
+  midline_verification: 'Midline (Verification)',
+  endline_verification: 'Endline (Verification)'
 } as const;
 
 export const SUBJECTS = {
@@ -210,9 +219,15 @@ export function getLevelOptions(subject: 'language' | 'math') {
 
 /**
  * Helper function to get all assessment type options
+ * @param verificationMode - If true, returns only verification types (baseline_verification, etc.)
+ *                          If false, returns only regular types (baseline, midline, endline)
  */
-export function getAssessmentTypeOptions() {
-  return Object.values(ASSESSMENT_TYPES).map(type => ({
+export function getAssessmentTypeOptions(verificationMode = false) {
+  const types = verificationMode
+    ? ['baseline_verification', 'midline_verification', 'endline_verification']
+    : ['baseline', 'midline', 'endline'];
+
+  return types.map(type => ({
     value: type,
     label_km: getAssessmentTypeLabelKM(type),
     label_en: getAssessmentTypeLabelEN(type)
