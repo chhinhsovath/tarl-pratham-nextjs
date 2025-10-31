@@ -48,7 +48,8 @@ model User {
   assessments_verified      Assessment[]              @relation("AssessmentVerifiedBy")
   assessments_locked        Assessment[]              @relation("AssessmentLockedBy")
   attendance_records        AttendanceRecord[]
-  mentoring_visits          MentoringVisit[]
+  mentoring_visits          MentoringVisit[]          @relation("MentorVisits")
+  mentoring_visits_as_teacher MentoringVisit[]        @relation("TeacherVisits")
   students                  Student[]                 @relation("StudentAddedBy")
   teaching_activities                 TeachingActivity[]
   mentor_assignments                  MentorSchoolAssignment[]   @relation("MentorAssignments")
@@ -375,7 +376,8 @@ model MentoringVisit {
   is_temporary                           Boolean      @default(false)
   record_status                          RecordStatus @default(production)
   test_session_id                        String?
-  mentor                                 User         @relation(fields: [mentor_id], references: [id])
+  mentor                                 User         @relation("MentorVisits", fields: [mentor_id], references: [id])
+  teacher                                User?        @relation("TeacherVisits", fields: [teacher_id], references: [id])
   pilot_school                           PilotSchool? @relation(fields: [pilot_school_id], references: [id])
 
   @@index([mentor_id])
