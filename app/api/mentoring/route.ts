@@ -310,6 +310,13 @@ export async function GET(request: NextRequest) {
               district: true,
               cluster: true
             }
+          },
+          teacher: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
           }
         },
         skip,

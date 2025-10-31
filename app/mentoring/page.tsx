@@ -212,9 +212,9 @@ function MentoringContent() {
       key: 'pilot_school',
       render: (school: any) => (
         <div>
-          <strong>{school?.name}</strong>
+          <strong>{school?.school_name || 'មិនបានកំណត់'}</strong>
           <br />
-          <Text type="secondary">{school?.code}</Text>
+          <Text type="secondary">{school?.school_code || ''}</Text>
         </div>
       )
     },
