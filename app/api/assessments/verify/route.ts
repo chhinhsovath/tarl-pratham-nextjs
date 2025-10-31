@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
           data: {
             is_temporary: false,
             record_status: 'production',
-            verified_by_id: session.user.id,
+            verified_by_id: parseInt(session.user.id),
             verified_at: new Date(),
             verification_notes: notes || null
           }
