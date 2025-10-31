@@ -4,6 +4,15 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
+// Helper function to safely parse JSON strings
+function tryParseJSON(jsonString: string): any {
+  try {
+    return JSON.parse(jsonString);
+  } catch (e) {
+    return jsonString; // Return original string if parsing fails
+  }
+}
+
 // Helper function to check permissions
 function hasPermission(userRole: string, action: string): boolean {
   const permissions = {
@@ -89,6 +98,13 @@ export async function GET(
             district: true,
             cluster: true
           }
+        },
+        teacher: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
         }
       }
     });
@@ -102,7 +118,17 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return NextResponse.json({ data: visit });
+    // Parse JSON string fields back to arrays for the frontend
+    const parsedVisit = {
+      ...visit,
+      grades_observed: visit.grades_observed ? tryParseJSON(visit.grades_observed) : null,
+      language_levels_observed: visit.language_levels_observed ? tryParseJSON(visit.language_levels_observed) : null,
+      numeracy_levels_observed: visit.numeracy_levels_observed ? tryParseJSON(visit.numeracy_levels_observed) : null,
+      materials_present: visit.materials_present ? tryParseJSON(visit.materials_present) : null,
+      teaching_materials: visit.teaching_materials ? tryParseJSON(visit.teaching_materials) : null
+    };
+
+    return NextResponse.json({ data: parsedVisit });
 
   } catch (error) {
     console.error("Error fetching mentoring visit:", error);

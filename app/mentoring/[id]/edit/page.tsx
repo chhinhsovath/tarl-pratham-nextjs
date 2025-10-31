@@ -243,6 +243,7 @@ export default function EditMentoringVisitPage() {
 
   // Convert visit data to form initial values
   const initialValues = {
+    mentor_name: visit.mentor?.name,
     pilot_school_id: visit.pilot_school_id,
     teacher_id: visit.teacher_id,
     visit_date: visit.visit_date,
