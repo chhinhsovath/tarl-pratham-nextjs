@@ -168,11 +168,11 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, "view")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិចូលប្រើប្រាស់មុខងារនេះទេ" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -344,7 +344,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Internal server error",
+        error: "មានបញ្ហាក្នុងការដំណើរការ",
         message: error.message || "Unknown error",
         code: error.code || "UNKNOWN",
         meta: error.meta || {},
@@ -361,11 +361,11 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, "create")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិចូលប្រើប្រាស់មុខងារនេះទេ" }, { status: 403 });
     }
 
     const body = await request.json();
@@ -378,7 +378,7 @@ export async function POST(request: NextRequest) {
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
       if (mentorSchoolIds.length > 0 && !mentorSchoolIds.includes(validatedData.pilot_school_id)) {
         return NextResponse.json(
-          { error: "Mentors can only create visits for their assigned schools" },
+          { error: "អ្នកណែនាំអាចបង្កើតការចុះអប់រំបានត្រឹមតែសាលាដែលត្រូវបានចាត់តាំងប៉ុណ្ណោះ" },
           { status: 403 }
         );
       }
@@ -391,7 +391,7 @@ export async function POST(request: NextRequest) {
     
     if (!pilotSchool) {
       return NextResponse.json(
-        { error: "Invalid pilot school ID" },
+        { error: "លេខសម្គាល់សាលារៀនមិនត្រឹមត្រូវ" },
         { status: 400 }
       );
     }
@@ -444,14 +444,14 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ 
-      message: "Mentoring visit created successfully",
+      message: "បានបង្កើតការចុះអប់រំដោយជោគជ័យ",
       data: visit 
     }, { status: 201 });
 
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ", details: error.errors },
         { status: 400 }
       );
     }
@@ -465,7 +465,7 @@ export async function POST(request: NextRequest) {
     // Return detailed error information to help debugging
     return NextResponse.json(
       {
-        error: "Internal server error",
+        error: "មានបញ្ហាក្នុងការដំណើរការ",
         message: error.message || "Unknown error",
         code: error.code || "UNKNOWN",
         meta: error.meta || {},
@@ -482,18 +482,18 @@ export async function PUT(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, "update")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិចូលប្រើប្រាស់មុខងារនេះទេ" }, { status: 403 });
     }
 
     const body = await request.json();
     const { id, ...updateData } = body;
     
     if (!id) {
-      return NextResponse.json({ error: "Visit ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "ត្រូវការលេខសម្គាល់ការចុះអប់រំ" }, { status: 400 });
     }
 
     // Check if visit exists and user has access
@@ -502,11 +502,11 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!existingVisit) {
-      return NextResponse.json({ error: "Mentoring visit not found" }, { status: 404 });
+      return NextResponse.json({ error: "រកមិនឃើញការចុះអប់រំ" }, { status: 404 });
     }
 
     if (!canAccessVisit(session.user.role, session.user.pilot_school_id, existingVisit.pilot_school_id, existingVisit.mentor_id, session.user.id)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិចូលប្រើប្រាស់មុខងារនេះទេ" }, { status: 403 });
     }
 
     // Validate input
@@ -517,7 +517,7 @@ export async function PUT(request: NextRequest) {
     if (session.user.role === "mentor" && session.user.pilot_school_id && validatedData.pilot_school_id) {
       if (validatedData.pilot_school_id !== session.user.pilot_school_id) {
         return NextResponse.json(
-          { error: "Mentors can only assign visits to their pilot school" },
+          { error: "អ្នកណែនាំអាចចាត់តាំងការចុះអប់រំបានត្រឹមតែសាលាដែលបានចាត់តាំងប៉ុណ្ណោះ" },
           { status: 403 }
         );
       }
@@ -531,7 +531,7 @@ export async function PUT(request: NextRequest) {
       
       if (!pilotSchool) {
         return NextResponse.json(
-          { error: "Invalid pilot school ID" },
+          { error: "លេខសម្គាល់សាលារៀនមិនត្រឹមត្រូវ" },
           { status: 400 }
         );
       }
@@ -592,7 +592,7 @@ export async function PUT(request: NextRequest) {
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ", details: error.errors },
         { status: 400 }
       );
     }
@@ -605,7 +605,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Internal server error",
+        error: "មានបញ្ហាក្នុងការដំណើរការ",
         message: error.message || "Unknown error",
         code: error.code || "UNKNOWN",
         meta: error.meta || {},
@@ -622,18 +622,18 @@ export async function DELETE(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "សូមចូលប្រើប្រាស់ប្រព័ន្ធជាមុនសិន" }, { status: 401 });
     }
 
     if (!hasPermission(session.user.role, "delete")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិចូលប្រើប្រាស់មុខងារនេះទេ" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     
     if (!id) {
-      return NextResponse.json({ error: "Visit ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "ត្រូវការលេខសម្គាល់ការចុះអប់រំ" }, { status: 400 });
     }
 
     // Check if visit exists and user has access
@@ -642,11 +642,11 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!existingVisit) {
-      return NextResponse.json({ error: "Mentoring visit not found" }, { status: 404 });
+      return NextResponse.json({ error: "រកមិនឃើញការចុះអប់រំ" }, { status: 404 });
     }
 
     if (!canAccessVisit(session.user.role, session.user.pilot_school_id, existingVisit.pilot_school_id, existingVisit.mentor_id, session.user.id)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "អ្នកមិនមានសិទ្ធិចូលប្រើប្រាស់មុខងារនេះទេ" }, { status: 403 });
     }
 
     // Delete mentoring visit
@@ -666,7 +666,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Internal server error",
+        error: "មានបញ្ហាក្នុងការដំណើរការ",
         message: error.message || "Unknown error",
         code: error.code || "UNKNOWN",
         meta: error.meta || {},
