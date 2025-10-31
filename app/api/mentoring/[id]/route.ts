@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { getMentorSchoolIds } from "@/lib/mentorAssignments";
 
 // Helper function to safely parse JSON strings
 function tryParseJSON(jsonString: string): any {
@@ -304,11 +305,12 @@ export async function PUT(
     // Validate input
     const validatedData = updateMentoringVisitSchema.parse(body);
 
-    // For mentors, restrict pilot school changes
-    if (session.user.role === "mentor" && session.user.pilot_school_id && validatedData.pilot_school_id) {
-      if (validatedData.pilot_school_id !== session.user.pilot_school_id) {
+    // For mentors, restrict to their assigned schools (not just pilot_school_id)
+    if (session.user.role === "mentor" && validatedData.pilot_school_id) {
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0 && !mentorSchoolIds.includes(validatedData.pilot_school_id)) {
         return NextResponse.json(
-          { error: "Mentors can only assign visits to their pilot school" },
+          { error: "Mentors can only update visits for their assigned schools" },
           { status: 403 }
         );
       }
