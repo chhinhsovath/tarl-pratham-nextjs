@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getAllPilotSchools } from "@/lib/schools";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { getMentorSchoolIds } from "@/lib/mentorAssignments";
 
 // Validation schema
 const pilotSchoolSchema = z.object({
@@ -42,7 +43,15 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     // Use standardized pilot schools function
-    const schools = await getAllPilotSchools();
+    let schools = await getAllPilotSchools();
+
+    // Filter schools for mentors - they should only see their assigned schools
+    if (session?.user?.role === "mentor" && session?.user?.id) {
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
+        schools = schools.filter(school => mentorSchoolIds.includes(school.id));
+      }
+    }
 
     // Cache this response - schools list changes infrequently
     const response = NextResponse.json({
@@ -50,11 +59,13 @@ export async function GET(request: NextRequest) {
     });
 
     // Set cache headers for frequently-accessed dropdown data
-    // Public cache: safe to cache, revalidate every 1 hour
-    response.headers.set(
-      'Cache-Control',
-      'public, s-maxage=3600, stale-while-revalidate=86400'
-    );
+    // For mentors, cache shorter since it's personalized
+    // For others, cache longer
+    const cacheControl = session?.user?.role === "mentor"
+      ? 'private, s-maxage=300, stale-while-revalidate=600'  // 5 min cache for mentors
+      : 'public, s-maxage=3600, stale-while-revalidate=86400';  // 1 hour for others
+
+    response.headers.set('Cache-Control', cacheControl);
 
     return response;
 

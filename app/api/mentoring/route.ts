@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { getMentorSchoolIds } from "@/lib/mentorAssignments";
 
 // Comprehensive validation schema for complete mentoring visit
 const mentoringVisitSchema = z.object({
@@ -364,12 +365,13 @@ export async function POST(request: NextRequest) {
     
     // Validate input
     const validatedData = mentoringVisitSchema.parse(body);
-    
-    // For mentors, restrict to their pilot school if they have one
-    if (session.user.role === "mentor" && session.user.pilot_school_id) {
-      if (validatedData.pilot_school_id !== session.user.pilot_school_id) {
+
+    // For mentors, restrict to their assigned schools
+    if (session.user.role === "mentor") {
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0 && !mentorSchoolIds.includes(validatedData.pilot_school_id)) {
         return NextResponse.json(
-          { error: "Mentors can only create visits for their assigned pilot school" },
+          { error: "Mentors can only create visits for their assigned schools" },
           { status: 403 }
         );
       }
