@@ -45,7 +45,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="TaRL Pratham" />
         <meta name="msapplication-TileColor" content="#667eea" />
         <meta name="msapplication-config" content="none" />
-        <link rel="manifest" href="/manifest.json" />
+        {/* Manifest disabled due to corrupted icon files - icons contain base64 text instead of binary PNG */}
+        {/* <link rel="manifest" href="/manifest.json" /> */}
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png?v=2" />
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png?v=2" />
         <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png?v=2" />
