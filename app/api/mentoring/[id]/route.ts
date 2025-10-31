@@ -157,11 +157,11 @@ const updateMentoringVisitSchema = z.object({
   commune: z.string().optional(),
   village: z.string().optional(),
   
-  // Class Session
-  class_in_session: z.boolean().optional(),
+  // Class Session - Support both boolean and number (0/1) from form
+  class_in_session: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   class_not_in_session_reason: z.string().optional(),
-  full_session_observed: z.boolean().optional(),
-  class_started_on_time: z.boolean().optional(),
+  full_session_observed: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  class_started_on_time: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   late_start_reason: z.string().optional(),
   
   // Student Data
@@ -176,69 +176,73 @@ const updateMentoringVisitSchema = z.object({
   language_levels_observed: z.any().optional(),
   numeracy_levels_observed: z.any().optional(),
   
-  // Classroom Organization
-  students_grouped_by_level: z.boolean().optional(),
-  children_grouped_appropriately: z.boolean().optional(),
-  students_active_participation: z.boolean().optional(),
-  students_fully_involved: z.boolean().optional(),
-  
-  // Teacher Planning
-  has_session_plan: z.boolean().optional(),
-  followed_session_plan: z.boolean().optional(),
+  // Classroom Organization - Support both boolean and number (0/1) from form
+  students_grouped_by_level: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  children_grouped_appropriately: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  students_active_participation: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  students_fully_involved: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+
+  // Teacher Planning - Support both boolean and number (0/1) from form
+  has_session_plan: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  followed_session_plan: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   no_session_plan_reason: z.string().optional(),
   no_follow_plan_reason: z.string().optional(),
-  session_plan_appropriate: z.boolean().optional(),
+  session_plan_appropriate: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   
   // Classroom Materials
   teaching_materials: z.any().optional(),
-  materials_present: z.string().optional(),
-  
+  materials_present: z.any().optional(),
+  teacher_feedback: z.string().optional(),
+  session_plan_notes: z.string().optional(),
+  lesson_plan_feedback: z.string().optional(),
+  grades_observed: z.any().optional(),
+
   // Activities
   number_of_activities: z.number().min(1).max(3).optional(),
   
-  // Activity 1
+  // Activity 1 - Support both boolean and number (0/1) from form
   activity1_name_language: z.string().optional(),
   activity1_name_numeracy: z.string().optional(),
   activity1_duration: z.number().min(0).optional(),
-  activity1_clear_instructions: z.boolean().optional(),
+  activity1_clear_instructions: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity1_no_clear_instructions_reason: z.string().optional(),
-  activity1_followed_process: z.boolean().optional(),
+  activity1_followed_process: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity1_not_followed_reason: z.string().optional(),
   activity1_type: z.string().optional(),
-  activity1_demonstrated: z.boolean().optional(),
+  activity1_demonstrated: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity1_students_practice: z.string().optional(),
   activity1_small_groups: z.string().optional(),
   activity1_individual: z.string().optional(),
-  
-  // Activity 2
+
+  // Activity 2 - Support both boolean and number (0/1) from form
   activity2_name_language: z.string().optional(),
   activity2_name_numeracy: z.string().optional(),
   activity2_duration: z.number().min(0).optional(),
-  activity2_clear_instructions: z.boolean().optional(),
+  activity2_clear_instructions: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity2_no_clear_instructions_reason: z.string().optional(),
-  activity2_followed_process: z.boolean().optional(),
+  activity2_followed_process: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity2_not_followed_reason: z.string().optional(),
   activity2_type: z.string().optional(),
-  activity2_demonstrated: z.boolean().optional(),
+  activity2_demonstrated: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity2_students_practice: z.string().optional(),
   activity2_small_groups: z.string().optional(),
   activity2_individual: z.string().optional(),
-  
-  // Activity 3
+
+  // Activity 3 - Support both boolean and number (0/1) from form
   activity3_name_language: z.string().optional(),
   activity3_name_numeracy: z.string().optional(),
   activity3_duration: z.number().min(0).optional(),
-  activity3_clear_instructions: z.boolean().optional(),
+  activity3_clear_instructions: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity3_no_clear_instructions_reason: z.string().optional(),
-  activity3_demonstrated: z.boolean().optional(),
+  activity3_demonstrated: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   activity3_students_practice: z.string().optional(),
   activity3_small_groups: z.string().optional(),
   activity3_individual: z.string().optional(),
   
-  // Feedback and Actions
+  // Feedback and Actions - Support both boolean and number (0/1) from form
   observation: z.string().optional(),
   score: z.number().min(0).max(100).optional(),
-  follow_up_required: z.boolean().optional(),
+  follow_up_required: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   feedback_for_teacher: z.string().optional(),
   recommendations: z.string().optional(),
   action_plan: z.string().optional(),
@@ -367,17 +371,34 @@ export async function PUT(
       data: visit 
     });
 
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
+      // DETAILED ERROR - per AI_DEVELOPMENT_RULES.md
+      console.error("Validation error:", error.errors);
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        {
+          error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ",
+          message: "Validation failed - see details for specific field errors",
+          code: "VALIDATION_ERROR",
+          details: error.errors,
+          fields: error.errors.map((e: any) => ({
+            field: e.path.join('.'),
+            message: e.message,
+            received: e.received
+          }))
+        },
         { status: 400 }
       );
     }
-    
+
     console.error("Error updating mentoring visit:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "មានបញ្ហាក្នុងការកែសម្រួល",
+        message: error.message || String(error),
+        code: error.code || "UNKNOWN_ERROR",
+        meta: error.meta || {}
+      },
       { status: 500 }
     );
   }
