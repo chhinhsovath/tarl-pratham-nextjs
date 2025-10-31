@@ -141,16 +141,18 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
   const populateFormData = () => {
     const dataSource = initialValues || visit;
     if (!dataSource) return;
-    
+
     const formData = {
       ...dataSource,
       visit_date: dataSource.visit_date ? dayjs(dataSource.visit_date) : null,
     };
     form.setFieldsValue(formData);
-    
+
     // Set initial state values for conditional fields
     if (dataSource.pilot_school_id) {
       setSelectedSchool(dataSource.pilot_school_id);
+      // Fetch teachers for the selected school in edit mode
+      fetchTeachers(dataSource.pilot_school_id);
     }
     if (dataSource.class_in_session !== undefined) {
       setClassInSession(dataSource.class_in_session === 1 || dataSource.class_in_session === true);
@@ -163,6 +165,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
     }
     if (dataSource.number_of_activities) {
       setNumActivities(dataSource.number_of_activities);
+      setNumberOfActivities(dataSource.number_of_activities); // Also set the visibility state
     }
   };
 
