@@ -6,12 +6,16 @@ import { prisma } from "@/lib/prisma";
 /**
  * GET /api/schools/with-assignments
  *
- * Fetches pilot schools with assignment counts (mentors and teachers).
+ * Fetches pilot schools with assigned teachers and mentors.
  *
- * Optimizations:
- * - Uses single database query with groupBy (no N+1)
- * - Efficient filtering by assignment status
- * - Cached counts per school to avoid multiple queries
+ * Query Performance (Optimized):
+ * 1. Get all schools matching filters (search, province) - 1 query
+ * 2. Get mentor assignments (ALL active) - 1 query (filtered in-memory by schoolIds)
+ * 3. Get teacher assignments (ALL active) - 1 query (filtered in-memory by schoolIds)
+ * 4. Get paginated school details - 1 query (using filtered IDs)
+ * Total: 4 queries regardless of school count (no N+1)
+ *
+ * Memory optimization: Only keep assignments for schools in final result
  *
  * Query Parameters:
  * - page: number (default 1)
@@ -56,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    // Step 1: Get all schools matching search/province filters
+    // Build school filter
     const schoolWhere: any = {};
 
     if (search) {
@@ -72,18 +76,22 @@ export async function GET(request: NextRequest) {
       schoolWhere.province = province_id;
     }
 
-    // Step 2: Get assignment names in two efficient queries (no N+1)
-    const [allSchools, totalCount, mentorAssignments, teacherAssignments] = await Promise.all([
-      // Get all schools that match filters (for assignment filtering)
-      prisma.pilotSchool.findMany({
-        where: schoolWhere,
-        select: { id: true },
-      }),
-      // Total count
-      prisma.pilotSchool.count({ where: schoolWhere }),
-      // Mentor assignments with user details (active only)
+    // Step 1: Get all matching schools for filtering (by assignment status)
+    const allSchools = await prisma.pilotSchool.findMany({
+      where: schoolWhere,
+      select: { id: true },
+    });
+
+    const allSchoolIds = allSchools.map(s => s.id);
+
+    // Step 2: Get ALL mentor and teacher assignments (filtered by schoolIds in-memory)
+    // This is more efficient than querying all assignments system-wide
+    const [mentorAssignments, teacherAssignments] = await Promise.all([
       prisma.mentorSchoolAssignment.findMany({
-        where: { is_active: true },
+        where: {
+          is_active: true,
+          pilot_school_id: { in: allSchoolIds }
+        },
         select: {
           pilot_school_id: true,
           mentor: {
@@ -94,9 +102,11 @@ export async function GET(request: NextRequest) {
           },
         },
       }),
-      // Teacher assignments with user details (active only)
       prisma.teacherSchoolAssignment.findMany({
-        where: { is_active: true },
+        where: {
+          is_active: true,
+          pilot_school_id: { in: allSchoolIds }
+        },
         select: {
           pilot_school_id: true,
           teacher: {
