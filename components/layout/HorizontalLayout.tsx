@@ -251,77 +251,76 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
             {/* Logo Section */}
             <div className="flex items-center flex-shrink-0">
               <Link href="/dashboard" className="flex items-center group">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 blur-sm"></div>
-                  <div className="relative px-2 py-1 bg-white rounded-lg">
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-indigo-50 transition-all duration-200 group">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-600 rounded-lg opacity-20 group-hover:opacity-40 transition-opacity duration-300 blur-md"></div>
+                    <div className="relative w-10 h-10 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-200">
+                      <span className="text-white font-black text-sm">ត</span>
+                    </div>
+                  </div>
+                  <div className="hidden sm:block">
                     <h1
-                      className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent transition-all duration-200 group-hover:from-indigo-700 group-hover:to-blue-700"
-                      style={{ fontFamily: 'Hanuman, sans-serif' }}
+                      className="text-base font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200"
+                      style={{ fontFamily: 'Hanuman, sans-serif', letterSpacing: '0.05em' }}
                     >
-                      TaRL
+                      គម្រោង TaRL
                     </h1>
+                    <p className="text-xs text-gray-500 font-medium" style={{ fontFamily: 'Hanuman, sans-serif' }}>
+                      Pratham
+                    </p>
                   </div>
                 </div>
-                <span className="ml-2 hidden sm:inline text-sm font-semibold text-gray-700 group-hover:text-indigo-600 transition-colors duration-200">
-                  Pratham
-                </span>
               </Link>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
+            <div className="hidden md:flex items-center space-x-0.5 lg:space-x-1">
               {getMenuItems().map((item: any) => {
                 const isActive = pathname === item.key;
                 return (
                   <div key={item.key} className="relative group">
                     {React.cloneElement(item.label, {
-                      className: `inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ease-in-out ${
+                      className: `inline-flex items-center px-3 lg:px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ease-in-out ${
                         isActive
-                          ? 'bg-indigo-50 text-indigo-600'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                          ? 'bg-gradient-to-r from-indigo-100 to-blue-100 text-indigo-700 shadow-sm'
+                          : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-100'
                       }`
                     })}
                     {isActive && (
-                      <div className="absolute bottom-0 left-4 right-4 h-1 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-t-full transition-all duration-200"></div>
+                      <div className="absolute inset-x-2 bottom-0 h-0.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 rounded-full shadow-md"></div>
                     )}
                   </div>
                 );
               })}
             </div>
 
-            {/* Right side - User menu and external link */}
-            <div className="flex items-center space-x-3 md:space-x-4">
-              {/* External PLP Link */}
-              <Link
-                href="https://plp.moeys.gov.kh"
-                target="_blank"
-                className="hidden lg:inline-flex text-sm text-gray-600 hover:text-indigo-600 items-center space-x-1 px-3 py-2 rounded-md hover:bg-gray-100 transition-all duration-200"
-              >
-                <span>PLP</span>
-                <GlobalOutlined className="w-3.5 h-3.5" />
-              </Link>
+            {/* Right side - User menu */}
+            <div className="flex items-center space-x-2 md:space-x-3">
 
               {/* User Dropdown */}
               <Dropdown
                 menu={{ items: userMenuItems }}
                 placement="bottomRight"
-                overlayStyle={{ zIndex: 1050, minWidth: '280px' }}
+                overlayStyle={{ zIndex: 1050, minWidth: '300px' }}
                 overlayClassName="user-dropdown-menu professional-dropdown"
               >
-                <button className="flex items-center space-x-2 md:space-x-3 px-2 py-1.5 md:px-3 rounded-lg hover:bg-gray-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 group">
+                <button className="flex items-center space-x-2 md:space-x-3 px-2.5 py-1.5 md:px-3.5 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 group active:scale-95">
                   <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-full opacity-20 group-hover:opacity-30 blur transition-opacity duration-200"></div>
                     <Avatar
-                      size={36}
-                      className="bg-gradient-to-br from-indigo-600 to-blue-600 font-semibold text-white"
+                      size={40}
+                      className="bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-600 font-black text-white shadow-lg group-hover:shadow-xl transition-shadow duration-200 border-2 border-white"
                       icon={<UserOutlined />}
                     >
                       {session?.user?.name?.substring(0, 2).toUpperCase()}
                     </Avatar>
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full shadow-md animate-pulse"></div>
                   </div>
                   <div className="hidden lg:block text-left">
-                    <div className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">{session?.user?.name}</div>
-                    <div className="text-xs text-gray-500 font-medium">
+                    <div className="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors" style={{ fontFamily: 'Hanuman, sans-serif' }}>
+                      {session?.user?.name}
+                    </div>
+                    <div className="text-xs text-gray-500 font-semibold" style={{ fontFamily: 'Hanuman, sans-serif' }}>
                       {session?.user?.role === 'admin' && 'អ្នកគ្រប់គ្រង'}
                       {session?.user?.role === 'teacher' && 'គ្រូបង្រៀន'}
                       {session?.user?.role === 'mentor' && 'អ្នកណែនាំ'}
