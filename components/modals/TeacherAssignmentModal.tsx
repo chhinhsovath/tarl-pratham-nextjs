@@ -164,12 +164,7 @@ export default function TeacherAssignmentModal({
       title: "គ្រូបង្រៀន",
       key: "teacher",
       render: (_, record) => (
-        <div>
-          <div style={{ fontWeight: 500 }}>{record.teacher.name}</div>
-          <div style={{ color: "#666", fontSize: "12px" }}>
-            {record.teacher.email}
-          </div>
-        </div>
+        <div style={{ fontWeight: 500 }}>{record.teacher.name}</div>
       ),
     },
     {
@@ -257,13 +252,7 @@ export default function TeacherAssignmentModal({
                 >
                   {filteredTeachers.map((teacher) => (
                     <Select.Option key={teacher.id} value={teacher.id}>
-                      <div>
-                        <strong>{teacher.name}</strong>
-                        <br />
-                        <span style={{ color: "#999", fontSize: "12px" }}>
-                          {teacher.email}
-                        </span>
-                      </div>
+                      {teacher.name}
                     </Select.Option>
                   ))}
                 </Select>

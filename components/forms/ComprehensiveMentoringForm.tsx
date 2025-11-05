@@ -464,7 +464,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
                 <Select
                   placeholder={
                     loadingTeachers
-                      ? "⏳ ម៉ាកកំពូល..."
+                      ? "សុំរងចាំ..."
                       : selectedSchool
                       ? "ជ្រើសរើសគ្រូបង្រៀន"
                       : "សូមជ្រើសរើសសាលារៀនជាមុនសិន"
@@ -477,7 +477,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
                   {loadingTeachers && (
                     <Select.Option disabled value="">
                       <div style={{ textAlign: 'center', padding: '8px' }}>
-                        ⏳ ស្វែងយល់ដឹង...
+                        សុំរងចាំ...
                       </div>
                     </Select.Option>
                   )}
@@ -490,12 +490,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
                   )}
                   {teachers.map((teacher: any) => (
                     <Select.Option key={teacher.id} value={teacher.id}>
-                      <div>
-                        <strong>{teacher.name}</strong>
-                        <div style={{ fontSize: '12px', color: '#999' }}>
-                          {teacher.email}
-                        </div>
-                      </div>
+                      {teacher.name}
                     </Select.Option>
                   ))}
                 </Select>
@@ -1207,7 +1202,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
               loading={submitLoading || loading}
               icon={submitLoading ? <LoadingOutlined /> : undefined}
             >
-              {submitLoading ? 'ម៉ាកកំពូល...' : 'បញ្ជូន'}
+              {submitLoading ? 'សុំរងចាំ...' : 'បញ្ជូន'}
             </Button>
           </div>
         </Card>

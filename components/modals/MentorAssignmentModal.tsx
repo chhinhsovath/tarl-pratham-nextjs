@@ -164,12 +164,7 @@ export default function MentorAssignmentModal({
       title: "គ្រូព្រឹក្សាគរុកោសល្យ",
       key: "mentor",
       render: (_, record) => (
-        <div>
-          <div style={{ fontWeight: 500 }}>{record.mentor.name}</div>
-          <div style={{ color: "#666", fontSize: "12px" }}>
-            {record.mentor.email}
-          </div>
-        </div>
+        <div style={{ fontWeight: 500 }}>{record.mentor.name}</div>
       ),
     },
     {
@@ -257,13 +252,7 @@ export default function MentorAssignmentModal({
                 >
                   {filteredMentors.map((mentor) => (
                     <Select.Option key={mentor.id} value={mentor.id}>
-                      <div>
-                        <strong>{mentor.name}</strong>
-                        <br />
-                        <span style={{ color: "#999", fontSize: "12px" }}>
-                          {mentor.email}
-                        </span>
-                      </div>
+                      {mentor.name}
                     </Select.Option>
                   ))}
                 </Select>
