@@ -1,0 +1,1 @@
+ Optimize performance - Batch queries, avoid N+1 problems, use efficient filtering

@@ -57,6 +57,8 @@ interface PilotSchool {
   is_locked: boolean;
   created_at: string;
   updated_at?: string;
+  mentor_count?: number;
+  teacher_count?: number;
 }
 
 interface ApiResponse {
@@ -86,6 +88,7 @@ function SchoolsPageContent() {
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
+  const [assignmentFilter, setAssignmentFilter] = useState("all"); // all, no_mentor, no_teacher, no_both
 
   // Modal states
   const [teacherModalVisible, setTeacherModalVisible] = useState(false);
@@ -105,7 +108,7 @@ function SchoolsPageContent() {
     }
 
     fetchSchools();
-  }, [session, status, pagination.page, searchTerm, selectedProvince]);
+  }, [session, status, pagination.page, searchTerm, selectedProvince, assignmentFilter]);
 
   const fetchSchools = async () => {
     setLoading(true);
@@ -118,7 +121,17 @@ function SchoolsPageContent() {
       if (searchTerm) params.append("search", searchTerm);
       if (selectedProvince) params.append("province_id", selectedProvince);
 
-      const response = await fetch(`/api/schools?${params}`);
+      // Add assignment filters
+      if (assignmentFilter === "no_mentor") {
+        params.append("has_mentors", "false");
+      } else if (assignmentFilter === "no_teacher") {
+        params.append("has_teachers", "false");
+      } else if (assignmentFilter === "no_both") {
+        params.append("has_mentors", "false");
+        params.append("has_teachers", "false");
+      }
+
+      const response = await fetch(`/api/schools/with-assignments?${params}`);
       if (!response.ok) throw new Error("Failed to fetch schools");
 
       const data: ApiResponse = await response.json();
@@ -223,6 +236,24 @@ function SchoolsPageContent() {
         <Tag color={record.is_locked ? "red" : "green"}>
           {record.is_locked ? "ជាប់សោ" : "សកម្ម"}
         </Tag>
+      ),
+    },
+    {
+      title: "ការចាត់តាំង",
+      key: "assignments",
+      render: (_, record) => (
+        <Space direction="vertical" size="small">
+          <div style={{ fontSize: "12px" }}>
+            <Tag color={record.mentor_count && record.mentor_count > 0 ? "green" : "red"}>
+              គ្រូព្រឹក្សា: {record.mentor_count || 0}
+            </Tag>
+          </div>
+          <div style={{ fontSize: "12px" }}>
+            <Tag color={record.teacher_count && record.teacher_count > 0 ? "green" : "red"}>
+              គ្រូបង្រៀន: {record.teacher_count || 0}
+            </Tag>
+          </div>
+        </Space>
       ),
     },
     {
@@ -391,6 +422,17 @@ function SchoolsPageContent() {
                 {province}
               </Option>
             ))}
+          </Select>
+          <Select
+            placeholder="ច្រោះតាមការចាត់តាំង"
+            value={assignmentFilter}
+            onChange={setAssignmentFilter}
+            style={{ width: 220 }}
+          >
+            <Option value="all">ទាំងអស់</Option>
+            <Option value="no_mentor">គ្មានគ្រូព្រឹក្សា</Option>
+            <Option value="no_teacher">គ្មានគ្រូបង្រៀន</Option>
+            <Option value="no_both">គ្មានទាំងពីរ</Option>
           </Select>
         </Space>
       </Card>
