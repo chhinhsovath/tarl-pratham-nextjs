@@ -40,6 +40,11 @@ import Link from "next/link";
 const { Title } = Typography;
 const { Option } = Select;
 
+interface User {
+  id: number;
+  name: string;
+}
+
 interface PilotSchool {
   id: number;
   school_name: string;
@@ -57,8 +62,8 @@ interface PilotSchool {
   is_locked: boolean;
   created_at: string;
   updated_at?: string;
-  mentor_count?: number;
-  teacher_count?: number;
+  mentors?: User[];
+  teachers?: User[];
 }
 
 interface ApiResponse {
@@ -242,16 +247,41 @@ function SchoolsPageContent() {
       title: "ការចាត់តាំង",
       key: "assignments",
       render: (_, record) => (
-        <Space direction="vertical" size="small">
-          <div style={{ fontSize: "12px" }}>
-            <Tag color={record.mentor_count && record.mentor_count > 0 ? "green" : "red"}>
-              គ្រូព្រឹក្សា: {record.mentor_count || 0}
-            </Tag>
+        <Space direction="vertical" size="small" style={{ width: "100%" }}>
+          {/* Mentors */}
+          <div>
+            <div style={{ fontSize: "11px", fontWeight: 500, marginBottom: "4px", color: "#666" }}>
+              គ្រូព្រឹក្សា ({record.mentors?.length || 0})
+            </div>
+            {record.mentors && record.mentors.length > 0 ? (
+              <Space size="small" wrap>
+                {record.mentors.map(mentor => (
+                  <Tooltip key={mentor.id} title={mentor.name}>
+                    <Tag color="blue">{mentor.name}</Tag>
+                  </Tooltip>
+                ))}
+              </Space>
+            ) : (
+              <span style={{ fontSize: "12px", color: "#999" }}>គ្មាន</span>
+            )}
           </div>
-          <div style={{ fontSize: "12px" }}>
-            <Tag color={record.teacher_count && record.teacher_count > 0 ? "green" : "red"}>
-              គ្រូបង្រៀន: {record.teacher_count || 0}
-            </Tag>
+
+          {/* Teachers */}
+          <div>
+            <div style={{ fontSize: "11px", fontWeight: 500, marginBottom: "4px", color: "#666" }}>
+              គ្រូបង្រៀន ({record.teachers?.length || 0})
+            </div>
+            {record.teachers && record.teachers.length > 0 ? (
+              <Space size="small" wrap>
+                {record.teachers.map(teacher => (
+                  <Tooltip key={teacher.id} title={teacher.name}>
+                    <Tag color="green">{teacher.name}</Tag>
+                  </Tooltip>
+                ))}
+              </Space>
+            ) : (
+              <span style={{ fontSize: "12px", color: "#999" }}>គ្មាន</span>
+            )}
           </div>
         </Space>
       ),

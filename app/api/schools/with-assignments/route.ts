@@ -72,8 +72,8 @@ export async function GET(request: NextRequest) {
       schoolWhere.province = province_id;
     }
 
-    // Step 2: Get assignment counts in two efficient queries (no N+1)
-    const [allSchools, totalCount, mentorCounts, teacherCounts] = await Promise.all([
+    // Step 2: Get assignment names in two efficient queries (no N+1)
+    const [allSchools, totalCount, mentorAssignments, teacherAssignments] = await Promise.all([
       // Get all schools that match filters (for assignment filtering)
       prisma.pilotSchool.findMany({
         where: schoolWhere,
@@ -81,27 +81,50 @@ export async function GET(request: NextRequest) {
       }),
       // Total count
       prisma.pilotSchool.count({ where: schoolWhere }),
-      // Mentor assignment counts (active only, grouped by school)
-      prisma.mentorSchoolAssignment.groupBy({
-        by: ["pilot_school_id"],
+      // Mentor assignments with user details (active only)
+      prisma.mentorSchoolAssignment.findMany({
         where: { is_active: true },
-        _count: { id: true },
+        select: {
+          pilot_school_id: true,
+          mentor: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       }),
-      // Teacher assignment counts (active only, grouped by school)
-      prisma.teacherSchoolAssignment.groupBy({
-        by: ["pilot_school_id"],
+      // Teacher assignments with user details (active only)
+      prisma.teacherSchoolAssignment.findMany({
         where: { is_active: true },
-        _count: { id: true },
+        select: {
+          pilot_school_id: true,
+          teacher: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       }),
     ]);
 
-    // Step 3: Create lookup maps for fast access
-    const mentorCountMap = new Map(
-      mentorCounts.map(m => [m.pilot_school_id, m._count.id])
-    );
-    const teacherCountMap = new Map(
-      teacherCounts.map(t => [t.pilot_school_id, t._count.id])
-    );
+    // Step 3: Create lookup maps for fast access (group by school)
+    const mentorMap = new Map<number, Array<{ id: number; name: string }>>();
+    mentorAssignments.forEach(assignment => {
+      if (!mentorMap.has(assignment.pilot_school_id)) {
+        mentorMap.set(assignment.pilot_school_id, []);
+      }
+      mentorMap.get(assignment.pilot_school_id)!.push(assignment.mentor);
+    });
+
+    const teacherMap = new Map<number, Array<{ id: number; name: string }>>();
+    teacherAssignments.forEach(assignment => {
+      if (!teacherMap.has(assignment.pilot_school_id)) {
+        teacherMap.set(assignment.pilot_school_id, []);
+      }
+      teacherMap.get(assignment.pilot_school_id)!.push(assignment.teacher);
+    });
 
     // Step 4: Filter schools based on assignment status
     let filteredSchoolIds = allSchools.map(s => s.id);
@@ -109,7 +132,7 @@ export async function GET(request: NextRequest) {
     if (has_mentors !== null && has_mentors !== undefined) {
       const hasMentorsBoolean = has_mentors === "true";
       filteredSchoolIds = filteredSchoolIds.filter(schoolId => {
-        const count = mentorCountMap.get(schoolId) || 0;
+        const count = (mentorMap.get(schoolId) || []).length;
         return hasMentorsBoolean ? count > 0 : count === 0;
       });
     }
@@ -117,7 +140,7 @@ export async function GET(request: NextRequest) {
     if (has_teachers !== null && has_teachers !== undefined) {
       const hasTeachersBoolean = has_teachers === "true";
       filteredSchoolIds = filteredSchoolIds.filter(schoolId => {
-        const count = teacherCountMap.get(schoolId) || 0;
+        const count = (teacherMap.get(schoolId) || []).length;
         return hasTeachersBoolean ? count > 0 : count === 0;
       });
     }
@@ -150,11 +173,11 @@ export async function GET(request: NextRequest) {
       orderBy: { created_at: "desc" }
     });
 
-    // Step 6: Enrich schools with assignment counts
+    // Step 6: Enrich schools with assignment names
     const enrichedSchools = schools.map(school => ({
       ...school,
-      mentor_count: mentorCountMap.get(school.id) || 0,
-      teacher_count: teacherCountMap.get(school.id) || 0,
+      mentors: mentorMap.get(school.id) || [],
+      teachers: teacherMap.get(school.id) || [],
     }));
 
     return NextResponse.json({
