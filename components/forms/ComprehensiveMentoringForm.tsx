@@ -18,8 +18,11 @@ import {
   Checkbox,
   Progress,
   message,
-  Divider
+  Divider,
+  Alert,
+  Space
 } from 'antd';
+import { CloseOutlined, LoadingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { trackActivity } from '@/lib/trackActivity';
 
@@ -60,6 +63,10 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
   const [numberOfActivities, setNumberOfActivities] = useState(0);
   const [numActivities, setNumActivities] = useState(0); // FIXED: Added missing state (used in populateFormData)
   const [progressPercentage, setProgressPercentage] = useState(0);
+
+  // State for form validation and submission
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   // Activity conditional states
   const [activity1ClearInstructions, setActivity1ClearInstructions] = useState(null);
@@ -207,6 +214,51 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
 
   const handleSubmit = async (values: any) => {
     try {
+      // Validate required fields
+      const requiredFields = [
+        { name: 'visit_date', label: 'កាលបរិច្ឆេទ' },
+        { name: 'pilot_school_id', label: 'សាលារៀន' },
+        { name: 'teacher_id', label: 'គ្រូបង្រៀន' },
+        { name: 'class_in_session', label: 'ស្ថានភាពថ្នាក់រៀន' },
+        { name: 'full_session_observed', label: 'ពេលវេលាសង្កេត' },
+        { name: 'subject_observed', label: 'មុខវិជ្ជា' }
+      ];
+
+      const errors: string[] = [];
+      let firstErrorField: any = null;
+
+      requiredFields.forEach(field => {
+        const value = values[field.name];
+        if (value === undefined || value === '' || value === null) {
+          errors.push(`${field.label}`);
+          if (!firstErrorField) {
+            // Get the field element to scroll to
+            const fieldElement = document.querySelector(
+              `[name="${field.name}"]`
+            );
+            if (fieldElement) {
+              firstErrorField = fieldElement;
+            }
+          }
+        }
+      });
+
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+        // Scroll to first error field
+        if (firstErrorField) {
+          setTimeout(() => {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        }
+        return;
+      }
+
+      // Clear validation errors if all fields are valid
+      setValidationErrors([]);
+
+      setSubmitLoading(true);
+
       const formData = {
         ...values,
         visit_date: values.visit_date ? values.visit_date.format('YYYY-MM-DD') : undefined,
@@ -225,22 +277,24 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
     } catch (error) {
       console.error('Form submission error:', error);
       message.error('មានបញ្ហាក្នុងការបញ្ជូនទម្រង់');
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
   // Teaching materials exactly from Laravel
   const teachingMaterials = [
-    'Chartលេខ ០-៩៩',
-    'Chartតម្លៃលេខតាមខ្ទង់',
+    'លេខ ០-៩៩',
+    'តម្លៃលេខតាមខ្ទង់',
     'បណ្ណតម្លៃលេខតាមខ្ទង់',
-    'Chartបូកលេខដោយផ្ទាល់មាត់',
-    'Chartដកលេខដោយផ្ទាល់មាត់',
-    'Chartគុណលេខដោយផ្ទាល់មាត់',
+    'បូកលេខដោយផ្ទាល់មាត់',
+    'ដកលេខដោយផ្ទាល់មាត់',
+    'គុណលេខដោយផ្ទាល់មាត់',
     'ប្រាក់លេង',
     'សៀវភៅគ្រូមុខវិទ្យាគណិតវិទ្យា',
     'ទុយោ',
     'កូនសៀវភៅចំណោទ (បូក ដក គុណ ចែក)',
-    'Chartព្យាង្គ',
+    'ព្យាង្គ',
     'បណ្ណរូបភាព',
     'ការតម្រៀបល្បះ និងកូនសៀវភៅកែតម្រូវកំហុស',
     'បណ្ណពាក្យ/បណ្ណព្យាង្គ',
@@ -293,11 +347,11 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
   // Math activities exactly from Laravel (25 activities)
   const mathActivities = [
     'ចំនួនដោយប្រើបាច់ឈើនិងឈើ',
-    'ការអានChartលេខ',
+    'ការអានលេខ',
     'ល្បែងកង់លេខ',
     'ល្បែងលោតលើលេខ',
     'ការទះដៃនិងផ្ទាត់ម្រាមដៃ',
-    'Chartតម្លៃលេខតាមខ្ទង់',
+    'តម្លៃលេខតាមខ្ទង់',
     'បណ្ណតម្លៃលេខតាមខ្ទង់',
     'សៀវភៅកំណត់ត្រាលេខ',
     'ចំនួនជាមួយប្រាក់លេង',
@@ -310,12 +364,12 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
     'ប្រមាណវិធីដកដោយប្រើប្រាក់លេង',
     'ប្រមាណវិធីគុណដោយប្រើឈើ',
     'ប្រមាណវិធីគុណដោយបំបែកលេខ',
-    'ការសូត្រChartមេគុណ',
+    'ការសូត្របានលេខមេគុណ',
     'ប្រមាណវិធីគុណក្នុងប្រអប់',
-    'ប្រមាណវិធីគុណដោយប្រើChartតម្លៃលេខតាមខ្ទង់',
+    'ប្រមាណវិធីគុណដោយប្រើតម្លៃលេខតាមខ្ទង់',
     'ប្រមាណវិធីចែកដោយប្រើឈើ',
     'ប្រមាណវិធីចែកដោយប្រើប្រាក់លេង',
-    'ប្រមាណវិធីចែកដោយប្រើChartមេគុណ'
+    'ប្រមាណវិធីចែកដោយប្រើលេខមេគុណ'
   ];
 
   return (
@@ -328,6 +382,29 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
         </div>
         <Progress percent={progressPercentage} showInfo={false} />
       </Card>
+
+      {/* Validation Alert */}
+      {validationErrors.length > 0 && (
+        <Alert
+          message="សូមបំពេញលេខដែលត្រូវការ"
+          description={
+            <div>
+              <p style={{ marginBottom: '8px' }}>
+                សូមបំពេញគ្រប់ថ្នាក់ខាងក្រោម មុនពេលបញ្ជូន:
+              </p>
+              <ul style={{ marginLeft: '20px', marginBottom: '0' }}>
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          }
+          type="error"
+          closable
+          onClose={() => setValidationErrors([])}
+          style={{ marginBottom: '24px' }}
+        />
+      )}
 
       <Form
         form={form}
@@ -1121,11 +1198,16 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
         {/* Form Actions */}
         <Card>
           <div className="flex justify-between">
-            <Button onClick={() => router.back()}>
+            <Button onClick={() => router.back()} disabled={submitLoading}>
               បោះបង់
             </Button>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              បញ្ជូន
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={submitLoading || loading}
+              icon={submitLoading ? <LoadingOutlined /> : undefined}
+            >
+              {submitLoading ? 'ម៉ាកកំពូល...' : 'បញ្ជូន'}
             </Button>
           </div>
         </Card>
