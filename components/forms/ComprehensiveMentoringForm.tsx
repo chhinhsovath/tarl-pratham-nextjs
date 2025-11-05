@@ -49,6 +49,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
   // State for dynamic behavior
   const [schools, setSchools] = useState([]);
   const [teachers, setTeachers] = useState([]);
+  const [loadingTeachers, setLoadingTeachers] = useState(false);
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [classInSession, setClassInSession] = useState(true);
   const [fullSessionObserved, setFullSessionObserved] = useState(true); // FIXED: Added missing state
@@ -128,6 +129,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
 
   const fetchTeachers = async (schoolId: number) => {
     try {
+      setLoadingTeachers(true);
       const response = await fetch(`/api/users?role=teacher&school_id=${schoolId}`);
       if (response.ok) {
         const data = await response.json();
@@ -139,6 +141,8 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
     } catch (error) {
       console.error('Error fetching teachers:', error);
       setTeachers([]);
+    } finally {
+      setLoadingTeachers(false);
     }
   };
 
@@ -381,14 +385,40 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
                 rules={[{ required: true, message: 'សូមជ្រើសរើសគ្រូបង្រៀន' }]}
               >
                 <Select
-                  placeholder="ជ្រើសរើសគ្រូបង្រៀន"
-                  disabled={!selectedSchool}
+                  placeholder={
+                    loadingTeachers
+                      ? "⏳ ម៉ាកកំពូល..."
+                      : selectedSchool
+                      ? "ជ្រើសរើសគ្រូបង្រៀន"
+                      : "សូមជ្រើសរើសសាលារៀនជាមុនសិន"
+                  }
+                  disabled={!selectedSchool || loadingTeachers}
                   showSearch
                   optionFilterProp="children"
+                  loading={loadingTeachers}
                 >
+                  {loadingTeachers && (
+                    <Select.Option disabled value="">
+                      <div style={{ textAlign: 'center', padding: '8px' }}>
+                        ⏳ ស្វែងយល់ដឹង...
+                      </div>
+                    </Select.Option>
+                  )}
+                  {!loadingTeachers && teachers.length === 0 && selectedSchool && (
+                    <Select.Option disabled value="">
+                      <div style={{ textAlign: 'center', padding: '8px', color: '#999' }}>
+                        មិនមានគ្រូបង្រៀនក្នុងសាលារៀននេះទេ
+                      </div>
+                    </Select.Option>
+                  )}
                   {teachers.map((teacher: any) => (
                     <Select.Option key={teacher.id} value={teacher.id}>
-                      {teacher.name}
+                      <div>
+                        <strong>{teacher.name}</strong>
+                        <div style={{ fontSize: '12px', color: '#999' }}>
+                          {teacher.email}
+                        </div>
+                      </div>
                     </Select.Option>
                   ))}
                 </Select>
