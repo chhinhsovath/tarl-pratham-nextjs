@@ -1,5 +1,7 @@
 "use client";
 import HorizontalLayout from "@/components/layout/HorizontalLayout";
+import TeacherAssignmentModal from "@/components/modals/TeacherAssignmentModal";
+import MentorAssignmentModal from "@/components/modals/MentorAssignmentModal";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -28,7 +30,9 @@ import {
   DeleteOutlined,
   HomeOutlined,
   BankOutlined,
-  EnvironmentOutlined
+  EnvironmentOutlined,
+  UserAddOutlined,
+  TeamOutlined
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import Link from "next/link";
@@ -82,6 +86,11 @@ function SchoolsPageContent() {
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
+
+  // Modal states
+  const [teacherModalVisible, setTeacherModalVisible] = useState(false);
+  const [mentorModalVisible, setMentorModalVisible] = useState(false);
+  const [selectedSchool, setSelectedSchool] = useState<PilotSchool | null>(null);
 
   // Check permissions
   const canCreate = session?.user?.role === "admin" || session?.user?.role === "coordinator";
@@ -226,14 +235,39 @@ function SchoolsPageContent() {
     {
       title: "សកម្មភាព",
       key: "actions",
+      width: 280,
       render: (_, record) => (
-        <Space>
+        <Space size="small" wrap>
           {canEdit && (
-            <Link href={`/schools/${record.id}/edit`}>
-              <Button type="link" icon={<EditOutlined />} size="small">
-                កែប្រែ
+            <>
+              <Button
+                type="primary"
+                size="small"
+                icon={<UserAddOutlined />}
+                onClick={() => {
+                  setSelectedSchool(record);
+                  setTeacherModalVisible(true);
+                }}
+              >
+                គ្រូ
               </Button>
-            </Link>
+              <Button
+                type="primary"
+                size="small"
+                icon={<TeamOutlined />}
+                onClick={() => {
+                  setSelectedSchool(record);
+                  setMentorModalVisible(true);
+                }}
+              >
+                ព្រឹក្សា
+              </Button>
+              <Link href={`/schools/${record.id}/edit`}>
+                <Button type="link" icon={<EditOutlined />} size="small">
+                  កែប្រែ
+                </Button>
+              </Link>
+            </>
           )}
           {canDelete && (
             <Popconfirm
@@ -371,7 +405,7 @@ function SchoolsPageContent() {
           pagination={false}
           scroll={{ x: 1400 }}
         />
-        
+
         {/* Custom Pagination */}
         <div style={{ marginTop: "16px", textAlign: "right" }}>
           <Pagination
@@ -387,6 +421,32 @@ function SchoolsPageContent() {
           />
         </div>
       </Card>
+
+      {/* Modals */}
+      {selectedSchool && (
+        <>
+          <TeacherAssignmentModal
+            visible={teacherModalVisible}
+            schoolId={selectedSchool.id}
+            schoolName={selectedSchool.school_name}
+            onClose={() => setTeacherModalVisible(false)}
+            onSuccess={() => {
+              setTeacherModalVisible(false);
+              fetchSchools();
+            }}
+          />
+          <MentorAssignmentModal
+            visible={mentorModalVisible}
+            schoolId={selectedSchool.id}
+            schoolName={selectedSchool.school_name}
+            onClose={() => setMentorModalVisible(false)}
+            onSuccess={() => {
+              setMentorModalVisible(false);
+              fetchSchools();
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }
