@@ -243,61 +243,85 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
-      {/* Header Navigation */}
-      <nav className="bg-white shadow h-16">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+      {/* Header Navigation - Professional Design */}
+      <nav className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="horizontal-layout-content">
-          <div className="flex justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center">
-                <h1 className="text-xl font-bold text-gray-800" style={{ fontFamily: 'Hanuman, sans-serif' }}>
-                  គម្រោង TaRL
-                </h1>
+          <div className="flex justify-between items-center h-16 px-4 md:px-6">
+            {/* Logo Section */}
+            <div className="flex items-center flex-shrink-0">
+              <Link href="/dashboard" className="flex items-center group">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 blur-sm"></div>
+                  <div className="relative px-2 py-1 bg-white rounded-lg">
+                    <h1
+                      className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent transition-all duration-200 group-hover:from-indigo-700 group-hover:to-blue-700"
+                      style={{ fontFamily: 'Hanuman, sans-serif' }}
+                    >
+                      TaRL
+                    </h1>
+                  </div>
+                </div>
+                <span className="ml-2 hidden sm:inline text-sm font-semibold text-gray-700 group-hover:text-indigo-600 transition-colors duration-200">
+                  Pratham
+                </span>
               </Link>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              {getMenuItems().map((item: any) => (
-                <div key={item.key}>
-                  {React.cloneElement(item.label, {
-                    className: `${getCurrentPageClass(item.key)} inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-150 ease-in-out`
-                  })}
-                </div>
-              ))}
+            <div className="hidden md:flex items-center space-x-1">
+              {getMenuItems().map((item: any) => {
+                const isActive = pathname === item.key;
+                return (
+                  <div key={item.key} className="relative group">
+                    {React.cloneElement(item.label, {
+                      className: `inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ease-in-out ${
+                        isActive
+                          ? 'bg-indigo-50 text-indigo-600'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      }`
+                    })}
+                    {isActive && (
+                      <div className="absolute bottom-0 left-4 right-4 h-1 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-t-full transition-all duration-200"></div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Right side - User menu and external link */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3 md:space-x-4">
               {/* External PLP Link */}
-              <Link 
-                href="https://plp.moeys.gov.kh" 
+              <Link
+                href="https://plp.moeys.gov.kh"
                 target="_blank"
-                className="hidden lg:flex text-sm text-gray-500 hover:text-gray-700 items-center space-x-1"
+                className="hidden lg:inline-flex text-sm text-gray-600 hover:text-indigo-600 items-center space-x-1 px-3 py-2 rounded-md hover:bg-gray-100 transition-all duration-200"
               >
-                <span>គម្រោង PLP</span>
-                <GlobalOutlined className="w-3 h-3" />
+                <span>PLP</span>
+                <GlobalOutlined className="w-3.5 h-3.5" />
               </Link>
 
               {/* User Dropdown */}
               <Dropdown
                 menu={{ items: userMenuItems }}
                 placement="bottomRight"
-                overlayStyle={{ zIndex: 1050, minWidth: '320px' }}
-                overlayClassName="user-dropdown-menu"
+                overlayStyle={{ zIndex: 1050, minWidth: '280px' }}
+                overlayClassName="user-dropdown-menu professional-dropdown"
               >
-                <button className="flex items-center space-x-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md p-2">
-                  <Avatar 
-                    size={32}
-                    className="bg-indigo-600"
-                    icon={<UserOutlined />}
-                  >
-                    {session?.user?.name?.substring(0, 2).toUpperCase()}
-                  </Avatar>
+                <button className="flex items-center space-x-2 md:space-x-3 px-2 py-1.5 md:px-3 rounded-lg hover:bg-gray-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 group">
+                  <div className="relative">
+                    <Avatar
+                      size={36}
+                      className="bg-gradient-to-br from-indigo-600 to-blue-600 font-semibold text-white"
+                      icon={<UserOutlined />}
+                    >
+                      {session?.user?.name?.substring(0, 2).toUpperCase()}
+                    </Avatar>
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                  </div>
                   <div className="hidden lg:block text-left">
-                    <div className="text-sm font-medium text-gray-900">{session?.user?.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">{session?.user?.name}</div>
+                    <div className="text-xs text-gray-500 font-medium">
                       {session?.user?.role === 'admin' && 'អ្នកគ្រប់គ្រង'}
                       {session?.user?.role === 'teacher' && 'គ្រូបង្រៀន'}
                       {session?.user?.role === 'mentor' && 'អ្នកណែនាំ'}
@@ -314,17 +338,18 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
                   type="text"
                   icon={<MenuOutlined />}
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
+                  size="large"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Navigation Menu - Slide Down */}
         {mobileMenuOpen && (
           <div
-            className="md:hidden bg-white border-t border-gray-200 shadow-lg"
+            className="md:hidden bg-white border-t border-gray-200 shadow-xl animate-in slide-in-from-top-2 duration-200"
             style={{
               position: 'fixed',
               top: '64px',
@@ -335,22 +360,25 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
               overflowY: 'auto'
             }}
           >
-            <div className="px-4 pt-3 pb-4 space-y-2">
-              {getMenuItems().map((item: any) => (
-                <Link
-                  key={item.key}
-                  href={item.key}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 ${
-                    pathname === item.key
-                      ? 'bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-l-4 border-transparent'
-                  }`}
-                  style={{ fontFamily: 'Hanuman, sans-serif' }}
-                >
-                  {item.label.props.children}
-                </Link>
-              ))}
+            <div className="px-2 py-3 space-y-1">
+              {getMenuItems().map((item: any) => {
+                const isActive = pathname === item.key;
+                return (
+                  <Link
+                    key={item.key}
+                    href={item.key}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 relative ${
+                      isActive
+                        ? 'bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-600 border-l-4 border-indigo-600'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-l-4 border-transparent'
+                    }`}
+                    style={{ fontFamily: 'Hanuman, sans-serif' }}
+                  >
+                    {item.label.props.children}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
