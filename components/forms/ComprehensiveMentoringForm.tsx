@@ -131,10 +131,14 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
       const response = await fetch(`/api/users?role=teacher&school_id=${schoolId}`);
       if (response.ok) {
         const data = await response.json();
-        setTeachers(data.data || data.users || []);
+        const teachersList = data.data || data.users || [];
+        setTeachers(teachersList);
+      } else {
+        setTeachers([]);
       }
     } catch (error) {
       console.error('Error fetching teachers:', error);
+      setTeachers([]);
     }
   };
 
