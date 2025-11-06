@@ -33,11 +33,11 @@ const { Option } = Select;
 
 interface PilotSchool {
   id: number;
-  name: string;
-  code: string;
-  province: {
-    name_english: string;
-  };
+  school_name: string;
+  school_code: string;
+  province: string; // Province is returned as a string, not an object
+  district?: string;
+  cluster?: string;
 }
 
 const ROLES = [
@@ -315,7 +315,7 @@ function CreateUserPageContent() {
                   >
                     {pilotSchools.map(school => (
                       <Option key={school.id} value={school.id}>
-                        {school.name} ({school.code}) - {school.province.name_english}
+                        {school.school_name} ({school.school_code}) - {school.province}
                       </Option>
                     ))}
                   </Select>
