@@ -148,7 +148,7 @@ export async function GET() {
     {
       name: 'John Doe',
       email: 'john@example.com',
-      password: 'password123',
+      password: 'admin123',
       role: 'teacher',
       province: 'Phnom Penh',
       subject: 'Math',

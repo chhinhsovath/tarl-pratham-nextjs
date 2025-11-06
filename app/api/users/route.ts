@@ -350,7 +350,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(validatedData.password || "password123", 12);
+    const hashedPassword = await bcrypt.hash(validatedData.password || "admin123", 12);
 
     // Auto-generate username from full name using smart converter
     const baseUsername = nameToUsername(validatedData.name);
