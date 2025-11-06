@@ -6,9 +6,75 @@
  */
 
 const { PrismaClient } = require('@prisma/client');
-const { nameToUsername } = require('./lib/username-converter');
 
 const prisma = new PrismaClient();
+
+// Inline Khmer to Latin converter (since we can't import TypeScript modules in Node.js directly)
+const KHMER_TO_LATIN_MAP = {
+  'ក': 'k', 'ខ': 'kh', 'គ': 'g', 'ឃ': 'kh',
+  'ង': 'ng', 'ច': 'c', 'ឆ': 'ch', 'ជ': 'j', 'ឈ': 'ch',
+  'ញ': 'ny', 'ដ': 'd', 'ឋ': 'th', 'ឌ': 'd', 'ឍ': 'th',
+  'ន': 'n', 'ប': 'p', 'ផ': 'ph', 'ព': 'p', 'ភ': 'ph',
+  'ម': 'm', 'យ': 'y', 'រ': 'r', 'ល': 'l', 'វ': 'v',
+  'ស': 's', 'ហ': 'h', 'អ': 'a',
+  'ា': 'a', 'ិ': 'i', 'ឹ': 'i', 'ឺ': 'ei', 'ុ': 'u', 'ូ': 'u', 'ួ': 'ua',
+  'ើ': 'ae', 'ឿ': 'ue', 'ៀ': 'ie'
+};
+
+function khmerToLatin(khmerText) {
+  if (!khmerText) return '';
+  let result = '';
+  for (const char of khmerText) {
+    result += KHMER_TO_LATIN_MAP[char] || char;
+  }
+  return result;
+}
+
+function normalizeUsername(text) {
+  if (!text) return '';
+  let normalized = text.toLowerCase().trim();
+  normalized = normalized
+    .replace(/[àáâãäå]/g, 'a')
+    .replace(/[èéêë]/g, 'e')
+    .replace(/[ìíîï]/g, 'i')
+    .replace(/[òóôõö]/g, 'o')
+    .replace(/[ùúûü]/g, 'u')
+    .replace(/[ýÿ]/g, 'y')
+    .replace(/[ñ]/g, 'n')
+    .replace(/[ç]/g, 'c')
+    .replace(/[^a-z0-9\s_-]/g, '');
+  normalized = normalized.replace(/\s+/g, '_');
+  normalized = normalized.replace(/_+/g, '_');
+  normalized = normalized.replace(/^_+|_+$/g, '');
+  return normalized;
+}
+
+function nameToUsername(fullName) {
+  if (!fullName || fullName.trim().length === 0) {
+    return '';
+  }
+  const khmerRegex = /[\u1780-\u17FF]/g;
+  const hasKhmer = khmerRegex.test(fullName);
+  let latinized = fullName;
+  if (hasKhmer) {
+    latinized = '';
+    for (const char of fullName) {
+      if (/[\u1780-\u17FF]/.test(char)) {
+        latinized += khmerToLatin(char);
+      } else {
+        latinized += char;
+      }
+    }
+  }
+  const username = normalizeUsername(latinized);
+  if (username.length === 0) {
+    return 'user_' + Date.now().toString().slice(-6);
+  }
+  if (username.length < 3) {
+    return username + '_' + Math.random().toString(36).substring(2, 5);
+  }
+  return username;
+}
 
 async function fixMissingUsernames() {
   console.log('🚀 Starting username fix...\n');
