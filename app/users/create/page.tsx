@@ -54,9 +54,10 @@ const PROVINCES = [
   "បាត់ដំបង"  // Battambang
 ];
 
+// Only Khmer and Math subjects for TaRL program
 const SUBJECTS = [
-  "ភាសាខ្មែរ", "គណិតវិទ្យា", "វិទ្យាសាស្ត្រ", "សង្គម", "អង់គ្លេស", 
-  "កីឡា", "កលាបត្ថម្ម", "ជំនាញរស់នៅ", "កុំព្យូទ័រ"
+  "ភាសាខ្មែរ",      // Khmer
+  "គណិតវិទ្យា"    // Math
 ];
 
 function CreateUserPageContent() {
@@ -282,14 +283,55 @@ function CreateUserPageContent() {
             </Col>
           </Row>
 
+          {/* School Selection - For Teacher/Mentor - REQUIRED AND PROMINENT */}
+          {(selectedRole === "mentor" || selectedRole === "teacher") && (
+            <Row gutter={24} style={{ marginBottom: "16px" }}>
+              <Col xs={24}>
+                <Form.Item
+                  label={
+                    <span>
+                      <span style={{ color: '#ff4d4f', marginRight: '4px' }}>*</span>
+                      សាលាសាកល្បង
+                      <span style={{ marginLeft: '12px', fontSize: '12px', color: '#0050b3', fontWeight: 500 }}>
+                        (ចាប់ផ្តើម​ដោយ គ្រូ និងអ្នកណែនាំត្រូវកំណត់)
+                      </span>
+                    </span>
+                  }
+                  name="pilot_school_id"
+                  rules={[
+                    { required: true, message: "សូមជ្រើសរើសសាលាសាកល្បង" }
+                  ]}
+                >
+                  <Select
+                    placeholder="ជ្រើសរើរ​សាលាសាកល្បង"
+                    size="large"
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      (option?.children as unknown as string)
+                        ?.toLowerCase()
+                        ?.includes(input.toLowerCase()) ?? false
+                    }
+                  >
+                    {pilotSchools.map(school => (
+                      <Option key={school.id} value={school.id}>
+                        {school.name} ({school.code}) - {school.province.name_english}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
+
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Form.Item
                 label="ខេត្ត"
                 name="province"
               >
-                <Select 
-                  placeholder="ជ្រើសរើសខេត្ត" 
+                <Select
+                  placeholder="ជ្រើសរើសខេត្ត"
                   size="large"
                   showSearch
                   allowClear
@@ -308,8 +350,8 @@ function CreateUserPageContent() {
                 label="មុខវិជ្ជា"
                 name="subject"
               >
-                <Select 
-                  placeholder="ជ្រើសរើសមុខវិជ្ជា" 
+                <Select
+                  placeholder="ជ្រើសរើសមុខវិជ្ជា"
                   size="large"
                   allowClear
                 >
@@ -331,34 +373,6 @@ function CreateUserPageContent() {
               >
                 <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" size="large" />
               </Form.Item>
-            </Col>
-
-            <Col xs={24} md={12}>
-              {(selectedRole === "mentor" || selectedRole === "teacher") && (
-                <Form.Item
-                  label="សាលាសាកល្បង"
-                  name="pilot_school_id"
-                >
-                  <Select 
-                    placeholder="ជ្រើសរើសសាលាសាកល្បង" 
-                    size="large"
-                    showSearch
-                    allowClear
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      (option?.children as unknown as string)
-                        ?.toLowerCase()
-                        ?.includes(input.toLowerCase()) ?? false
-                    }
-                  >
-                    {pilotSchools.map(school => (
-                      <Option key={school.id} value={school.id}>
-                        {school.name} ({school.code}) - {school.province.name_english}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              )}
             </Col>
           </Row>
 
