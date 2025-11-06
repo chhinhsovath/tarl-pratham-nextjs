@@ -619,7 +619,7 @@ const ComprehensiveMentoringForm: React.FC<ComprehensiveMentoringFormProps> = ({
                     name="total_students_enrolled"
                     label="ចំនួនសិស្សសរុបក្នុងថ្នាក់ TaRL"
                   >
-                    <InputNumber min={0} max={20} style={{ width: '100%' }} />
+                    <InputNumber min={0} max={30} style={{ width: '100%' }} />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
