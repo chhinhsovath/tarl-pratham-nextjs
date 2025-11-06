@@ -334,17 +334,19 @@ export async function POST(request: NextRequest) {
     
     // Validate input
     const validatedData = userSchema.parse(body);
-    
-    // Check if email already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email }
-    });
-    
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Email already exists" },
-        { status: 400 }
-      );
+
+    // Check if email already exists (only if email was provided)
+    if (validatedData.email) {
+      const existingUser = await prisma.user.findUnique({
+        where: { email: validatedData.email }
+      });
+
+      if (existingUser) {
+        return NextResponse.json(
+          { error: "Email already exists" },
+          { status: 400 }
+        );
+      }
     }
 
     // Hash password
