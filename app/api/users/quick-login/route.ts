@@ -11,10 +11,12 @@ export async function GET(request: NextRequest) {
 
     try {
       // Query unified users table - return ALL users with usernames (both email and username login types)
+      // Include email as fallback for users without username
       users = await prisma.user.findMany({
         select: {
           id: true,
           username: true,
+          email: true,
           role: true,
           province: true,
           subject: true
@@ -28,6 +30,18 @@ export async function GET(request: NextRequest) {
           { username: 'asc' }
         ]
       });
+
+      // Log if we find users without usernames (this should be empty after fix)
+      const usersWithoutUsername = await prisma.user.count({
+        where: {
+          is_active: true,
+          username: null
+        }
+      });
+
+      if (usersWithoutUsername > 0) {
+        console.warn(`⚠️  Found ${usersWithoutUsername} active users without usernames. Call /api/users/fix-missing-usernames to fix them.`);
+      }
     } catch (dbError) {
       console.warn("Database not available, providing demo users:", dbError);
       users = [];

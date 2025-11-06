@@ -349,16 +349,45 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password || "password123", 12);
 
+    // Auto-generate username from email if not provided
+    let username = validatedData.username;
+    if (!username) {
+      // Extract username part from email (before @)
+      const emailPrefix = validatedData.email.split('@')[0];
+
+      // Check if this username is already taken
+      let baseUsername = emailPrefix;
+      let usernameToCheck = baseUsername;
+      let counter = 1;
+
+      while (true) {
+        const existingUsername = await prisma.user.findUnique({
+          where: { username: usernameToCheck }
+        });
+
+        if (!existingUsername) {
+          username = usernameToCheck;
+          break;
+        }
+
+        // If taken, append a counter
+        usernameToCheck = `${baseUsername}${counter}`;
+        counter++;
+      }
+    }
+
     // Create user
     const user = await prisma.user.create({
       data: {
         ...validatedData,
+        username, // Set the auto-generated or provided username
         password: hashedPassword
       },
       select: {
         id: true,
         name: true,
         email: true,
+        username: true,
         role: true,
         province: true,
         subject: true,
@@ -375,9 +404,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ 
-      message: "User created successfully",
-      data: user 
+    return NextResponse.json({
+      message: `User created successfully. Username: ${username}`,
+      data: user
     }, { status: 201 });
 
   } catch (error) {
