@@ -66,7 +66,7 @@ function CreateUserPageContent() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [pilotSchools, setPilotSchools] = useState<PilotSchool[]>([]);
-  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedRole, setSelectedRole] = useState("teacher"); // ← Initialize with "teacher" to match form initialValues
   const [generatedUsername, setGeneratedUsername] = useState("");
 
   useEffect(() => {
