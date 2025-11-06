@@ -306,15 +306,18 @@ function CreateUserPageContent() {
                     placeholder="ជ្រើសរើរ​សាលាសាកល្បង"
                     size="large"
                     showSearch
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      (option?.children as unknown as string)
-                        ?.toLowerCase()
-                        ?.includes(input.toLowerCase()) ?? false
-                    }
+                    optionFilterProp="label"
+                    filterOption={(input, option) => {
+                      const label = option?.label as string || '';
+                      return label.toLowerCase().includes(input.toLowerCase());
+                    }}
                   >
                     {pilotSchools.map(school => (
-                      <Option key={school.id} value={school.id}>
+                      <Option
+                        key={school.id}
+                        value={school.id}
+                        label={`${school.school_name} (${school.school_code}) - ${school.province}`}
+                      >
                         {school.school_name} ({school.school_code}) - {school.province}
                       </Option>
                     ))}
