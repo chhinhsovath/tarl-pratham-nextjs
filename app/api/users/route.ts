@@ -5,11 +5,12 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { getMentorSchoolIds } from "@/lib/mentorAssignments";
+import { nameToUsername } from "@/lib/username-converter";
 
 // Validation schema
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email format"),
+  email: z.string().email("Invalid email format").optional(), // Email is now optional
   password: z.string().min(6, "Password must be at least 6 characters").optional(),
   role: z.enum(["admin", "coordinator", "mentor", "teacher", "viewer"]),
   province: z.string().optional(),
@@ -349,30 +350,55 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password || "password123", 12);
 
-    // Auto-generate username from email if not provided
-    let username = validatedData.username;
-    if (!username) {
-      // Extract username part from email (before @)
-      const emailPrefix = validatedData.email.split('@')[0];
+    // Auto-generate username from full name using smart converter
+    const baseUsername = nameToUsername(validatedData.name);
 
-      // Check if this username is already taken
-      let baseUsername = emailPrefix;
-      let usernameToCheck = baseUsername;
-      let counter = 1;
+    // Check if this username is already taken and make it unique
+    let username = baseUsername;
+    let counter = 1;
 
+    while (true) {
+      const existingUser = await prisma.user.findFirst({
+        where: { username: username }
+      });
+
+      if (!existingUser) {
+        break;
+      }
+
+      // If taken, append a counter
+      username = `${baseUsername}${counter}`;
+      counter++;
+
+      if (counter > 100) {
+        // Safety check
+        username = `${baseUsername}_${Date.now()}`;
+        break;
+      }
+    }
+
+    // Auto-generate email if not provided
+    let email = validatedData.email;
+    if (!email) {
+      // Generate email from username: username@tarl.local
+      email = `${username}@tarl.local`;
+
+      // Make sure generated email is unique
+      let emailCounter = 1;
+      let emailToCheck = email;
       while (true) {
-        const existingUsername = await prisma.user.findUnique({
-          where: { username: usernameToCheck }
+        const existingEmail = await prisma.user.findFirst({
+          where: { email: emailToCheck }
         });
 
-        if (!existingUsername) {
-          username = usernameToCheck;
+        if (!existingEmail) {
+          email = emailToCheck;
           break;
         }
 
-        // If taken, append a counter
-        usernameToCheck = `${baseUsername}${counter}`;
-        counter++;
+        // If taken, append counter
+        emailToCheck = `${username}${emailCounter}@tarl.local`;
+        emailCounter++;
       }
     }
 
@@ -380,7 +406,8 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         ...validatedData,
-        username, // Set the auto-generated or provided username
+        username, // Set the auto-generated username from name
+        email, // Set the email (provided or auto-generated)
         password: hashedPassword
       },
       select: {
@@ -405,7 +432,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({
-      message: `User created successfully. Username: ${username}`,
+      message: `User created successfully! Username: ${username}, Email: ${email}`,
       data: user
     }, { status: 201 });
 

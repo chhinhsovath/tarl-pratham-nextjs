@@ -14,15 +14,19 @@ import {
   message,
   Row,
   Col,
-  Space
+  Space,
+  Tag,
+  Alert
 } from "antd";
 import {
   HomeOutlined,
   TeamOutlined,
   PlusOutlined,
-  ArrowLeftOutlined
+  ArrowLeftOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import Link from "next/link";
+import { nameToUsername } from "@/lib/username-converter";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -62,6 +66,7 @@ function CreateUserPageContent() {
   const [loading, setLoading] = useState(false);
   const [pilotSchools, setPilotSchools] = useState<PilotSchool[]>([]);
   const [selectedRole, setSelectedRole] = useState("");
+  const [generatedUsername, setGeneratedUsername] = useState("");
 
   useEffect(() => {
     if (status === "loading") return;
@@ -127,6 +132,16 @@ function CreateUserPageContent() {
     }
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fullName = e.target.value;
+    if (fullName.trim()) {
+      const username = nameToUsername(fullName);
+      setGeneratedUsername(username);
+    } else {
+      setGeneratedUsername("");
+    }
+  };
+
   return (
     <div className="max-w-full overflow-x-hidden">
       {/* Breadcrumb */}
@@ -173,30 +188,59 @@ function CreateUserPageContent() {
             role: "teacher"
           }}
         >
+          {/* Info Alert */}
+          <Alert
+            message="ឈ្មោះចូលប្រើប្រាស់ត្រូវបានបង្កើតដោយស្វయ័ត"
+            description="ប្រព័ន្ធនឹងបង្កើតឈ្មោះចូលប្រើប្រាស់ពីឈ្មោះពេញដែលលោកអ្នកបញ្ចូល។ អ្នកមិនចាំបាច់ផ្តល់ឈ្មោះចូលប្រើប្រាស់ ឬអីម៉ែល។"
+            type="info"
+            showIcon
+            style={{ marginBottom: "24px" }}
+          />
+
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Form.Item
                 label="ឈ្មោះពេញ"
                 name="name"
                 rules={[
-                  { required: true, message: "សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់" },
+                  { required: true, message: "សូមបញ្ចូលឈ្មោះពេញ" },
                   { min: 2, message: "ឈ្មោះត្រូវតែមានចាប់ពី ២ តួអក្សរឡើងទៅ" }
                 ]}
               >
-                <Input placeholder="បញ្ចូលឈ្មោះពេញ" size="large" />
+                <Input
+                  placeholder="ឧទាហរណ៍៖ សុខា, សម្រាប់ មកឈុន"
+                  size="large"
+                  onChange={handleNameChange}
+                />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item
-                label="អីម៉ែល"
-                name="email"
-                rules={[
-                  { required: true, message: "សូមបញ្ចូលអាសយដ្ឋានអីម៉ែល" },
-                  { type: "email", message: "សូមបញ្ចូលអីម៉ែលត្រឹមត្រូវ" }
-                ]}
-              >
-                <Input placeholder="បញ្ចូលអាសយដ្ឋានអីម៉ែល" size="large" />
+              <Form.Item label="ឈ្មោះចូលប្រើប្រាស់ (បង្កើតដោយស្វយ័ត)">
+                {generatedUsername ? (
+                  <div style={{
+                    padding: "8px 12px",
+                    background: "#f0f5ff",
+                    borderRadius: "6px",
+                    border: "1px solid #d9e1f2",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}>
+                    <UserOutlined style={{ color: "#1677ff" }} />
+                    <span style={{ fontSize: "14px", color: "#1677ff" }}>
+                      {generatedUsername}
+                    </span>
+                  </div>
+                ) : (
+                  <div style={{
+                    padding: "8px 12px",
+                    color: "#999",
+                    fontSize: "12px"
+                  }}>
+                    បញ្ចូលឈ្មោះពេញដើម្បីបង្កើតឈ្មោះចូលប្រើប្រាស់
+                  </div>
+                )}
               </Form.Item>
             </Col>
           </Row>

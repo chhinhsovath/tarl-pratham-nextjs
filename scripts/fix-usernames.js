@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Direct Node.js script to fix missing usernames
+ * Direct Node.js script to fix missing usernames using smart name conversion
  * Run: node scripts/fix-usernames.js
  */
 
 const { PrismaClient } = require('@prisma/client');
+const { nameToUsername } = require('./lib/username-converter');
 
 const prisma = new PrismaClient();
 
@@ -43,11 +44,10 @@ async function fixMissingUsernames() {
     // Process each user
     for (const user of usersWithoutUsernames) {
       try {
-        // Extract username from email
-        const emailPrefix = user.email.split('@')[0];
+        // Generate username from full name using smart converter
+        const baseUsername = nameToUsername(user.name);
 
         // Check if this username is already taken
-        let baseUsername = emailPrefix;
         let usernameToUse = baseUsername;
         let counter = 1;
 
@@ -67,7 +67,7 @@ async function fixMissingUsernames() {
           counter++;
 
           if (counter > 1000) {
-            throw new Error(`Could not generate unique username for ${user.email}`);
+            throw new Error(`Could not generate unique username for ${user.name}`);
           }
         }
 
@@ -79,15 +79,17 @@ async function fixMissingUsernames() {
 
         results.fixed.push({
           id: updatedUser.id,
+          name: updatedUser.name,
           email: updatedUser.email,
           generatedUsername: updatedUser.username
         });
 
-        console.log(`✅ Fixed: ${user.email} → username: ${usernameToUse}`);
+        console.log(`✅ Fixed: ${user.name} (${user.email}) → username: ${usernameToUse}`);
       } catch (error) {
-        console.error(`❌ Error fixing user ${user.email}:`, error.message);
+        console.error(`❌ Error fixing user ${user.name}:`, error.message);
         results.errors.push({
           id: user.id,
+          name: user.name,
           email: user.email,
           error: error.message
         });
@@ -101,14 +103,14 @@ async function fixMissingUsernames() {
     if (results.fixed.length > 0) {
       console.log('📝 Fixed users:');
       results.fixed.forEach(u => {
-        console.log(`   • ${u.email} → ${u.generatedUsername}`);
+        console.log(`   • ${u.name} (${u.email}) → ${u.generatedUsername}`);
       });
     }
 
     if (results.errors.length > 0) {
       console.log('\n⚠️  Failed users:');
       results.errors.forEach(e => {
-        console.log(`   • ${e.email}: ${e.error}`);
+        console.log(`   • ${e.name} (${e.email}): ${e.error}`);
       });
     }
 
