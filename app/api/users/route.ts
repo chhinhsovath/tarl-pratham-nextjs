@@ -353,6 +353,14 @@ export async function POST(request: NextRequest) {
     // Auto-generate username from full name using smart converter
     const baseUsername = nameToUsername(validatedData.name);
 
+    // VALIDATION: Ensure username was generated
+    if (!baseUsername || baseUsername.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Could not generate username from provided name. Please provide a valid name." },
+        { status: 400 }
+      );
+    }
+
     // Check if this username is already taken and make it unique
     let username = baseUsername;
     let counter = 1;
@@ -371,10 +379,18 @@ export async function POST(request: NextRequest) {
       counter++;
 
       if (counter > 100) {
-        // Safety check
+        // Safety check - use timestamp as fallback
         username = `${baseUsername}_${Date.now()}`;
         break;
       }
+    }
+
+    // FINAL VALIDATION: Ensure username is NOT null before saving
+    if (!username || username.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Failed to generate unique username. Please try again." },
+        { status: 500 }
+      );
     }
 
     // Auto-generate email if not provided

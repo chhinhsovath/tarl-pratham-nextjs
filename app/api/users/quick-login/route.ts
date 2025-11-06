@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
         ]
       });
 
+      console.log(`✅ [QUICK-LOGIN] Found ${users.length} active users with usernames for login dropdown`);
+
       // Log if we find users without usernames (this should be empty after fix)
       const usersWithoutUsername = await prisma.user.count({
         where: {
@@ -40,7 +42,10 @@ export async function GET(request: NextRequest) {
       });
 
       if (usersWithoutUsername > 0) {
-        console.warn(`⚠️  Found ${usersWithoutUsername} active users without usernames. Call /api/users/fix-missing-usernames to fix them.`);
+        console.warn(`⚠️  [QUICK-LOGIN] Found ${usersWithoutUsername} active users WITHOUT usernames. These will NOT appear in login dropdown!`);
+        console.warn(`🔧 Run: POST /api/users/fix-missing-usernames to fix them.`);
+      } else {
+        console.log(`✅ [QUICK-LOGIN] No users with missing usernames - all users have usernames!`);
       }
     } catch (dbError) {
       console.warn("Database not available, providing demo users:", dbError);
