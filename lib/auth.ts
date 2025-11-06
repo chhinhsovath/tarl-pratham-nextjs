@@ -40,14 +40,17 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid credentials");
           }
 
+          // Compute profile completion status: true if both pilot_school_id and subject are set
+          const profileComplete = user.pilot_school_id && user.subject;
+
           return {
             id: user.id.toString(),
             email: user.email || `${user.username}@quick.login`,
             name: user.name || user.username || user.username_login,
             role: user.role,
             pilot_school_id: user.pilot_school_id,
-            teacher_profile_setup: false,
-            mentor_profile_complete: false,
+            teacher_profile_setup: user.role === "teacher" ? profileComplete : false,
+            mentor_profile_complete: user.role === "mentor" ? profileComplete : false,
             province: user.province,
             subject: user.subject,
             phone: user.phone,
@@ -79,14 +82,17 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        // Compute profile completion status: true if both pilot_school_id and subject are set
+        const profileComplete = user.pilot_school_id && user.subject;
+
         return {
           id: user.id.toString(),
           email: user.email,
           name: user.name,
           role: user.role,
           pilot_school_id: user.pilot_school_id,
-          teacher_profile_setup: false,
-          mentor_profile_complete: false,
+          teacher_profile_setup: user.role === "teacher" ? profileComplete : false,
+          mentor_profile_complete: user.role === "mentor" ? profileComplete : false,
           province: user.province,
           district: user.district,
           subject: user.subject,

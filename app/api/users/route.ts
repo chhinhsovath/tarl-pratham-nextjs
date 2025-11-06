@@ -193,6 +193,27 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where })
     ]);
 
+    // Compute profile completion status based on role and assigned fields
+    const usersWithProfileStatus = users.map((user: any) => {
+      let teacher_profile_setup = false;
+      let mentor_profile_complete = false;
+
+      // Profile is considered complete if user has both pilot_school_id and subject assigned
+      const profileComplete = user.pilot_school_id && user.subject;
+
+      if (user.role === "teacher") {
+        teacher_profile_setup = profileComplete;
+      } else if (user.role === "mentor") {
+        mentor_profile_complete = profileComplete;
+      }
+
+      return {
+        ...user,
+        teacher_profile_setup,
+        mentor_profile_complete
+      };
+    });
+
     // Get role statistics - wrapped in try-catch for safety
     let stats = {
       admin: 0,
@@ -222,16 +243,16 @@ export async function GET(request: NextRequest) {
       console.error("Error fetching role statistics:", statsError);
       // Fallback: calculate from current users if groupBy fails
       stats = {
-        admin: users.filter(u => u.role === 'admin').length,
-        coordinator: users.filter(u => u.role === 'coordinator').length,
-        mentor: users.filter(u => u.role === 'mentor').length,
-        teacher: users.filter(u => u.role === 'teacher').length,
-        viewer: users.filter(u => u.role === 'viewer').length,
+        admin: usersWithProfileStatus.filter(u => u.role === 'admin').length,
+        coordinator: usersWithProfileStatus.filter(u => u.role === 'coordinator').length,
+        mentor: usersWithProfileStatus.filter(u => u.role === 'mentor').length,
+        teacher: usersWithProfileStatus.filter(u => u.role === 'teacher').length,
+        viewer: usersWithProfileStatus.filter(u => u.role === 'viewer').length,
       };
     }
 
     return NextResponse.json({
-      data: users,
+      data: usersWithProfileStatus,
       pagination: {
         page,
         limit,
