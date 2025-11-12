@@ -47,6 +47,7 @@ import AssessmentCycleChart from '@/components/charts/AssessmentCycleChart';
 import SubjectComparisonChart from '@/components/charts/SubjectComparisonChart';
 import LevelDistributionChart from '@/components/charts/LevelDistributionChart';
 import StackedPercentageBarChart from '@/components/charts/StackedPercentageBarChart';
+import ComprehensiveExportButton from '@/components/export/ComprehensiveExportButton';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -362,6 +363,7 @@ export default function AdminDashboard() {
               >
                 ធ្វើបច្ចុប្បន្នភាព
               </Button>
+              <ComprehensiveExportButton variant="default" size="middle" />
               <Button
                 type="primary"
                 icon={<CloudUploadOutlined />}

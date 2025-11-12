@@ -23,15 +23,28 @@ function ProfileSetupContent() {
   const [loading, setLoading] = useState(false);
   const [schools, setSchools] = useState<PilotSchool[]>([]);
   const [schoolsLoading, setSchoolsLoading] = useState(true);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const { message } = App.useApp();
 
+  // Check if coordinator has already assigned school and subject
+  const profileAlreadyConfigured = !!(session?.user?.pilot_school_id && session?.user?.subject);
   const isFirstTime = !session?.user?.pilot_school_id || !session?.user?.subject || !session?.user?.holding_classes;
   const isMentor = session?.user?.role === 'mentor';
 
   useEffect(() => {
+    // If profile is already configured by coordinator, redirect to dashboard
+    if (profileAlreadyConfigured && (session?.user?.role === 'teacher' || session?.user?.role === 'mentor')) {
+      setIsRedirecting(true);
+      message.info('ប្រវត្តិរូបរបស់អ្នកបានកំណត់ដោយផ្នែកសហសម្បัគគលិកបានហើយ');
+      const timer = setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+
     // Load schools first, then populate profile data
     loadDataSequentially();
-  }, []);
+  }, [session?.user?.pilot_school_id, session?.user?.subject]);
 
   // Load schools and profile data in correct sequence
   const loadDataSequentially = async () => {
@@ -167,6 +180,27 @@ function ProfileSetupContent() {
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/auth/login' });
   };
+
+  // Show loading state while redirecting
+  if (isRedirecting) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <Card style={{ textAlign: 'center', padding: '40px' }}>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 24, color: '#667eea', marginBottom: 10 }}>✓</div>
+            <Text strong style={{ fontSize: 18 }}>ប្រវត្តិរូបរបស់អ្នកបានកំណត់រួចហើយ</Text>
+          </div>
+          <Text style={{ color: '#666' }}>ការបង្វែរទៅផ្ទាំងគ្រប់គ្រងទិន្នន័យ...</Text>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div style={{ 

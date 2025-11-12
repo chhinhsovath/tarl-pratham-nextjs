@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ComprehensiveExportButton from '@/components/export/ComprehensiveExportButton';
 
 const { Title, Text } = Typography;
 
@@ -231,31 +232,35 @@ export default function CoordinatorDashboard({ userId, user }: CoordinatorDashbo
             {/* Quick Templates */}
             <Divider orientation="left" style={{ fontSize: 14 }}>ទាញយកជាប់រហ័ស</Divider>
             <Space direction="vertical" style={{ width: '100%' }}>
-              <Button 
-                type="text" 
-                block 
+              <Button
+                type="text"
+                block
                 icon={<DownloadOutlined />}
                 style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}
               >
                 <span>គំរូសាលារៀន</span>
               </Button>
-              <Button 
-                type="text" 
-                block 
+              <Button
+                type="text"
+                block
                 icon={<DownloadOutlined />}
                 style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}
               >
                 <span>គំរូគ្រូបង្រៀន</span>
               </Button>
-              <Button 
-                type="text" 
-                block 
+              <Button
+                type="text"
+                block
                 icon={<DownloadOutlined />}
                 style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}
               >
                 <span>គំរូអ្នកណែនាំ</span>
               </Button>
             </Space>
+
+            {/* Comprehensive Export */}
+            <Divider orientation="left" style={{ fontSize: 14 }}>នាំចេញទិន្នន័យពេញលេញ</Divider>
+            <ComprehensiveExportButton variant="primary" size="large" />
           </Card>
         </Col>
 
