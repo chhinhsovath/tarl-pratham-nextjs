@@ -33,6 +33,7 @@ import OnboardingTour from '@/components/tour/OnboardingTour';
 import dayjs from 'dayjs';
 import { trackActivity } from '@/lib/trackActivity';
 import { getLevelLabelKM, getSubjectLabelKM, getAssessmentTypeLabelKM } from '@/lib/constants/assessment-levels';
+import SoftDeleteButton from '@/components/common/SoftDeleteButton';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -379,20 +380,16 @@ function AssessmentsContent() {
             />
           )}
 
-          {hasPermission(user, 'assessments.delete') && (
-            <Popconfirm
-              title="តើអ្នកពិតជាចង់លុបការវាយតម្លៃនេះមែនទេ?"
-              onConfirm={() => handleDelete(record.id)}
-              okText="យល់ព្រម"
-              cancelText="បោះបង់"
-            >
-              <Button
-                size="small"
-                danger
-                icon={<DeleteOutlined />}
-              />
-            </Popconfirm>
-          )}
+          <SoftDeleteButton
+            type="assessment"
+            id={record.id}
+            displayName={`${record.student?.name || 'N/A'} - ${getSubjectLabelKM(record.subject)}`}
+            size="small"
+            buttonType="default"
+            iconOnly={true}
+            onSuccess={fetchAssessments}
+            additionalInfo={`ប្រភេទ: ${getAssessmentTypeLabelKM(record.assessment_type)}, កម្រិត: ${getLevelLabelKM(record.level)}`}
+          />
         </Space>
       )
     }

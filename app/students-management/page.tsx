@@ -45,6 +45,7 @@ import {
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
+import SoftDeleteButton from '@/components/common/SoftDeleteButton';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -468,19 +469,16 @@ function StudentsManagementContent() {
             onClick={() => handleEdit(record)}
             size="small"
           />
-          <Popconfirm
-            title="តើអ្នកប្រាកដថាចង់លុបសិស្សនេះ?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="បាទ/ចាស"
-            cancelText="ទេ"
-          >
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              size="small"
-            />
-          </Popconfirm>
+          <SoftDeleteButton
+            type="student"
+            id={record.id}
+            displayName={record.name}
+            size="small"
+            buttonType="text"
+            iconOnly={true}
+            onSuccess={fetchStudents}
+            additionalInfo={`ភេទ: ${record.gender}, ថ្នាក់: ${record.grade || 'N/A'}`}
+          />
         </Space>
       )
     }

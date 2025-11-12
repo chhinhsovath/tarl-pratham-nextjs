@@ -36,6 +36,7 @@ import {
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
+import SoftDeleteButton from '@/components/common/SoftDeleteButton';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -281,7 +282,7 @@ function AssessmentVerificationPage() {
               disabled={record.verification_status === 'verified' || record.is_locked}
             />
           </Tooltip>
-          
+
           <Tooltip title={record.is_locked ? 'ដោះសោ' : 'ចាក់សោ'}>
             <Button
               type="link"
@@ -290,6 +291,17 @@ function AssessmentVerificationPage() {
               onClick={() => handleLock(record.id, !record.is_locked)}
             />
           </Tooltip>
+
+          <SoftDeleteButton
+            type="assessment"
+            id={record.id}
+            displayName={`${record.student?.name || 'N/A'}`}
+            size="small"
+            buttonType="link"
+            iconOnly={true}
+            onSuccess={fetchAssessments}
+            additionalInfo={`ប្រភេទ: ${record.assessment_type}, មុខវិជ្ជា: ${record.subject}`}
+          />
         </Space>
       )
     }

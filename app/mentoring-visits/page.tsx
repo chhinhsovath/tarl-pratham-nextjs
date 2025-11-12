@@ -33,6 +33,7 @@ import {
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
+import SoftDeleteButton from '@/components/common/SoftDeleteButton';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -339,12 +340,24 @@ function MentoringVisitsContent() {
     {
       title: 'សកម្មភាព',
       key: 'actions',
-      width: 100,
+      width: 120,
       align: 'center' as const,
       render: (record: MentoringVisit) => (
-        <Dropdown menu={{ items: getRowActions(record) }} trigger={['click']}>
-          <Button type="text" icon={<MoreOutlined />} />
-        </Dropdown>
+        <Space size="small">
+          <Dropdown menu={{ items: getRowActions(record) }} trigger={['click']}>
+            <Button type="text" icon={<MoreOutlined />} />
+          </Dropdown>
+          <SoftDeleteButton
+            type="mentoring-visit"
+            id={record.id}
+            displayName={`${record.pilot_school?.school_name || 'N/A'} - ${dayjs(record.visit_date).format('DD/MM/YYYY')}`}
+            size="small"
+            buttonType="text"
+            iconOnly={true}
+            onSuccess={fetchMentoringVisits}
+            additionalInfo={`គ្រូអប់រំ: ${record.mentor.name}, ថ្នាក់: ${record.teacher?.name || 'N/A'}`}
+          />
+        </Space>
       )
     }
   ];
