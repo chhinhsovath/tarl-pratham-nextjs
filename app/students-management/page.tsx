@@ -46,6 +46,7 @@ import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
 import SoftDeleteButton from '@/components/common/SoftDeleteButton';
+import StudentStatisticsExportButton from '@/components/export/StudentStatisticsExportButton';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -591,9 +592,13 @@ function StudentsManagementContent() {
             <Button
               icon={<DownloadOutlined />}
               onClick={handleExport}
+              title="Export បញ្ជីសិស្សទាំងអស់ (Raw Data)"
             >
-              Export
+              Export សិស្ស
             </Button>
+            {(session?.user as any)?.role && ['admin', 'coordinator', 'super_admin'].includes((session?.user as any)?.role) && (
+              <StudentStatisticsExportButton size="middle" showIcon={true} />
+            )}
             <Button
               type="primary"
               icon={<PlusOutlined />}
