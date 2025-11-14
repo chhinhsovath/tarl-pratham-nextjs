@@ -36,10 +36,25 @@ export async function GET(request: NextRequest) {
       is_active: true,
     };
 
-    // Filter by record_status - only production data by default
+    // For admin/coordinator/super_admin: export ALL active students by default
+    // For other roles: only production data
     const includeTestData = request.nextUrl.searchParams.get('include_test_data') === 'true';
-    if (!includeTestData) {
-      whereClause.record_status = 'production';
+    const exportAll = request.nextUrl.searchParams.get('export_all') === 'true';
+
+    if (['admin', 'coordinator', 'super_admin'].includes(userRole)) {
+      // Admin/Coordinator: export all by default, unless explicitly filtered
+      if (!exportAll && !includeTestData) {
+        // If user explicitly wants production only, filter it
+        if (request.nextUrl.searchParams.get('production_only') === 'true') {
+          whereClause.record_status = 'production';
+        }
+        // Otherwise export ALL active students (no filter)
+      }
+    } else {
+      // Teachers/Mentors: only production data by default
+      if (!includeTestData) {
+        whereClause.record_status = 'production';
+      }
     }
 
     // For teachers: only their school's students
