@@ -272,14 +272,56 @@ function StudentsManagementContent() {
 
   const handleExport = async () => {
     try {
-      message.loading('កំពុងបង្កើតឯកសារ...', 0);
-      // Export functionality would go here
-      setTimeout(() => {
-        message.destroy();
-        message.success('បានទាញយកឯកសារដោយជោគជ័យ');
-      }, 1000);
-    } catch (error) {
-      message.error('មានបញ្ហាក្នុងការទាញយកឯកសារ');
+      const startTime = Date.now();
+      message.loading({ content: 'កំពុងបង្កើតឯកសារ Excel...', key: 'export', duration: 0 });
+
+      const response = await fetch('/api/students/export', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to export students');
+      }
+
+      // Get the filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `TaRL_Students_Export_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Download the file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+      message.success({
+        content: `បានទាញយកឯកសារដោយជោគជ័យក្នុងរយៈពេល ${duration}វិនាទី! ឯកសារ: ${filename}`,
+        key: 'export',
+        duration: 5,
+      });
+    } catch (error: any) {
+      console.error('Export error:', error);
+      message.error({
+        content: `មានបញ្ហាក្នុងការទាញយកឯកសារ: ${error.message}`,
+        key: 'export',
+        duration: 5,
+      });
     }
   };
 
