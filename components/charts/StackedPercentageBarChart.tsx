@@ -198,7 +198,7 @@ function StackedPercentageBarChart({
           <YAxis
             domain={[0, 100]}
             tickFormatter={(value) => `${value}%`}
-            label={{ value: 'ភាគរយនិស្សិត', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
+            label={{ value: 'ភាគរយសិស្ស', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
             style={{ fontSize: '11px' }}
           />
           <Tooltip content={<CustomTooltip cycleTranslations={cycleTranslations} levelTranslations={levelTranslations} />} />
@@ -235,7 +235,7 @@ function StackedPercentageBarChart({
           </thead>
           <tbody>
             <tr>
-              <td style={{ padding: '8px', fontWeight: 'bold', border: '1px solid #E5E7EB' }}>និស្សិត</td>
+              <td style={{ padding: '8px', fontWeight: 'bold', border: '1px solid #E5E7EB' }}>សិស្ស</td>
               {data.map((cycle) => {
                 const total = Object.values(cycle.levels).reduce((sum, count) => sum + count, 0);
                 return (

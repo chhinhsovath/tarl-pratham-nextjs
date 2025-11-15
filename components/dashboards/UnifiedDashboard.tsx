@@ -365,7 +365,7 @@ export default function UnifiedDashboard() {
           <Col xs={12} sm={6}>
             <Card>
               <Statistic
-                title="និស្សិតសរុប"
+                title="សិស្សសរុប"
                 value={loading ? 0 : stats.totalStudents}
                 valueStyle={{ color: '#1890ff' }}
                 prefix={<UsergroupAddOutlined />}
@@ -476,7 +476,7 @@ export default function UnifiedDashboard() {
                               max: 100,
                               title: {
                                 display: true,
-                                text: 'ភាគរយនិស្សិត'
+                                text: 'ភាគរយសិស្ស'
                               },
                               ticks: {
                                 callback: function(value) {
@@ -529,7 +529,7 @@ export default function UnifiedDashboard() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="px-2 py-1 font-medium">និស្សិត</td>
+                        <td className="px-2 py-1 font-medium">សិស្ស</td>
                         <td className="px-2 py-1 text-center">{overallData.baseline || '—'}</td>
                         <td className="px-2 py-1 text-center">{overallData.midline || '—'}</td>
                         <td className="px-2 py-1 text-center">{overallData.endline || '—'}</td>
@@ -681,7 +681,7 @@ export default function UnifiedDashboard() {
                   <Link href="/students/create">
                     <div className="text-center p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer">
                       <UserAddOutlined className="text-3xl text-blue-600 mb-2" />
-                      <div className="text-sm">បន្ថែមនិស្សិត</div>
+                      <div className="text-sm">បន្ថែមសិស្ស</div>
                     </div>
                   </Link>
                 </Col>

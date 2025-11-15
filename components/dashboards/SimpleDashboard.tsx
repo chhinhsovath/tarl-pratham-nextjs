@@ -207,7 +207,7 @@ export default function SimpleDashboard() {
           <Col xs={12} sm={6}>
             <Card>
               <Statistic
-                title="និស្សិតសរុប"
+                title="សិស្សសរុប"
                 value={stats.totalStudents}
                 valueStyle={{ color: '#1890ff' }}
                 prefix={<TeamOutlined />}
@@ -364,7 +364,7 @@ export default function SimpleDashboard() {
               <Link href="/students/create" className="block">
                 <div className="bg-indigo-50 hover:bg-indigo-100 rounded-lg p-4 text-center transition-colors duration-150">
                   <UserAddOutlined className="text-indigo-600 text-2xl mb-2" />
-                  <div className="text-sm font-medium text-indigo-900">បន្ថែមនិស្សិត</div>
+                  <div className="text-sm font-medium text-indigo-900">បន្ថែមសិស្ស</div>
                 </div>
               </Link>
             )}

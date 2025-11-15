@@ -190,9 +190,9 @@ export async function GET(request: NextRequest) {
     const date_to = searchParams.get("date_to") || "";
     
     const skip = (page - 1) * limit;
-    
+
     // Build where clause
-    const where: any = {};
+    let where: any = {};
     
     if (search) {
       where.OR = [

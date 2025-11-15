@@ -69,15 +69,42 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Check cache age and auto-refresh if too old (older than 1 hour = 3600000ms)
+    const age = Date.now() - cached.last_updated.getTime();
+    const MAX_CACHE_AGE_MS = 60 * 60 * 1000; // 1 hour
+    const cacheAgeMinutes = Math.floor(age / 60000);
+
+    console.log(`[COORDINATOR STATS] Cache age: ${cacheAgeMinutes} minutes`);
+
+    // Auto-refresh if cache is stale (older than 1 hour)
+    if (age > MAX_CACHE_AGE_MS) {
+      console.warn(`[COORDINATOR STATS] Cache is stale (${cacheAgeMinutes} minutes old). Auto-refreshing...`);
+
+      try {
+        // Trigger background refresh (don't wait for it)
+        fetch(`${request.nextUrl.origin}/api/admin/refresh-stats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Pass the session cookie for auth
+            'Cookie': request.headers.get('cookie') || '',
+          },
+        }).catch(err => {
+          console.error('[COORDINATOR STATS] Background refresh failed:', err);
+        });
+
+        console.log('[COORDINATOR STATS] Background refresh triggered');
+      } catch (error) {
+        console.error('[COORDINATOR STATS] Failed to trigger refresh:', error);
+      }
+    }
+
     // Parse chart data from stats_data JSON field
     const statsData = cached.stats_data as any;
 
     // Calculate derived values
     const assessments_by_mentor = Math.floor(cached.total_assessments * 0.3);
     const assessments_by_teacher = cached.total_assessments - assessments_by_mentor;
-
-    const age = Date.now() - cached.last_updated.getTime();
-    console.log(`[COORDINATOR STATS] Cache hit - Age: ${Math.floor(age / 60000)} minutes`);
 
     // Return cached stats (ZERO expensive queries!)
     return NextResponse.json({

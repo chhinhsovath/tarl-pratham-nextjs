@@ -387,7 +387,7 @@ export default function AdminDashboard() {
         <Col xs={12} sm={12} md={12} lg={6}>
           <Card style={{ backgroundColor: '#eff6ff', borderRadius: 8 }}>
             <Statistic
-              title="និស្សិតសរុប"
+              title="សិស្សសរុប"
               value={stats.total_students}
               prefix={<TeamOutlined style={{ fontSize: 24, color: '#2563eb' }} />}
               valueStyle={{ color: '#1e40af', fontSize: 32 }}
