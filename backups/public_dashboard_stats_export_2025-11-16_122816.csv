@@ -1,0 +1,2 @@
+id,cache_key,role,user_id,total_schools,total_students,total_teachers,total_mentors,total_assessments,baseline_assessments,midline_assessments,endline_assessments,language_assessments,math_assessments,stats_data,last_updated,created_at
+6,global,coordinator,,45,165,82,23,27,22,2,3,24,3,{},2025-11-15 04:32:17.702,2025-11-15 04:32:17.702

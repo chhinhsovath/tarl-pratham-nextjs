@@ -1,0 +1,89 @@
+id,username,password,role,province,subject,is_active,created_at,updated_at,district,holding_classes,pilot_school_id,onboarding_completed,onboarding_completed_at,show_onboarding
+8,kairav,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,admin,,,true,2025-09-27 05:57:48.469,2025-09-27 05:57:48.469,,,,,,true
+9,admin,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,admin,,,true,2025-09-27 05:57:48.491,2025-09-27 05:57:48.491,,,,,,true
+10,coordinator,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,coordinator,,,true,2025-09-27 05:57:48.499,2025-09-27 05:57:48.499,,,,,,true
+11,deab.chhoeun,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.507,2025-09-27 05:57:48.507,,,,,,true
+12,heap.sophea,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.52,2025-09-27 05:57:48.52,,,,,,true
+13,leang.chhun.hourth,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.527,2025-09-27 05:57:48.527,,,,,,true
+14,mentor1,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.536,2025-09-27 05:57:48.536,,,,,,true
+15,mentor2,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.557,2025-09-27 05:57:48.557,,,,,,true
+16,chhorn.sopheak,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.564,2025-09-27 05:57:48.564,,,,,,true
+17,em.rithy,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.572,2025-09-27 05:57:48.572,,,,,,true
+18,nhim.sokha,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.58,2025-09-27 05:57:48.58,,,,,,true
+19,noa.cham.roeun,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.588,2025-09-27 05:57:48.588,,,,,,true
+20,rorn.sareang,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.595,2025-09-27 05:57:48.595,,,,,,true
+21,sorn.sophaneth,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.602,2025-09-27 05:57:48.602,,,,,,true
+22,eam.vichhak.rith,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.612,2025-09-27 05:57:48.612,,,,,,true
+23,el.kunthea,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.619,2025-09-27 05:57:48.619,,,,,,true
+24,san.aun,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.626,2025-09-27 05:57:48.626,,,,,,true
+26,horn.socheata,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.647,2025-09-27 05:57:48.647,,,,,,true
+27,phann.savoeun,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.655,2025-09-27 05:57:48.655,,,,,,true
+28,sin.borndoul,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,,,true,2025-09-27 05:57:48.67,2025-09-27 05:57:48.67,,,,,,true
+29,chann.leakeana.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.678,2025-09-27 05:57:48.678,,,,,,true
+30,ho.mealtey.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.686,2025-09-27 05:57:48.686,,,,,,true
+31,hol.phanna.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.694,2025-09-27 05:57:48.694,,,,,,true
+32,ieang.bunthoeurn.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.701,2025-09-27 05:57:48.701,,,,,,true
+33,kan.ray.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.71,2025-09-27 05:57:48.71,,,,,,true
+34,keo.socheat.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.723,2025-09-27 05:57:48.723,,,,,,true
+35,keo.vesith.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.731,2025-09-27 05:57:48.731,,,,,,true
+36,khim.kosal.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.739,2025-09-27 05:57:48.739,,,,,,true
+37,koe.kimsou.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.753,2025-09-27 05:57:48.753,,,,,,true
+38,kheav.sreyoun.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.763,2025-09-27 05:57:48.763,,,,,,true
+39,ret.sreynak.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.775,2025-09-27 05:57:48.775,,,,,,true
+40,nann.phary.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.783,2025-09-27 05:57:48.783,,,,,,true
+41,ny.cheanichniron.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.792,2025-09-27 05:57:48.792,,,,,,true
+42,oeun.kosal.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.807,2025-09-27 05:57:48.807,,,,,,true
+43,on.phors.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.815,2025-09-27 05:57:48.815,,,,,,true
+44,ou.sreynuch.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.835,2025-09-27 05:57:48.835,,,,,,true
+45,pat.sokheng.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.843,2025-09-27 05:57:48.843,,,,,,true
+46,pech.peakleka.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.852,2025-09-27 05:57:48.852,,,,,,true
+47,raeun.sovathary.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.86,2025-09-27 05:57:48.86,,,,,,true
+48,rin.vannra.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.867,2025-09-27 05:57:48.867,,,,,,true
+49,rom.ratanak.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.88,2025-09-27 05:57:48.88,,,,,,true
+50,sak.samnang.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.889,2025-09-27 05:57:48.889,,,,,,true
+51,sang.sangha.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.898,2025-09-27 05:57:48.898,,,,,,true
+52,seum.sovin.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.906,2025-09-27 05:57:48.906,,,,,,true
+53,soeun.danut.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.919,2025-09-27 05:57:48.919,,,,,,true
+54,sokh.chamrong.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.935,2025-09-27 05:57:48.935,,,,,,true
+25,chhoeng.marady,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,mentor,Battambang,both,true,2025-09-27 05:57:48.64,2025-10-02 03:33:07.818,Battambang,both,1,"[""complete_profile""]",2025-10-02 03:33:07.818,true
+55,som.phally.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.951,2025-09-27 05:57:48.951,,,,,,true
+56,sor.kimseak.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.964,2025-09-27 05:57:48.964,,,,,,true
+57,soth.thida.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:48.977,2025-09-27 05:57:48.977,,,,,,true
+58,tep.sokly.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Khmer,true,2025-09-27 05:57:48.993,2025-09-27 05:57:48.993,,,,,,true
+59,thiem.thida.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:49.002,2025-09-27 05:57:49.002,,,,,,true
+60,thy.sophat.bat,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,Maths,true,2025-09-27 05:57:49.021,2025-09-27 05:57:49.021,,,,,,true
+61,chea.putthyda.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.031,2025-09-27 05:57:49.031,,,,,,true
+62,moy.sodara.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.039,2025-09-27 05:57:49.039,,,,,,true
+63,chhom.borin.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.069,2025-09-27 05:57:49.069,,,,,,true
+64,hoat.vimol.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.084,2025-09-27 05:57:49.084,,,,,,true
+65,khoem.sithuon.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.091,2025-09-27 05:57:49.091,,,,,,true
+66,neang.spheap.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.105,2025-09-27 05:57:49.105,,,,,,true
+67,nov.barang.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.112,2025-09-27 05:57:49.112,,,,,,true
+68,onn.thalin.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.119,2025-09-27 05:57:49.119,,,,,,true
+69,pheap.sreynith.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.128,2025-09-27 05:57:49.128,,,,,,true
+70,phoeurn.virath.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.135,2025-09-27 05:57:49.135,,,,,,true
+71,phuong.pheap.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.142,2025-09-27 05:57:49.142,,,,,,true
+72,say.kamsath.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.149,2025-09-27 05:57:49.149,,,,,,true
+73,sorm.vannak.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.156,2025-09-27 05:57:49.156,,,,,,true
+74,sum.chek.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.163,2025-09-27 05:57:49.163,,,,,,true
+75,teour.phanna.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.172,2025-09-27 05:57:49.172,,,,,,true
+77,chhorn.srey.pov.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.188,2025-09-27 05:57:49.188,,,,,,true
+78,heak.tom.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.195,2025-09-27 05:57:49.195,,,,,,true
+79,heng.chhengky.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.202,2025-09-27 05:57:49.202,,,,,,true
+80,heng.navy.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.209,2025-09-27 05:57:49.209,,,,,,true
+81,heng.neang.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.217,2025-09-27 05:57:49.217,,,,,,true
+82,him.sokhaleap.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.224,2025-09-27 05:57:49.224,,,,,,true
+83,mach.serynak.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.234,2025-09-27 05:57:49.234,,,,,,true
+84,my.savy.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.241,2025-09-27 05:57:49.241,,,,,,true
+85,nov.pelim.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.251,2025-09-27 05:57:49.251,,,,,,true
+86,oll.phaleap.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.257,2025-09-27 05:57:49.257,,,,,,true
+87,phann.srey.roth.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.275,2025-09-27 05:57:49.275,,,,,,true
+88,phornd.sokthy.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.281,2025-09-27 05:57:49.281,,,,,,true
+89,seiha.ratana.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Maths,true,2025-09-27 05:57:49.293,2025-09-27 05:57:49.293,,,,,,true
+90,seun.sophary.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.3,2025-09-27 05:57:49.3,,,,,,true
+91,thin.dalin.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.307,2025-09-27 05:57:49.307,,,,,,true
+92,nheb.channin.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Kampong Cham,Khmer,true,2025-09-27 05:57:49.316,2025-09-27 05:57:49.316,,,,,,true
+93,viewer,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,viewer,,,true,2025-09-27 05:57:49.325,2025-09-27 05:57:49.325,,,,,,true
+95,sanaun123,$2b$10$AfG4Ksb5y0stEKzgA7FIUO15Y53Fq9eUGVkHATPGJB0fkKcw0x6Fi,teacher,Kampong Cham,គណិតវិទ្យា,true,2025-10-02 10:01:36.097,2025-10-02 10:01:36.097,Kampong Cham,"ថ្នាក់ទី៤, ថ្នាក់ទី៥",33,,,true
+76,chan.kimsrorn.kam,$2b$10$/GAEx8rNAgVN6kGzchAe3uh82GU8pKyi1bUenNNw5GkGmigWFwH/S,teacher,Battambang,khmer,true,2025-09-27 05:57:49.179,2025-10-02 04:35:48.541,Battambang,grade_5,1,"[""complete_profile""]",2025-10-02 03:23:44.848,true
+94,Cheaphannha,$2b$10$NUZ4k4BZUpfEgFp5JJTb/.NE8N85B6H3AvtQzzcYL6C6/O9z1XIn6,mentor,Kampong Cham,គណិតវិទ្យា,true,2025-10-02 09:21:17.284,2025-10-02 09:21:17.284,Kampong Cham,"ថ្នាក់ទី៤, ថ្នាក់ទី៥",33,,,true

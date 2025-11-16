@@ -177,10 +177,18 @@ export async function GET(request: NextRequest) {
     // Apply access restrictions for mentors and teachers
     // Admin and Coordinator have full access - no filtering needed
     if (session.user.role === "mentor") {
-      // Mentors can ONLY see students they personally created
-      where.AND = where.AND || [];
-      where.AND.push({ added_by_id: parseInt(session.user.id) });
-      console.log(`[MENTOR] User ID: ${session.user.id}, filtering by creator only`);
+      // Mentors can see ALL students at their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
+        where.AND = where.AND || [];
+        where.AND.push({ pilot_school_id: { in: mentorSchoolIds } });
+        console.log(`[MENTOR] User ID: ${session.user.id}, accessing schools: ${mentorSchoolIds.join(', ')}`);
+      } else {
+        // No schools assigned to this mentor - return no students
+        where.AND = where.AND || [];
+        where.AND.push({ id: -1 });
+        console.log(`[MENTOR] User ID: ${session.user.id}, no schools assigned`);
+      }
     } else if (session.user.role === "teacher") {
       // Teachers remain restricted to their single school
       if (session.user.pilot_school_id) {
