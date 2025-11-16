@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 /**
  * GET /api/assessments/verify
@@ -42,9 +43,15 @@ export async function GET(request: NextRequest) {
       is_temporary: true
     };
 
-    // Mentors can only verify assessments from their school
-    if (session.user.role === 'mentor' && session.user.pilot_school_id) {
-      where.pilot_school_id = session.user.pilot_school_id;
+    // Mentors can only verify assessments from their assigned schools
+    if (session.user.role === 'mentor') {
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
+        where.pilot_school_id = { in: mentorSchoolIds };
+      } else {
+        // No schools assigned to this mentor - return no assessments
+        where.id = -1;
+      }
     }
 
     // Filter by verification status
@@ -122,9 +129,15 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Get statistics
-    const baseWhere = session.user.role === 'mentor' && session.user.pilot_school_id
-      ? { pilot_school_id: session.user.pilot_school_id }
-      : {};
+    let baseWhere: any = {};
+    if (session.user.role === 'mentor') {
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
+        baseWhere = { pilot_school_id: { in: mentorSchoolIds } };
+      } else {
+        baseWhere = { id: -1 };
+      }
+    }
 
     const [pendingCount, verifiedCount, rejectedCount] = await Promise.all([
       // Pending: temporary and not verified
@@ -224,12 +237,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify mentor can only verify assessments from their school
-    if (session.user.role === 'mentor' && session.user.pilot_school_id) {
+    // Verify mentor can only verify assessments from their assigned schools
+    if (session.user.role === 'mentor') {
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
       const assessmentCheck = await prisma.assessment.findMany({
         where: {
           id: { in: assessment_ids },
-          pilot_school_id: { not: session.user.pilot_school_id }
+          pilot_school_id: { notIn: mentorSchoolIds }
         },
         select: { id: true }
       });
