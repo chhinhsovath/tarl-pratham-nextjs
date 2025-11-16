@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -25,7 +26,7 @@ import {
   ExportOutlined,
   PlusOutlined
 } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
@@ -41,9 +42,10 @@ const { RangePicker } = DatePicker;
 
 function AssessmentsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const user = session?.user;
-  
+
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -63,6 +65,26 @@ function AssessmentsContent() {
   });
   const [students, setStudents] = useState([]);
   const [pilotSchools, setPilotSchools] = useState([]);
+
+  // Initialize filters from URL query parameters on component mount
+  useEffect(() => {
+    const initialFilters: any = { ...filters };
+
+    // Read all query parameters and apply to filters
+    const queryParams: Record<string, string> = {};
+    searchParams.forEach((value, key) => {
+      if (value && Object.keys(filters).includes(key)) {
+        initialFilters[key] = value;
+        queryParams[key] = value;
+      }
+    });
+
+    // Only update if we found query parameters
+    if (Object.keys(queryParams).length > 0) {
+      setFilters(initialFilters);
+      console.log('📍 Initialized filters from URL:', queryParams);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchFormData();
@@ -509,7 +531,9 @@ function AssessmentsContent() {
 export default function AssessmentsPage() {
   return (
     <HorizontalLayout>
-      <AssessmentsContent />
+      <Suspense fallback={<div style={{ padding: '50px', textAlign: 'center' }}>កំពុងផ្ទុក...</div>}>
+        <AssessmentsContent />
+      </Suspense>
       {/* Assessments-specific tour - Disabled */}
       {/* <OnboardingTour page="assessments" autoStart={false} showStartButton={false} /> */}
     </HorizontalLayout>
