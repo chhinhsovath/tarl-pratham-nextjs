@@ -27,16 +27,28 @@ export default function TeacherDashboard({ userId, user }: TeacherDashboardProps
   const [profileComplete, setProfileComplete] = useState(false);
 
   useEffect(() => {
-    fetchTeacherData();
+    if (userId) {
+      fetchTeacherData();
+    } else {
+      setLoading(false);
+    }
     checkProfileCompletion();
   }, [userId]);
 
   const fetchTeacherData = async () => {
+    if (!userId) {
+      console.warn('Cannot fetch teacher data: userId is undefined');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(`/api/dashboard/teacher-stats?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
         setStats(data.statistics);
+      } else if (response.status === 400 || response.status === 404) {
+        console.warn('Failed to fetch teacher stats:', response.statusText);
       }
     } catch (error) {
       console.error('Failed to fetch teacher dashboard data:', error);

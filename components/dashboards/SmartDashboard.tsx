@@ -39,6 +39,8 @@ const DashboardLoadingFallback = () => (
 export default function SmartDashboard() {
   const { data: session } = useSession();
   const userRole = session?.user?.role;
+  const userId = session?.user?.id;
+  const user = session?.user;
 
   // Memoize dashboard selection to prevent unnecessary re-renders
   const DashboardComponent = useMemo(() => {
@@ -60,7 +62,7 @@ export default function SmartDashboard() {
 
   return (
     <Suspense fallback={<DashboardLoadingFallback />}>
-      <DashboardComponent />
+      <DashboardComponent userId={userId} user={user} />
     </Suspense>
   );
 }
