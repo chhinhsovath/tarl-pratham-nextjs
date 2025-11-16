@@ -155,8 +155,14 @@ export async function GET(request: NextRequest) {
     // Apply access restrictions for mentors and teachers
     // Admin and Coordinator have full access - no filtering needed
     if (session.user.role === "mentor") {
-      // Mentors can ONLY see assessments they personally created
-      where.added_by_id = parseInt(session.user.id);
+      // Mentors can see assessments from ALL their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
+        where.pilot_school_id = { in: mentorSchoolIds };
+      } else {
+        // No schools assigned - return no assessments
+        where.id = -1;
+      }
     } else if (session.user.role === "teacher") {
       // Teachers remain restricted to their single school
       if (session.user.pilot_school_id) {
