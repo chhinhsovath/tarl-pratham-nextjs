@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 // Helper function to check permissions
 function hasPermission(userRole: string, action: string): boolean {
@@ -132,11 +133,16 @@ export async function GET(request: NextRequest) {
     if (session.user.role === 'teacher') {
       where.teacher_id = parseInt(session.user.id);
     } else if (session.user.role === 'mentor') {
-      if (session.user.pilot_school_id) {
+      // Mentors can see assessments from ALL their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
         where.student = {
           ...where.student,
-          pilot_school_id: session.user.pilot_school_id
+          pilot_school_id: { in: mentorSchoolIds }
         };
+      } else {
+        // No schools assigned - return no assessments
+        where.id = -1;
       }
     }
 

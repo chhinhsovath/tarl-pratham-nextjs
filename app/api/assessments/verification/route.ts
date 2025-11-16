@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 
 export async function GET(request: NextRequest) {
@@ -50,7 +51,16 @@ export async function GET(request: NextRequest) {
 
     // Role-based filtering
     if (session.user.role === 'mentor') {
-      where.pilot_school_id = session.user.pilot_school_id;
+      // Mentors can see assessments from ALL their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
+        where.pilot_school_id = { in: mentorSchoolIds };
+        console.log(`[VERIFICATION] Mentor ID: ${session.user.id}, accessing schools: ${mentorSchoolIds.join(', ')}`);
+      } else {
+        // No schools assigned to this mentor - return no assessments
+        where.id = -1;
+        console.log(`[VERIFICATION] Mentor ID: ${session.user.id}, no schools assigned`);
+      }
     } else if (session.user.role === 'teacher') {
       where.added_by_id = parseInt(session.user.id);
     }

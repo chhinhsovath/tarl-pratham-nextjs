@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 
 export async function GET(request: NextRequest) {
@@ -16,7 +17,14 @@ export async function GET(request: NextRequest) {
     const baseWhere: any = {};
 
     if (session.user.role === 'mentor') {
-      baseWhere.pilot_school_id = session.user.pilot_school_id;
+      // Mentors can see stats from ALL their assigned schools
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
+        baseWhere.pilot_school_id = { in: mentorSchoolIds };
+      } else {
+        // No schools assigned - return zero stats
+        baseWhere.id = -1;
+      }
     } else if (session.user.role === 'teacher') {
       baseWhere.added_by_id = parseInt(session.user.id);
     }
