@@ -42,13 +42,14 @@ export async function GET(request: NextRequest) {
     // Get student count for this teacher's school and grades
     let studentCount = 0;
     if (user.pilot_school_id && user.holding_classes) {
-      const grades = user.holding_classes === 'grade_4' ? [4] : 
+      const grades = user.holding_classes === 'grade_4' ? [4] :
                    user.holding_classes === 'grade_5' ? [5] : [4, 5];
-      
+
       studentCount = await prisma.student.count({
         where: {
           pilot_school_id: user.pilot_school_id,
-          class: { in: grades }
+          grade: { in: grades },
+          is_active: true
         }
       });
     }
@@ -81,10 +82,19 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching teacher dashboard data:', error);
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error meta:', error.meta);
+
     return NextResponse.json(
-      { error: 'Failed to fetch teacher dashboard data' },
+      {
+        error: 'Failed to fetch teacher dashboard data',
+        message: error.message || 'Unknown error',
+        code: error.code || 'UNKNOWN_ERROR',
+        meta: error.meta || {}
+      },
       { status: 500 }
     );
   }
