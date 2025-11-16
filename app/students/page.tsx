@@ -401,7 +401,7 @@ function StudentsContent() {
                 </div>
               </Card>
             ) : (
-              filteredStudents.slice(0, 50).map((student) => (
+              filteredStudents.map((student, index) => (
                 <Card
                   key={student.id}
                   className="student-card-modern"
@@ -421,8 +421,31 @@ function StudentsContent() {
                       ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                       : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                     padding: '20px',
-                    position: 'relative'
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '16px'
                   }}>
+                    {/* Student Number Counter */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '50px',
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.3)',
+                      backdropFilter: 'blur(10px)',
+                      fontSize: '28px',
+                      color: 'white',
+                      fontWeight: 700,
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      flexShrink: 0
+                    }}>
+                      {index + 1}
+                    </div>
+
                     {/* Student ID Badge */}
                     <div style={{
                       position: 'absolute',
@@ -440,28 +463,32 @@ function StudentsContent() {
                     </div>
 
                     {/* Student Name and Icon */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
                       <div style={{
-                        width: '48px',
-                        height: '48px',
+                        width: '40px',
+                        height: '40px',
                         borderRadius: '50%',
                         background: 'rgba(255,255,255,0.25)',
                         backdropFilter: 'blur(10px)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '24px',
-                        color: 'white'
+                        fontSize: '20px',
+                        color: 'white',
+                        flexShrink: 0
                       }}>
                         <UserOutlined />
                       </div>
-                      <div style={{ flex: 1 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
                           color: 'white',
-                          fontSize: '18px',
+                          fontSize: '16px',
                           fontWeight: 700,
                           marginBottom: '4px',
-                          textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
                         }}>
                           {student.name}
                         </div>
@@ -698,11 +725,11 @@ function StudentsContent() {
             )}
 
             {/* Mobile Pagination Info */}
-            {filteredStudents.length > 50 && (
+            {filteredStudents.length > 0 && (
               <Card>
                 <div className="text-center">
                   <Text type="secondary">
-                    បង្ហាញ 50 ពី {filteredStudents.length} សិស្ស
+                    សរុប: {filteredStudents.length} សិស្ស
                   </Text>
                 </div>
               </Card>
