@@ -121,6 +121,13 @@ function StudentsManagementContent() {
   const [pilotSchools, setPilotSchools] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('students');
 
+  // Search and Filter state
+  const [searchText, setSearchText] = useState('');
+  const [filterSchool, setFilterSchool] = useState<number | undefined>(undefined);
+  const [filterGrade, setFilterGrade] = useState<number | undefined>(undefined);
+  const [filterGender, setFilterGender] = useState<string | undefined>(undefined);
+  const [filterActive, setFilterActive] = useState<boolean | undefined>(true); // Default to active students
+
   // Statistics state
   const [stats, setStats] = useState({
     teachers: 0,
@@ -142,9 +149,9 @@ function StudentsManagementContent() {
   }, []);
 
   useEffect(() => {
-    // Fetch students when pagination changes
+    // Fetch students when pagination or filters change
     fetchStudents();
-  }, [pagination.current, pagination.pageSize]);
+  }, [pagination.current, pagination.pageSize, searchText, filterSchool, filterGrade, filterGender, filterActive]);
 
   const fetchPilotSchools = async () => {
     try {
@@ -161,11 +168,30 @@ function StudentsManagementContent() {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      // Only pagination parameters - no filters
+      // Build query parameters with pagination, search, and filters
       const params = new URLSearchParams({
         page: pagination.current.toString(),
         limit: pagination.pageSize.toString()
       });
+
+      // Add search parameter
+      if (searchText) {
+        params.append('search', searchText);
+      }
+
+      // Add filter parameters
+      if (filterSchool) {
+        params.append('pilot_school_id', filterSchool.toString());
+      }
+      if (filterGrade) {
+        params.append('grade', filterGrade.toString());
+      }
+      if (filterGender) {
+        params.append('gender', filterGender);
+      }
+      if (filterActive !== undefined) {
+        params.append('is_active', filterActive.toString());
+      }
 
       const response = await fetch(`/api/students?${params}`);
 
@@ -234,6 +260,15 @@ function StudentsManagementContent() {
     } catch (error) {
       message.error('មានបញ្ហាក្នុងការលុបសិស្ស');
     }
+  };
+
+  const handleClearFilters = () => {
+    setSearchText('');
+    setFilterSchool(undefined);
+    setFilterGrade(undefined);
+    setFilterGender(undefined);
+    setFilterActive(true);
+    setPagination(prev => ({ ...prev, current: 1 }));
   };
 
   const handleSubmit = async () => {
@@ -609,6 +644,104 @@ function StudentsManagementContent() {
           </Space>
         </Col>
       </Row>
+
+      {/* Search and Filter Section */}
+      <Card size="small" style={{ marginBottom: '16px', backgroundColor: '#fafafa' }}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Input
+              placeholder="ស្វែងរកតាមឈ្មោះ, អាណាព្យាបាល, ទូរស័ព្ទ..."
+              prefix={<SearchOutlined />}
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                setPagination(prev => ({ ...prev, current: 1 }));
+              }}
+              allowClear
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={5}>
+            <Select
+              placeholder="សាលារៀន"
+              value={filterSchool}
+              onChange={(value) => {
+                setFilterSchool(value);
+                setPagination(prev => ({ ...prev, current: 1 }));
+              }}
+              allowClear
+              style={{ width: '100%' }}
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)
+                  ?.toLowerCase()
+                  ?.includes(input.toLowerCase()) ?? false
+              }
+            >
+              {pilotSchools.map(school => (
+                <Option key={school.id} value={school.id}>
+                  {school.school_name}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={12} sm={8} md={4} lg={3}>
+            <Select
+              placeholder="ថ្នាក់"
+              value={filterGrade}
+              onChange={(value) => {
+                setFilterGrade(value);
+                setPagination(prev => ({ ...prev, current: 1 }));
+              }}
+              allowClear
+              style={{ width: '100%' }}
+            >
+              <Option value={1}>ទី១</Option>
+              <Option value={2}>ទី២</Option>
+              <Option value={3}>ទី៣</Option>
+              <Option value={4}>ទី៤</Option>
+              <Option value={5}>ទី៥</Option>
+              <Option value={6}>ទី៦</Option>
+            </Select>
+          </Col>
+          <Col xs={12} sm={8} md={4} lg={3}>
+            <Select
+              placeholder="ភេទ"
+              value={filterGender}
+              onChange={(value) => {
+                setFilterGender(value);
+                setPagination(prev => ({ ...prev, current: 1 }));
+              }}
+              allowClear
+              style={{ width: '100%' }}
+            >
+              <Option value="male">ប្រុស</Option>
+              <Option value="female">ស្រី</Option>
+            </Select>
+          </Col>
+          <Col xs={12} sm={8} md={4} lg={4}>
+            <Select
+              placeholder="ស្ថានភាព"
+              value={filterActive}
+              onChange={(value) => {
+                setFilterActive(value);
+                setPagination(prev => ({ ...prev, current: 1 }));
+              }}
+              style={{ width: '100%' }}
+            >
+              <Option value={true}>សកម្ម</Option>
+              <Option value={false}>អសកម្ម</Option>
+            </Select>
+          </Col>
+          <Col xs={12} sm={8} md={4} lg={3}>
+            <Button
+              onClick={handleClearFilters}
+              style={{ width: '100%' }}
+            >
+              សម្អាតតម្រង
+            </Button>
+          </Col>
+        </Row>
+      </Card>
 
       {/* Total count - show total from API */}
       <div style={{ marginBottom: '16px', textAlign: 'right' }}>

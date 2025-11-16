@@ -413,5 +413,9 @@ function ProfileSetupContent() {
 }
 
 export default function ProfileSetupPage() {
-  return <ProfileSetupContent />;
+  return (
+    <App>
+      <ProfileSetupContent />
+    </App>
+  );
 }
