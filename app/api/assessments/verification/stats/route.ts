@@ -29,12 +29,12 @@ export async function GET(request: NextRequest) {
       baseWhere.added_by_id = parseInt(session.user.id);
     }
 
-    // Count pending assessments (use OR to include null - Prisma doesn't allow null in enum 'in' arrays)
+    // Count pending assessments (include production assessments that need verification)
     const pending = await prisma.assessment.count({
       where: {
         ...baseWhere,
         OR: [
-          { record_status: { in: ['draft', 'submitted'] } },
+          { record_status: { in: ['draft', 'submitted', 'production'] } },
           { record_status: null }
         ],
       },
