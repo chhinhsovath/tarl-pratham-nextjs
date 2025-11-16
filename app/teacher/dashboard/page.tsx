@@ -45,7 +45,10 @@ class TeacherDashboardService {
   static async getDashboardStats(teacherId: string) {
     try {
       const response = await fetch(`/api/dashboard/teacher-stats?userId=${teacherId}`);
-      if (!response.ok) throw new Error('Failed to fetch stats');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to fetch stats');
+      }
       const data = await response.json();
 
       // Transform API response to match dashboard expectations
@@ -138,10 +141,10 @@ class TeacherDashboardPresenter {
 }
 
 function TeacherDashboardContent() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const user = session?.user;
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(true);
   const [dashboardStats, setDashboardStats] = useState<any>({});
   const [recentStudents, setRecentStudents] = useState<any[]>([]);
@@ -149,11 +152,17 @@ function TeacherDashboardContent() {
   const [progressData, setProgressData] = useState<any>({});
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [user]);
+    // Only fetch data if user and user.id are both defined
+    if (user?.id) {
+      fetchDashboardData();
+    }
+  }, [user?.id]); // Depend on user.id specifically
 
   const fetchDashboardData = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.warn('Cannot fetch dashboard data: user.id is undefined');
+      return;
+    }
     
     setLoading(true);
     try {
@@ -262,10 +271,25 @@ function TeacherDashboardContent() {
     }
   ];
 
-  if (loading) {
+  // Show loading state while session is loading or while fetching data
+  if (sessionStatus === 'loading' || (loading && !user?.id)) {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
         <Text>កំពុងទាញយកទិន្នន័យ...</Text>
+      </div>
+    );
+  }
+
+  // Show message if user session is ready but user.id is still undefined
+  if (!user?.id) {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <Alert
+          message="មានបញ្ហា"
+          description="មិនអាចទាញយកព័ត៌មានអ្នកប្រើប្រាស់បានទេ។ សូមព្យាយាមចូលម្តងទៀត។"
+          type="warning"
+          showIcon
+        />
       </div>
     );
   }

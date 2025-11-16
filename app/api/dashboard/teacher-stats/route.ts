@@ -6,13 +6,26 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    // Validate userId is provided and not "undefined" string
+    if (!userId || userId === 'undefined' || userId === 'null') {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate userId is a valid number
+    const userIdNumber = parseInt(userId);
+    if (isNaN(userIdNumber)) {
+      return NextResponse.json(
+        { error: 'User ID must be a valid number' },
+        { status: 400 }
+      );
     }
 
     // Get user details
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: userIdNumber },
       select: {
         id: true,
         name: true,
