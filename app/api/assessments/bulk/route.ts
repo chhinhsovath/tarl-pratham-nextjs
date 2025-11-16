@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 // Validation schema for bulk operations
 const bulkOperationSchema = z.object({
@@ -64,11 +65,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check access permissions for mentor role
-    if (session.user.role === 'mentor' && session.user.pilot_school_id) {
-      const hasUnauthorizedAccess = assessments.some(assessment => 
-        assessment.student.pilot_school_id !== session.user.pilot_school_id
+    // Mentors can only manage assessments from their assigned schools
+    if (session.user.role === 'mentor') {
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      const hasUnauthorizedAccess = assessments.some(assessment =>
+        !mentorSchoolIds.includes(assessment.student.pilot_school_id)
       );
-      
+
       if (hasUnauthorizedAccess) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }

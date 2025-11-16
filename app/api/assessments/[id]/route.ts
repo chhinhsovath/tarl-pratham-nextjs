@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 // Helper function to check permissions
 function hasPermission(userRole: string, action: string): boolean {
@@ -17,13 +18,13 @@ function hasPermission(userRole: string, action: string): boolean {
 }
 
 // Helper function to check if user can access assessment data
-function canAccessAssessment(userRole: string, userPilotSchoolId: number | null, assessmentPilotSchoolId: number | null): boolean {
+function canAccessAssessment(userRole: string, userSchoolIds: number[], assessmentPilotSchoolId: number | null): boolean {
   if (userRole === "admin" || userRole === "coordinator") {
     return true;
   }
 
-  if ((userRole === "mentor" || userRole === "teacher") && userPilotSchoolId) {
-    return assessmentPilotSchoolId === userPilotSchoolId;
+  if ((userRole === "mentor" || userRole === "teacher") && userSchoolIds.length > 0) {
+    return userSchoolIds.includes(assessmentPilotSchoolId || -1);
   }
 
   return false;
@@ -84,7 +85,14 @@ export async function GET(
     }
 
     // Check if user can access this assessment
-    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, assessment.pilot_school_id)) {
+    let userSchoolIds: number[] = [];
+    if (session.user.role === 'mentor') {
+      userSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+    } else if (session.user.role === 'teacher' && session.user.pilot_school_id) {
+      userSchoolIds = [session.user.pilot_school_id];
+    }
+
+    if (!canAccessAssessment(session.user.role, userSchoolIds, assessment.pilot_school_id)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -156,7 +164,14 @@ export async function PUT(
     }
 
     // Check if user can access this assessment
-    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
+    let userSchoolIds: number[] = [];
+    if (session.user.role === 'mentor') {
+      userSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+    } else if (session.user.role === 'teacher' && session.user.pilot_school_id) {
+      userSchoolIds = [session.user.pilot_school_id];
+    }
+
+    if (!canAccessAssessment(session.user.role, userSchoolIds, existingAssessment.pilot_school_id)) {
       return NextResponse.json({ error: 'Forbidden - Cannot update assessments from other schools' }, { status: 403 });
     }
 
@@ -287,7 +302,14 @@ export async function DELETE(
     }
 
     // Check if user can access this assessment
-    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
+    let userSchoolIds: number[] = [];
+    if (session.user.role === 'mentor') {
+      userSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+    } else if (session.user.role === 'teacher' && session.user.pilot_school_id) {
+      userSchoolIds = [session.user.pilot_school_id];
+    }
+
+    if (!canAccessAssessment(session.user.role, userSchoolIds, existingAssessment.pilot_school_id)) {
       return NextResponse.json({ error: 'Forbidden - Cannot delete assessments from other schools' }, { status: 403 });
     }
 
