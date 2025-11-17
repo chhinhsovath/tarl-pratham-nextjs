@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { createRequestCache } from "@/lib/cache/request-cache";
 
 export interface MentorAssignment {
   pilot_school_id: number;
@@ -8,116 +9,154 @@ export interface MentorAssignment {
   district?: string;
 }
 
-// ✅ OPTIMIZATION: Request-level cache to prevent repeated queries
-// Cleared after each HTTP request completes
-const mentorAssignmentCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes for safe caching across requests
+/**
+ * ⚠️ CRITICAL: Cache invalidation for mentor assignments
+ * Call this when mentor assignments change to prevent stale authorization data
+ */
+export const invalidateMentorCache = {
+  byMentor: (mentorId: number) => {
+    globalMentorCache.clear();
+    console.log(`[Cache] Invalidated mentor cache for mentor ${mentorId}`);
+  },
+  bySchool: (schoolId: number) => {
+    globalMentorCache.clear();
+    console.log(`[Cache] Invalidated mentor cache for school ${schoolId}`);
+  },
+  all: () => {
+    globalMentorCache.clear();
+    console.log(`[Cache] Cleared all mentor cache`);
+  },
+};
+
+// 🚨 SECURITY: Global cache with 5-min TTL - only for performance, not correctness
+// If authorization depends on this cache, it creates security risks if assignments change
+// during the cache window. Always verify assignments in sensitive operations (verification, locking).
+const globalMentorCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 function getCacheKey(mentorId: number, subject?: string, activeOnly?: boolean): string {
   return `mentor:${mentorId}:${subject || 'all'}:${activeOnly ? 'active' : 'all'}`;
 }
 
-function getOrSetCache<T>(key: string, fn: () => Promise<T>): Promise<T> {
-  const cached = mentorAssignmentCache.get(key);
+function getOrSetGlobalCache<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const cached = globalMentorCache.get(key);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return Promise.resolve(cached.data as T);
   }
   return fn().then(data => {
-    mentorAssignmentCache.set(key, { data, timestamp: Date.now() });
+    globalMentorCache.set(key, { data, timestamp: Date.now() });
     return data;
   });
 }
 
 /**
  * Get all schools assigned to a mentor
- * ✅ OPTIMIZED: Includes request-level caching
+ * ✅ OPTIMIZED: Includes global caching with 5-min TTL
+ * ⚠️ SECURITY: For authorization-sensitive operations, always verify fresh assignments
  * @param mentorId - The mentor's user ID
  * @param subject - Optional: Filter by specific subject (Language or Math)
  * @param activeOnly - Whether to return only active assignments (default: true)
+ * @param bypassCache - Set to true for sensitive operations (verification, locking)
  * @returns Array of school assignments with details
  */
 export async function getMentorAssignedSchools(
   mentorId: number,
   subject?: string,
-  activeOnly: boolean = true
+  activeOnly: boolean = true,
+  bypassCache: boolean = false
 ): Promise<MentorAssignment[]> {
   const cacheKey = getCacheKey(mentorId, subject, activeOnly);
 
-  return getOrSetCache(cacheKey, async () => {
-    try {
-      // ✅ OPTIMIZATION: Batch fetch mentor data with minimal fields
-      const [assignments, user] = await Promise.all([
-        // Query 1: Check explicit assignments
-        prisma.mentorSchoolAssignment.findMany({
-          where: {
-            mentor_id: mentorId,
-            ...(activeOnly && { is_active: true }),
-            ...(subject && { subject }),
-          },
-          select: {
-            pilot_school_id: true,
-            subject: true,
-            pilot_school: {
-              select: {
-                id: true,
-                school_name: true,
-                province: true,
-                district: true,
-              },
+  // Skip cache for sensitive operations that require real-time authorization
+  if (bypassCache) {
+    return fetchMentorAssignedSchools(mentorId, subject, activeOnly);
+  }
+
+  return getOrSetGlobalCache(cacheKey, () => fetchMentorAssignedSchools(mentorId, subject, activeOnly));
+}
+
+/**
+ * Fetch mentor schools without caching
+ * @internal Use getMentorAssignedSchools instead
+ */
+async function fetchMentorAssignedSchools(
+  mentorId: number,
+  subject?: string,
+  activeOnly: boolean = true
+): Promise<MentorAssignment[]> {
+  try {
+    // ✅ OPTIMIZATION: Batch fetch mentor data with minimal fields
+    const [assignments, user] = await Promise.all([
+      // Query 1: Check explicit assignments
+      prisma.mentorSchoolAssignment.findMany({
+        where: {
+          mentor_id: mentorId,
+          ...(activeOnly && { is_active: true }),
+          ...(subject && { subject }),
+        },
+        select: {
+          pilot_school_id: true,
+          subject: true,
+          pilot_school: {
+            select: {
+              id: true,
+              school_name: true,
+              province: true,
+              district: true,
             },
           },
-        }),
-        // Query 2: Fetch user for fallback (only if needed)
-        activeOnly
-          ? prisma.user.findUnique({
-              where: { id: mentorId },
-              select: {
-                id: true,
-                pilot_school_id: true,
-                pilot_school: {
-                  select: {
-                    id: true,
-                    school_name: true,
-                    province: true,
-                    district: true,
-                  },
+        },
+      }),
+      // Query 2: Fetch user for fallback (only if needed)
+      activeOnly
+        ? prisma.user.findUnique({
+            where: { id: mentorId },
+            select: {
+              id: true,
+              pilot_school_id: true,
+              pilot_school: {
+                select: {
+                  id: true,
+                  school_name: true,
+                  province: true,
+                  district: true,
                 },
               },
-            })
-          : Promise.resolve(null),
-      ]);
+            },
+          })
+        : Promise.resolve(null),
+    ]);
 
-      // If assignments exist, return them
-      if (assignments.length > 0) {
-        return assignments.map((assignment) => ({
-          pilot_school_id: assignment.pilot_school_id,
-          subject: assignment.subject,
-          school_name: assignment.pilot_school.school_name,
-          province: assignment.pilot_school.province,
-          district: assignment.pilot_school.district,
-        }));
-      }
-
-      // BACKWARDS COMPATIBILITY: If no assignments, check user.pilot_school_id
-      if (user?.pilot_school_id && user.pilot_school) {
-        // Return both subjects if no specific subject requested
-        const subjects = subject ? [subject] : ["Language", "Math"];
-        return subjects.map((subj) => ({
-          pilot_school_id: user.pilot_school_id!,
-          subject: subj,
-          school_name: user.pilot_school!.school_name,
-          province: user.pilot_school!.province,
-          district: user.pilot_school!.district,
-        }));
-      }
-
-      // No assignments found
-      return [];
-    } catch (error) {
-      console.error("Error fetching mentor assigned schools:", error);
-      return [];
+    // If assignments exist, return them
+    if (assignments.length > 0) {
+      return assignments.map((assignment) => ({
+        pilot_school_id: assignment.pilot_school_id,
+        subject: assignment.subject,
+        school_name: assignment.pilot_school.school_name,
+        province: assignment.pilot_school.province,
+        district: assignment.pilot_school.district,
+      }));
     }
-  });
+
+    // BACKWARDS COMPATIBILITY: If no assignments, check user.pilot_school_id
+    if (user?.pilot_school_id && user.pilot_school) {
+      // Return both subjects if no specific subject requested
+      const subjects = subject ? [subject] : ["Language", "Math"];
+      return subjects.map((subj) => ({
+        pilot_school_id: user.pilot_school_id!,
+        subject: subj,
+        school_name: user.pilot_school!.school_name,
+        province: user.pilot_school!.province,
+        district: user.pilot_school!.district,
+      }));
+    }
+
+    // No assignments found
+    return [];
+  } catch (error) {
+    console.error("Error fetching mentor assigned schools:", error);
+    return [];
+  }
 }
 
 /**
