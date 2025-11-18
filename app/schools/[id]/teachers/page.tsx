@@ -102,7 +102,7 @@ function SchoolTeachersPageContent() {
       }
     } catch (error) {
       console.error('Error fetching school:', error);
-      message.error('Failed to load school data');
+      message.error('បរាជ័យក្នុងការផ្ទុកទិន្នន័យសាលារៀន');
     }
   };
 
@@ -117,7 +117,7 @@ function SchoolTeachersPageContent() {
       }
     } catch (error) {
       console.error('Error fetching teachers:', error);
-      message.error('Failed to load teachers');
+      message.error('បរាជ័យក្នុងការផ្ទុកគ្រូបង្រៀន');
     } finally {
       setLoading(false);
     }
@@ -159,7 +159,7 @@ function SchoolTeachersPageContent() {
       });
 
       if (response.ok) {
-        message.success(`Assigned ${teacherIds.length} teacher(s) successfully`);
+        message.success(`បានចាត់តាំងគ្រូ ${teacherIds.length} ក្របាប់បានជោគជ័យ`);
         setAssignModalVisible(false);
         setSelectedTeachers([]);
         fetchTeachers();
@@ -169,7 +169,7 @@ function SchoolTeachersPageContent() {
       }
     } catch (error) {
       console.error('Error assigning teachers:', error);
-      message.error('Failed to assign teachers');
+      message.error('បរាជ័យក្នុងការចាត់តាំងគ្រូបង្រៀន');
     }
   };
 
@@ -180,7 +180,7 @@ function SchoolTeachersPageContent() {
       });
 
       if (response.ok) {
-        message.success('Teacher removed from school');
+        message.success('បានលុបគ្រូចេញពីសាលារៀនបានជោគជ័យ');
         fetchTeachers();
         fetchStats();
       } else {
@@ -188,7 +188,7 @@ function SchoolTeachersPageContent() {
       }
     } catch (error) {
       console.error('Error removing teacher:', error);
-      message.error('Failed to remove teacher');
+      message.error('បរាជ័យក្នុងការលុបគ្រូ');
     }
   };
 
@@ -212,16 +212,16 @@ function SchoolTeachersPageContent() {
       }
       
       setTransferModalVisible(false);
-      message.success('Teacher assignments updated successfully');
+      message.success('បានក្រោយលក្ខណ៍ការចាត់តាំងគ្រូបានជោគជ័យ');
     } catch (error) {
       console.error('Error updating assignments:', error);
-      message.error('Failed to update teacher assignments');
+      message.error('បរាជ័យក្នុងការក្រោយលក្ខណ៍ការចាត់តាំងគ្រូ');
     }
   };
 
   const columns = [
     {
-      title: 'Teacher',
+      title: 'គ្រូ',
       key: 'teacher',
       render: (_: any, record: Teacher) => (
         <Space>
@@ -231,14 +231,14 @@ function SchoolTeachersPageContent() {
           <div>
             <div><strong>{record.name}</strong></div>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              {record.role.charAt(0).toUpperCase() + record.role.slice(1)}
+              {record.role === 'teacher' ? 'គ្រូបង្រៀន' : record.role === 'mentor' ? 'ព្រឹក្សាគរុកោសល្យ' : record.role}
             </Text>
           </div>
         </Space>
       )
     },
     {
-      title: 'Contact',
+      title: 'ទំនាក់ទំនង',
       key: 'contact',
       render: (_: any, record: Teacher) => (
         <div>
@@ -256,70 +256,82 @@ function SchoolTeachersPageContent() {
       )
     },
     {
-      title: 'Subject',
+      title: 'មុខវិជ្ជា',
       dataIndex: 'subject',
       key: 'subject',
       render: (subject?: string) => {
-        if (!subject) return <Tag>Not Assigned</Tag>;
-        
+        if (!subject) return <Tag>មិនបានកំណត់</Tag>;
+
+        const subjectMap: any = {
+          'Language': 'ភាសាខ្មែរ',
+          'Math': 'គណិតវិទ្យា',
+          'language': 'ភាសាខ្មែរ',
+          'math': 'គណិតវិទ្យា',
+          'both': 'ភាសា & គណិតវិទ្យា'
+        };
+
         const colors: any = {
-          khmer: 'purple',
-          math: 'cyan',
-          both: 'green'
+          'Language': 'purple',
+          'Math': 'cyan',
+          'language': 'purple',
+          'math': 'cyan',
+          'both': 'green'
         };
-        
+
         const icons: any = {
-          khmer: '📖',
-          math: '🔢',
-          both: '📚'
+          'Language': '📖',
+          'Math': '🔢',
+          'language': '📖',
+          'math': '🔢',
+          'both': '📚'
         };
-        
+
         return (
-          <Tag color={colors[subject]} icon={<span>{icons[subject]}</span>}>
-            {subject === 'both' ? 'Khmer & Math' : subject.charAt(0).toUpperCase() + subject.slice(1)}
+          <Tag color={colors[subject] || 'default'} icon={<span>{icons[subject]}</span>}>
+            {subjectMap[subject] || subject}
           </Tag>
         );
       }
     },
     {
-      title: 'Classes',
+      title: 'ថ្នាក់រៀន',
       dataIndex: 'holding_classes',
       key: 'classes',
       render: (classes?: string) => (
-        <Text>{classes || 'Not specified'}</Text>
+        <Text>{classes || 'មិនបានលម្អិត'}</Text>
       )
     },
     {
-      title: 'Status',
+      title: 'ស្ថានភាព',
       key: 'status',
       render: (_: any, record: Teacher) => (
         <Badge
           status={record.is_active ? 'success' : 'default'}
-          text={record.is_active ? 'Active' : 'Inactive'}
+          text={record.is_active ? 'សកម្ម' : 'អសកម្ម'}
         />
       )
     },
     {
-      title: 'Actions',
+      title: 'សកម្មភាព',
       key: 'actions',
       render: (_: any, record: Teacher) => (
         <Space size="small">
-          <Tooltip title="View Profile">
+          <Tooltip title="មើលព័ត៌មាន">
             <Button
               type="link"
               icon={<UserOutlined />}
               onClick={() => router.push(`/users/${record.id}`)}
             />
           </Tooltip>
-          
+
           <Popconfirm
-            title="Remove teacher from school?"
-            description="This will unassign the teacher from this school."
+            title="លុបគ្រូចេញពីសាលារៀន?"
+            description="នឹងលុបការចាត់តាំងគ្រូចេញពីសាលារៀននេះ។"
             onConfirm={() => handleRemoveTeacher(record.id)}
-            okText="Yes"
-            cancelText="No"
+            okText="ដោះស្រាយ"
+            cancelText="បោះបង់"
           >
-            <Tooltip title="Remove from School">
+            <Tooltip title="លុបចេញពីសាលារៀន">
               <Button
                 type="link"
                 danger
@@ -346,7 +358,7 @@ function SchoolTeachersPageContent() {
         <Row align="middle">
           <Col flex="auto">
             <Title level={3} style={{ margin: 0 }}>
-              Teacher Management
+              ការគ្រប់គ្រងគ្រូបង្រៀន
             </Title>
             {school && (
               <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
@@ -366,9 +378,9 @@ function SchoolTeachersPageContent() {
                   setAssignModalVisible(true);
                 }}
               >
-                Assign Teacher
+                ចាត់តាំងគ្រូ
               </Button>
-              
+
               <Button
                 icon={<SwapOutlined />}
                 onClick={() => {
@@ -376,7 +388,7 @@ function SchoolTeachersPageContent() {
                   setTransferModalVisible(true);
                 }}
               >
-                Bulk Manage
+                គ្រប់គ្រងស្វ័យប្រវត្តិ
               </Button>
             </Space>
           </Col>
@@ -388,7 +400,7 @@ function SchoolTeachersPageContent() {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Total Teachers"
+              title="ចំនួនគ្រូសរុប"
               value={stats.total_teachers}
               prefix={<TeamOutlined />}
             />
@@ -397,7 +409,7 @@ function SchoolTeachersPageContent() {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Active Teachers"
+              title="គ្រូសកម្ម"
               value={stats.active_teachers}
               valueStyle={{ color: '#52c41a' }}
               prefix={<CheckCircleOutlined />}
@@ -407,7 +419,7 @@ function SchoolTeachersPageContent() {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Khmer Teachers"
+              title="គ្រូខ្មែរ"
               value={stats.khmer_teachers}
               valueStyle={{ color: '#9254de' }}
               suffix={`/ ${stats.total_teachers}`}
@@ -417,7 +429,7 @@ function SchoolTeachersPageContent() {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Math Teachers"
+              title="គ្រូគណិតវិទ្យា"
               value={stats.math_teachers}
               valueStyle={{ color: '#13c2c2' }}
               suffix={`/ ${stats.total_teachers}`}
@@ -429,8 +441,8 @@ function SchoolTeachersPageContent() {
       {/* Teacher Availability Alert */}
       {stats.total_teachers === 0 && (
         <Alert
-          message="No Teachers Assigned"
-          description="This school currently has no teachers assigned. Click 'Assign Teacher' to add teachers."
+          message="មិនមានគ្រូដែលបានចាត់តាំង"
+          description="សាលារៀននេះមិនមានគ្រូដែលបានចាត់តាំងនៅឡើយ។ ចូលលើ 'ចាត់តាំងគ្រូ' ដើម្បីបន្ថែមគ្រូ។"
           type="warning"
           showIcon
           style={{ marginBottom: 24 }}
@@ -438,7 +450,7 @@ function SchoolTeachersPageContent() {
       )}
 
       {/* Teachers Table */}
-      <Card title={`Teachers (${teachers.length})`}>
+      <Card title={`គ្រូបង្រៀន (${teachers.length})`}>
         <Table scroll={{ x: "max-content" }}
           columns={columns}
           dataSource={teachers}
@@ -446,22 +458,24 @@ function SchoolTeachersPageContent() {
           loading={loading}
           pagination={{
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} teachers`,
+            showTotal: (total) => `សរុប ${total} គ្រូបង្រៀន`,
+            pageSize: 10,
+            pageSizeOptions: ['10', '20', '50']
           }}
           locale={{
             emptyText: (
               <Empty
-                description="No teachers assigned"
+                description="មិនមានគ្រូដែលបានចាត់តាំង"
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               >
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   onClick={() => {
                     fetchAvailableTeachers();
                     setAssignModalVisible(true);
                   }}
                 >
-                  Assign First Teacher
+                  ចាត់តាំងគ្រូឡើងវិញ
                 </Button>
               </Empty>
             )
@@ -471,24 +485,25 @@ function SchoolTeachersPageContent() {
 
       {/* Assign Teacher Modal */}
       <Modal
-        title="Assign Teachers to School"
+        title="ចាត់តាំងគ្រូទៅសាលារៀន"
         open={assignModalVisible}
         onCancel={() => {
           setAssignModalVisible(false);
           setSelectedTeachers([]);
         }}
         onOk={() => handleAssignTeacher(selectedTeachers)}
-        okText="Assign Selected"
+        okText="ចាត់តាំងដែលបានជ្រើស"
+        cancelText="បោះបង់"
         width={600}
       >
         <Alert
-          message="Select teachers to assign to this school"
-          description="Only unassigned teachers are shown here"
+          message="ជ្រើសរើសគ្រូដែលត្រូវចាត់តាំងទៅសាលារៀននេះ"
+          description="មានតែគ្រូដែលមិនបានចាត់តាំងប៉ុណ្ណោះដែលបង្ហាញនៅទីនេះ"
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
         />
-        
+
         <Select
           mode="multiple"
           style={{ width: '100%' }}
@@ -501,7 +516,7 @@ function SchoolTeachersPageContent() {
         >
           {availableTeachers.map(teacher => (
             <Option key={teacher.id} value={teacher.id}>
-              {teacher.name} - {teacher.email} ({teacher.subject || 'No subject'})
+              {teacher.name} - {teacher.email} ({teacher.subject ? (teacher.subject === 'Language' ? 'ភាសាខ្មែរ' : teacher.subject === 'Math' ? 'គណិតវិទ្យា' : teacher.subject) : 'មិនបានកំណត់'})
             </Option>
           ))}
         </Select>
@@ -509,27 +524,28 @@ function SchoolTeachersPageContent() {
 
       {/* Bulk Manage Modal */}
       <Modal
-        title="Bulk Manage Teacher Assignments"
+        title="គ្រប់គ្រងការចាត់តាំងគ្រូស្វ័យប្រវត្តិ"
         open={transferModalVisible}
         onCancel={() => setTransferModalVisible(false)}
         onOk={handleTransferSubmit}
         width={800}
-        okText="Save Changes"
+        okText="រក្សាទុកលម្អិត"
+        cancelText="បោះបង់"
       >
         <Alert
-          message="Manage all teacher assignments"
-          description="Move teachers between 'Available' and 'Assigned' lists"
+          message="គ្រប់គ្រងការចាត់តាំងគ្រូទាំងអស់"
+          description="ផ្លាស់ប្តូរគ្រូរវាងបញ្ជីលក់ដែលមាន និងបញ្ជីដែលបានចាត់តាំង"
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
         />
-        
+
         <Transfer
           dataSource={transferDataSource}
           targetKeys={targetKeys}
           onChange={handleTransferChange}
           render={item => item.title}
-          titles={['Available Teachers', 'Assigned to School']}
+          titles={['គ្រូដែលមាន', 'ចាត់តាំងទៅសាលារៀន']}
           listStyle={{ width: 350, height: 400 }}
           showSearch
           filterOption={(inputValue, option) =>
