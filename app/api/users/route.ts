@@ -51,7 +51,8 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const role = searchParams.get("role") || "";
     const province = searchParams.get("province") || "";
-    const school_id = searchParams.get("school_id") || "";
+    // Support both 'school_id' and 'pilot_school_id' parameters for compatibility
+    const school_id = searchParams.get("school_id") || searchParams.get("pilot_school_id") || "";
 
     const skip = (page - 1) * limit;
 
