@@ -29,44 +29,96 @@ export async function GET(request: NextRequest) {
     console.log(`[COORDINATOR STATS] READ-ONLY mode - User: ${session.user.email}`);
 
     // READ FROM CACHE (1 simple query - NO expensive calculations)
-    const cached = await prisma.dashboardStats.findUnique({
+    let cached = await prisma.dashboardStats.findUnique({
       where: { cache_key: 'global' },
     });
 
-    // If no cache exists, tell user to refresh
+    // If no cache exists, auto-initialize it with actual data
     if (!cached) {
-      console.warn('[COORDINATOR STATS] No cached stats found - needs refresh');
-      return NextResponse.json(
-        {
-          error: 'ស្ថិតិមិនមាននៅក្នុងឃ្លាំងសម្ងាត់',
-          message: 'សូមធ្វើបច្ចុប្បន្នភាពស្ថិតិ',
-          action: 'Call POST /api/admin/refresh-stats to initialize',
-          // Return zeros so UI doesn't break
-          total_schools: 0,
-          total_teachers: 0,
-          total_mentors: 0,
-          total_students: 0,
-          total_assessments: 0,
-          pending_verifications: 0,
-          recent_imports: 0,
-          active_mentoring_visits: 0,
-          languages_configured: 2,
-          assessments: {
-            total: 0,
-            today: 0,
-            this_week: 0,
-            this_month: 0,
-            by_type: { baseline: 0, midline: 0, endline: 0 },
-            by_creator: { mentor: 0, teacher: 0 },
-            by_subject: { language: 0, math: 0 },
-            by_level: [],
-            pending_verification: 0,
-            overall_results_khmer: [],
-            overall_results_math: [],
+      console.warn('[COORDINATOR STATS] No cached stats found - auto-initializing...');
+
+      try {
+        // Calculate fresh stats from database
+        const [
+          total_students,
+          total_assessments,
+          total_schools,
+          total_teachers,
+          total_mentors,
+          baseline_assessments,
+          midline_assessments,
+          endline_assessments,
+          language_assessments,
+          math_assessments
+        ] = await Promise.all([
+          prisma.student.count({ where: { is_active: true } }),
+          prisma.assessment.count({ where: { is_temporary: false } }),
+          prisma.pilotSchool.count(),
+          prisma.user.count({ where: { role: 'teacher', is_active: true } }),
+          prisma.user.count({ where: { role: 'mentor', is_active: true } }),
+          prisma.assessment.count({ where: { assessment_type: 'baseline' } }),
+          prisma.assessment.count({ where: { assessment_type: 'midline' } }),
+          prisma.assessment.count({ where: { assessment_type: 'endline' } }),
+          prisma.assessment.count({ where: { subject: 'language' } }),
+          prisma.assessment.count({ where: { subject: 'math' } }),
+        ]);
+
+        // Create cache entry
+        cached = await prisma.dashboardStats.create({
+          data: {
+            cache_key: 'global',
+            role: 'coordinator',
+            total_students,
+            total_assessments,
+            total_schools,
+            total_teachers,
+            total_mentors,
+            baseline_assessments,
+            midline_assessments,
+            endline_assessments,
+            language_assessments,
+            math_assessments,
+            stats_data: {},
+            last_updated: new Date(),
           },
-        },
-        { status: 200 } // Don't error - just return zeros
-      );
+        });
+
+        console.log('[COORDINATOR STATS] Cache auto-initialized with data:', {
+          schools: total_schools,
+          students: total_students,
+          assessments: total_assessments,
+        });
+      } catch (initError) {
+        console.error('[COORDINATOR STATS] Failed to auto-initialize cache:', initError);
+        // Return zeros if initialization fails
+        return NextResponse.json(
+          {
+            total_schools: 0,
+            total_teachers: 0,
+            total_mentors: 0,
+            total_students: 0,
+            total_assessments: 0,
+            pending_verifications: 0,
+            recent_imports: 0,
+            active_mentoring_visits: 0,
+            languages_configured: 2,
+            assessments: {
+              total: 0,
+              today: 0,
+              this_week: 0,
+              this_month: 0,
+              by_type: { baseline: 0, midline: 0, endline: 0 },
+              by_creator: { mentor: 0, teacher: 0 },
+              by_subject: { language: 0, math: 0 },
+              by_level: [],
+              pending_verification: 0,
+              overall_results_khmer: [],
+              overall_results_math: [],
+            },
+          },
+          { status: 200 }
+        );
+      }
     }
 
     // Check cache age and auto-refresh if too old (older than 1 hour = 3600000ms)
