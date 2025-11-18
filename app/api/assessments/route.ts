@@ -140,20 +140,18 @@ export async function GET(request: NextRequest) {
       where.subject = subject;
     }
     
-    if (pilot_school_id) {
-      where.pilot_school_id = parseInt(pilot_school_id);
-    }
-    
+    // Add student_id filter if provided
     if (student_id) {
       where.student_id = parseInt(student_id);
     }
-    
+
+    // Add temporary filter if provided
     if (is_temporary !== null) {
       where.is_temporary = is_temporary === "true";
     }
 
     // Apply access restrictions for mentors and teachers
-    // Admin and Coordinator have full access - no filtering needed
+    // Build the school ID filter based on role
     if (session.user.role === "mentor") {
       // Mentors can see assessments from their assigned schools
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
@@ -161,11 +159,13 @@ export async function GET(request: NextRequest) {
         // If a specific pilot_school_id was requested, verify mentor has access to it
         if (pilot_school_id) {
           const requestedSchoolId = parseInt(pilot_school_id);
-          if (!mentorSchoolIds.includes(requestedSchoolId)) {
+          if (mentorSchoolIds.includes(requestedSchoolId)) {
+            // Mentor has access to requested school - use it
+            where.pilot_school_id = requestedSchoolId;
+          } else {
             // Mentor requested a school they're not assigned to - return no results
             where.id = -1;
           }
-          // If they ARE assigned to it, keep the single school filter (already set above)
         } else {
           // No specific school requested - show all schools mentor is assigned to
           where.pilot_school_id = { in: mentorSchoolIds };
@@ -180,11 +180,13 @@ export async function GET(request: NextRequest) {
         // If a specific pilot_school_id was requested, verify it matches their assigned school
         if (pilot_school_id) {
           const requestedSchoolId = parseInt(pilot_school_id);
-          if (requestedSchoolId !== session.user.pilot_school_id) {
+          if (requestedSchoolId === session.user.pilot_school_id) {
+            // Requested school matches teacher's school - use it
+            where.pilot_school_id = requestedSchoolId;
+          } else {
             // Teacher requested a different school - return no results
             where.id = -1;
           }
-          // If it matches, keep the filter (already set above)
         } else {
           // No specific school requested - show their assigned school
           where.pilot_school_id = session.user.pilot_school_id;
@@ -193,9 +195,20 @@ export async function GET(request: NextRequest) {
         // If user has no pilot school, they can't see any assessments
         where.id = -1;
       }
+    } else if (session.user.role === "admin" || session.user.role === "coordinator") {
+      // Admin and Coordinator have full access to all assessments
+      // But if a specific school is requested, use that filter
+      if (pilot_school_id) {
+        where.pilot_school_id = parseInt(pilot_school_id);
+      }
+      // If no specific school requested, no filter applied - returns all assessments
+    } else if (session.user.role === "viewer") {
+      // Viewers have read-only access to all assessments
+      // But if a specific school is requested, use that filter
+      if (pilot_school_id) {
+        where.pilot_school_id = parseInt(pilot_school_id);
+      }
     }
-    // Note: admin and coordinator roles intentionally have no restrictions - they see all assessments
-    // But they should still respect the pilot_school_id query parameter if provided (set on line 144)
 
     const [assessments, total] = await Promise.all([
       prisma.assessment.findMany({
