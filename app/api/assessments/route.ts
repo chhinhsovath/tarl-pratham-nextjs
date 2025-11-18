@@ -210,9 +210,18 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Add filter for active, non-temporary students
+    const whereWithStudentFilter = {
+      ...where,
+      student: {
+        is_active: true,
+        is_temporary: false
+      }
+    };
+
     const [assessments, total] = await Promise.all([
       prisma.assessment.findMany({
-        where,
+        where: whereWithStudentFilter,
         include: {
           student: {
             select: {
@@ -243,7 +252,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { assessed_date: "desc" }
       }),
-      prisma.assessment.count({ where })
+      prisma.assessment.count({ where: whereWithStudentFilter })
     ]);
 
     return NextResponse.json({
