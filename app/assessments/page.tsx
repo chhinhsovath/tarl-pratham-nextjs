@@ -66,9 +66,15 @@ function AssessmentsContent() {
   const [students, setStudents] = useState([]);
   const [pilotSchools, setPilotSchools] = useState([]);
 
+  // Track if component has mounted and filters have been initialized
+  const [isInitialized, setIsInitialized] = useState(false);
+  // Use a ref to track if we've done the initial fetch to prevent duplicate calls
+  const hasInitialFetchRef = React.useRef(false);
+
   // Initialize filters from URL query parameters on component mount
   useEffect(() => {
     const initialFilters: any = { ...filters };
+    let hasQueryParams = false;
 
     // Read all query parameters and apply to filters
     const queryParams: Record<string, string> = {};
@@ -76,24 +82,45 @@ function AssessmentsContent() {
       if (value && Object.keys(filters).includes(key)) {
         initialFilters[key] = value;
         queryParams[key] = value;
+        hasQueryParams = true;
       }
     });
 
-    // Only update if we found query parameters
-    if (Object.keys(queryParams).length > 0) {
+    // Update filters with URL parameters if they exist
+    if (hasQueryParams) {
       setFilters(initialFilters);
       console.log('📍 Initialized filters from URL:', queryParams);
     }
-  }, [searchParams]);
 
-  useEffect(() => {
-    fetchFormData();
-    fetchAssessments();
+    // Mark as initialized regardless of whether we found query params
+    setIsInitialized(true);
   }, []);
 
+  // Fetch form data only on mount
   useEffect(() => {
-    fetchAssessments();
-  }, [filters, pagination.current, pagination.pageSize]);
+    fetchFormData();
+  }, []);
+
+  // Single consolidated effect for all data fetching
+  // This prevents the double-fetch issue by consolidating all triggers
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    // Prevent the initial fetch from running twice
+    if (!hasInitialFetchRef.current) {
+      hasInitialFetchRef.current = true;
+      fetchAssessments();
+      return;
+    }
+
+    // For subsequent filter/pagination changes, fetch with a small debounce
+    // to prevent multiple rapid calls
+    const debounceTimer = setTimeout(() => {
+      fetchAssessments();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [isInitialized, filters, pagination.current, pagination.pageSize]);
 
   const fetchFormData = async () => {
     try {
