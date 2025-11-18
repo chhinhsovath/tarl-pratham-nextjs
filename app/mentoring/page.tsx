@@ -1,14 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Table, 
-  Button, 
-  Select, 
-  Input, 
-  Row, 
-  Col, 
+import {
+  Card,
+  Table,
+  Button,
+  Select,
+  Input,
+  Row,
+  Col,
   message,
   Space,
   Typography,
@@ -18,9 +19,9 @@ import {
   Image,
   Modal
 } from 'antd';
-import { 
-  PlusOutlined, 
-  SearchOutlined, 
+import {
+  PlusOutlined,
+  SearchOutlined,
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
@@ -29,7 +30,7 @@ import {
   TeamOutlined,
   ClockCircleOutlined
 } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
@@ -41,9 +42,10 @@ const { RangePicker } = DatePicker;
 
 function MentoringContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const user = session?.user;
-  
+
   const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -61,15 +63,57 @@ function MentoringContent() {
   const [pilotSchools, setPilotSchools] = useState([]);
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const hasInitialFetchRef = React.useRef(false);
 
+  // Initialize filters from URL query parameters on component mount
   useEffect(() => {
-    fetchPilotSchools();
-    fetchVisits();
+    const initialFilters: any = { ...filters };
+    let hasQueryParams = false;
+
+    // Read all query parameters and apply to filters
+    const queryParams: Record<string, string> = {};
+    searchParams.forEach((value, key) => {
+      if (value && Object.keys(filters).includes(key)) {
+        initialFilters[key] = value;
+        queryParams[key] = value;
+        hasQueryParams = true;
+      }
+    });
+
+    // Update filters with URL parameters if they exist
+    if (hasQueryParams) {
+      setFilters(initialFilters);
+      console.log('📍 Initialized filters from URL:', queryParams);
+    }
+
+    // Mark as initialized regardless of whether we found query params
+    setIsInitialized(true);
   }, []);
 
+  // Fetch pilot schools on mount
   useEffect(() => {
-    fetchVisits();
-  }, [filters, pagination.current, pagination.pageSize]);
+    fetchPilotSchools();
+  }, []);
+
+  // Single consolidated effect for all data fetching to prevent double-fetch
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    // Prevent the initial fetch from running twice
+    if (!hasInitialFetchRef.current) {
+      hasInitialFetchRef.current = true;
+      fetchVisits();
+      return;
+    }
+
+    // For subsequent filter/pagination changes, fetch with debounce
+    const debounceTimer = setTimeout(() => {
+      fetchVisits();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [isInitialized, filters, pagination.current, pagination.pageSize]);
 
   const fetchPilotSchools = async () => {
     try {
@@ -520,7 +564,9 @@ function MentoringContent() {
 export default function MentoringPage() {
   return (
     <HorizontalLayout>
-      <MentoringContent />
+      <Suspense fallback={<div>Loading...</div>}>
+        <MentoringContent />
+      </Suspense>
     </HorizontalLayout>
   );
 }
