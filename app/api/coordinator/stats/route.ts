@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
     console.log(`[COORDINATOR STATS] LIVE DATA MODE - User: ${session.user.email}`);
 
     // FETCH LIVE DATA - NO CACHE
-    // Always get fresh data from database (6 parallel queries)
-    // Performance: 50-100ms for live data is better than serving stale data
+    // Always get fresh data from database (with aggregations for charts)
+    // Performance: 100-200ms for live data with aggregations is acceptable
     try {
       const [
         total_students,
@@ -43,7 +43,9 @@ export async function GET(request: NextRequest) {
         midline_assessments,
         endline_assessments,
         language_assessments,
-        math_assessments
+        math_assessments,
+        assessments_by_level,
+        assessments_by_cycle_and_level
       ] = await Promise.all([
         prisma.student.count({ where: { is_active: true } }),
         prisma.assessment.count(),
@@ -56,6 +58,25 @@ export async function GET(request: NextRequest) {
         prisma.assessment.count({ where: { assessment_type: 'endline' } }),
         prisma.assessment.count({ where: { subject: 'language' } }),
         prisma.assessment.count({ where: { subject: 'math' } }),
+        // Query for by_level: Group assessments by level, count khmer and math
+        prisma.assessment.groupBy({
+          by: ['level'],
+          _count: {
+            id: true,
+          },
+          where: { level: { not: null } }
+        }),
+        // Query for overall results: Group by assessment_type and level, count by subject
+        prisma.assessment.groupBy({
+          by: ['assessment_type', 'level', 'subject'],
+          _count: {
+            id: true,
+          },
+          where: {
+            level: { not: null },
+            assessment_type: { in: ['baseline', 'midline', 'endline'] }
+          }
+        })
       ]);
 
       console.log('[COORDINATOR STATS] LIVE data fetched:', {
@@ -70,6 +91,66 @@ export async function GET(request: NextRequest) {
       // Calculate derived values
       const assessments_by_mentor = Math.floor(total_assessments * 0.3);
       const assessments_by_teacher = total_assessments - assessments_by_mentor;
+
+      // Transform by_level data: Group by level, count khmer and math
+      const by_level_map = new Map<string, { khmer: number; math: number }>();
+      assessments_by_level.forEach(item => {
+        if (item.level) {
+          if (!by_level_map.has(item.level)) {
+            by_level_map.set(item.level, { khmer: 0, math: 0 });
+          }
+        }
+      });
+
+      // Count by level and subject
+      assessments_by_cycle_and_level.forEach(item => {
+        if (item.level) {
+          if (!by_level_map.has(item.level)) {
+            by_level_map.set(item.level, { khmer: 0, math: 0 });
+          }
+          const levelData = by_level_map.get(item.level)!;
+          if (item.subject === 'language') {
+            levelData.khmer += item._count.id;
+          } else if (item.subject === 'math') {
+            levelData.math += item._count.id;
+          }
+        }
+      });
+
+      // Convert map to array format for LevelDistributionChart
+      const by_level_array = Array.from(by_level_map.entries()).map(([level, counts]) => ({
+        level,
+        khmer: counts.khmer,
+        math: counts.math,
+      }));
+
+      // Transform overall results data: Group by assessment_type (cycle), then by level
+      const khmer_results: { cycle: string; levels: Record<string, number> }[] = [];
+      const math_results: { cycle: string; levels: Record<string, number> }[] = [];
+
+      // Initialize cycles
+      const cycles = ['baseline', 'midline', 'endline'];
+      cycles.forEach(cycle => {
+        khmer_results.push({ cycle, levels: {} });
+        math_results.push({ cycle, levels: {} });
+      });
+
+      // Populate results from grouped data
+      assessments_by_cycle_and_level.forEach(item => {
+        if (item.level && item.assessment_type) {
+          if (item.subject === 'language') {
+            const khmerCycle = khmer_results.find(r => r.cycle === item.assessment_type);
+            if (khmerCycle) {
+              khmerCycle.levels[item.level] = (khmerCycle.levels[item.level] || 0) + item._count.id;
+            }
+          } else if (item.subject === 'math') {
+            const mathCycle = math_results.find(r => r.cycle === item.assessment_type);
+            if (mathCycle) {
+              mathCycle.levels[item.level] = (mathCycle.levels[item.level] || 0) + item._count.id;
+            }
+          }
+        }
+      });
 
       // Return LIVE stats (no cache!)
       return NextResponse.json({
@@ -103,10 +184,10 @@ export async function GET(request: NextRequest) {
             language: language_assessments,
             math: math_assessments,
           },
-          by_level: [],
+          by_level: by_level_array,
           pending_verification: 0,
-          overall_results_khmer: [],
-          overall_results_math: [],
+          overall_results_khmer: khmer_results,
+          overall_results_math: math_results,
         },
 
         // Mark as LIVE data (not cached)
