@@ -38,11 +38,13 @@ export async function GET(request: NextRequest) {
       console.warn('[COORDINATOR STATS] No cached stats found - auto-initializing...');
 
       try {
-        // Calculate fresh stats from database
+        // Calculate fresh stats from database - SAME AS ADMIN (ALL data)
+        // Coordinator should see the same totals as admin for full visibility
         const [
           total_students,
           total_assessments,
           total_schools,
+          total_mentoring_visits,
           total_teachers,
           total_mentors,
           baseline_assessments,
@@ -51,9 +53,10 @@ export async function GET(request: NextRequest) {
           language_assessments,
           math_assessments
         ] = await Promise.all([
-          prisma.student.count({ where: { is_active: true } }),
-          prisma.assessment.count({ where: { is_temporary: false } }),
-          prisma.pilotSchool.count(),
+          prisma.student.count({ where: { is_active: true } }),  // Count ACTIVE students (like admin)
+          prisma.assessment.count(),  // Count ALL assessments (not just non-temporary)
+          prisma.pilotSchool.count(),  // Count ALL schools
+          prisma.mentoringVisit.count(),  // Count ALL mentoring visits
           prisma.user.count({ where: { role: 'teacher', is_active: true } }),
           prisma.user.count({ where: { role: 'mentor', is_active: true } }),
           prisma.assessment.count({ where: { assessment_type: 'baseline' } }),
@@ -63,7 +66,7 @@ export async function GET(request: NextRequest) {
           prisma.assessment.count({ where: { subject: 'math' } }),
         ]);
 
-        // Create cache entry
+        // Create cache entry with all stats (matching admin view)
         cached = await prisma.dashboardStats.create({
           data: {
             cache_key: 'global',
@@ -78,15 +81,18 @@ export async function GET(request: NextRequest) {
             endline_assessments,
             language_assessments,
             math_assessments,
-            stats_data: {},
+            stats_data: {
+              total_mentoring_visits: total_mentoring_visits,
+            },
             last_updated: new Date(),
           },
         });
 
-        console.log('[COORDINATOR STATS] Cache auto-initialized with data:', {
+        console.log('[COORDINATOR STATS] Cache auto-initialized with FULL data (same as admin):', {
           schools: total_schools,
           students: total_students,
           assessments: total_assessments,
+          mentoring_visits: total_mentoring_visits,
         });
       } catch (initError) {
         console.error('[COORDINATOR STATS] Failed to auto-initialize cache:', initError);
@@ -153,6 +159,7 @@ export async function GET(request: NextRequest) {
 
     // Parse chart data from stats_data JSON field
     const statsData = cached.stats_data as any;
+    const total_mentoring_visits = statsData?.total_mentoring_visits || 0;
 
     // Calculate derived values
     const assessments_by_mentor = Math.floor(cached.total_assessments * 0.3);
@@ -168,7 +175,7 @@ export async function GET(request: NextRequest) {
       total_assessments: cached.total_assessments,
       pending_verifications: 0,
       recent_imports: 0,
-      active_mentoring_visits: 0,
+      active_mentoring_visits: total_mentoring_visits,  // Use actual count from cache
       languages_configured: 2,
 
       // Cached assessments data
