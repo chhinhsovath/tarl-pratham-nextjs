@@ -20,6 +20,15 @@ import StackedPercentageBarChart from '@/components/charts/StackedPercentageBarC
 
 const { Title, Text } = Typography;
 
+// Helper function to check if overall results have any level data
+function hasLevelData(results: any[] | undefined): boolean {
+  if (!results || !Array.isArray(results)) return false;
+  return results.some(cycle => {
+    if (!cycle.levels || typeof cycle.levels !== 'object') return false;
+    return Object.keys(cycle.levels).length > 0;
+  });
+}
+
 interface MentorStats {
   mentor: {
     id: number;
@@ -270,7 +279,7 @@ export default function MentorDashboard() {
       </Row>
 
       {/* Assessment Results Section with Subject Toggle */}
-      {stats.summary.total_assessments > 0 && (stats.assessments?.overall_results_khmer || stats.assessments?.overall_results_math) && (
+      {stats.summary.total_assessments > 0 && (hasLevelData(stats.assessments?.overall_results_khmer) || hasLevelData(stats.assessments?.overall_results_math)) && (
         <Card title="លទ្ធផលការវាយតម្លៃសរុប" style={{ marginBottom: 24 }}>
           {/* Subject Toggle Buttons */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
@@ -283,6 +292,7 @@ export default function MentorDashboard() {
                 border: 'none',
                 transition: 'all 0.2s'
               }}
+              disabled={!hasLevelData(stats.assessments?.overall_results_khmer)}
             >
               ខ្មែរ
             </Button>
@@ -295,24 +305,37 @@ export default function MentorDashboard() {
                 border: 'none',
                 transition: 'all 0.2s'
               }}
+              disabled={!hasLevelData(stats.assessments?.overall_results_math)}
             >
               គណិតវិទ្យា
             </Button>
           </div>
 
           {/* Overall Results Chart */}
-          {selectedSubject === 'khmer' && stats.assessments?.overall_results_khmer && (
+          {selectedSubject === 'khmer' && hasLevelData(stats.assessments?.overall_results_khmer) && stats.assessments?.overall_results_khmer && (
             <StackedPercentageBarChart
               data={stats.assessments.overall_results_khmer}
               title="លទ្ធផលសរុប - ខ្មែរ"
             />
           )}
 
-          {selectedSubject === 'math' && stats.assessments?.overall_results_math && (
+          {selectedSubject === 'khmer' && !hasLevelData(stats.assessments?.overall_results_khmer) && (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+              <Text>មិនមានទិន្នន័យកម្រិតសម្រាប់ខ្មែរ</Text>
+            </div>
+          )}
+
+          {selectedSubject === 'math' && hasLevelData(stats.assessments?.overall_results_math) && stats.assessments?.overall_results_math && (
             <StackedPercentageBarChart
               data={stats.assessments.overall_results_math}
               title="លទ្ធផលសរុប - គណិតវិទ្យា"
             />
+          )}
+
+          {selectedSubject === 'math' && !hasLevelData(stats.assessments?.overall_results_math) && (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+              <Text>មិនមានទិន្នន័យកម្រិតសម្រាប់គណិតវិទ្យា</Text>
+            </div>
           )}
         </Card>
       )}
