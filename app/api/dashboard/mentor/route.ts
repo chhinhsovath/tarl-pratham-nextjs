@@ -5,8 +5,8 @@ import { prisma } from "@/lib/prisma";
 import {
   getMentorDetailedAssignments,
   getMentorSchoolIds,
-  getMentorAssignmentStats,
-} from "@/lib/mentorAssignments";
+  getMentorAssignmentStats
+        } from "@/lib/mentorAssignments";
 
 /**
  * GET /api/dashboard/mentor
@@ -43,11 +43,11 @@ export async function GET(request: NextRequest) {
           by: ["pilot_school_id"],
           where: {
             pilot_school_id: { in: schoolIds },
-            is_active: true,
-          },
+            is_active: true
+        },
           _count: {
-            id: true,
-          },
+            id: true
+        }
         })
       : [];
 
@@ -56,11 +56,11 @@ export async function GET(request: NextRequest) {
       ? await prisma.assessment.groupBy({
           by: ["pilot_school_id", "subject"],
           where: {
-            pilot_school_id: { in: schoolIds },
-          },
+            pilot_school_id: { in: schoolIds }
+        },
           _count: {
-            id: true,
-          },
+            id: true
+        }
         })
       : [];
 
@@ -71,26 +71,26 @@ export async function GET(request: NextRequest) {
             OR: [
               { pilot_school_id: { in: schoolIds } },
               { mentor_id: mentorId },
-            ],
-          },
+            ]
+        },
           include: {
             pilot_school: {
               select: {
                 id: true,
                 school_name: true,
                 province: true,
-                district: true,
-              },
-            },
+                district: true
+        }
+        },
             mentor: {
               select: {
                 id: true,
-                name: true,
-              },
-            },
-          },
+                name: true
+        }
+        }
+        },
           orderBy: { visit_date: "desc" },
-          take: 10,
+          take: 10
         })
       : [];
 
@@ -99,8 +99,8 @@ export async function GET(request: NextRequest) {
       ? await prisma.assessment.count({
           where: {
             pilot_school_id: { in: schoolIds },
-            verified_at: null,
-          },
+            verified_at: null
+        }
         })
       : 0;
 
@@ -136,9 +136,9 @@ export async function GET(request: NextRequest) {
           language_assessments: languageAssessments,
           math_assessments: mathAssessments,
           total_assessments: languageAssessments + mathAssessments,
-          recent_visits: visitsAtSchool,
-        },
-      };
+          recent_visits: visitsAtSchool
+        }
+        };
     });
 
     // Overall summary statistics
@@ -169,36 +169,31 @@ export async function GET(request: NextRequest) {
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
-          assessment_type: 'baseline',
-          
+          assessment_type: 'baseline'
         }
       }),
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
-          assessment_type: 'midline',
-          
+          assessment_type: 'midline'
         }
       }),
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
-          assessment_type: 'endline',
-          
+          assessment_type: 'endline'
         }
       }),
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
-          subject: 'Language',
-          
+          subject: 'Language'
         }
       }),
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
-          subject: 'Math',
-          
+          subject: 'Math'
         }
       }),
       // Group assessments by level for Khmer (Language)
@@ -206,8 +201,7 @@ export async function GET(request: NextRequest) {
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
-          subject: 'Language',
-          
+          subject: 'Language'
         },
         _count: { id: true }
       }),
@@ -216,8 +210,7 @@ export async function GET(request: NextRequest) {
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
-          subject: 'Math',
-          
+          subject: 'Math'
         },
         _count: { id: true }
       }),
@@ -238,8 +231,7 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Language',
-          assessment_type: 'baseline',
-          
+          assessment_type: 'baseline'
         },
         _count: { id: true }
       }),
@@ -248,8 +240,7 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Language',
-          assessment_type: 'midline',
-          
+          assessment_type: 'midline'
         },
         _count: { id: true }
       }),
@@ -258,8 +249,7 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Language',
-          assessment_type: 'endline',
-          
+          assessment_type: 'endline'
         },
         _count: { id: true }
       }),
@@ -269,8 +259,7 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Math',
-          assessment_type: 'baseline',
-          
+          assessment_type: 'baseline'
         },
         _count: { id: true }
       }),
@@ -279,8 +268,7 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Math',
-          assessment_type: 'midline',
-          
+          assessment_type: 'midline'
         },
         _count: { id: true }
       }),
@@ -289,8 +277,7 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Math',
-          assessment_type: 'endline',
-          
+          assessment_type: 'endline'
         },
         _count: { id: true }
       }),
@@ -357,8 +344,8 @@ export async function GET(request: NextRequest) {
       .map(level => ({
         level,
         khmer: level_distribution_khmer.find(l => l.level === level)?._count.id || 0,
-        math: level_distribution_math.find(l => l.level === level)?._count.id || 0,
-      }));
+        math: level_distribution_math.find(l => l.level === level)?._count.id || 0
+        }));
 
     // Debug logging for mentor dashboard
     if (process.env.NODE_ENV === 'development') {
@@ -372,55 +359,55 @@ export async function GET(request: NextRequest) {
       mentor: {
         id: mentorId,
         name: session.user.name,
-        email: session.user.email,
-      },
+        email: session.user.email
+        },
       _debug: {
         schoolIds: schoolIds,
         schoolCount: schoolIds.length,
-        assignmentsCount: stats.total_assignments,
-      },
+        assignmentsCount: stats.total_assignments
+        },
       assignments: {
         total: stats.total_assignments,
         schools: stats.total_schools,
         subjects: stats.subjects,
         language_schools: stats.language_schools,
         math_schools: stats.math_schools,
-        details: schoolStats,
-      },
+        details: schoolStats
+        },
       summary: {
         total_students: totalStudents,
         total_assessments: totalAssessments,
         total_visits: totalVisits,
-        pending_verifications: pendingVerifications,
-      },
+        pending_verifications: pendingVerifications
+        },
       assessments: {
         total: totalAssessments,
         by_type: {
           baseline: baseline_assessments,
           midline: midline_assessments,
-          endline: endline_assessments,
+          endline: endline_assessments
         },
         by_subject: {
           language: language_assessments_count,
-          math: math_assessments_count,
+          math: math_assessments_count
         },
         by_level: level_distribution,
         pending_verification: pendingVerifications,
         // Overall results by cycle and level for stacked percentage charts
         overall_results_khmer: overall_results_khmer,
-        overall_results_math: overall_results_math,
-      },
+        overall_results_math: overall_results_math
+        },
       recent_activities: recentActivities,
-      recent_visits: recentVisits,
-    });
+      recent_visits: recentVisits
+        });
   } catch (error: any) {
     console.error("Error fetching mentor dashboard:", error);
     return NextResponse.json(
       {
         error: "មានបញ្ហាក្នុងការទាញយកទិន្នន័យ",
         message: error.message,
-        details: error.meta || error.code,
-      },
+        details: error.meta || error.code
+        },
       { status: 500 }
     );
   }
@@ -437,32 +424,32 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
     const recentStudents = await prisma.student.findMany({
       where: {
         pilot_school_id: { in: schoolIds },
-        is_active: true,
-      },
+        is_active: true
+        },
       select: {
         id: true,
         name: true,
         created_at: true,
         pilot_school: {
           select: {
-            school_name: true,
-          },
+            school_name: true
+        }
         },
         added_by: {
           select: {
-            name: true,
-          },
+            name: true
+        }
+        }
         },
-      },
       orderBy: { created_at: "desc" },
-      take: 5,
-    });
+      take: 5
+        });
 
     // Get recent assessments (all assessments in mentor's assigned schools)
     const recentAssessments = await prisma.assessment.findMany({
       where: {
-        pilot_school_id: { in: schoolIds },
-      },
+        pilot_school_id: { in: schoolIds }
+        },
       select: {
         id: true,
         assessment_type: true,
@@ -470,23 +457,23 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
         created_at: true,
         student: {
           select: {
-            name: true,
-          },
+            name: true
+        }
         },
         pilot_school: {
           select: {
-            school_name: true,
-          },
+            school_name: true
+        }
         },
         added_by: {
           select: {
-            name: true,
-          },
+            name: true
+        }
+        }
         },
-      },
       orderBy: { created_at: "desc" },
-      take: 5,
-    });
+      take: 5
+        });
 
     // Combine and sort by date
     const activities = [
@@ -495,15 +482,15 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
         description: `ថ្មី​សិស្ស: ${s.name}`,
         school: s.pilot_school?.school_name || "Unknown",
         user: s.added_by?.name || "System",
-        created_at: s.created_at,
-      })),
+        created_at: s.created_at
+        })),
       ...recentAssessments.map((a) => ({
         type: "assessment_added",
         description: `${a.assessment_type} ${a.subject} សម្រាប់ ${a.student.name}`,
         school: a.pilot_school?.school_name || "Unknown",
         user: a.added_by?.name || "System",
-        created_at: a.created_at,
-      })),
+        created_at: a.created_at
+        })),
     ];
 
     // Sort by date and limit to 10
