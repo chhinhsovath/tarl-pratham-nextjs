@@ -48,8 +48,8 @@ interface User {
 
 interface PilotSchool {
   id: number;
-  name: string;
-  code: string;
+  school_name: string;
+  school_code: string;
   province?: string; // province is a string
 }
 
@@ -402,7 +402,7 @@ function EditUserPageContent() {
                   >
                     {pilotSchools.map(school => (
                       <Option key={school.id} value={school.id}>
-                        {school.name} ({school.code}){school.province ? ` - ${school.province}` : ''}
+                        {school.school_name} ({school.school_code}){school.province ? ` - ${school.province}` : ''}
                       </Option>
                     ))}
                   </Select>
