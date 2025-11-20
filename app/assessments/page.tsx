@@ -24,7 +24,8 @@ import {
   EditOutlined,
   DeleteOutlined,
   ExportOutlined,
-  PlusOutlined
+  PlusOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -410,7 +411,7 @@ function AssessmentsContent() {
     {
       title: 'សកម្មភាព',
       key: 'actions',
-      width: 150,
+      width: 200,
       render: (record: any) => (
         <Space size="small">
           <Button
@@ -427,6 +428,20 @@ function AssessmentsContent() {
               icon={<EditOutlined />}
               onClick={() => router.push(`/assessments/${record.id}/edit`)}
             />
+          )}
+
+          {record.is_temporary && hasPermission(user, 'assessments.verify') && (
+            <Button
+              size="small"
+              type="primary"
+              danger={false}
+              icon={<CheckCircleOutlined />}
+              style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+              onClick={() => router.push(`/assessments/verify?assessment_id=${record.id}`)}
+              title="ផ្ទៀងផ្ទាត់ការវាយតម្លៃ"
+            >
+              ផ្ទៀងផ្ទាត់
+            </Button>
           )}
 
           <SoftDeleteButton
