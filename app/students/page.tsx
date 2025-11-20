@@ -47,6 +47,11 @@ interface Student {
   address?: string;
   school_class_id?: number;
   pilot_school_id?: number;
+  pilot_school?: {
+    id: number;
+    school_name: string;
+    province?: string;
+  };
   baseline_khmer_level?: string;
   baseline_math_level?: string;
   is_active: boolean;
@@ -492,6 +497,19 @@ function StudentsContent() {
                         }}>
                           {student.name}
                         </div>
+                        {student.pilot_school && (
+                          <div style={{
+                            color: 'rgba(255,255,255,0.85)',
+                            fontSize: '12px',
+                            marginBottom: '4px',
+                            fontWeight: 500,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}>
+                            {student.pilot_school.school_name}
+                          </div>
+                        )}
                         <div style={{
                           display: 'flex',
                           gap: '8px',

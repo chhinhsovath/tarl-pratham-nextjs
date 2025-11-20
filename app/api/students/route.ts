@@ -235,8 +235,13 @@ export async function GET(request: NextRequest) {
           pilot_school_id: true,
           school_class_id: true,
           added_by_id: true,
-          // NO JOINS AT ALL - just IDs
-          // pilot_school, added_by, _count all removed
+          pilot_school: {
+            select: {
+              id: true,
+              school_name: true,
+              province: true,
+            }
+          }
         },
         skip,
         take: limit,
