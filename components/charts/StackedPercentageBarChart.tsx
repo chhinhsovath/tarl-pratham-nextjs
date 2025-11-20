@@ -51,6 +51,13 @@ const levelTranslations: { [key: string]: string } = {
   'word_problems': 'ចំណោទ',
 };
 
+// Ordered level sequences for consistent chart display
+// Language assessment levels in display order: Beginner → Letter → Word → Paragraph → Story → Comprehension1 → Comprehension2
+const LANGUAGE_LEVELS_ORDER = ['beginner', 'letter', 'word', 'paragraph', 'story', 'comprehension1', 'comprehension2'];
+
+// Math assessment levels in display order: Beginner → 1-Digit → 2-Digit → Subtraction → Division → Word Problems
+const MATH_LEVELS_ORDER = ['beginner', 'number_1digit', 'number_2digit', 'subtraction', 'division', 'word_problems'];
+
 // Default colors for levels (CONSISTENT across all charts)
 // Each proficiency level gets ONE color, used in both Language and Math charts
 const defaultColors: { [key: string]: string } = {
@@ -118,13 +125,27 @@ function StackedPercentageBarChart({
   title = 'លទ្ធផលការវាយតម្លៃ',
   colors = defaultColors
 }: StackedPercentageBarChartProps) {
-  // Get all unique level names from the data
+  // Get all unique level names from the data, then sort them in the correct display order
   const levelNames = useMemo(() => {
     const names = new Set<string>();
     data.forEach(cycle => {
       Object.keys(cycle.levels).forEach(level => names.add(level));
     });
-    return Array.from(names);
+    const levelArray = Array.from(names);
+
+    // Determine if this is Language or Math data by checking which levels are present
+    const isLanguageData = levelArray.some(level => LANGUAGE_LEVELS_ORDER.includes(level));
+    const isMathData = levelArray.some(level => MATH_LEVELS_ORDER.includes(level));
+
+    // Sort using the appropriate order array
+    const orderArray = isLanguageData ? LANGUAGE_LEVELS_ORDER : isMathData ? MATH_LEVELS_ORDER : levelArray;
+
+    // Sort levelArray based on the order in orderArray
+    return levelArray.sort((a, b) => {
+      const indexA = orderArray.indexOf(a);
+      const indexB = orderArray.indexOf(b);
+      return (indexA === -1 ? levelArray.length : indexA) - (indexB === -1 ? levelArray.length : indexB);
+    });
   }, [data]);
 
   // Transform data: convert counts to percentages while preserving original counts
