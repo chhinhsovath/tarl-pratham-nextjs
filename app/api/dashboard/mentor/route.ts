@@ -37,14 +37,13 @@ export async function GET(request: NextRequest) {
     const stats = await getMentorAssignmentStats(mentorId);
     const schoolIds = await getMentorSchoolIds(mentorId);
 
-    // Get student counts per school (only students created by this mentor)
+    // Get student counts per school (all students in mentor's assigned schools)
     const studentCounts = schoolIds.length > 0
       ? await prisma.student.groupBy({
           by: ["pilot_school_id"],
           where: {
             pilot_school_id: { in: schoolIds },
             is_active: true,
-            added_by_id: mentorId, // Only students created by this mentor
           },
           _count: {
             id: true,
@@ -52,13 +51,12 @@ export async function GET(request: NextRequest) {
         })
       : [];
 
-    // Get assessment counts per school and subject (only assessments created by this mentor)
+    // Get assessment counts per school and subject (all assessments in mentor's assigned schools)
     const assessmentCounts = schoolIds.length > 0
       ? await prisma.assessment.groupBy({
           by: ["pilot_school_id", "subject"],
           where: {
             pilot_school_id: { in: schoolIds },
-            added_by_id: mentorId, // Only assessments created by this mentor
           },
           _count: {
             id: true,
@@ -96,13 +94,12 @@ export async function GET(request: NextRequest) {
         })
       : [];
 
-    // Get pending tasks/verifications (only for this mentor's assessments)
+    // Get pending tasks/verifications (all unverified assessments in mentor's schools)
     const pendingVerifications = schoolIds.length > 0
       ? await prisma.assessment.count({
           where: {
             pilot_school_id: { in: schoolIds },
             verified_at: null,
-            added_by_id: mentorId, // Only this mentor's assessments
           },
         })
       : 0;
@@ -158,7 +155,7 @@ export async function GET(request: NextRequest) {
     // Get recent activities across all schools
     const recentActivities = await getRecentActivities(mentorId, schoolIds);
 
-    // Get comprehensive assessment data for charts (only this mentor's assessments)
+    // Get comprehensive assessment data for charts (all assessments in mentor's assigned schools)
     // Batch 1: Assessment breakdowns by type and subject
     const [
       baseline_assessments,
@@ -173,35 +170,35 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           assessment_type: 'baseline',
-          added_by_id: mentorId
+          
         }
       }),
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
           assessment_type: 'midline',
-          added_by_id: mentorId
+          
         }
       }),
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
           assessment_type: 'endline',
-          added_by_id: mentorId
+          
         }
       }),
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Language',
-          added_by_id: mentorId
+          
         }
       }),
       prisma.assessment.count({
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Math',
-          added_by_id: mentorId
+          
         }
       }),
       // Group assessments by level for Khmer (Language)
@@ -210,7 +207,7 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Language',
-          added_by_id: mentorId
+          
         },
         _count: { id: true }
       }),
@@ -220,13 +217,13 @@ export async function GET(request: NextRequest) {
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Math',
-          added_by_id: mentorId
+          
         },
         _count: { id: true }
       }),
     ]);
 
-    // Batch 2: Overall results by cycle and level (only this mentor's assessments)
+    // Batch 2: Overall results by cycle and level (all assessments in mentor's assigned schools)
     const [
       baseline_by_level_khmer,
       midline_by_level_khmer,
@@ -242,7 +239,7 @@ export async function GET(request: NextRequest) {
           pilot_school_id: { in: schoolIds },
           subject: 'Language',
           assessment_type: 'baseline',
-          added_by_id: mentorId
+          
         },
         _count: { id: true }
       }),
@@ -252,7 +249,7 @@ export async function GET(request: NextRequest) {
           pilot_school_id: { in: schoolIds },
           subject: 'Language',
           assessment_type: 'midline',
-          added_by_id: mentorId
+          
         },
         _count: { id: true }
       }),
@@ -262,7 +259,7 @@ export async function GET(request: NextRequest) {
           pilot_school_id: { in: schoolIds },
           subject: 'Language',
           assessment_type: 'endline',
-          added_by_id: mentorId
+          
         },
         _count: { id: true }
       }),
@@ -273,7 +270,7 @@ export async function GET(request: NextRequest) {
           pilot_school_id: { in: schoolIds },
           subject: 'Math',
           assessment_type: 'baseline',
-          added_by_id: mentorId
+          
         },
         _count: { id: true }
       }),
@@ -283,7 +280,7 @@ export async function GET(request: NextRequest) {
           pilot_school_id: { in: schoolIds },
           subject: 'Math',
           assessment_type: 'midline',
-          added_by_id: mentorId
+          
         },
         _count: { id: true }
       }),
@@ -293,7 +290,7 @@ export async function GET(request: NextRequest) {
           pilot_school_id: { in: schoolIds },
           subject: 'Math',
           assessment_type: 'endline',
-          added_by_id: mentorId
+          
         },
         _count: { id: true }
       }),
@@ -423,12 +420,11 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
   try {
     if (schoolIds.length === 0) return [];
 
-    // Get recent students added (only by this mentor)
+    // Get recent students (all students in mentor's assigned schools)
     const recentStudents = await prisma.student.findMany({
       where: {
         pilot_school_id: { in: schoolIds },
         is_active: true,
-        added_by_id: mentorId, // Only students created by this mentor
       },
       select: {
         id: true,
@@ -449,11 +445,10 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
       take: 5,
     });
 
-    // Get recent assessments (only by this mentor)
+    // Get recent assessments (all assessments in mentor's assigned schools)
     const recentAssessments = await prisma.assessment.findMany({
       where: {
         pilot_school_id: { in: schoolIds },
-        added_by_id: mentorId, // Only assessments created by this mentor
       },
       select: {
         id: true,
