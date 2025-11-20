@@ -360,11 +360,24 @@ export async function GET(request: NextRequest) {
         math: level_distribution_math.find(l => l.level === level)?._count.id || 0,
       }));
 
+    // Debug logging for mentor dashboard
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[MENTOR DASHBOARD DEBUG] mentorId: ${mentorId}`);
+      console.log(`[MENTOR DASHBOARD DEBUG] schoolIds: ${JSON.stringify(schoolIds)}`);
+      console.log(`[MENTOR DASHBOARD DEBUG] Total assignments: ${stats.total_assignments}`);
+      console.log(`[MENTOR DASHBOARD DEBUG] Total schools: ${stats.total_schools}`);
+    }
+
     return NextResponse.json({
       mentor: {
         id: mentorId,
         name: session.user.name,
         email: session.user.email,
+      },
+      _debug: {
+        schoolIds: schoolIds,
+        schoolCount: schoolIds.length,
+        assignmentsCount: stats.total_assignments,
       },
       assignments: {
         total: stats.total_assignments,
