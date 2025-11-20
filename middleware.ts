@@ -63,8 +63,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 
-  // Check verification access (admin, coordinator, and mentor)
-  if (path.startsWith('/verification') && !['admin', 'coordinator', 'mentor'].includes(userRole)) {
+  // Check verification access (admin and coordinator only)
+  if (path.startsWith('/verification') && !['admin', 'coordinator'].includes(userRole)) {
+    return NextResponse.redirect(new URL('/unauthorized', request.url));
+  }
+
+  // Check teacher/dashboard access (teachers only)
+  if (path.startsWith('/teacher/dashboard') && userRole !== 'teacher') {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 

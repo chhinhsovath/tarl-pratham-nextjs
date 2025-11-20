@@ -7,7 +7,7 @@ import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 /**
  * GET /api/assessments/verify
  * Get assessments that need verification (temporary assessments)
- * Only accessible by admin, coordinator, and mentor
+ * Only accessible by admin and coordinator
  */
 export async function GET(request: NextRequest) {
   try {
@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Only admin, coordinator, and mentor can verify assessments
-    if (!['admin', 'coordinator', 'mentor'].includes(session.user.role)) {
+    // Only admin and coordinator can verify assessments
+    if (!['admin', 'coordinator'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'អ្នកមិនមានសិទ្ធិចូលទៅទំព័រនេះទេ' },
         { status: 403 }
@@ -42,17 +42,6 @@ export async function GET(request: NextRequest) {
     const where: any = {
       is_temporary: true
     };
-
-    // Mentors can only verify assessments from their assigned schools
-    if (session.user.role === 'mentor') {
-      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
-      if (mentorSchoolIds.length > 0) {
-        where.pilot_school_id = { in: mentorSchoolIds };
-      } else {
-        // No schools assigned to this mentor - return no assessments
-        where.id = -1;
-      }
-    }
 
     // Filter by verification status
     if (status === 'verified') {
@@ -212,8 +201,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Only admin, coordinator, and mentor can verify assessments
-    if (!['admin', 'coordinator', 'mentor'].includes(session.user.role)) {
+    // Only admin and coordinator can verify assessments
+    if (!['admin', 'coordinator'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'អ្នកមិនមានសិទ្ធិផ្ទៀងផ្ទាត់ទិន្នន័យ' },
         { status: 403 }
@@ -235,25 +224,6 @@ export async function POST(request: NextRequest) {
         { error: 'សកម្មភាពមិនត្រឹមត្រូវ' },
         { status: 400 }
       );
-    }
-
-    // Verify mentor can only verify assessments from their assigned schools
-    if (session.user.role === 'mentor') {
-      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
-      const assessmentCheck = await prisma.assessment.findMany({
-        where: {
-          id: { in: assessment_ids },
-          pilot_school_id: { notIn: mentorSchoolIds }
-        },
-        select: { id: true }
-      });
-
-      if (assessmentCheck.length > 0) {
-        return NextResponse.json(
-          { error: 'អ្នកមិនអាចផ្ទៀងផ្ទាត់ការវាយតម្លៃពីសាលាផ្សេងបានទេ' },
-          { status: 403 }
-        );
-      }
     }
 
     // Perform action

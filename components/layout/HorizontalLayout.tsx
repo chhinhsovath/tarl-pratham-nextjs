@@ -62,8 +62,8 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
       });
     }
 
-    // Verification - Admin, Mentor
-    if (hasRole(['admin', 'mentor'])) {
+    // Verification - Admin only
+    if (hasRole(['admin'])) {
       items.push({
         key: '/verification',
         label: (
@@ -107,17 +107,6 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
       });
     }
 
-    // Teacher Workspace - Mentor only
-    if (hasRole(['mentor'])) {
-      items.push({
-        key: '/teacher/dashboard',
-        label: (
-          <Link href="/teacher/dashboard" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-            កន្លែងធ្វើការគ្រូ
-          </Link>
-        ),
-      });
-    }
 
     // Reports - All except Coordinator
     if (!isCoordinator()) {
