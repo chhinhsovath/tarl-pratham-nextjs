@@ -450,7 +450,7 @@ function MentoringVisitsContent() {
     <HorizontalLayout>
       <div className="flex justify-between items-center mb-6">
         <Title level={2} className="mb-0">
-          ការចុះអប់រំ និងត្រួតពិនិត្យ
+          ប្រឹក្សាគរុកោសល្យ
         </Title>
         
         {(session?.user?.role === 'admin' || session?.user?.role === 'mentor') && (

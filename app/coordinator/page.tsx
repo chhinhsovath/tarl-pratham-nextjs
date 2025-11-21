@@ -230,7 +230,7 @@ function CoordinatorWorkspaceContent() {
       title: 'របាយការណ៍ទូទៅសាលារៀន',
       icon: <BarChartOutlined style={{ fontSize: 24 }} />,
       color: '#faad14',
-      description: 'ទិដ្ឋភាពទូទៅសិស្ស ការវាយតម្លៃ និងការណែនាំ',
+      description: 'ទិដ្ឋភាពទូទៅសិស្ស ការវាយតម្លៃ និងប្រឹក្សាគរុកោសល្យ',
       path: '/reports/school-overview'
     },
     {

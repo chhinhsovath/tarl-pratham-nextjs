@@ -20,7 +20,7 @@ export const kmTranslations = {
     assessments: 'ការវាយតម្លៃ',
     verification: 'ផ្ទៀងផ្ទាត់',
     students: 'សិស្ស',
-    mentoring: 'ការណែនាំ',
+    mentoring: 'ប្រឹក្សាគរុកោសល្យ',
     teacherWorkspace: 'កន្លែងធ្វើការគ្រូ',
     reports: 'របាយការណ៍',
     coordinatorWorkspace: 'កន្លែងធ្វើការសម្របសម្រួល',
@@ -211,7 +211,7 @@ export const kmTranslations = {
 
   // Mentoring
   mentoring: {
-    title: 'ការណែនាំ',
+    title: 'ប្រឹក្សាគរុកោសល្យ',
     scheduleVisit: 'កំណត់ការទស្សនា',
     visitList: 'បញ្ជីការទស្សនា',
     visitReport: 'របាយការណ៍ទស្សនា',
