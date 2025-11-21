@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Table, 
-  Button, 
-  Space, 
-  Tag, 
-  message, 
-  Modal, 
+import {
+  Card,
+  Table,
+  Button,
+  Space,
+  Tag,
+  message,
+  Modal,
   Form,
   Input,
   Select,
@@ -38,6 +38,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
+import { getLevelLabelKM } from '@/lib/constants/assessment-levels';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -280,14 +281,10 @@ export default function VerificationPage() {
       title: 'កម្រិត',
       dataIndex: 'level',
       key: 'level',
-      render: (level: string) => {
-        const levelMap = {
-          beginner: 'ចាប់ផ្តើម',
-          letter: 'អក្សរ',
-          word: 'ពាក្យ',
-          paragraph: 'កថាខណ្ឌ'
-        };
-        return levelMap[level as keyof typeof levelMap] || level;
+      render: (level: string, record: any) => {
+        // Use helper function to get proper Khmer label based on subject
+        const subject = record.subject === 'language' || record.subject === 'khmer' ? 'language' : 'math';
+        return getLevelLabelKM(subject, level);
       }
     },
     {
