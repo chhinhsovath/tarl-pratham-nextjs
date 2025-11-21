@@ -64,9 +64,12 @@ export async function GET(request: NextRequest) {
 
     // Filter by verification status
     if (status === 'verified') {
-      // Verified: has verification timestamp
+      // Verified: has verification timestamp and not rejected
       where.verified_at = { not: null };
-      where.verification_notes = { not: { contains: 'Rejected', mode: 'insensitive' } };
+      where.OR = [
+        { verification_notes: null },
+        { verification_notes: { not: { contains: 'Rejected', mode: 'insensitive' } } }
+      ];
     } else if (status === 'rejected') {
       // Rejected: has verification timestamp with rejection note
       where.verified_at = { not: null };
@@ -164,7 +167,10 @@ export async function GET(request: NextRequest) {
         where: {
           ...baseWhere,
           verified_at: { not: null },
-          verification_notes: { not: { contains: 'Rejected', mode: 'insensitive' } }
+          OR: [
+            { verification_notes: null },
+            { verification_notes: { not: { contains: 'Rejected', mode: 'insensitive' } } }
+          ]
         }
       }),
       // Rejected: verified with rejection note
