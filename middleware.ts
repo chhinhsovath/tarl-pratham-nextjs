@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
   const roleProtectedRoutes: Record<string, string[]> = {
     admin: ['/admin', '/settings', '/users/create', '/assessments/periods'],
     coordinator: ['/coordinator', '/coordinator/imports', '/students/bulk-import'],
-    mentor: ['/verification', '/assessments/verify'],
+    mentor: ['/verification', '/verification/*', '/mentoring', '/mentoring/*'],
     teacher: ['/teacher/dashboard'],
   };
 
@@ -63,8 +63,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 
-  // Check verification access (admin and coordinator only)
-  if (path.startsWith('/verification') && !['admin', 'coordinator'].includes(userRole)) {
+  // Check verification access (admin, mentor, coordinator - mentors verify teacher assessments)
+  if (path.startsWith('/verification') && !['admin', 'mentor', 'coordinator'].includes(userRole)) {
     return NextResponse.redirect(new URL('/unauthorized', request.url));
   }
 

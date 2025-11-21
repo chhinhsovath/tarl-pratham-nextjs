@@ -80,8 +80,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       });
     }
 
-    // Assessments - Admin, Teacher, Mentor, Viewer
-    if (hasRole(['admin', 'teacher', 'mentor', 'viewer'])) {
+    // Assessments - Admin, Teacher, Viewer (Mentors use Verification instead)
+    if (hasRole(['admin', 'teacher', 'viewer'])) {
       items.push({
         key: 'assessments',
         icon: <FileTextOutlined />,
@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             label: 'ការវាយតម្លៃថ្មី',
             onClick: () => router.push('/assessments/create'),
           },
-          ...(hasRole(['admin', 'mentor']) ? [{
+          ...(hasRole(['admin']) ? [{
             key: '/assessments/manage',
             label: 'គ្រប់គ្រងការវាយតម្លៃ',
             onClick: () => router.push('/assessments/manage'),

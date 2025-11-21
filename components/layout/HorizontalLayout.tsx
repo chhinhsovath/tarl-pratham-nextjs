@@ -50,8 +50,8 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
       });
     }
 
-    // Assessments - Admin, Teacher, Mentor, Viewer
-    if (hasRole(['admin', 'teacher', 'mentor', 'viewer'])) {
+    // Assessments - Admin, Teacher, Viewer (Mentors use Verification instead)
+    if (hasRole(['admin', 'teacher', 'viewer'])) {
       items.push({
         key: '/assessments',
         label: (
@@ -62,8 +62,8 @@ export default function HorizontalLayout({ children }: HorizontalLayoutProps) {
       });
     }
 
-    // Verification - Admin only
-    if (hasRole(['admin'])) {
+    // Verification - Admin, Mentor (Mentors verify teacher assessments)
+    if (hasRole(['admin', 'mentor'])) {
       items.push({
         key: '/verification',
         label: (
