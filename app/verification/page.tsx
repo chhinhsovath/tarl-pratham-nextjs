@@ -242,22 +242,14 @@ export default function VerificationPage() {
       title: 'សិស្ស',
       key: 'student',
       render: (record: any) => (
-        <div>
-          <div className="font-semibold">{record.student?.name}</div>
-          <div className="text-xs text-gray-500">
-            {record.student?.gender} · អាយុ {record.student?.age || 'N/A'}
-          </div>
-        </div>
+        <div className="font-semibold">{record.student?.name}</div>
       )
     },
     {
       title: 'សាលា',
       key: 'school',
       render: (record: any) => (
-        <div>
-          <div className="text-sm">{record.pilot_school?.school_name || '-'}</div>
-          <div className="text-xs text-gray-500">{record.pilot_school?.school_code || ''}</div>
-        </div>
+        <div className="text-sm">{record.pilot_school?.school_name || '-'}</div>
       )
     },
     {
@@ -299,23 +291,10 @@ export default function VerificationPage() {
       }
     },
     {
-      title: 'ពិន្ទុ',
-      dataIndex: 'score',
-      key: 'score',
-      render: (score: number) => (
-        <Tag color={score >= 80 ? 'green' : score >= 60 ? 'orange' : 'red'}>
-          {score}%
-        </Tag>
-      )
-    },
-    {
       title: 'វាយតម្លៃដោយ',
       key: 'assessor',
       render: (record: any) => (
-        <div>
-          <div className="text-sm">{record.assessed_by}</div>
-          <div className="text-xs text-gray-500">{record.assessed_date}</div>
-        </div>
+        <div className="text-sm">{record.added_by?.name || '-'}</div>
       )
     },
     {
