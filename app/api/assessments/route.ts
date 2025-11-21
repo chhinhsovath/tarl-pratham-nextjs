@@ -26,8 +26,8 @@ const assessmentSchema = z.object({
     errorMap: () => ({ message: "Subject must be language or math" })
   }),
   level: z.string().optional(),
-  assessment_sample: z.enum(["Sample 1", "Sample 2", "Sample 3", "ឧបករណ៍តេស្ត លេខ១", "ឧបករណ៍តេស្ត លេខ២", "ឧបករណ៍តេស្ត លេខ៣"], {
-    errorMap: () => ({ message: "Assessment sample must be Sample 1/2/3 or ឧបករណ៍តេស្ត លេខ១/២/៣" })
+  assessment_sample: z.enum(["Sample 1", "Sample 2", "Sample 3", "ឧបករណ៍តេស្ត លេខ១", "ឧបករណ៍តេស្ត លេខ២", "ឧបករណ៍តេស្ត លេខ៣", "ឧបករណ៍តេស្ត លេខ៤"], {
+    errorMap: () => ({ message: "Assessment sample must be Sample 1/2/3 or ឧបករណ៍តេស្ត លេខ១/២/៣/៤" })
   }),
   student_consent: z.enum(["Yes", "No"], {
     errorMap: () => ({ message: "Student consent must be Yes or No" })
@@ -406,8 +406,9 @@ export async function POST(request: NextRequest) {
         added_by_id: parseInt(session.user.id),
         // Use provided assessed_by_mentor if present (verification mode), otherwise infer from role
         assessed_by_mentor: validatedData.assessed_by_mentor !== undefined ? validatedData.assessed_by_mentor : (session.user.role === "mentor"),
-        // Verification assessments are NOT temporary - they are production data
-        is_temporary: validatedData.mentor_assessment_id ? false : (session.user.role === "mentor" ? true : false),
+        // Teacher and Mentor assessments are temporary and need verification
+        // Only verification assessments (mentor_assessment_id present) are production/permanent
+        is_temporary: validatedData.mentor_assessment_id ? false : true,
         assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : new Date(),
         record_status: validatedData.mentor_assessment_id ? 'production' : recordStatus,
         created_by_role: session.user.role,
