@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Only admin and coordinator can verify assessments
-    if (!['admin', 'coordinator'].includes(session.user.role)) {
+    // Only admin, coordinator, and mentor can verify assessments
+    if (!['admin', 'coordinator', 'mentor'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'អ្នកមិនមានសិទ្ធិចូលទៅទំព័រនេះទេ' },
         { status: 403 }
@@ -42,6 +42,21 @@ export async function GET(request: NextRequest) {
     const where: any = {
       is_temporary: true
     };
+
+    // If mentor, filter by assigned schools only
+    if (session.user.role === 'mentor') {
+      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+      if (mentorSchoolIds.length > 0) {
+        where.pilot_school_id = { in: mentorSchoolIds };
+      } else {
+        // Mentor has no assigned schools, return empty result
+        return NextResponse.json({
+          assessments: [],
+          pagination: { page, limit, total: 0, pages: 0 },
+          statistics: { pending: 0, verified: 0, rejected: 0, total: 0 }
+        });
+      }
+    }
 
     // Filter by verification status
     if (status === 'verified') {
@@ -201,8 +216,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Only admin and coordinator can verify assessments
-    if (!['admin', 'coordinator'].includes(session.user.role)) {
+    // Only admin, coordinator, and mentor can verify assessments
+    if (!['admin', 'coordinator', 'mentor'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'អ្នកមិនមានសិទ្ធិផ្ទៀងផ្ទាត់ទិន្នន័យ' },
         { status: 403 }
