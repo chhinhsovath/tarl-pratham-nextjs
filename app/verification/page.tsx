@@ -104,14 +104,23 @@ export default function VerificationPage() {
 
       const data = await response.json();
 
-      // Transform assessments to add status field based on is_temporary and record_status
+      // Transform assessments to add status field based on verified_at
+      // All data is production now, use verification status instead
       const transformedAssessments = (data.assessments || []).map((assessment: any) => {
         let status = 'pending';
-        if (assessment.is_temporary === false && assessment.record_status === 'production') {
-          status = 'verified';
-        } else if (assessment.record_status === 'rejected') {
-          status = 'rejected';
+
+        // Check verification status
+        if (assessment.verified_at) {
+          // Has been verified - check if rejected
+          if (assessment.verification_notes &&
+              assessment.verification_notes.toLowerCase().includes('rejected')) {
+            status = 'rejected';
+          } else {
+            status = 'verified';
+          }
         }
+        // else: verified_at is null, status remains 'pending'
+
         return {
           ...assessment,
           status
