@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Form, Select, InputNumber, DatePicker, Input, Space, Typography, Row, Col, Card } from 'antd';
 import { BookOutlined, TrophyOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { useSession } from 'next-auth/react';
 import {
   getAssessmentTypeOptions,
   getSubjectOptions,
@@ -22,6 +23,7 @@ interface AssessmentDetailsStepProps {
 }
 
 export default function AssessmentDetailsStep({ data, onChange, verificationMode = false }: AssessmentDetailsStepProps) {
+  const { data: session } = useSession();
   const [selectedSubject, setSelectedSubject] = useState<'language' | 'math'>(data.subject);
   const [availableLevels, setAvailableLevels] = useState(getLevelOptions(data.subject));
 
@@ -133,6 +135,9 @@ export default function AssessmentDetailsStep({ data, onChange, verificationMode
               <Option value="ឧបករណ៍តេស្ត លេខ១">ឧបករណ៍តេស្ត លេខ១</Option>
               <Option value="ឧបករណ៍តេស្ត លេខ២">ឧបករណ៍តេស្ត លេខ២</Option>
               <Option value="ឧបករណ៍តេស្ត លេខ៣">ឧបករណ៍តេស្ត លេខ៣</Option>
+              {session?.user?.role === 'mentor' && (
+                <Option value="ឧបករណ៍តេស្ត លេខ៤">ឧបករណ៍តេស្ត លេខ៤</Option>
+              )}
             </Select>
           </Card>
         </Col>

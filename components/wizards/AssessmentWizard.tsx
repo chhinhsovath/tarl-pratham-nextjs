@@ -34,7 +34,7 @@ export interface WizardData {
   assessment_type: 'baseline' | 'midline' | 'endline' | 'baseline_verification' | 'midline_verification' | 'endline_verification';
   subject: 'language' | 'math';
   level?: string;
-  assessment_sample: 'ឧបករណ៍តេស្ត លេខ១' | 'ឧបករណ៍តេស្ត លេខ២' | 'ឧបករណ៍តេស្ត លេខ៣';
+  assessment_sample: 'ឧបករណ៍តេស្ត លេខ១' | 'ឧបករណ៍តេស្ត លេខ២' | 'ឧបករណ៍តេស្ត លេខ៣' | 'ឧបករណ៍តេស្ត លេខ៤';
   student_consent: 'Yes' | 'No';
   assessed_date: string;
   notes?: string;
