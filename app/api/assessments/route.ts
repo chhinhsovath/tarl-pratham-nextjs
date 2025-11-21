@@ -406,11 +406,10 @@ export async function POST(request: NextRequest) {
         added_by_id: parseInt(session.user.id),
         // Use provided assessed_by_mentor if present (verification mode), otherwise infer from role
         assessed_by_mentor: validatedData.assessed_by_mentor !== undefined ? validatedData.assessed_by_mentor : (session.user.role === "mentor"),
-        // Teacher and Mentor assessments are temporary and need verification
-        // Only verification assessments (mentor_assessment_id present) are production/permanent
-        is_temporary: validatedData.mentor_assessment_id ? false : true,
+        // ALL data is production - no temporary data anymore
+        is_temporary: false,
         assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : new Date(),
-        record_status: validatedData.mentor_assessment_id ? 'production' : recordStatus,
+        record_status: 'production',
         created_by_role: session.user.role,
         test_session_id: testSessionId,
         mentor_assessment_id: validatedData.mentor_assessment_id || null

@@ -39,8 +39,12 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
+    // All data is production now - query for unverified teacher assessments
     const where: any = {
-      is_temporary: true
+      // Only show original assessments (not verification re-assessments)
+      mentor_assessment_id: null,
+      // Only show assessments created by teachers (mentors verify teacher work)
+      created_by_role: 'teacher'
     };
 
     // If mentor, filter by assigned schools only
@@ -60,16 +64,15 @@ export async function GET(request: NextRequest) {
 
     // Filter by verification status
     if (status === 'verified') {
-      where.is_temporary = false;
+      // Verified: has verification timestamp
       where.verified_at = { not: null };
+      where.verification_notes = { not: { contains: 'Rejected', mode: 'insensitive' } };
     } else if (status === 'rejected') {
-      // Rejected assessments: verified but still temporary (rejected means not approved)
-      where.is_temporary = true;
+      // Rejected: has verification timestamp with rejection note
       where.verified_at = { not: null };
       where.verification_notes = { contains: 'Rejected', mode: 'insensitive' };
     } else if (status === 'pending') {
-      // Pending: temporary and not verified yet
-      where.is_temporary = true;
+      // Pending: not verified yet
       where.verified_at = null;
     }
 
@@ -133,38 +136,41 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Get statistics
-    let baseWhere: any = {};
+    let baseWhere: any = {
+      // Only count original teacher assessments (not verification re-assessments)
+      mentor_assessment_id: null,
+      created_by_role: 'teacher'
+    };
+
     if (session.user.role === 'mentor') {
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
       if (mentorSchoolIds.length > 0) {
-        baseWhere = { pilot_school_id: { in: mentorSchoolIds } };
+        baseWhere.pilot_school_id = { in: mentorSchoolIds };
       } else {
         baseWhere = { id: -1 };
       }
     }
 
     const [pendingCount, verifiedCount, rejectedCount] = await Promise.all([
-      // Pending: temporary and not verified
+      // Pending: not verified yet
       prisma.assessment.count({
         where: {
           ...baseWhere,
-          is_temporary: true,
           verified_at: null
         }
       }),
-      // Verified: not temporary and verified
+      // Verified: has verification timestamp (not rejected)
       prisma.assessment.count({
         where: {
           ...baseWhere,
-          is_temporary: false,
-          verified_at: { not: null }
+          verified_at: { not: null },
+          verification_notes: { not: { contains: 'Rejected', mode: 'insensitive' } }
         }
       }),
-      // Rejected: temporary but verified with rejection note
+      // Rejected: verified with rejection note
       prisma.assessment.count({
         where: {
           ...baseWhere,
-          is_temporary: true,
           verified_at: { not: null },
           verification_notes: { contains: 'Rejected', mode: 'insensitive' }
         }
@@ -244,53 +250,23 @@ export async function POST(request: NextRequest) {
     // Perform action
     const result = await prisma.$transaction(async (tx) => {
       if (action === 'approve') {
-        // Mark as permanent (production)
+        // Mark as verified (approved)
         const updated = await tx.assessment.updateMany({
           where: { id: { in: assessment_ids } },
           data: {
-            is_temporary: false,
-            record_status: 'production',
             verified_by_id: parseInt(session.user.id),
             verified_at: new Date(),
-            verification_notes: notes || null
+            verification_notes: notes || 'Approved'
           }
         });
-
-        // Also mark related students as permanent if all their assessments are verified
-        const assessments = await tx.assessment.findMany({
-          where: { id: { in: assessment_ids } },
-          select: { student_id: true }
-        });
-
-        const studentIds = [...new Set(assessments.map(a => a.student_id))];
-
-        for (const studentId of studentIds) {
-          const pendingAssessments = await tx.assessment.count({
-            where: {
-              student_id: studentId,
-              is_temporary: true
-            }
-          });
-
-          if (pendingAssessments === 0) {
-            await tx.student.update({
-              where: { id: studentId },
-              data: {
-                is_temporary: false,
-                record_status: 'production'
-              }
-            });
-          }
-        }
 
         return { approved: updated.count };
       } else {
-        // Reject - keep as temporary but mark as verified with rejection note
+        // Reject - mark as verified with rejection note
         const rejectionNote = notes ? `Rejected: ${notes}` : 'Rejected';
         const updated = await tx.assessment.updateMany({
           where: { id: { in: assessment_ids } },
           data: {
-            is_temporary: true, // Keep as temporary
             verified_by_id: parseInt(session.user.id),
             verified_at: new Date(),
             verification_notes: rejectionNote

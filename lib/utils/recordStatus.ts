@@ -9,16 +9,10 @@ export type { RecordStatus };
 
 /**
  * Determine record status based on user role and test mode
+ * ALL data is production now - no temporary or test data
  */
 export function getRecordStatus(userRole: string, testModeEnabled: boolean = false): RecordStatus {
-  if (userRole === 'mentor') {
-    return 'test_mentor';
-  }
-
-  if (userRole === 'teacher' && testModeEnabled) {
-    return 'test_teacher';
-  }
-
+  // All roles create production data
   return 'production';
 }
 
