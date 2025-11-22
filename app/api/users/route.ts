@@ -85,34 +85,8 @@ export async function GET(request: NextRequest) {
         if (school_id) {
           const requestedSchoolId = parseInt(school_id);
           if (mentorSchoolIds.includes(requestedSchoolId)) {
-            // Mentor has access to this school - filter by this specific school
-            // Special handling for teacher role with school filter
-            // Check teacher_school_assignments table for proper teacher-school linkage
-            if (role === "teacher") {
-              // Get teachers assigned to this school via teacher_school_assignments
-              const teacherAssignments = await prisma.teacherSchoolAssignment.findMany({
-                where: {
-                  pilot_school_id: requestedSchoolId,
-                  is_active: true,
-                },
-                select: {
-                  teacher_id: true,
-                },
-              });
-
-              const assignedTeacherIds = teacherAssignments.map((a) => a.teacher_id);
-
-              if (assignedTeacherIds.length > 0) {
-                // Filter by teachers assigned to this school
-                where.id = { in: assignedTeacherIds };
-              } else {
-                // No teachers assigned to this school - return empty
-                where.id = -1;
-              }
-            } else {
-              // For other roles, use pilot_school_id
-              where.pilot_school_id = requestedSchoolId;
-            }
+            // Mentor has access to this school - filter by pilot_school_id
+            where.pilot_school_id = requestedSchoolId;
           } else {
             // Mentor doesn't have access to requested school - return empty result
             where.id = -1; // No user has ID -1
@@ -132,34 +106,8 @@ export async function GET(request: NextRequest) {
       // Admin/Coordinator - apply school_id filter if provided
       if (school_id) {
         const requestedSchoolId = parseInt(school_id);
-
-        // Special handling for teacher role with school filter
-        // Check teacher_school_assignments table for proper teacher-school linkage
-        if (role === "teacher") {
-          // Get teachers assigned to this school via teacher_school_assignments
-          const teacherAssignments = await prisma.teacherSchoolAssignment.findMany({
-            where: {
-              pilot_school_id: requestedSchoolId,
-              is_active: true,
-            },
-            select: {
-              teacher_id: true,
-            },
-          });
-
-          const assignedTeacherIds = teacherAssignments.map((a) => a.teacher_id);
-
-          if (assignedTeacherIds.length > 0) {
-            // Filter by teachers assigned to this school
-            where.id = { in: assignedTeacherIds };
-          } else {
-            // No teachers assigned to this school - return empty
-            where.id = -1;
-          }
-        } else {
-          // For other roles, use pilot_school_id
-          where.pilot_school_id = requestedSchoolId;
-        }
+        // Filter by pilot_school_id for all roles
+        where.pilot_school_id = requestedSchoolId;
       }
     }
 
