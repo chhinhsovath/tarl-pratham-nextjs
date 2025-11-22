@@ -87,27 +87,52 @@ export default function VerificationPage() {
   const fetchAssessments = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
-        status: activeTab,
-        page: '1',
-        limit: '20'
-      });
+      // Fetch all assessments by paginating through API (max 100 per request)
+      let allAssessments: any[] = [];
+      let currentPage = 1;
+      let hasMore = true;
 
-      if (filters.search) params.append('search', filters.search);
-      if (filters.assessment_type) params.append('assessment_type', filters.assessment_type);
-      if (filters.subject) params.append('subject', filters.subject);
+      while (hasMore) {
+        const params = new URLSearchParams({
+          status: activeTab,
+          page: currentPage.toString(),
+          limit: '100' // Increased from 20 to 100 for better performance
+        });
 
-      const response = await fetch(`/api/assessments/verify?${params.toString()}`);
+        if (filters.search) params.append('search', filters.search);
+        if (filters.assessment_type) params.append('assessment_type', filters.assessment_type);
+        if (filters.subject) params.append('subject', filters.subject);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch assessments');
+        const response = await fetch(`/api/assessments/verify?${params.toString()}`);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch assessments');
+        }
+
+        const data = await response.json();
+        const assessments = data.assessments || [];
+        allAssessments = [...allAssessments, ...assessments];
+
+        console.log(`✅ Verification Page ${currentPage} fetched: ${assessments.length} assessments (Total: ${allAssessments.length}/${data.pagination?.total || 0})`);
+
+        // Update stats from first page response
+        if (currentPage === 1 && data.statistics) {
+          setStats(data.statistics);
+        }
+
+        // Check if there are more pages
+        if (data.pagination && currentPage < data.pagination.pages) {
+          currentPage++;
+        } else {
+          hasMore = false;
+        }
       }
 
-      const data = await response.json();
+      console.log(`✅ All verification assessments fetched: ${allAssessments.length} total`);
 
       // Transform assessments to add status field based on verified_at
       // All data is production now, use verification status instead
-      const transformedAssessments = (data.assessments || []).map((assessment: any) => {
+      const transformedAssessments = allAssessments.map((assessment: any) => {
         let status = 'pending';
 
         // Check verification status
@@ -129,10 +154,6 @@ export default function VerificationPage() {
       });
 
       setAssessments(transformedAssessments);
-
-      if (data.statistics) {
-        setStats(data.statistics);
-      }
     } catch (error) {
       console.error('Error fetching assessments:', error);
       message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យ');
