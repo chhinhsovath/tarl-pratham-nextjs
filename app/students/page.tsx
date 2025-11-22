@@ -85,15 +85,35 @@ function StudentsContent() {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/students?limit=100');
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ API Error:', errorData);
-        throw new Error(errorData.message || errorData.error || 'Failed to fetch students');
+      // Fetch all students by paginating through API (max 100 per request)
+      let allStudents: Student[] = [];
+      let currentPage = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const response = await fetch(`/api/students?limit=100&page=${currentPage}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('❌ API Error:', errorData);
+          throw new Error(errorData.message || errorData.error || 'Failed to fetch students');
+        }
+
+        const data = await response.json();
+        const students = data.data || [];
+        allStudents = [...allStudents, ...students];
+
+        console.log(`✅ Page ${currentPage} fetched: ${students.length} students (Total: ${allStudents.length}/${data.pagination?.total || 0})`);
+
+        // Check if there are more pages
+        if (data.pagination && currentPage < data.pagination.pages) {
+          currentPage++;
+        } else {
+          hasMore = false;
+        }
       }
-      const data = await response.json();
-      console.log('✅ Students fetched:', data.data?.length || 0);
-      setStudents(data.data || []);
+
+      console.log(`✅ All students fetched: ${allStudents.length} total`);
+      setStudents(allStudents);
 
       // Track activity: User viewed student list
       trackActivity('student_view');
