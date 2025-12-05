@@ -82,32 +82,33 @@ const updateMentoringVisitSchema = z.object({
 function hasPermission(userRole: string, action: string): boolean {
   const permissions = {
     admin: ['view', 'create', 'update', 'delete'],
+    coordinator: ['view', 'create', 'update', 'delete'],
     mentor: ['view', 'create', 'update', 'delete'],
     teacher: ['view'],
     viewer: ['view']
   };
-  
+
   return permissions[userRole as keyof typeof permissions]?.includes(action) || false;
 }
 
 // Helper function to check if user can access mentoring visit
 function canAccessMentoringVisit(userRole: string, userId: number, mentoringVisit: any): boolean {
-  if (userRole === 'admin') {
+  if (userRole === 'admin' || userRole === 'coordinator') {
     return true;
   }
-  
+
   if (userRole === 'mentor') {
     return mentoringVisit.mentor_id === userId;
   }
-  
+
   if (userRole === 'teacher') {
     return mentoringVisit.teacher_id === userId;
   }
-  
+
   if (userRole === 'viewer') {
     return true;
   }
-  
+
   return false;
 }
 
