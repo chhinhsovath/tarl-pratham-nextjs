@@ -264,18 +264,27 @@ function AssessmentVerificationPage() {
       title: 'ស្ថានភាព',
       key: 'status',
       render: (_: any, record: any) => {
-        const status = record.verification_status || 'pending';
-        const colors = {
-          pending: 'orange',
-          verified: 'green',
-          rejected: 'red'
-        };
+        const isVerified = record.verified_by_id !== null;
+        const isRejected = record.verification_notes?.toLowerCase().includes('reject');
+
+        let status = 'pending';
+        let color = 'orange';
+        let icon = <ExclamationCircleOutlined />;
+
+        if (isVerified) {
+          if (isRejected) {
+            status = 'rejected';
+            color = 'red';
+            icon = <CloseCircleOutlined />;
+          } else {
+            status = 'verified';
+            color = 'green';
+            icon = <CheckCircleOutlined />;
+          }
+        }
+
         return (
-          <Tag color={colors[status as keyof typeof colors]} icon={
-            status === 'verified' ? <CheckCircleOutlined /> :
-            status === 'rejected' ? <CloseCircleOutlined /> :
-            <ExclamationCircleOutlined />
-          }>
+          <Tag color={color} icon={icon}>
             {status.toUpperCase()}
           </Tag>
         );
@@ -294,7 +303,7 @@ function AssessmentVerificationPage() {
                 setSelectedAssessment(record);
                 setVerifyModalVisible(true);
               }}
-              disabled={record.verification_status === 'verified' || record.is_locked}
+              disabled={record.verified_by_id !== null || record.is_locked}
             />
           </Tooltip>
 
@@ -328,7 +337,7 @@ function AssessmentVerificationPage() {
       setSelectedAssessments(selectedRowKeys as number[]);
     },
     getCheckboxProps: (record: any) => ({
-      disabled: record.verification_status === 'verified' || record.is_locked,
+      disabled: record.verified_by_id !== null || record.is_locked,
     }),
   };
 

@@ -29,14 +29,11 @@ export async function GET(request: NextRequest) {
       baseWhere.added_by_id = parseInt(session.user.id);
     }
 
-    // Count pending assessments (include production assessments that need verification)
+    // Count pending assessments (not yet verified)
     const pending = await prisma.assessment.count({
       where: {
         ...baseWhere,
-        OR: [
-          { record_status: { in: ['draft', 'submitted', 'production'] } },
-          { record_status: null }
-        ],
+        verified_by_id: null,
       },
     });
 
@@ -44,15 +41,17 @@ export async function GET(request: NextRequest) {
     const verified = await prisma.assessment.count({
       where: {
         ...baseWhere,
-        record_status: 'verified',
+        verified_by_id: { not: null },
       },
     });
 
-    // Count rejected assessments
+    // Count rejected assessments (for now, using a pattern in verification_notes)
+    // Note: Consider adding an is_rejected boolean field in the future
     const rejected = await prisma.assessment.count({
       where: {
         ...baseWhere,
-        record_status: 'rejected',
+        verified_by_id: { not: null },
+        verification_notes: { contains: 'REJECTED', mode: 'insensitive' },
       },
     });
 

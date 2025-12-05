@@ -24,18 +24,19 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: any = {};
 
-    // Filter by record status
+    // Filter by verification status
     if (status === 'pending') {
-      // Include production assessments that need verification
-      // Use OR to include null values (Prisma doesn't allow null in enum 'in' arrays)
-      where.OR = [
-        { record_status: { in: ['draft', 'submitted', 'production'] } },
-        { record_status: null }
-      ];
+      // Pending = not yet verified (verified_by_id is null)
+      where.verified_by_id = null;
     } else if (status === 'verified') {
-      where.record_status = 'verified';
+      // Verified = has verified_by_id
+      where.verified_by_id = { not: null };
+      // Optionally filter out rejected ones if there's a rejection indicator
     } else if (status === 'rejected') {
-      where.record_status = 'rejected';
+      // For rejected, we might need a separate field or use verification_notes
+      // For now, treat as verified but with specific notes pattern
+      where.verified_by_id = { not: null };
+      // You might want to add a separate is_rejected boolean field in the future
     }
 
     // Apply filters
@@ -79,6 +80,13 @@ export async function GET(request: NextRequest) {
           },
         },
         added_by: {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+          },
+        },
+        verified_by: {
           select: {
             id: true,
             name: true,
