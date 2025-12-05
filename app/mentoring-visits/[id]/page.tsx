@@ -74,10 +74,10 @@ interface MentoringVisit {
   class_not_in_session_reason?: string;
   full_session_observed?: boolean;
   grade_group?: string;
-  grades_observed?: string[];
+  grades_observed?: string; // Stored as string in DB (comma-separated or JSON)
   subject_observed?: string;
-  language_levels_observed?: string[];
-  numeracy_levels_observed?: string[];
+  language_levels_observed?: string; // Stored as string in DB
+  numeracy_levels_observed?: string; // Stored as string in DB
   
   // Student data
   total_students_enrolled?: number;
@@ -88,7 +88,7 @@ interface MentoringVisit {
   // Delivery questions
   class_started_on_time?: boolean;
   late_start_reason?: string;
-  teaching_materials?: string[];
+  teaching_materials?: string; // Stored as string in DB
   
   // Classroom organization
   students_grouped_by_level?: boolean;
@@ -175,12 +175,32 @@ export default function MentoringVisitDetailPage() {
 
   const renderScoreBadge = (score?: number) => {
     if (score === undefined) return <span className="text-gray-400">មិនបានដាក់ពិន្ទុ</span>;
-    
+
     let color = 'red';
     if (score >= 80) color = 'green';
     else if (score >= 60) color = 'orange';
-    
+
     return <Badge count={score} color={color} />;
+  };
+
+  // Helper function to parse string arrays (comma-separated or JSON)
+  const parseStringArray = (value?: string | string[]): string[] => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+
+    // Try to parse as JSON first
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // If not JSON, try comma-separated
+      if (typeof value === 'string' && value.includes(',')) {
+        return value.split(',').map(item => item.trim()).filter(Boolean);
+      }
+    }
+
+    // Return as single-item array if it's just a string
+    return typeof value === 'string' && value ? [value] : [];
   };
 
   if (loading) {
@@ -323,28 +343,34 @@ export default function MentoringVisitDetailPage() {
           <Col span={12}>
             <Descriptions column={1} size="small">
               <Descriptions.Item label="ថ្នាក់រៀនដែលបានអង្កេត">
-                {mentoringVisit.grades_observed?.length ? 
-                  mentoringVisit.grades_observed.map(grade => (
-                    <Tag key={grade} color="blue">{grade}</Tag>
-                  )) : 'មិនបានបញ្ជាក់'
-                }
+                {(() => {
+                  const grades = parseStringArray(mentoringVisit.grades_observed);
+                  return grades.length ?
+                    grades.map(grade => (
+                      <Tag key={grade} color="blue">{grade}</Tag>
+                    )) : 'មិនបានបញ្ជាក់';
+                })()}
               </Descriptions.Item>
               <Descriptions.Item label="មុខវិជ្ជាដែលបានអង្កេត">
                 {mentoringVisit.subject_observed || 'មិនបានបញ្ជាក់'}
               </Descriptions.Item>
               <Descriptions.Item label="កម្រិតភាសាដែលបានអង្កេត">
-                {mentoringVisit.language_levels_observed?.length ? 
-                  mentoringVisit.language_levels_observed.map(level => (
-                    <Tag key={level} color="green">{level}</Tag>
-                  )) : 'មិនបានបញ្ជាក់'
-                }
+                {(() => {
+                  const levels = parseStringArray(mentoringVisit.language_levels_observed);
+                  return levels.length ?
+                    levels.map(level => (
+                      <Tag key={level} color="green">{level}</Tag>
+                    )) : 'មិនបានបញ្ជាក់';
+                })()}
               </Descriptions.Item>
               <Descriptions.Item label="កម្រិតគណិតវិទ្យាដែលបានអង្កេត">
-                {mentoringVisit.numeracy_levels_observed?.length ? 
-                  mentoringVisit.numeracy_levels_observed.map(level => (
-                    <Tag key={level} color="orange">{level}</Tag>
-                  )) : 'មិនបានបញ្ជាក់'
-                }
+                {(() => {
+                  const levels = parseStringArray(mentoringVisit.numeracy_levels_observed);
+                  return levels.length ?
+                    levels.map(level => (
+                      <Tag key={level} color="orange">{level}</Tag>
+                    )) : 'មិនបានបញ្ជាក់';
+                })()}
               </Descriptions.Item>
             </Descriptions>
           </Col>
@@ -416,11 +442,13 @@ export default function MentoringVisitDetailPage() {
           <Col span={12}>
             <Descriptions column={1} size="small">
               <Descriptions.Item label="ឧបករណ៍បង្រៀន">
-                {mentoringVisit.teaching_materials?.length ? 
-                  mentoringVisit.teaching_materials.map(material => (
-                    <Tag key={material} color="cyan">{material}</Tag>
-                  )) : 'មិនបានបញ្ជាក់'
-                }
+                {(() => {
+                  const materials = parseStringArray(mentoringVisit.teaching_materials);
+                  return materials.length ?
+                    materials.map(material => (
+                      <Tag key={material} color="cyan">{material}</Tag>
+                    )) : 'មិនបានបញ្ជាក់';
+                })()}
               </Descriptions.Item>
             </Descriptions>
           </Col>
