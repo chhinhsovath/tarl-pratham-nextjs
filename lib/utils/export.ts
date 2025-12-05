@@ -62,39 +62,57 @@ export function exportToExcel(exportData: ExportData): void {
  */
 export function exportAssessments(assessments: any[]): void {
   const headers = [
-    'Student Name',
-    'School/Pilot School',
-    'Assessment Type',
-    'Subject',
-    'Level',
-    'Score',
-    'Assessment Date',
-    'Assessed By',
-    'Role',
-    'Notes',
-    'Is Temporary',
-    'Created Date'
+    'ឈ្មោះសិស្ស (Student Name)',
+    'លេខសម្គាល់សិស្ស (Student ID)',
+    'អាយុ (Age)',
+    'ភេទ (Gender)',
+    'សាលារៀន (School)',
+    'លេខកូដសាលា (School Code)',
+    'ប្រភេទការវាយតម្លៃ (Assessment Type)',
+    'មុខវិជ្ជា (Subject)',
+    'កម្រិត (Level)',
+    'ពិន្ទុ (Score)',
+    'កាលបរិច្ឆេទវាយតម្លៃ (Assessment Date)',
+    'វាយតម្លៃដោយ (Assessed By)',
+    'តួនាទី (Role)',
+    'ស្ថានភាពផ្ទៀងផ្ទាត់ (Verification Status)',
+    'ផ្ទៀងផ្ទាត់ដោយ (Verified By)',
+    'កំណត់ចំណាំផ្ទៀងផ្ទាត់ (Verification Notes)',
+    'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់ (Verification Date)',
+    'ស្ថានភាពសោ (Lock Status)',
+    'កំណត់ចំណាំ (Notes)',
+    'ប្រភេទទិន្នន័យ (Data Type)',
+    'កាលបរិច្ឆេទបង្កើត (Created Date)'
   ];
 
   const data = assessments.map(assessment => ({
-    'Student Name': assessment.student?.name || '',
-    'School/Pilot School': assessment.pilot_school?.name || assessment.student?.school_class?.school?.name || '',
-    'Assessment Type': assessment.assessment_type || '',
-    'Subject': assessment.subject || '',
-    'Level': assessment.level || '',
-    'Score': assessment.score || '',
-    'Assessment Date': assessment.assessed_date ? new Date(assessment.assessed_date).toLocaleDateString() : '',
-    'Assessed By': assessment.added_by?.name || '',
-    'Role': assessment.added_by?.role || '',
-    'Notes': assessment.notes || '',
-    'Is Temporary': assessment.is_temporary ? 'Yes' : 'No',
-    'Created Date': new Date(assessment.created_at).toLocaleDateString()
+    'ឈ្មោះសិស្ស (Student Name)': assessment.student?.name || '',
+    'លេខសម្គាល់សិស្ស (Student ID)': assessment.student?.student_id || assessment.student?.id || '',
+    'អាយុ (Age)': assessment.student?.age || '',
+    'ភេទ (Gender)': assessment.student?.gender || '',
+    'សាលារៀន (School)': assessment.pilot_school?.school_name || assessment.pilot_school?.name || '',
+    'លេខកូដសាលា (School Code)': assessment.pilot_school?.school_code || '',
+    'ប្រភេទការវាយតម្លៃ (Assessment Type)': assessment.assessment_type?.toUpperCase() || '',
+    'មុខវិជ្ជា (Subject)': assessment.subject?.toUpperCase() || '',
+    'កម្រិត (Level)': assessment.level || '',
+    'ពិន្ទុ (Score)': assessment.score !== null ? assessment.score : '',
+    'កាលបរិច្ឆេទវាយតម្លៃ (Assessment Date)': assessment.assessed_date ? new Date(assessment.assessed_date).toLocaleDateString('km-KH') : '',
+    'វាយតម្លៃដោយ (Assessed By)': assessment.added_by?.name || '',
+    'តួនាទី (Role)': assessment.added_by?.role?.toUpperCase() || '',
+    'ស្ថានភាពផ្ទៀងផ្ទាត់ (Verification Status)': (assessment.verification_status || assessment.record_status || 'PENDING').toUpperCase(),
+    'ផ្ទៀងផ្ទាត់ដោយ (Verified By)': assessment.verified_by_user?.name || '',
+    'កំណត់ចំណាំផ្ទៀងផ្ទាត់ (Verification Notes)': assessment.verification_notes || '',
+    'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់ (Verification Date)': assessment.verified_at ? new Date(assessment.verified_at).toLocaleDateString('km-KH') : '',
+    'ស្ថានភាពសោ (Lock Status)': assessment.is_locked ? 'ជាប់សោ (LOCKED)' : 'សកម្ម (ACTIVE)',
+    'កំណត់ចំណាំ (Notes)': assessment.notes || '',
+    'ប្រភេទទិន្នន័យ (Data Type)': assessment.is_temporary ? 'បណ្តោះអាសន្ន (TEMPORARY)' : 'ផលិតកម្ម (PRODUCTION)',
+    'កាលបរិច្ឆេទបង្កើត (Created Date)': assessment.created_at ? new Date(assessment.created_at).toLocaleDateString('km-KH') : ''
   }));
 
   exportToExcel({
     data,
-    filename: `assessments_export_${new Date().toISOString().split('T')[0]}`,
-    sheetName: 'Assessments',
+    filename: `assessments_verification_export_${new Date().toISOString().split('T')[0]}`,
+    sheetName: 'ការវាយតម្លៃ',
     headers
   });
 }

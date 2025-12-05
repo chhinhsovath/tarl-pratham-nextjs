@@ -37,6 +37,7 @@ import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import SoftDeleteButton from '@/components/common/SoftDeleteButton';
+import { exportAssessments } from '@/lib/utils/export';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -170,7 +171,7 @@ function AssessmentVerificationPage() {
       const response = await fetch(`/api/assessments/${assessmentId}/lock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           lock,
           locked_by: session?.user?.id
         })
@@ -183,6 +184,20 @@ function AssessmentVerificationPage() {
     } catch (error) {
       console.error('Error locking assessment:', error);
       message.error(`Failed to ${lock ? 'lock' : 'unlock'} assessment`);
+    }
+  };
+
+  const handleExport = () => {
+    if (assessments.length === 0) {
+      message.warning('មិនមានទិន្នន័យសម្រាប់នាំចេញ');
+      return;
+    }
+    try {
+      exportAssessments(assessments);
+      message.success('នាំចេញទិន្នន័យបានជោគជ័យ');
+    } catch (error) {
+      console.error('Export error:', error);
+      message.error('មានបញ្ហាក្នុងការនាំចេញទិន្នន័យ');
     }
   };
 
@@ -444,6 +459,16 @@ function AssessmentVerificationPage() {
                 កំណត់ឡើងវិញ
               </Button>
             </Form.Item>
+
+            <Form.Item>
+              <Button
+                icon={<FileExcelOutlined />}
+                onClick={handleExport}
+                disabled={assessments.length === 0}
+              >
+                នាំចេញ Excel
+              </Button>
+            </Form.Item>
           </Form>
         </Card>
 
@@ -487,7 +512,9 @@ function AssessmentVerificationPage() {
           rowKey="id"
           loading={loading}
           pagination={{
+            pageSize: 10,
             showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
             showTotal: (total) => `សរុប ${total} ការវាយតម្លៃ`,
           }}
         />
