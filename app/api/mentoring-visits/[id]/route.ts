@@ -154,7 +154,6 @@ export async function GET(
         pilot_school: {
           select: {
             id: true,
-            name: true,
             school_name: true,
             school_code: true
           }
@@ -282,7 +281,6 @@ export async function PUT(
         pilot_school: {
           select: {
             id: true,
-            name: true,
             school_name: true,
             school_code: true
           }
@@ -352,7 +350,7 @@ export async function DELETE(
     }
 
     // For mentors deleting temporary mentoring visits, hard delete
-    // For others, soft delete (mark as inactive)
+    // For others, soft delete (mark as deleted status)
     if (session.user.role === 'mentor' && existingMentoringVisit.is_temporary) {
       await prisma.mentoringVisit.delete({
         where: { id }
@@ -360,7 +358,7 @@ export async function DELETE(
     } else {
       await prisma.mentoringVisit.update({
         where: { id },
-        data: { is_active: false }
+        data: { status: 'deleted' }
       });
     }
 
