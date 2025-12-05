@@ -146,43 +146,41 @@ export function exportStudents(students: any[]): void {
  */
 export function exportMentoringVisits(visits: any[]): void {
   const headers = [
-    'Mentor Name',
-    'Pilot School',
-    'Visit Date',
-    'Status',
-    'Level',
-    'Participants Count',
-    'Duration (minutes)',
-    'Purpose',
-    'Activities',
-    'Observations',
-    'Recommendations',
-    'Follow-up Actions',
-    'Photos Count',
-    'Created Date'
+    'កាលបរិច្ឆេទ (Visit Date)',
+    'សាលារៀន (School)',
+    'លេខកូដសាលា (School Code)',
+    'គ្រូព្រឹក្សា (Mentor)',
+    'អ៊ីមែលគ្រូព្រឹក្សា (Mentor Email)',
+    'គ្រូបង្រៀន (Teacher)',
+    'អ៊ីមែលគ្រូបង្រៀន (Teacher Email)',
+    'ពិន្ទុ (Score)',
+    'កំណត់ហេតុ (Observation)',
+    'ផែនការសកម្មភាព (Action Plan)',
+    'ត្រូវការតាមដាន (Follow-up Required)',
+    'ស្ថានភាព (Status)',
+    'ថ្ងៃបង្កើត (Created Date)'
   ];
 
   const data = visits.map(visit => ({
-    'Mentor Name': visit.mentor?.name || '',
-    'Pilot School': visit.pilot_school?.name || '',
-    'Visit Date': visit.visit_date ? new Date(visit.visit_date).toLocaleDateString() : '',
-    'Status': visit.status || '',
-    'Level': visit.level || '',
-    'Participants Count': visit.participants_count || '',
-    'Duration (minutes)': visit.duration_minutes || '',
-    'Purpose': visit.purpose || '',
-    'Activities': visit.activities || '',
-    'Observations': visit.observations || '',
-    'Recommendations': visit.recommendations || '',
-    'Follow-up Actions': visit.follow_up_actions || '',
-    'Photos Count': Array.isArray(visit.photos) ? visit.photos.length : 0,
-    'Created Date': new Date(visit.created_at).toLocaleDateString()
+    'កាលបរិច្ឆេទ (Visit Date)': visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('km-KH') : '',
+    'សាលារៀន (School)': visit.pilot_school?.school_name || visit.pilot_school?.name || '',
+    'លេខកូដសាលា (School Code)': visit.pilot_school?.school_code || '',
+    'គ្រូព្រឹក្សា (Mentor)': visit.mentor?.name || '',
+    'អ៊ីមែលគ្រូព្រឹក្សា (Mentor Email)': visit.mentor?.email || '',
+    'គ្រូបង្រៀន (Teacher)': visit.teacher?.name || 'មិនបានបញ្ជាក់',
+    'អ៊ីមែលគ្រូបង្រៀន (Teacher Email)': visit.teacher?.email || '',
+    'ពិន្ទុ (Score)': visit.score !== undefined ? visit.score : '',
+    'កំណត់ហេតុ (Observation)': visit.observation || '',
+    'ផែនការសកម្មភាព (Action Plan)': visit.action_plan || '',
+    'ត្រូវការតាមដាន (Follow-up Required)': visit.follow_up_required ? 'បាទ/ចាស' : 'ទេ',
+    'ស្ថានភាព (Status)': visit.is_locked ? 'ជាប់សោ' : (visit.is_temporary ? 'បណ្តោះអាសន្ន' : 'សកម្ម'),
+    'ថ្ងៃបង្កើត (Created Date)': visit.created_at ? new Date(visit.created_at).toLocaleDateString('km-KH') : ''
   }));
 
   exportToExcel({
     data,
     filename: `mentoring_visits_export_${new Date().toISOString().split('T')[0]}`,
-    sheetName: 'Mentoring Visits',
+    sheetName: 'ប្រឹក្សាគរុកោសល្យ',
     headers
   });
 }

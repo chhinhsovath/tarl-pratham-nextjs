@@ -19,21 +19,23 @@ import {
   Badge,
   App
 } from 'antd';
-import { 
-  PlusOutlined, 
-  SearchOutlined, 
-  EyeOutlined, 
-  EditOutlined, 
+import {
+  PlusOutlined,
+  SearchOutlined,
+  EyeOutlined,
+  EditOutlined,
   DeleteOutlined,
   MoreOutlined,
   FilterOutlined,
   CalendarOutlined,
   BankOutlined,
-  UserOutlined
+  UserOutlined,
+  FileExcelOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import SoftDeleteButton from '@/components/common/SoftDeleteButton';
+import { exportMentoringVisits } from '@/lib/utils/export';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -181,6 +183,21 @@ function MentoringVisitsContent() {
         }
       }
     });
+  };
+
+  // Handle export
+  const handleExport = () => {
+    if (mentoringVisits.length === 0) {
+      message.warning('មិនមានទិន្នន័យសម្រាប់នាំចេញ');
+      return;
+    }
+    try {
+      exportMentoringVisits(mentoringVisits);
+      message.success('នាំចេញទិន្នន័យបានជោគជ័យ');
+    } catch (error) {
+      console.error('Export error:', error);
+      message.error('មានបញ្ហាក្នុងការនាំចេញទិន្នន័យ');
+    }
   };
 
   // Get row actions based on user role
@@ -452,17 +469,27 @@ function MentoringVisitsContent() {
         <Title level={2} className="mb-0">
           ប្រឹក្សាគរុកោសល្យ
         </Title>
-        
-        {(session?.user?.role === 'admin' || session?.user?.role === 'mentor') && (
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
+
+        <Space>
+          <Button
+            icon={<FileExcelOutlined />}
             size="large"
-            onClick={() => router.push('/mentoring-visits/create')}
+            onClick={handleExport}
+            disabled={mentoringVisits.length === 0}
           >
-            បង្កើតកាត់ទុកថ្មី
+            នាំចេញ Excel
           </Button>
-        )}
+          {(session?.user?.role === 'admin' || session?.user?.role === 'mentor') && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              size="large"
+              onClick={() => router.push('/mentoring-visits/create')}
+            >
+              បង្កើតកាត់ទុកថ្មី
+            </Button>
+          )}
+        </Space>
       </div>
 
       {filterSection}

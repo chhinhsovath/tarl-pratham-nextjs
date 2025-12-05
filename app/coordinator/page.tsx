@@ -415,7 +415,11 @@ function CoordinatorWorkspaceContent() {
           </Card>
         </Col>
         <Col xs={12} sm={12} md={12} lg={6}>
-          <Card style={{ backgroundColor: '#faf5ff', borderRadius: 8 }}>
+          <Card
+            style={{ backgroundColor: '#faf5ff', borderRadius: 8, cursor: 'pointer' }}
+            hoverable
+            onClick={() => router.push('/mentoring-visits')}
+          >
             <Statistic
               title="ដំណើរទស្សនកិច្ច"
               value={stats.active_mentoring_visits}
