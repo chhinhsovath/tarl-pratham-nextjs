@@ -143,10 +143,14 @@ export async function GET(request: NextRequest) {
       }),
       prisma.assessment.findMany({
         where: {
-          ...baseWhere,
+          // Don't spread baseWhere as it has conflicting assessment_type
           assessment_type: {
             in: ['baseline_verification', 'midline_verification', 'endline_verification']
-          }
+          },
+          // Only apply school filtering if mentor
+          ...(session.user.role === 'mentor' && baseWhere.pilot_school_id 
+            ? { pilot_school_id: baseWhere.pilot_school_id } 
+            : {})
         },
         select: { 
           id: true, 
