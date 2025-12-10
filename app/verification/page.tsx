@@ -800,12 +800,7 @@ export default function VerificationPage() {
             dataSource={assessments}
             rowKey="id"
             loading={loading}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total}`,
-              simple: typeof window !== 'undefined' && window.innerWidth < 768
-            }}
+            pagination={false}
             size="small"
           />
         </Card>
