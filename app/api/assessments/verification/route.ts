@@ -67,6 +67,9 @@ export async function GET(request: NextRequest) {
       where.added_by_id = parseInt(session.user.id);
     }
 
+    // Check if this is for export (get all records)
+    const isExport = searchParams.get('export') === 'true';
+    
     const assessments = await prisma.assessment.findMany({
       where,
       include: {
@@ -104,7 +107,8 @@ export async function GET(request: NextRequest) {
       orderBy: {
         created_at: 'desc',
       },
-      take: 100,
+      // Only apply limit for regular viewing, not for export
+      ...(isExport ? {} : { take: 100 }),
     });
 
     return NextResponse.json({ assessments });

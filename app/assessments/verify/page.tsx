@@ -187,17 +187,37 @@ function AssessmentVerificationPage() {
     }
   };
 
-  const handleExport = () => {
-    if (assessments.length === 0) {
-      message.warning('មិនមានទិន្នន័យសម្រាប់នាំចេញ');
-      return;
-    }
+  const handleExport = async () => {
     try {
-      exportAssessments(assessments);
-      message.success('នាំចេញទិន្នន័យបានជោគជ័យ');
+      setLoading(true);
+      // Fetch ALL assessments for export (without pagination)
+      const queryParams = new URLSearchParams({
+        ...Object.fromEntries(
+          Object.entries(filters).filter(([_, value]) => value !== '')
+        ),
+        export: 'true' // Add export flag to get all records
+      }).toString();
+      
+      const response = await fetch(`/api/assessments/verification?${queryParams}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data for export');
+      }
+      
+      const data = await response.json();
+      const allAssessments = data.assessments || [];
+      
+      if (allAssessments.length === 0) {
+        message.warning('មិនមានទិន្នន័យសម្រាប់នាំចេញ');
+        return;
+      }
+      
+      exportAssessments(allAssessments);
+      message.success(`នាំចេញទិន្នន័យបានជោគជ័យ (${allAssessments.length} ការវាយតម្លៃ)`);
     } catch (error) {
       console.error('Export error:', error);
       message.error('មានបញ្ហាក្នុងការនាំចេញទិន្នន័យ');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -473,7 +493,8 @@ function AssessmentVerificationPage() {
               <Button
                 icon={<FileExcelOutlined />}
                 onClick={handleExport}
-                disabled={assessments.length === 0}
+                loading={loading}
+                disabled={loading}
               >
                 នាំចេញ Excel
               </Button>
