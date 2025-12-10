@@ -58,6 +58,81 @@ export function exportToExcel(exportData: ExportData): void {
 }
 
 /**
+ * Export comparison data (teacher vs mentor assessments)
+ */
+export function exportComparisonData(comparisons: any[]): void {
+  const headers = [
+    'ឈ្មោះសិស្ស (Student Name)',
+    'លេខសម្គាល់សិស្ស (Student ID)',
+    'អាយុ (Age)',
+    'ភេទ (Gender)',
+    'សាលារៀន (School)',
+    'លេខកូដសាលា (School Code)',
+    'ខេត្ត (Province)',
+    'ស្រុក (District)',
+    'ប្រភេទការវាយតម្លៃ (Assessment Type)',
+    'មុខវិជ្ជា (Subject)',
+    
+    // Teacher Assessment Columns
+    'ឈ្មោះគ្រូបង្រៀន (Teacher Name)',
+    'កម្រិតគ្រូបង្រៀន (Teacher Level)',
+    'កាលបរិច្ឆេទវាយតម្លៃគ្រូ (Teacher Assessment Date)',
+    
+    // Mentor Assessment Columns
+    'ឈ្មោះគ្រូព្រឹក្សា (Mentor Name)',
+    'កម្រិតគ្រូព្រឹក្សា (Mentor Level)',
+    'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់ (Mentor Verification Date)',
+    
+    // Comparison Results
+    'ស្ថានភាពផ្ទៀងផ្ទាត់ (Verification Status)',
+    'ការប្រៀបធៀបកម្រិត (Level Match)',
+    'កំណត់ចំណាំផ្ទៀងផ្ទាត់ (Verification Notes)'
+  ];
+
+  const data = comparisons.map(comparison => ({
+    'ឈ្មោះសិស្ស (Student Name)': comparison.student_name || '',
+    'លេខសម្គាល់សិស្ស (Student ID)': comparison.student_id || '',
+    'អាយុ (Age)': comparison.age || '',
+    'ភេទ (Gender)': comparison.gender || '',
+    'សាលារៀន (School)': comparison.school_name || '',
+    'លេខកូដសាលា (School Code)': comparison.school_code || '',
+    'ខេត្ត (Province)': comparison.province || '',
+    'ស្រុក (District)': comparison.district || '',
+    'ប្រភេទការវាយតម្លៃ (Assessment Type)': comparison.assessment_type?.toUpperCase() || '',
+    'មុខវិជ្ជា (Subject)': comparison.subject?.toUpperCase() || '',
+    
+    // Teacher Assessment Data
+    'ឈ្មោះគ្រូបង្រៀន (Teacher Name)': comparison.teacher_name || '',
+    'កម្រិតគ្រូបង្រៀន (Teacher Level)': comparison.teacher_level || '',
+    'កាលបរិច្ឆេទវាយតម្លៃគ្រូ (Teacher Assessment Date)': comparison.teacher_assessment_date ? 
+      new Date(comparison.teacher_assessment_date).toLocaleDateString('km-KH') : '',
+    
+    // Mentor Assessment Data
+    'ឈ្មោះគ្រូព្រឹក្សា (Mentor Name)': comparison.mentor_name === 'រង់ចាំផ្ទៀងផ្ទាត់' ? 
+      'រង់ចាំ (Pending)' : comparison.mentor_name || '',
+    'កម្រិតគ្រូព្រឹក្សា (Mentor Level)': comparison.mentor_level || '',
+    'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់ (Mentor Verification Date)': comparison.mentor_verification_date ? 
+      new Date(comparison.mentor_verification_date).toLocaleDateString('km-KH') : '',
+    
+    // Comparison Results
+    'ស្ថានភាពផ្ទៀងផ្ទាត់ (Verification Status)': 
+      comparison.verification_status === 'verified' ? 'បានផ្ទៀងផ្ទាត់ (VERIFIED)' : 'រង់ចាំ (PENDING)',
+    'ការប្រៀបធៀបកម្រិត (Level Match)': 
+      comparison.level_match === true ? 'ត្រូវគ្នា (MATCH)' : 
+      comparison.level_match === false ? 'ខុសគ្នា (MISMATCH)' : 
+      'មិនអាចប្រៀបធៀប (N/A)',
+    'កំណត់ចំណាំផ្ទៀងផ្ទាត់ (Verification Notes)': comparison.verification_notes || ''
+  }));
+
+  exportToExcel({
+    data,
+    filename: `assessment_comparison_export_${new Date().toISOString().split('T')[0]}`,
+    sheetName: 'ការប្រៀបធៀបការវាយតម្លៃ',
+    headers
+  });
+}
+
+/**
  * Export assessments data
  */
 export function exportAssessments(assessments: any[]): void {
