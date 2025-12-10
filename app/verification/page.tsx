@@ -244,7 +244,7 @@ export default function VerificationPage() {
 
       // 1. Summary sheet
       const summaryData = [
-        ['របាយការណ៍ប្រៀបធៀបការវាយតម្លៃគ្រូ និងការផ្ទៀងផ្ទាត់របស់គ្រូណែនាំ'],
+        ['របាយការណ៍ប្រៀបធៀបកម្រិតការវាយតម្លៃគ្រូ និងការផ្ទៀងផ្ទាត់របស់គ្រូណែនាំ'],
         ['កាលបរិច្ឆេទនាំចេញ:', dayjs().format('YYYY-MM-DD HH:mm')],
         [],
         ['សង្ខេបទិន្នន័យ'],
@@ -252,12 +252,13 @@ export default function VerificationPage() {
         ['បានផ្ទៀងផ្ទាត់:', statistics.verified_count || 0],
         ['រង់ចាំផ្ទៀងផ្ទាត់:', statistics.pending_count || 0],
         ['កម្រិតត្រូវគ្នា:', statistics.level_match_count || 0],
-        ['ភាពខុសគ្នានៃពិន្ទុជាមធ្យម:', (statistics.average_score_difference || 0).toFixed(2) + '%'],
+        ['ភាគរយកម្រិតត្រូវគ្នា:', statistics.verified_count > 0 ? 
+          ((statistics.level_match_count / statistics.verified_count * 100).toFixed(1) + '%') : '0%'],
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summarySheet, 'សង្ខេប');
 
-      // 2. Detailed comparison sheet
+      // 2. Detailed comparison sheet - Focus on LEVEL comparison
       const detailHeaders = [
         'លេខសិស្ស',
         'ឈ្មោះសិស្ស',
@@ -265,58 +266,66 @@ export default function VerificationPage() {
         'អាយុ',
         'ថ្នាក់',
         'សាលា',
-        'កូដសាលា',
         'ខេត្ត',
         'ស្រុក',
         'ប្រភេទការវាយតម្លៃ',
         'មុខវិជ្ជា',
         'ឈ្មោះគ្រូ',
-        'កាលបរិច្ឆេទវាយតម្លៃគ្រូ',
-        'កម្រិតគ្រូ',
-        'ពិន្ទុគ្រូ (%)',
+        'កាលបរិច្ឆេទវាយតម្លៃ',
+        'កម្រិតវាយតម្លៃដោយគ្រូ',
         'ឈ្មោះគ្រូណែនាំ',
         'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់',
-        'កម្រិតគ្រូណែនាំ',
-        'ពិន្ទុគ្រូណែនាំ (%)',
-        'ស្ថានភាពផ្ទៀងផ្ទាត់',
-        'ភាពខុសគ្នានៃពិន្ទុ (%)',
-        'កម្រិតត្រូវគ្នា',
+        'កម្រិតផ្ទៀងផ្ទាត់ដោយគ្រូណែនាំ',
+        'កម្រិតត្រូវគ្នាឬទេ',
+        'ភាពខុសគ្នានៃកម្រិត',
+        'ស្ថានភាព',
         'កំណត់ចំណាំ'
       ];
 
-      const detailData = comparisons.map((comp: any) => [
-        comp.student_id || '',
-        comp.student_name || '',
-        comp.gender === 'M' ? 'ប្រុស' : comp.gender === 'F' ? 'ស្រី' : '',
-        comp.age || '',
-        comp.grade || '',
-        comp.school_name || '',
-        comp.school_code || '',
-        comp.province || '',
-        comp.district || '',
-        comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
-          comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 
-          comp.assessment_type === 'endline' ? 'បញ្ចប់' : '',
-        comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
-        comp.teacher_name || '',
-        comp.teacher_assessment_date ? dayjs(comp.teacher_assessment_date).format('YYYY-MM-DD') : '',
-        getLevelLabelKM(
-          comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
-          comp.teacher_level
-        ),
-        comp.teacher_score || 0,
-        comp.mentor_name || 'មិនទាន់ផ្ទៀងផ្ទាត់',
-        comp.mentor_verification_date ? dayjs(comp.mentor_verification_date).format('YYYY-MM-DD') : '',
-        comp.mentor_level ? getLevelLabelKM(
-          comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
-          comp.mentor_level
-        ) : '',
-        comp.mentor_score || '',
-        comp.verification_status === 'verified' ? 'បានផ្ទៀងផ្ទាត់' : 'រង់ចាំ',
-        comp.score_difference !== null ? comp.score_difference.toFixed(2) : '',
-        comp.level_match === true ? 'ត្រូវ' : comp.level_match === false ? 'មិនត្រូវ' : '',
-        comp.verification_notes || ''
-      ]);
+      const detailData = comparisons.map((comp: any) => {
+        // Calculate level difference
+        let levelDifference = '';
+        if (comp.teacher_level && comp.mentor_level && comp.teacher_level !== comp.mentor_level) {
+          levelDifference = `គ្រូ: ${getLevelLabelKM(
+            comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+            comp.teacher_level
+          )} → គ្រូណែនាំ: ${getLevelLabelKM(
+            comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+            comp.mentor_level
+          )}`;
+        }
+
+        return [
+          comp.student_id || '',
+          comp.student_name || '',
+          comp.gender === 'M' ? 'ប្រុស' : comp.gender === 'F' ? 'ស្រី' : '',
+          comp.age || '',
+          comp.grade || '',
+          comp.school_name || '',
+          comp.province || '',
+          comp.district || '',
+          comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
+            comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 
+            comp.assessment_type === 'endline' ? 'បញ្ចប់' : '',
+          comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
+          comp.teacher_name || '',
+          comp.teacher_assessment_date ? dayjs(comp.teacher_assessment_date).format('YYYY-MM-DD') : '',
+          getLevelLabelKM(
+            comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+            comp.teacher_level
+          ),
+          comp.mentor_name || 'មិនទាន់ផ្ទៀងផ្ទាត់',
+          comp.mentor_verification_date ? dayjs(comp.mentor_verification_date).format('YYYY-MM-DD') : '',
+          comp.mentor_level ? getLevelLabelKM(
+            comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+            comp.mentor_level
+          ) : '',
+          comp.level_match === true ? '✓ ត្រូវគ្នា' : comp.level_match === false ? '✗ មិនត្រូវគ្នា' : '',
+          levelDifference,
+          comp.verification_status === 'verified' ? 'បានផ្ទៀងផ្ទាត់' : 'រង់ចាំ',
+          comp.verification_notes || ''
+        ];
+      });
 
       const detailSheet = XLSX.utils.aoa_to_sheet([detailHeaders, ...detailData]);
       
@@ -339,18 +348,21 @@ export default function VerificationPage() {
           'លេខសិស្ស',
           'ឈ្មោះសិស្ស',
           'សាលា',
+          'ខេត្ត',
+          'ស្រុក',
           'ប្រភេទ',
           'មុខវិជ្ជា',
           'គ្រូ',
           'កាលបរិច្ឆេទ',
-          'កម្រិត',
-          'ពិន្ទុ (%)'
+          'កម្រិតវាយតម្លៃដោយគ្រូ'
         ];
 
         const pendingData = pendingComparisons.map((comp: any) => [
           comp.student_id || '',
           comp.student_name || '',
           comp.school_name || '',
+          comp.province || '',
+          comp.district || '',
           comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
             comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់',
           comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
@@ -359,51 +371,57 @@ export default function VerificationPage() {
           getLevelLabelKM(
             comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
             comp.teacher_level
-          ),
-          comp.teacher_score || 0
+          )
         ]);
 
         const pendingSheet = XLSX.utils.aoa_to_sheet([pendingHeaders, ...pendingData]);
         XLSX.utils.book_append_sheet(wb, pendingSheet, 'រង់ចាំផ្ទៀងផ្ទាត់');
       }
 
-      // 4. Score discrepancies sheet (large differences)
-      const discrepancyThreshold = 10; // 10% difference
-      const discrepancies = comparisons.filter((c: any) => 
-        c.score_difference !== null && c.score_difference > discrepancyThreshold
+      // 4. Level discrepancies sheet (different levels between teacher and mentor)
+      const levelDiscrepancies = comparisons.filter((c: any) => 
+        c.level_match === false && c.mentor_level !== null
       );
 
-      if (discrepancies.length > 0) {
+      if (levelDiscrepancies.length > 0) {
         const discrepancyHeaders = [
           'សិស្ស',
           'សាលា',
+          'ខេត្ត', 
+          'ស្រុក',
+          'ប្រភេទ',
           'មុខវិជ្ជា',
-          'ពិន្ទុគ្រូ',
-          'ពិន្ទុគ្រូណែនាំ',
-          'ភាពខុសគ្នា (%)',
-          'កម្រិតគ្រូ',
-          'កម្រិតគ្រូណែនាំ'
+          'កម្រិតវាយតម្លៃដោយគ្រូ',
+          'កម្រិតផ្ទៀងផ្ទាត់ដោយគ្រូណែនាំ',
+          'ការផ្លាស់ប្តូរកម្រិត'
         ];
 
-        const discrepancyData = discrepancies.map((comp: any) => [
-          comp.student_name || '',
-          comp.school_name || '',
-          comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
-          comp.teacher_score || 0,
-          comp.mentor_score || 0,
-          comp.score_difference.toFixed(2),
-          getLevelLabelKM(
+        const discrepancyData = levelDiscrepancies.map((comp: any) => {
+          const teacherLevelLabel = getLevelLabelKM(
             comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
             comp.teacher_level
-          ),
-          getLevelLabelKM(
+          );
+          const mentorLevelLabel = getLevelLabelKM(
             comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
             comp.mentor_level
-          )
-        ]);
+          );
+          
+          return [
+            comp.student_name || '',
+            comp.school_name || '',
+            comp.province || '',
+            comp.district || '',
+            comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
+              comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់',
+            comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
+            teacherLevelLabel,
+            mentorLevelLabel,
+            `${teacherLevelLabel} → ${mentorLevelLabel}`
+          ];
+        });
 
         const discrepancySheet = XLSX.utils.aoa_to_sheet([discrepancyHeaders, ...discrepancyData]);
-        XLSX.utils.book_append_sheet(wb, discrepancySheet, 'ភាពមិនត្រូវគ្នា');
+        XLSX.utils.book_append_sheet(wb, discrepancySheet, 'កម្រិតមិនត្រូវគ្នា');
       }
 
       // Generate filename with timestamp
