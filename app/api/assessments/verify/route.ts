@@ -135,29 +135,48 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Calculate statistics by checking for verification assessments
-    const allTeacherAssessments = await prisma.assessment.findMany({
-      where: baseWhere,
-      select: { id: true, assessment_type: true, subject: true, student_id: true }
+    // Optimized statistics calculation using database aggregation
+    const [allTeacherAssessments, allVerificationAssessments] = await Promise.all([
+      prisma.assessment.findMany({
+        where: baseWhere,
+        select: { id: true, assessment_type: true, subject: true, student_id: true }
+      }),
+      prisma.assessment.findMany({
+        where: {
+          ...baseWhere,
+          assessment_type: {
+            in: ['baseline_verification', 'midline_verification', 'endline_verification']
+          }
+        },
+        select: { 
+          id: true, 
+          assessment_type: true, 
+          subject: true, 
+          student_id: true,
+          verification_notes: true 
+        }
+      })
+    ]);
+
+    // Create a map for faster lookup of verification assessments
+    const verificationMap = new Map();
+    allVerificationAssessments.forEach(verification => {
+      const originalType = verification.assessment_type.replace('_verification', '');
+      const key = `${verification.student_id}-${originalType}-${verification.subject}`;
+      verificationMap.set(key, verification);
     });
 
+    // Calculate statistics
     let pendingCount = 0;
     let verifiedCount = 0;
     let rejectedCount = 0;
 
-    for (const assessment of allTeacherAssessments) {
-      const verificationType = `${assessment.assessment_type}_verification`;
-      const verificationExists = await prisma.assessment.findFirst({
-        where: {
-          student_id: assessment.student_id,
-          assessment_type: verificationType,
-          subject: assessment.subject
-        },
-        select: { id: true, verification_notes: true }
-      });
+    allTeacherAssessments.forEach(assessment => {
+      const key = `${assessment.student_id}-${assessment.assessment_type}-${assessment.subject}`;
+      const verification = verificationMap.get(key);
 
-      if (verificationExists) {
-        if (verificationExists.verification_notes?.toLowerCase().includes('rejected')) {
+      if (verification) {
+        if (verification.verification_notes?.toLowerCase().includes('rejected')) {
           rejectedCount++;
         } else {
           verifiedCount++;
@@ -165,7 +184,7 @@ export async function GET(request: NextRequest) {
       } else {
         pendingCount++;
       }
-    }
+    });
 
     const statistics = {
       pending: pendingCount,
