@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch ALL teacher assessments (these are the primary records we want to show)
+    // Include verification fields since verification is stored on the same record
     const teacherAssessments = await prisma.assessment.findMany({
       where: teacherWhere,
       select: {
@@ -70,6 +71,10 @@ export async function GET(request: NextRequest) {
         student_id: true,
         pilot_school_id: true,
         assessed_date: true,
+        // Verification fields
+        verified_by_id: true,
+        verified_at: true,
+        verification_notes: true,
         student: {
           select: {
             id: true,
@@ -92,7 +97,15 @@ export async function GET(request: NextRequest) {
         added_by: {
           select: {
             id: true,
-            name: true
+            name: true,
+            role: true
+          }
+        },
+        verified_by: {
+          select: {
+            id: true,
+            name: true,
+            role: true
           }
         }
       },
@@ -105,61 +118,15 @@ export async function GET(request: NextRequest) {
 
     console.log(`Found ${teacherAssessments.length} teacher assessments`);
 
-    // Now fetch ALL verification assessments to match with teacher assessments
-    const verificationWhere: any = {
-      assessment_type: {
-        in: ['baseline_verification', 'midline_verification', 'endline_verification']
-      }
-    };
-
-    // Apply same school filter for mentor
-    if (session.user.role === 'mentor') {
-      const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
-      if (mentorSchoolIds.length > 0) {
-        verificationWhere.pilot_school_id = { in: mentorSchoolIds };
-      }
-    }
-
-    // Fetch verification assessments
-    const verificationAssessments = await prisma.assessment.findMany({
-      where: verificationWhere,
-      select: {
-        id: true,
-        assessment_type: true,
-        subject: true,
-        level: true,
-        notes: true,
-        created_at: true,
-        student_id: true,
-        pilot_school_id: true,
-        verification_notes: true,
-        verified_at: true,
-        assessed_date: true,
-        added_by: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
-      }
-      // No take limit - get ALL records
-    });
-
-    console.log(`Found ${verificationAssessments.length} verification assessments`);
-
-    // Create a map of verification assessments for faster lookup
-    const verificationMap = new Map();
-    verificationAssessments.forEach(verification => {
-      const originalType = verification.assessment_type.replace('_verification', '');
-      const key = `${verification.student_id}-${originalType}-${verification.subject}`;
-      verificationMap.set(key, verification);
-    });
+    // Verification data is stored on the same assessment records, not separate records
+    // We'll use the teacher assessments and check their verification status
+    console.log(`Found ${teacherAssessments.length} teacher assessments to process`);
 
     // Process ALL teacher assessments to create comparisons
     // This will show ALL 2,216 pending + 124 verified records
     const comparisons = teacherAssessments.map((teacherAssessment) => {
-      const key = `${teacherAssessment.student_id}-${teacherAssessment.assessment_type}-${teacherAssessment.subject}`;
-      const verificationAssessment = verificationMap.get(key);
+      // Check if this assessment has been verified (verified_by_id is not null)
+      const isVerified = teacherAssessment.verified_by_id !== null;
 
       return {
         // Student info
@@ -187,23 +154,22 @@ export async function GET(request: NextRequest) {
         teacher_assessment_date: teacherAssessment.assessed_date || teacherAssessment.created_at,
         teacher_responses: null, // Responses field doesn't exist
         
-        // Mentor verification (may be null if pending)
-        mentor_name: verificationAssessment?.added_by?.name || 'រង់ចាំផ្ទៀងផ្ទាត់',
-        mentor_assessment_id: verificationAssessment?.id || null,
-        mentor_level: verificationAssessment?.level || null,
+        // Mentor verification (from the same record)
+        mentor_name: isVerified ? (teacherAssessment.verified_by?.name || 'Unknown Mentor') : 'រង់ចាំផ្ទៀងផ្ទាត់',
+        mentor_assessment_id: isVerified ? teacherAssessment.id : null,
+        mentor_level: isVerified ? teacherAssessment.level : null, // Same level as teacher (mentor verifies the same assessment)
         mentor_score: null, // Score field doesn't exist
-        mentor_verification_date: verificationAssessment ? (verificationAssessment.assessed_date || verificationAssessment.created_at) : null,
+        mentor_verification_date: teacherAssessment.verified_at,
         mentor_responses: null, // Responses field doesn't exist
         
         // Verification status
-        verification_status: verificationAssessment ? 'verified' : 'pending',
+        verification_status: isVerified ? 'verified' : 'pending',
         score_difference: null, // Can't calculate without scores
-        level_match: verificationAssessment && teacherAssessment.level && verificationAssessment.level ? 
-          teacherAssessment.level === verificationAssessment.level : null,
+        level_match: isVerified ? true : null, // Same assessment, so level should match
         
         // Additional verification info
-        verified_at: verificationAssessment?.verified_at || null,
-        verification_notes: verificationAssessment?.verification_notes || null
+        verified_at: teacherAssessment.verified_at || null,
+        verification_notes: teacherAssessment.verification_notes || null
       };
     });
 
