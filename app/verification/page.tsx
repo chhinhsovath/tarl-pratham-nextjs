@@ -75,7 +75,7 @@ export default function VerificationPage() {
 
   // Check permission
   useEffect(() => {
-    if (session && !['admin', 'mentor'].includes(session.user?.role || '')) {
+    if (session && !['admin', 'coordinator', 'mentor'].includes(session.user?.role || '')) {
       message.error('អ្នកមិនមានសិទ្ធិចូលទៅទំព័រនេះទេ');
       router.push('/dashboard');
     }
