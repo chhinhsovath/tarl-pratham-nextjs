@@ -36,7 +36,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "dayjs": "^1.11.18",
     "idb": "^8.0.3",
-    "next": "15.5.4",
+    "next": "15.5.7",
     "next-auth": "^4.24.11",
     "pdfkit": "^0.17.2",
     "prisma": "^6.16.2",
