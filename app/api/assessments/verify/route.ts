@@ -36,11 +36,11 @@ export async function GET(request: NextRequest) {
     // NO PAGINATION - GET ALL RECORDS
 
     // Build where clause
-    // Query for verification assessments (baseline_verification, midline_verification, endline_verification)
+    // Query for teacher assessments (baseline, midline, endline) to check their verification status
     const where: any = {
-      // Show verification assessment types - completed by mentors
+      // Show original assessment types (not verification types)
       assessment_type: {
-        in: ['baseline_verification', 'midline_verification', 'endline_verification']
+        in: ['baseline', 'midline', 'endline']
       }
     };
 
@@ -120,9 +120,9 @@ export async function GET(request: NextRequest) {
 
     // Get statistics
     let baseWhere: any = {
-      // Count verification assessment types - completed by mentors
+      // Count teacher assessment types and their verification status
       assessment_type: {
-        in: ['baseline_verification', 'midline_verification', 'endline_verification']
+        in: ['baseline', 'midline', 'endline']
       }
     };
 
@@ -135,33 +135,37 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const [pendingCount, verifiedCount, rejectedCount] = await Promise.all([
-      // Pending: not verified yet
-      prisma.assessment.count({
+    // Calculate statistics by checking for verification assessments
+    const allTeacherAssessments = await prisma.assessment.findMany({
+      where: baseWhere,
+      select: { id: true, assessment_type: true, subject: true, student_id: true }
+    });
+
+    let pendingCount = 0;
+    let verifiedCount = 0;
+    let rejectedCount = 0;
+
+    for (const assessment of allTeacherAssessments) {
+      const verificationType = `${assessment.assessment_type}_verification`;
+      const verificationExists = await prisma.assessment.findFirst({
         where: {
-          ...baseWhere,
-          verified_at: null
+          student_id: assessment.student_id,
+          assessment_type: verificationType,
+          subject: assessment.subject
+        },
+        select: { id: true, verification_notes: true }
+      });
+
+      if (verificationExists) {
+        if (verificationExists.verification_notes?.toLowerCase().includes('rejected')) {
+          rejectedCount++;
+        } else {
+          verifiedCount++;
         }
-      }),
-      // Verified: has verification timestamp (not rejected)
-      prisma.assessment.count({
-        where: {
-          ...baseWhere,
-          verified_at: { not: null },
-          NOT: {
-            verification_notes: { contains: 'Rejected', mode: 'insensitive' }
-          }
-        }
-      }),
-      // Rejected: verified with rejection note
-      prisma.assessment.count({
-        where: {
-          ...baseWhere,
-          verified_at: { not: null },
-          verification_notes: { contains: 'Rejected', mode: 'insensitive' }
-        }
-      })
-    ]);
+      } else {
+        pendingCount++;
+      }
+    }
 
     const statistics = {
       pending: pendingCount,
