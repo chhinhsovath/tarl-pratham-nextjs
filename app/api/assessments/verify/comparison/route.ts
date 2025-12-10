@@ -105,11 +105,15 @@ export async function GET(request: NextRequest) {
       ]
     });
 
+    console.log(`📊 Processing ${verificationAssessments.length} verification assessments`);
+
     // For each verification assessment, find the corresponding teacher assessment
     const comparisons = await Promise.all(
       verificationAssessments.map(async (verificationAssessment) => {
         // Build original assessment type (e.g., 'baseline_verification' -> 'baseline')
         const originalType = verificationAssessment.assessment_type.replace('_verification', '');
+        
+        console.log(`🔍 Processing verification: student=${verificationAssessment.student_id}, type=${verificationAssessment.assessment_type}, level=${verificationAssessment.level}, mentor=${verificationAssessment.added_by?.name}`);
         
         // Find original teacher assessment for the same student and subject
         const teacherAssessment = await prisma.assessment.findFirst({
@@ -135,6 +139,13 @@ export async function GET(request: NextRequest) {
             created_at: 'desc' // Get the most recent original assessment
           }
         });
+
+        // Debug logging
+        if (!teacherAssessment) {
+          console.log(`❌ No teacher assessment found for student ${verificationAssessment.student_id}, type ${originalType}, subject ${verificationAssessment.subject}`);
+        } else {
+          console.log(`✅ Found teacher assessment for student ${verificationAssessment.student_id}: level=${teacherAssessment.level}, teacher=${teacherAssessment.added_by?.name}`);
+        }
 
         return {
           // Student info

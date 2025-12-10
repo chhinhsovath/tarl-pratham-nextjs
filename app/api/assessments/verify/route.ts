@@ -29,14 +29,11 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const status = searchParams.get('status') || 'pending'; // pending, verified, rejected
     const assessment_type = searchParams.get('assessment_type') || '';
     const subject = searchParams.get('subject') || '';
     const search = searchParams.get('search') || '';
-
-    const skip = (page - 1) * limit;
+    
+    // NO PAGINATION - GET ALL RECORDS
 
     // Build where clause
     // Query for verification assessments (baseline_verification, midline_verification, endline_verification)
@@ -56,28 +53,13 @@ export async function GET(request: NextRequest) {
         // Mentor has no assigned schools, return empty result
         return NextResponse.json({
           assessments: [],
-          pagination: { page, limit, total: 0, pages: 0 },
+          pagination: { page: 1, limit: 0, total: 0, pages: 1 },
           statistics: { pending: 0, verified: 0, rejected: 0, total: 0 }
         });
       }
     }
 
-    // Filter by verification status
-    if (status === 'verified') {
-      // Verified: has verification timestamp and not rejected
-      where.verified_at = { not: null };
-      // Exclude rejected: verification_notes either null or doesn't contain "Rejected"
-      where.NOT = {
-        verification_notes: { contains: 'Rejected', mode: 'insensitive' }
-      };
-    } else if (status === 'rejected') {
-      // Rejected: has verification timestamp with rejection note
-      where.verified_at = { not: null };
-      where.verification_notes = { contains: 'Rejected', mode: 'insensitive' };
-    } else if (status === 'pending') {
-      // Pending: not verified yet
-      where.verified_at = null;
-    }
+    // GET ALL verification assessments - no status filtering
 
     // Additional filters
     if (assessment_type) {
@@ -131,8 +113,6 @@ export async function GET(request: NextRequest) {
             }
           }
         },
-        skip,
-        take: limit,
         orderBy: { created_at: 'desc' }
       }),
       prisma.assessment.count({ where })
@@ -193,10 +173,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       assessments,
       pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
+        page: 1,
+        limit: total,
+        total: total,
+        pages: 1
       },
       statistics
     });

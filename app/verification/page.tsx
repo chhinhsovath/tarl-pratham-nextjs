@@ -90,44 +90,27 @@ export default function VerificationPage() {
     setLoading(true);
     try {
       // Fetch all assessments by paginating through API (max 100 per request)
-      let allAssessments: any[] = [];
-      let currentPage = 1;
-      let hasMore = true;
+      // Build query params
+      const params = new URLSearchParams();
+      if (filters.search) params.append('search', filters.search);
+      if (filters.assessment_type) params.append('assessment_type', filters.assessment_type);
+      if (filters.subject) params.append('subject', filters.subject);
 
-      while (hasMore) {
-        const params = new URLSearchParams({
-          status: activeTab,
-          page: currentPage.toString(),
-          limit: '500' // Increased to handle larger datasets
-        });
+      // Single request - no pagination, get ALL records
+      const response = await fetch(`/api/assessments/verify?${params.toString()}`);
 
-        if (filters.search) params.append('search', filters.search);
-        if (filters.assessment_type) params.append('assessment_type', filters.assessment_type);
-        if (filters.subject) params.append('subject', filters.subject);
+      if (!response.ok) {
+        throw new Error('Failed to fetch assessments');
+      }
 
-        const response = await fetch(`/api/assessments/verify?${params.toString()}`);
+      const data = await response.json();
+      const allAssessments = data.assessments || [];
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch assessments');
-        }
+      console.log(`✅ Verification: Fetched ALL ${allAssessments.length} verification assessments`);
 
-        const data = await response.json();
-        const assessments = data.assessments || [];
-        allAssessments = [...allAssessments, ...assessments];
-
-        console.log(`✅ Verification Page ${currentPage} fetched: ${assessments.length} assessments (Total: ${allAssessments.length}/${data.pagination?.total || 0})`);
-
-        // Update stats from first page response
-        if (currentPage === 1 && data.statistics) {
-          setStats(data.statistics);
-        }
-
-        // Check if there are more pages
-        if (data.pagination && currentPage < data.pagination.pages) {
-          currentPage++;
-        } else {
-          hasMore = false;
-        }
+      // Update stats
+      if (data.statistics) {
+        setStats(data.statistics);
       }
 
       console.log(`✅ All verification assessments fetched: ${allAssessments.length} total`);
