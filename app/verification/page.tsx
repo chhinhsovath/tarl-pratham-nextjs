@@ -32,13 +32,15 @@ import {
   SearchOutlined,
   EyeOutlined,
   CheckOutlined,
-  CloseOutlined
+  CloseOutlined,
+  DownloadOutlined
 } from '@ant-design/icons';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import { getLevelLabelKM } from '@/lib/constants/assessment-levels';
+import * as XLSX from 'xlsx';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -210,6 +212,212 @@ export default function VerificationPage() {
     } catch (error) {
       console.error('Verification error:', error);
       message.error('មានបញ្ហាក្នុងការផ្ទៀងផ្ទាត់');
+    }
+  };
+
+  const handleExportComparison = async () => {
+    try {
+      setLoading(true);
+      message.loading('កំពុងទាញយកទិន្នន័យប្រៀបធៀប...');
+
+      // Build query params
+      const params = new URLSearchParams();
+      if (filters.assessment_type) params.append('assessment_type', filters.assessment_type);
+      if (filters.subject) params.append('subject', filters.subject);
+
+      // Fetch comparison data
+      const response = await fetch(`/api/assessments/verify/comparison?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch comparison data');
+      }
+
+      const { comparisons, statistics } = await response.json();
+
+      if (!comparisons || comparisons.length === 0) {
+        message.warning('មិនមានទិន្នន័យសម្រាប់នាំចេញ');
+        return;
+      }
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+
+      // 1. Summary sheet
+      const summaryData = [
+        ['របាយការណ៍ប្រៀបធៀបការវាយតម្លៃគ្រូ និងការផ្ទៀងផ្ទាត់របស់គ្រូណែនាំ'],
+        ['កាលបរិច្ឆេទនាំចេញ:', dayjs().format('YYYY-MM-DD HH:mm')],
+        [],
+        ['សង្ខេបទិន្នន័យ'],
+        ['ចំនួនការវាយតម្លៃសរុប:', statistics.total_assessments || 0],
+        ['បានផ្ទៀងផ្ទាត់:', statistics.verified_count || 0],
+        ['រង់ចាំផ្ទៀងផ្ទាត់:', statistics.pending_count || 0],
+        ['កម្រិតត្រូវគ្នា:', statistics.level_match_count || 0],
+        ['ភាពខុសគ្នានៃពិន្ទុជាមធ្យម:', (statistics.average_score_difference || 0).toFixed(2) + '%'],
+      ];
+      const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, summarySheet, 'សង្ខេប');
+
+      // 2. Detailed comparison sheet
+      const detailHeaders = [
+        'លេខសិស្ស',
+        'ឈ្មោះសិស្ស',
+        'ភេទ',
+        'អាយុ',
+        'ថ្នាក់',
+        'សាលា',
+        'កូដសាលា',
+        'ខេត្ត',
+        'ស្រុក',
+        'ប្រភេទការវាយតម្លៃ',
+        'មុខវិជ្ជា',
+        'ឈ្មោះគ្រូ',
+        'កាលបរិច្ឆេទវាយតម្លៃគ្រូ',
+        'កម្រិតគ្រូ',
+        'ពិន្ទុគ្រូ (%)',
+        'ឈ្មោះគ្រូណែនាំ',
+        'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់',
+        'កម្រិតគ្រូណែនាំ',
+        'ពិន្ទុគ្រូណែនាំ (%)',
+        'ស្ថានភាពផ្ទៀងផ្ទាត់',
+        'ភាពខុសគ្នានៃពិន្ទុ (%)',
+        'កម្រិតត្រូវគ្នា',
+        'កំណត់ចំណាំ'
+      ];
+
+      const detailData = comparisons.map((comp: any) => [
+        comp.student_id || '',
+        comp.student_name || '',
+        comp.gender === 'M' ? 'ប្រុស' : comp.gender === 'F' ? 'ស្រី' : '',
+        comp.age || '',
+        comp.grade || '',
+        comp.school_name || '',
+        comp.school_code || '',
+        comp.province || '',
+        comp.district || '',
+        comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
+          comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 
+          comp.assessment_type === 'endline' ? 'បញ្ចប់' : '',
+        comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
+        comp.teacher_name || '',
+        comp.teacher_assessment_date ? dayjs(comp.teacher_assessment_date).format('YYYY-MM-DD') : '',
+        getLevelLabelKM(
+          comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+          comp.teacher_level
+        ),
+        comp.teacher_score || 0,
+        comp.mentor_name || 'មិនទាន់ផ្ទៀងផ្ទាត់',
+        comp.mentor_verification_date ? dayjs(comp.mentor_verification_date).format('YYYY-MM-DD') : '',
+        comp.mentor_level ? getLevelLabelKM(
+          comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+          comp.mentor_level
+        ) : '',
+        comp.mentor_score || '',
+        comp.verification_status === 'verified' ? 'បានផ្ទៀងផ្ទាត់' : 'រង់ចាំ',
+        comp.score_difference !== null ? comp.score_difference.toFixed(2) : '',
+        comp.level_match === true ? 'ត្រូវ' : comp.level_match === false ? 'មិនត្រូវ' : '',
+        comp.verification_notes || ''
+      ]);
+
+      const detailSheet = XLSX.utils.aoa_to_sheet([detailHeaders, ...detailData]);
+      
+      // Auto-size columns
+      const colWidths = detailHeaders.map((header, i) => {
+        const maxLength = Math.max(
+          header.length,
+          ...detailData.map((row: any[]) => String(row[i] || '').length)
+        );
+        return { wch: Math.min(maxLength + 2, 30) };
+      });
+      detailSheet['!cols'] = colWidths;
+
+      XLSX.utils.book_append_sheet(wb, detailSheet, 'ការប្រៀបធៀបលម្អិត');
+
+      // 3. Pending verifications sheet (students not yet verified)
+      const pendingComparisons = comparisons.filter((c: any) => c.verification_status === 'pending');
+      if (pendingComparisons.length > 0) {
+        const pendingHeaders = [
+          'លេខសិស្ស',
+          'ឈ្មោះសិស្ស',
+          'សាលា',
+          'ប្រភេទ',
+          'មុខវិជ្ជា',
+          'គ្រូ',
+          'កាលបរិច្ឆេទ',
+          'កម្រិត',
+          'ពិន្ទុ (%)'
+        ];
+
+        const pendingData = pendingComparisons.map((comp: any) => [
+          comp.student_id || '',
+          comp.student_name || '',
+          comp.school_name || '',
+          comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
+            comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់',
+          comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
+          comp.teacher_name || '',
+          comp.teacher_assessment_date ? dayjs(comp.teacher_assessment_date).format('YYYY-MM-DD') : '',
+          getLevelLabelKM(
+            comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+            comp.teacher_level
+          ),
+          comp.teacher_score || 0
+        ]);
+
+        const pendingSheet = XLSX.utils.aoa_to_sheet([pendingHeaders, ...pendingData]);
+        XLSX.utils.book_append_sheet(wb, pendingSheet, 'រង់ចាំផ្ទៀងផ្ទាត់');
+      }
+
+      // 4. Score discrepancies sheet (large differences)
+      const discrepancyThreshold = 10; // 10% difference
+      const discrepancies = comparisons.filter((c: any) => 
+        c.score_difference !== null && c.score_difference > discrepancyThreshold
+      );
+
+      if (discrepancies.length > 0) {
+        const discrepancyHeaders = [
+          'សិស្ស',
+          'សាលា',
+          'មុខវិជ្ជា',
+          'ពិន្ទុគ្រូ',
+          'ពិន្ទុគ្រូណែនាំ',
+          'ភាពខុសគ្នា (%)',
+          'កម្រិតគ្រូ',
+          'កម្រិតគ្រូណែនាំ'
+        ];
+
+        const discrepancyData = discrepancies.map((comp: any) => [
+          comp.student_name || '',
+          comp.school_name || '',
+          comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
+          comp.teacher_score || 0,
+          comp.mentor_score || 0,
+          comp.score_difference.toFixed(2),
+          getLevelLabelKM(
+            comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+            comp.teacher_level
+          ),
+          getLevelLabelKM(
+            comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math',
+            comp.mentor_level
+          )
+        ]);
+
+        const discrepancySheet = XLSX.utils.aoa_to_sheet([discrepancyHeaders, ...discrepancyData]);
+        XLSX.utils.book_append_sheet(wb, discrepancySheet, 'ភាពមិនត្រូវគ្នា');
+      }
+
+      // Generate filename with timestamp
+      const fileName = `verification_comparison_${dayjs().format('YYYY-MM-DD_HHmm')}.xlsx`;
+
+      // Write and download
+      XLSX.writeFile(wb, fileName);
+      
+      message.success('បាននាំចេញទិន្នន័យប្រៀបធៀបដោយជោគជ័យ');
+    } catch (error) {
+      console.error('Export error:', error);
+      message.error('មានបញ្ហាក្នុងការនាំចេញទិន្នន័យ');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -521,6 +729,15 @@ export default function VerificationPage() {
                   size="middle"
                 >
                   សម្អាត
+                </Button>
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={handleExportComparison}
+                  loading={loading}
+                  size="middle"
+                  type="default"
+                >
+                  នាំចេញការប្រៀបធៀប
                 </Button>
                 {selectedAssessments.length > 0 && (
                   <Button
