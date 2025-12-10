@@ -275,6 +275,70 @@ function AssessmentVerificationPage() {
     }
   };
 
+  const handleExportVerified = async () => {
+    try {
+      setLoading(true);
+      
+      if (viewMode === 'individual') {
+        // Export only verified individual assessments
+        const queryParams = new URLSearchParams({
+          ...Object.fromEntries(
+            Object.entries(filters).filter(([key, value]) => key !== 'status' && value !== '')
+          ),
+          status: 'verified', // Force verified status
+          export: 'true'
+        }).toString();
+        
+        const response = await fetch(`/api/assessments/verification?${queryParams}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch verified assessments for export');
+        }
+        
+        const data = await response.json();
+        const verifiedAssessments = data.assessments || [];
+        
+        if (verifiedAssessments.length === 0) {
+          message.warning('មិនមានការវាយតម្លៃដែលបានផ្ទៀងផ្ទាត់សម្រាប់នាំចេញ');
+          return;
+        }
+        
+        exportAssessments(verifiedAssessments);
+        message.success(`នាំចេញការវាយតម្លៃដែលបានផ្ទៀងផ្ទាត់បានជោគជ័យ (${verifiedAssessments.length} ការវាយតម្លៃ)`);
+      } else {
+        // Export only verified comparison data
+        const queryParams = new URLSearchParams(
+          Object.entries(filters)
+            .filter(([_, value]) => value !== '' && value !== 'pending' && value !== 'verified' && value !== 'rejected')
+            .map(([key, value]) => [key === 'status' ? 'assessment_type' : key, value])
+        ).toString();
+        
+        const response = await fetch(`/api/assessments/verify/comparison?${queryParams}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch comparison data for export');
+        }
+        
+        const data = await response.json();
+        const allComparisons = data.comparisons || [];
+        
+        // Filter to only verified comparisons
+        const verifiedComparisons = allComparisons.filter(comp => comp.verification_status === 'verified');
+        
+        if (verifiedComparisons.length === 0) {
+          message.warning('មិនមានទិន្នន័យប្រៀបធៀបដែលបានផ្ទៀងផ្ទាត់សម្រាប់នាំចេញ');
+          return;
+        }
+        
+        exportComparisonData(verifiedComparisons);
+        message.success(`នាំចេញទិន្នន័យប្រៀបធៀបដែលបានផ្ទៀងផ្ទាត់បានជោគជ័យ (${verifiedComparisons.length} សិស្ស)`);
+      }
+    } catch (error) {
+      console.error('Export verified error:', error);
+      message.error('មានបញ្ហាក្នុងការនាំចេញទិន្នន័យដែលបានផ្ទៀងផ្ទាត់');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Individual assessment columns
   const individualColumns = [
     {
@@ -705,14 +769,26 @@ function AssessmentVerificationPage() {
             </Form.Item>
 
             <Form.Item>
-              <Button
-                icon={<FileExcelOutlined />}
-                onClick={handleExport}
-                loading={loading}
-                disabled={loading}
-              >
-                នាំចេញ Excel
-              </Button>
+              <Space.Compact>
+                <Button
+                  icon={<FileExcelOutlined />}
+                  onClick={handleExport}
+                  loading={loading}
+                  disabled={loading}
+                >
+                  នាំចេញ Excel (ទាំងអស់)
+                </Button>
+                <Button
+                  icon={<CheckCircleOutlined />}
+                  type="primary"
+                  onClick={() => handleExportVerified()}
+                  loading={loading}
+                  disabled={loading}
+                  style={{ backgroundColor: '#52c41a' }}
+                >
+                  នាំចេញតែបានផ្ទៀងផ្ទាត់ ({stats.verified})
+                </Button>
+              </Space.Compact>
             </Form.Item>
           </Form>
         </Card>
