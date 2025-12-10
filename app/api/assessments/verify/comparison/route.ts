@@ -28,11 +28,11 @@ export async function GET(request: NextRequest) {
     const subject = searchParams.get('subject') || '';
     const school_id = searchParams.get('school_id') || '';
 
-    // Build where clause for teacher assessments
-    const teacherWhere: any = {
-      // Only original assessment types (not verification types)
+    // Build where clause for verification assessments (completed by mentors)
+    const verificationWhere: any = {
+      // Show verification assessment types - completed by mentors
       assessment_type: {
-        in: ['baseline', 'midline', 'endline']
+        in: ['baseline_verification', 'midline_verification', 'endline_verification']
       }
     };
 
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     if (session.user.role === 'mentor') {
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
       if (mentorSchoolIds.length > 0) {
-        teacherWhere.pilot_school_id = { in: mentorSchoolIds };
+        verificationWhere.pilot_school_id = { in: mentorSchoolIds };
       } else {
         // Mentor has no assigned schools, return empty result
         return NextResponse.json({ comparisons: [] });
@@ -49,22 +49,18 @@ export async function GET(request: NextRequest) {
 
     // Apply filters
     if (assessment_type) {
-      // Ensure we're filtering for the base assessment type, not verification type
-      const baseType = assessment_type.replace('_verification', '');
-      teacherWhere.assessment_type = {
-        in: [baseType] // Override the default array to filter specifically
-      };
+      verificationWhere.assessment_type = assessment_type; // Use exact verification type
     }
     if (subject) {
-      teacherWhere.subject = subject;
+      verificationWhere.subject = subject;
     }
     if (school_id) {
-      teacherWhere.pilot_school_id = parseInt(school_id);
+      verificationWhere.pilot_school_id = parseInt(school_id);
     }
 
-    // Fetch all teacher assessments with their verification assessments
-    const teacherAssessments = await prisma.assessment.findMany({
-      where: teacherWhere,
+    // Fetch all verification assessments (completed by mentors)
+    const verificationAssessments = await prisma.assessment.findMany({
+      where: verificationWhere,
       select: {
         id: true,
         assessment_type: true,
@@ -109,18 +105,18 @@ export async function GET(request: NextRequest) {
       ]
     });
 
-    // For each teacher assessment, find the corresponding mentor verification
+    // For each verification assessment, find the corresponding teacher assessment
     const comparisons = await Promise.all(
-      teacherAssessments.map(async (teacherAssessment) => {
-        // Build verification assessment type (e.g., 'baseline' -> 'baseline_verification')
-        const verificationType = `${teacherAssessment.assessment_type}_verification`;
+      verificationAssessments.map(async (verificationAssessment) => {
+        // Build original assessment type (e.g., 'baseline_verification' -> 'baseline')
+        const originalType = verificationAssessment.assessment_type.replace('_verification', '');
         
-        // Find mentor verification assessment for the same student and subject
-        const mentorVerification = await prisma.assessment.findFirst({
+        // Find original teacher assessment for the same student and subject
+        const teacherAssessment = await prisma.assessment.findFirst({
           where: {
-            student_id: teacherAssessment.student_id,
-            assessment_type: verificationType,
-            subject: teacherAssessment.subject
+            student_id: verificationAssessment.student_id,
+            assessment_type: originalType,
+            subject: verificationAssessment.subject
           },
           select: {
             id: true,
@@ -136,53 +132,53 @@ export async function GET(request: NextRequest) {
             }
           },
           orderBy: {
-            created_at: 'desc' // Get the most recent verification
+            created_at: 'desc' // Get the most recent original assessment
           }
         });
 
         return {
           // Student info
-          student_id: teacherAssessment.student?.student_id,
-          student_name: teacherAssessment.student?.name,
-          gender: teacherAssessment.student?.gender,
-          age: teacherAssessment.student?.age,
-          grade: teacherAssessment.student?.grade,
+          student_id: verificationAssessment.student?.student_id,
+          student_name: verificationAssessment.student?.name,
+          gender: verificationAssessment.student?.gender,
+          age: verificationAssessment.student?.age,
+          grade: verificationAssessment.student?.grade,
           
           // School info
-          school_name: teacherAssessment.pilot_school?.school_name,
-          school_code: teacherAssessment.pilot_school?.school_code,
-          province: teacherAssessment.pilot_school?.province,
-          district: teacherAssessment.pilot_school?.district,
+          school_name: verificationAssessment.pilot_school?.school_name,
+          school_code: verificationAssessment.pilot_school?.school_code,
+          province: verificationAssessment.pilot_school?.province,
+          district: verificationAssessment.pilot_school?.district,
           
           // Assessment info
-          assessment_type: teacherAssessment.assessment_type,
-          subject: teacherAssessment.subject,
+          assessment_type: originalType, // Show the base type (baseline, midline, endline)
+          subject: verificationAssessment.subject,
           
-          // Teacher assessment
-          teacher_name: teacherAssessment.added_by?.name,
-          teacher_assessment_id: teacherAssessment.id,
-          teacher_level: teacherAssessment.level,
+          // Teacher assessment (original)
+          teacher_name: teacherAssessment?.added_by?.name || 'Unknown Teacher',
+          teacher_assessment_id: teacherAssessment?.id || null,
+          teacher_level: teacherAssessment?.level || null,
           teacher_score: null, // Score field doesn't exist in database
-          teacher_assessment_date: teacherAssessment.assessed_date || teacherAssessment.created_at,
+          teacher_assessment_date: teacherAssessment?.assessed_date || teacherAssessment?.created_at || null,
           teacher_responses: null, // Responses field doesn't exist
           
-          // Mentor verification
-          mentor_name: mentorVerification?.added_by?.name || null,
-          mentor_assessment_id: mentorVerification?.id || null,
-          mentor_level: mentorVerification?.level || null,
+          // Mentor verification (this is our primary data now)
+          mentor_name: verificationAssessment.added_by?.name || 'Unknown Mentor',
+          mentor_assessment_id: verificationAssessment.id,
+          mentor_level: verificationAssessment.level,
           mentor_score: null, // Score field doesn't exist  
-          mentor_verification_date: mentorVerification?.assessed_date || mentorVerification?.created_at || null,
+          mentor_verification_date: verificationAssessment.assessed_date || verificationAssessment.created_at,
           mentor_responses: null, // Responses field doesn't exist
           
           // Verification status
-          verification_status: mentorVerification ? 'verified' : 'pending',
+          verification_status: 'verified', // All records here are verification assessments
           score_difference: null, // Can't calculate without scores
-          level_match: mentorVerification ? 
-            teacherAssessment.level === mentorVerification.level : null,
+          level_match: teacherAssessment && verificationAssessment.level ? 
+            teacherAssessment.level === verificationAssessment.level : null,
           
           // Additional verification info
-          verified_at: teacherAssessment.verified_at,
-          verification_notes: teacherAssessment.verification_notes
+          verified_at: verificationAssessment.verified_at,
+          verification_notes: verificationAssessment.verification_notes
         };
       })
     );
@@ -190,10 +186,11 @@ export async function GET(request: NextRequest) {
     // Calculate summary statistics
     const stats = {
       total_assessments: comparisons.length,
-      verified_count: comparisons.filter(c => c.verification_status === 'verified').length,
-      pending_count: comparisons.filter(c => c.verification_status === 'pending').length,
+      verified_count: comparisons.length, // All are verification assessments
+      pending_count: 0, // No pending since all are completed verifications
       level_match_count: comparisons.filter(c => c.level_match === true).length,
-      level_mismatch_count: comparisons.filter(c => c.level_match === false).length
+      level_mismatch_count: comparisons.filter(c => c.level_match === false).length,
+      no_original_count: comparisons.filter(c => c.teacher_assessment_id === null).length
     };
 
     return NextResponse.json({

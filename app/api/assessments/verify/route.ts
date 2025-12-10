@@ -39,11 +39,11 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    // Query for teacher assessments (baseline, midline, endline) - not verification types
+    // Query for verification assessments (baseline_verification, midline_verification, endline_verification)
     const where: any = {
-      // Only show original assessment types (not verification types)
+      // Show verification assessment types - completed by mentors
       assessment_type: {
-        in: ['baseline', 'midline', 'endline']
+        in: ['baseline_verification', 'midline_verification', 'endline_verification']
       }
     };
 
@@ -140,9 +140,9 @@ export async function GET(request: NextRequest) {
 
     // Get statistics
     let baseWhere: any = {
-      // Only count original assessment types (not verification types)
+      // Count verification assessment types - completed by mentors
       assessment_type: {
-        in: ['baseline', 'midline', 'endline']
+        in: ['baseline_verification', 'midline_verification', 'endline_verification']
       }
     };
 

@@ -98,7 +98,7 @@ export default function VerificationPage() {
         const params = new URLSearchParams({
           status: activeTab,
           page: currentPage.toString(),
-          limit: '100' // Increased from 20 to 100 for better performance
+          limit: '500' // Increased to handle larger datasets
         });
 
         if (filters.search) params.append('search', filters.search);
@@ -255,6 +255,7 @@ export default function VerificationPage() {
         ['ភាគរយកម្រិតត្រូវគ្នា:', statistics.verified_count > 0 ? 
           ((statistics.level_match_count / statistics.verified_count * 100).toFixed(1) + '%') : '0%'],
         ['កម្រិតមិនត្រូវគ្នា:', statistics.level_mismatch_count || 0],
+        ['គ្មានការវាយតម្លៃដើម:', statistics.no_original_count || 0],
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summarySheet, 'សង្ខេប');
