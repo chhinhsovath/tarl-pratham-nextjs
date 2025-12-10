@@ -39,12 +39,12 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    // All data is production now - query for unverified teacher assessments
+    // Query for teacher assessments (baseline, midline, endline) - not verification types
     const where: any = {
-      // Only show original assessments (not verification re-assessments)
-      mentor_assessment_id: null,
-      // Only show assessments created by teachers (mentors verify teacher work)
-      created_by_role: 'teacher'
+      // Only show original assessment types (not verification types)
+      assessment_type: {
+        in: ['baseline', 'midline', 'endline']
+      }
     };
 
     // If mentor, filter by assigned schools only
@@ -140,9 +140,10 @@ export async function GET(request: NextRequest) {
 
     // Get statistics
     let baseWhere: any = {
-      // Only count original teacher assessments (not verification re-assessments)
-      mentor_assessment_id: null,
-      created_by_role: 'teacher'
+      // Only count original assessment types (not verification types)
+      assessment_type: {
+        in: ['baseline', 'midline', 'endline']
+      }
     };
 
     if (session.user.role === 'mentor') {

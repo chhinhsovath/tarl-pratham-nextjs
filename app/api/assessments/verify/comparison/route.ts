@@ -30,9 +30,10 @@ export async function GET(request: NextRequest) {
 
     // Build where clause for teacher assessments
     const teacherWhere: any = {
-      // Only original teacher assessments
-      mentor_assessment_id: null,
-      created_by_role: 'teacher'
+      // Only original assessment types (not verification types)
+      assessment_type: {
+        in: ['baseline', 'midline', 'endline']
+      }
     };
 
     // If mentor, filter by assigned schools only
@@ -48,7 +49,11 @@ export async function GET(request: NextRequest) {
 
     // Apply filters
     if (assessment_type) {
-      teacherWhere.assessment_type = assessment_type;
+      // Ensure we're filtering for the base assessment type, not verification type
+      const baseType = assessment_type.replace('_verification', '');
+      teacherWhere.assessment_type = {
+        in: [baseType] // Override the default array to filter specifically
+      };
     }
     if (subject) {
       teacherWhere.subject = subject;
@@ -96,12 +101,14 @@ export async function GET(request: NextRequest) {
     // For each teacher assessment, find the corresponding mentor verification
     const comparisons = await Promise.all(
       teacherAssessments.map(async (teacherAssessment) => {
-        // Find mentor verification assessment for the same student, type, and subject
+        // Build verification assessment type (e.g., 'baseline' -> 'baseline_verification')
+        const verificationType = `${teacherAssessment.assessment_type}_verification`;
+        
+        // Find mentor verification assessment for the same student and subject
         const mentorVerification = await prisma.assessment.findFirst({
           where: {
-            mentor_assessment_id: teacherAssessment.id,
             student_id: teacherAssessment.student_id,
-            assessment_type: teacherAssessment.assessment_type,
+            assessment_type: verificationType,
             subject: teacherAssessment.subject
           },
           include: {
@@ -111,6 +118,9 @@ export async function GET(request: NextRequest) {
                 name: true
               }
             }
+          },
+          orderBy: {
+            created_at: 'desc' // Get the most recent verification
           }
         });
 
