@@ -116,8 +116,8 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: { created_at: 'desc' },
-      take: 10000 // Explicitly set a high limit to ensure we get all records
+      orderBy: { created_at: 'desc' }
+      // No take limit - get ALL records
     });
 
     // Get statistics

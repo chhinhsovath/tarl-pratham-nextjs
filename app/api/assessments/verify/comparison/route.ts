@@ -99,8 +99,8 @@ export async function GET(request: NextRequest) {
       orderBy: [
         { pilot_school_id: 'asc' },
         { created_at: 'desc' }
-      ],
-      take: 10000 // Ensure we get all records
+      ]
+      // No take limit - get ALL records
     });
 
     console.log(`Found ${teacherAssessments.length} teacher assessments`);
@@ -141,8 +141,8 @@ export async function GET(request: NextRequest) {
             name: true
           }
         }
-      },
-      take: 10000 // Ensure we get all records
+      }
+      // No take limit - get ALL records
     });
 
     console.log(`Found ${verificationAssessments.length} verification assessments`);

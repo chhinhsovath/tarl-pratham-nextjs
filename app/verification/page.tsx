@@ -795,16 +795,21 @@ export default function VerificationPage() {
             ]}
           />
 
-          {/* Table */}
+          {/* Table - Show ALL records, no pagination */}
           <Table
-            scroll={{ x: 800 }}
+            scroll={{ x: 800, y: 600 }}
             rowSelection={activeTab === 'pending' ? rowSelection : undefined}
             columns={columns}
-            dataSource={assessments}
+            dataSource={assessments.filter(a => a.status === activeTab)}
             rowKey="id"
             loading={loading}
-            pagination={false}
+            pagination={false}  // Disable pagination completely
             size="small"
+            footer={() => (
+              <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                សរុប {assessments.filter(a => a.status === activeTab).length} ការវាយតម្លៃ
+              </div>
+            )}
           />
         </Card>
 
