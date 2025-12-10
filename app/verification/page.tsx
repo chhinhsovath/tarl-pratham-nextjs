@@ -106,7 +106,9 @@ export default function VerificationPage() {
       const data = await response.json();
       const allAssessments = data.assessments || [];
 
-      console.log(`✅ Verification: Fetched ALL ${allAssessments.length} verification assessments`);
+      console.log(`✅ Frontend received: ${allAssessments.length} assessments`);
+      console.log(`✅ API says total is: ${data.pagination?.total || 'unknown'}`);
+      console.log(`✅ Statistics: ${JSON.stringify(data.statistics)}`);
 
       // Update stats
       if (data.statistics) {

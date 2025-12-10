@@ -83,40 +83,42 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Fetch assessments with related data
-    const [assessments, total] = await Promise.all([
-      prisma.assessment.findMany({
-        where,
-        include: {
-          student: {
-            select: {
-              id: true,
-              student_id: true,
-              name: true,
-              gender: true,
-              age: true,
-              is_temporary: true
-            }
-          },
-          pilot_school: {
-            select: {
-              id: true,
-              school_name: true,
-              school_code: true
-            }
-          },
-          added_by: {
-            select: {
-              id: true,
-              name: true,
-              role: true
-            }
+    // First count how many we should get
+    const expectedCount = await prisma.assessment.count({ where });
+    
+    // Fetch ALL assessments with related data - NO LIMIT
+    const assessments = await prisma.assessment.findMany({
+      where,
+      include: {
+        student: {
+          select: {
+            id: true,
+            student_id: true,
+            name: true,
+            gender: true,
+            age: true,
+            is_temporary: true
           }
         },
-        orderBy: { created_at: 'desc' }
-      }),
-      prisma.assessment.count({ where })
-    ]);
+        pilot_school: {
+          select: {
+            id: true,
+            school_name: true,
+            school_code: true
+          }
+        },
+        added_by: {
+          select: {
+            id: true,
+            name: true,
+            role: true
+          }
+        }
+      },
+      orderBy: { created_at: 'desc' }
+    });
+    
+    const total = expectedCount;
 
     // Get statistics
     let baseWhere: any = {
@@ -196,6 +198,9 @@ export async function GET(request: NextRequest) {
       rejected: rejectedCount,
       total: pendingCount + verifiedCount + rejectedCount
     };
+
+    // Always log to help debug the issue
+    console.log(`API: Returning ${assessments.length} assessments (expected: ${total})`);
 
     return NextResponse.json({
       assessments,

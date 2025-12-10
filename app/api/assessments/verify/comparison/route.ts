@@ -58,7 +58,11 @@ export async function GET(request: NextRequest) {
       verificationWhere.pilot_school_id = parseInt(school_id);
     }
 
-    // Fetch all verification assessments (completed by mentors)
+    // Count first to know how many we expect
+    const expectedCount = await prisma.assessment.count({ where: verificationWhere });
+    console.log(`Comparison API: Expecting ${expectedCount} verification assessments`);
+    
+    // Fetch ALL verification assessments (completed by mentors) - NO LIMIT
     const verificationAssessments = await prisma.assessment.findMany({
       where: verificationWhere,
       select: {
@@ -136,7 +140,8 @@ export async function GET(request: NextRequest) {
           }
         });
 
-        // No debug logging in production
+        // Always log to debug
+    console.log(`Comparison API: Actually fetched ${verificationAssessments.length} verification assessments`);
 
         return {
           // Student info
