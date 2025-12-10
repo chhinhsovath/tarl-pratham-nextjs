@@ -70,13 +70,13 @@ export async function GET(request: NextRequest) {
         assessment_type: true,
         subject: true,
         level: true,  // Important: Include level field
-        score: true,
-        responses: true,
+        notes: true,
         created_at: true,
         student_id: true,
         pilot_school_id: true,
         verification_notes: true,
         verified_at: true,
+        assessed_date: true,
         student: {
           select: {
             id: true,
@@ -125,9 +125,9 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             level: true,  // Important: Include level field
-            score: true,
-            responses: true,
+            notes: true,
             created_at: true,
+            assessed_date: true,
             added_by: {
               select: {
                 id: true,
@@ -162,22 +162,21 @@ export async function GET(request: NextRequest) {
           teacher_name: teacherAssessment.added_by?.name,
           teacher_assessment_id: teacherAssessment.id,
           teacher_level: teacherAssessment.level,
-          teacher_score: teacherAssessment.score,
-          teacher_assessment_date: teacherAssessment.created_at,
-          teacher_responses: teacherAssessment.responses,
+          teacher_score: null, // Score field doesn't exist in database
+          teacher_assessment_date: teacherAssessment.assessed_date || teacherAssessment.created_at,
+          teacher_responses: null, // Responses field doesn't exist
           
           // Mentor verification
           mentor_name: mentorVerification?.added_by?.name || null,
           mentor_assessment_id: mentorVerification?.id || null,
           mentor_level: mentorVerification?.level || null,
-          mentor_score: mentorVerification?.score || null,
-          mentor_verification_date: mentorVerification?.created_at || null,
-          mentor_responses: mentorVerification?.responses || null,
+          mentor_score: null, // Score field doesn't exist  
+          mentor_verification_date: mentorVerification?.assessed_date || mentorVerification?.created_at || null,
+          mentor_responses: null, // Responses field doesn't exist
           
           // Verification status
           verification_status: mentorVerification ? 'verified' : 'pending',
-          score_difference: mentorVerification ? 
-            Math.abs(teacherAssessment.score - mentorVerification.score) : null,
+          score_difference: null, // Can't calculate without scores
           level_match: mentorVerification ? 
             teacherAssessment.level === mentorVerification.level : null,
           
@@ -194,10 +193,7 @@ export async function GET(request: NextRequest) {
       verified_count: comparisons.filter(c => c.verification_status === 'verified').length,
       pending_count: comparisons.filter(c => c.verification_status === 'pending').length,
       level_match_count: comparisons.filter(c => c.level_match === true).length,
-      average_score_difference: comparisons
-        .filter(c => c.score_difference !== null)
-        .reduce((sum, c) => sum + (c.score_difference || 0), 0) / 
-        comparisons.filter(c => c.score_difference !== null).length || 0
+      level_mismatch_count: comparisons.filter(c => c.level_match === false).length
     };
 
     return NextResponse.json({

@@ -254,6 +254,7 @@ export default function VerificationPage() {
         ['កម្រិតត្រូវគ្នា:', statistics.level_match_count || 0],
         ['ភាគរយកម្រិតត្រូវគ្នា:', statistics.verified_count > 0 ? 
           ((statistics.level_match_count / statistics.verified_count * 100).toFixed(1) + '%') : '0%'],
+        ['កម្រិតមិនត្រូវគ្នា:', statistics.level_mismatch_count || 0],
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summarySheet, 'សង្ខេប');
