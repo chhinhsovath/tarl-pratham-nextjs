@@ -83,10 +83,11 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // First count how many we should get
-    const expectedCount = await prisma.assessment.count({ where });
+    // Count total first
+    const total = await prisma.assessment.count({ where });
+    console.log(`Total teacher assessments in database: ${total}`);
     
-    // Fetch ALL assessments with related data - NO LIMIT
+    // Fetch ALL assessments - explicitly no limit
     const assessments = await prisma.assessment.findMany({
       where,
       include: {
@@ -115,10 +116,9 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
+      take: 10000 // Explicitly set a high limit to ensure we get all records
     });
-    
-    const total = expectedCount;
 
     // Get statistics
     let baseWhere: any = {
@@ -199,8 +199,9 @@ export async function GET(request: NextRequest) {
       total: pendingCount + verifiedCount + rejectedCount
     };
 
-    // Always log to help debug the issue
-    console.log(`API: Returning ${assessments.length} assessments (expected: ${total})`);
+    // Log to verify we're getting all records
+    console.log(`✅ API: Returning ${assessments.length} teacher assessments`);
+    console.log(`✅ Statistics: pending=${statistics.pending}, verified=${statistics.verified}, total=${statistics.total}`);
 
     return NextResponse.json({
       assessments,

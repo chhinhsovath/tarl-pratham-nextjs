@@ -233,14 +233,15 @@ export default function VerificationPage() {
         ['កាលបរិច្ឆេទនាំចេញ:', dayjs().format('YYYY-MM-DD HH:mm')],
         [],
         ['សង្ខេបទិន្នន័យ'],
-        ['ចំនួនការវាយតម្លៃសរុប:', statistics.total_assessments || 0],
-        ['បានផ្ទៀងផ្ទាត់:', statistics.verified_count || 0],
-        ['រង់ចាំផ្ទៀងផ្ទាត់:', statistics.pending_count || 0],
+        ['ចំនួនការវាយតម្លៃដោយគ្រូសរុប:', statistics.total_assessments || 0],
+        ['បានផ្ទៀងផ្ទាត់ដោយគ្រូណែនាំ:', statistics.verified_count || 0],
+        ['រង់ចាំការផ្ទៀងផ្ទាត់:', statistics.pending_count || 0],
+        [],
+        ['សម្រាប់ការផ្ទៀងផ្ទាត់ដែលបានធ្វើ:'],
         ['កម្រិតត្រូវគ្នា:', statistics.level_match_count || 0],
+        ['កម្រិតមិនត្រូវគ្នា:', statistics.level_mismatch_count || 0],
         ['ភាគរយកម្រិតត្រូវគ្នា:', statistics.verified_count > 0 ? 
           ((statistics.level_match_count / statistics.verified_count * 100).toFixed(1) + '%') : '0%'],
-        ['កម្រិតមិនត្រូវគ្នា:', statistics.level_mismatch_count || 0],
-        ['គ្មានការវាយតម្លៃដើម:', statistics.no_original_count || 0],
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summarySheet, 'សង្ខេប');
