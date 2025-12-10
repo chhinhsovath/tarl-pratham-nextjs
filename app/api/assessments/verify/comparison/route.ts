@@ -65,7 +65,18 @@ export async function GET(request: NextRequest) {
     // Fetch all teacher assessments with their verification assessments
     const teacherAssessments = await prisma.assessment.findMany({
       where: teacherWhere,
-      include: {
+      select: {
+        id: true,
+        assessment_type: true,
+        subject: true,
+        level: true,  // Important: Include level field
+        score: true,
+        responses: true,
+        created_at: true,
+        student_id: true,
+        pilot_school_id: true,
+        verification_notes: true,
+        verified_at: true,
         student: {
           select: {
             id: true,
@@ -111,7 +122,12 @@ export async function GET(request: NextRequest) {
             assessment_type: verificationType,
             subject: teacherAssessment.subject
           },
-          include: {
+          select: {
+            id: true,
+            level: true,  // Important: Include level field
+            score: true,
+            responses: true,
+            created_at: true,
             added_by: {
               select: {
                 id: true,
