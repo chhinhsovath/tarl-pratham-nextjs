@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
     const assessment_type = searchParams.get('assessment_type') || '';
     const subject = searchParams.get('subject') || '';
     const school_id = searchParams.get('school_id') || '';
+    const is_temporary = searchParams.get('is_temporary') || '';
 
     // Build where clause for TEACHER assessments (baseline, midline, endline)
     const teacherWhere: any = {
@@ -55,6 +56,9 @@ export async function GET(request: NextRequest) {
     }
     if (school_id) {
       teacherWhere.pilot_school_id = parseInt(school_id);
+    }
+    if (is_temporary !== null && is_temporary !== '') {
+      teacherWhere.is_temporary = is_temporary === 'true';
     }
 
     // Fetch ALL teacher assessments (these are the primary records we want to show)

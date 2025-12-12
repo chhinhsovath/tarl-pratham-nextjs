@@ -702,7 +702,30 @@ function AssessmentVerificationPage() {
         </Card>
 
         <Card variant="borderless" style={{ marginBottom: 16 }}>
-          <Form layout="inline" onFinish={(values) => setFilters({...filters, ...values})}>
+          <Form 
+            layout="inline" 
+            form={form}
+            onFinish={(values) => {
+              // Format date values
+              const formattedValues = {
+                ...values,
+                date_from: values.date_from ? values.date_from.format('YYYY-MM-DD') : '',
+                date_to: values.date_to ? values.date_to.format('YYYY-MM-DD') : ''
+              };
+              setFilters({...filters, ...formattedValues});
+            }}
+            onValuesChange={(changedValues, allValues) => {
+              // Auto-apply filters when dropdown values change (except dates)
+              if (!changedValues.date_from && !changedValues.date_to) {
+                const formattedValues = {
+                  ...allValues,
+                  date_from: allValues.date_from ? allValues.date_from.format('YYYY-MM-DD') : '',
+                  date_to: allValues.date_to ? allValues.date_to.format('YYYY-MM-DD') : ''
+                };
+                setFilters({...filters, ...formattedValues});
+              }
+            }}
+          >
             <Form.Item name="status" initialValue="pending">
               <Select style={{ width: 150 }} placeholder="ស្ថានភាព">
                 <Option value="">ស្ថានភាពទាំងអស់</Option>
@@ -753,7 +776,7 @@ function AssessmentVerificationPage() {
 
             <Form.Item>
               <Button onClick={() => {
-                setFilters({
+                const resetFilters = {
                   status: 'pending',
                   assessment_type: '',
                   subject: '',
@@ -761,8 +784,10 @@ function AssessmentVerificationPage() {
                   date_from: '',
                   date_to: '',
                   is_temporary: ''
-                });
+                };
+                setFilters(resetFilters);
                 form.resetFields();
+                form.setFieldsValue({ status: 'pending' });
               }}>
                 កំណត់ឡើងវិញ
               </Button>
