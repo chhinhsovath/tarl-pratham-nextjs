@@ -79,7 +79,7 @@ function AssessmentVerificationPage() {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams(
-        Object.entries(filters).filter(([_, value]) => value !== '')
+        Object.entries(filters).filter(([_, value]) => value !== '' && value !== undefined && value !== null)
       ).toString();
       
       const response = await fetch(`/api/assessments/verification?${queryParams}`);
@@ -100,7 +100,7 @@ function AssessmentVerificationPage() {
     try {
       const queryParams = new URLSearchParams(
         Object.entries(filters)
-          .filter(([_, value]) => value !== '' && value !== 'pending' && value !== 'verified' && value !== 'rejected')
+          .filter(([_, value]) => value !== '' && value !== undefined && value !== null && value !== 'pending' && value !== 'verified' && value !== 'rejected')
           .map(([key, value]) => [key === 'status' ? 'assessment_type' : key, value])
       ).toString();
       
@@ -220,7 +220,7 @@ function AssessmentVerificationPage() {
         // Export individual assessments
         const queryParams = new URLSearchParams({
           ...Object.fromEntries(
-            Object.entries(filters).filter(([_, value]) => value !== '')
+            Object.entries(filters).filter(([_, value]) => value !== '' && value !== undefined && value !== null)
           ),
           export: 'true'
         }).toString();
@@ -244,7 +244,7 @@ function AssessmentVerificationPage() {
         // Export comparison data
         const queryParams = new URLSearchParams(
           Object.entries(filters)
-            .filter(([_, value]) => value !== '' && value !== 'pending' && value !== 'verified' && value !== 'rejected')
+            .filter(([_, value]) => value !== '' && value !== undefined && value !== null && value !== 'pending' && value !== 'verified' && value !== 'rejected')
             .map(([key, value]) => [key === 'status' ? 'assessment_type' : key, value])
         ).toString();
         
@@ -280,7 +280,7 @@ function AssessmentVerificationPage() {
         // Export only verified individual assessments
         const queryParams = new URLSearchParams({
           ...Object.fromEntries(
-            Object.entries(filters).filter(([key, value]) => key !== 'status' && value !== '')
+            Object.entries(filters).filter(([key, value]) => key !== 'status' && value !== '' && value !== undefined && value !== null)
           ),
           status: 'verified', // Force verified status
           export: 'true'
@@ -305,7 +305,7 @@ function AssessmentVerificationPage() {
         // Export only verified comparison data
         const queryParams = new URLSearchParams(
           Object.entries(filters)
-            .filter(([_, value]) => value !== '' && value !== 'pending' && value !== 'verified' && value !== 'rejected')
+            .filter(([_, value]) => value !== '' && value !== undefined && value !== null && value !== 'pending' && value !== 'verified' && value !== 'rejected')
             .map(([key, value]) => [key === 'status' ? 'assessment_type' : key, value])
         ).toString();
         
@@ -703,11 +703,18 @@ function AssessmentVerificationPage() {
             layout="inline" 
             form={form}
             onFinish={(values) => {
-              setFilters({...filters, ...values});
+              // Clean up undefined values
+              const cleanValues = Object.fromEntries(
+                Object.entries(values).map(([key, value]) => [key, value || ''])
+              );
+              setFilters({...filters, ...cleanValues});
             }}
             onValuesChange={(changedValues, allValues) => {
-              // Auto-apply filters when dropdown values change
-              setFilters({...filters, ...allValues});
+              // Auto-apply filters when dropdown values change, cleaning up undefined values
+              const cleanValues = Object.fromEntries(
+                Object.entries(allValues).map(([key, value]) => [key, value || ''])
+              );
+              setFilters({...filters, ...cleanValues});
             }}
           >
             <Form.Item name="status" initialValue="pending">
