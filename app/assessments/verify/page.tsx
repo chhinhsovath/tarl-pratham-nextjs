@@ -12,7 +12,6 @@ import {
   Form,
   Input,
   Select,
-  DatePicker,
   Row,
   Col,
   Statistic,
@@ -57,8 +56,6 @@ function AssessmentVerificationPage() {
     assessment_type: '',
     subject: '',
     school_id: '',
-    date_from: '',
-    date_to: '',
     is_temporary: ''
   });
   const [stats, setStats] = useState({
@@ -706,24 +703,11 @@ function AssessmentVerificationPage() {
             layout="inline" 
             form={form}
             onFinish={(values) => {
-              // Format date values
-              const formattedValues = {
-                ...values,
-                date_from: values.date_from ? values.date_from.format('YYYY-MM-DD') : '',
-                date_to: values.date_to ? values.date_to.format('YYYY-MM-DD') : ''
-              };
-              setFilters({...filters, ...formattedValues});
+              setFilters({...filters, ...values});
             }}
             onValuesChange={(changedValues, allValues) => {
-              // Auto-apply filters when dropdown values change (except dates)
-              if (!changedValues.date_from && !changedValues.date_to) {
-                const formattedValues = {
-                  ...allValues,
-                  date_from: allValues.date_from ? allValues.date_from.format('YYYY-MM-DD') : '',
-                  date_to: allValues.date_to ? allValues.date_to.format('YYYY-MM-DD') : ''
-                };
-                setFilters({...filters, ...formattedValues});
-              }
+              // Auto-apply filters when dropdown values change
+              setFilters({...filters, ...allValues});
             }}
           >
             <Form.Item name="status" initialValue="pending">
@@ -760,14 +744,6 @@ function AssessmentVerificationPage() {
               </Select>
             </Form.Item>
 
-            <Form.Item name="date_from">
-              <DatePicker placeholder="ពីកាលបរិច្ឆេទ" />
-            </Form.Item>
-
-            <Form.Item name="date_to">
-              <DatePicker placeholder="ដល់កាលបរិច្ឆេទ" />
-            </Form.Item>
-
             <Form.Item>
               <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                 ស្វែងរក
@@ -781,8 +757,6 @@ function AssessmentVerificationPage() {
                   assessment_type: '',
                   subject: '',
                   school_id: '',
-                  date_from: '',
-                  date_to: '',
                   is_temporary: ''
                 };
                 setFilters(resetFilters);

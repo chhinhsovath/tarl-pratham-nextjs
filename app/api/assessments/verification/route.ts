@@ -18,8 +18,6 @@ export async function GET(request: NextRequest) {
     const assessment_type = searchParams.get('assessment_type');
     const subject = searchParams.get('subject');
     const school_id = searchParams.get('school_id');
-    const date_from = searchParams.get('date_from');
-    const date_to = searchParams.get('date_to');
     const is_temporary = searchParams.get('is_temporary');
 
     // Build where clause
@@ -46,13 +44,6 @@ export async function GET(request: NextRequest) {
     if (school_id) where.pilot_school_id = parseInt(school_id);
     if (is_temporary !== null && is_temporary !== '') {
       where.is_temporary = is_temporary === 'true';
-    }
-
-    if (date_from && date_to) {
-      where.assessed_date = {
-        gte: new Date(date_from),
-        lte: new Date(date_to),
-      };
     }
 
     // Role-based filtering
