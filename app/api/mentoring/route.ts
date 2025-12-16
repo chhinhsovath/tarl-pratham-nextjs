@@ -179,7 +179,10 @@ export async function GET(request: NextRequest) {
     const pageParam = searchParams.get("page");
     const limitParam = searchParams.get("limit");
     const page = pageParam && /^\d+$/.test(pageParam) ? Math.max(1, parseInt(pageParam)) : 1;
-    const limit = limitParam && /^\d+$/.test(limitParam) ? Math.max(1, Math.min(100, parseInt(limitParam))) : 10; // Limit max to 100
+
+    // Allow higher limits for coordinators and admins for export functionality
+    const maxLimit = (session.user.role === 'admin' || session.user.role === 'coordinator') ? 100000 : 100;
+    const limit = limitParam && /^\d+$/.test(limitParam) ? Math.max(1, Math.min(maxLimit, parseInt(limitParam))) : 10;
     const search = searchParams.get("search") || "";
     const status = searchParams.get("status") || "";
     const pilot_school_id_param = searchParams.get("pilot_school_id") || "";

@@ -35,6 +35,7 @@ import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
+import { exportMentoringVisits } from '@/lib/utils/export';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -206,32 +207,45 @@ function MentoringContent() {
 
   const handleExport = async () => {
     try {
+      message.loading({ content: 'កំពុងនាំចេញទិន្នន័យ...', key: 'export', duration: 0 });
+
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
       });
 
+      // Apply role-based filtering for export (same as main list)
       if (user?.role === 'mentor') {
         params.append('mentor_id', user.id.toString());
       }
 
-      const response = await fetch(`/api/mentoring/export?${params.toString()}`);
+      // Fetch ALL visits (not paginated) for export
+      params.append('limit', '10000'); // Get all visits
+
+      const response = await fetch(`/api/mentoring?${params.toString()}`);
       if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `mentoring_visits_${dayjs().format('YYYY-MM-DD')}.xlsx`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        message.success('Mentoring visits exported successfully');
+        const data = await response.json();
+        const allVisits = data.data || [];
+
+        if (allVisits.length === 0) {
+          message.warning('មិនមានទិន្នន័យសម្រាប់នាំចេញ');
+          message.destroy('export');
+          return;
+        }
+
+        // Use the detailed XLSX export utility
+        exportMentoringVisits(allVisits);
+
+        message.success({
+          content: `បាននាំចេញការចុះអប់រំចំនួន ${allVisits.length} បានជោគជ័យ`,
+          key: 'export'
+        });
       } else {
-        message.error('Failed to export visits');
+        message.error({ content: 'មិនអាចនាំចេញទិន្នន័យបានទេ', key: 'export' });
       }
     } catch (error) {
-      message.error('Failed to export visits');
+      console.error('Export error:', error);
+      message.error({ content: 'មិនអាចនាំចេញទិន្នន័យបានទេ', key: 'export' });
     }
   };
 
