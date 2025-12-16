@@ -227,6 +227,13 @@ function CoordinatorWorkspaceContent() {
       path: '/assessments/verify'
     },
     {
+      title: 'គ្រប់គ្រងការចុះអប់រំ',
+      icon: <TeamOutlined style={{ fontSize: 24 }} />,
+      color: '#9333ea',
+      description: 'មើល នាំចេញ និងគ្រប់គ្រងការចុះអប់រំពីគ្រូព្រឹក្សា',
+      path: '/mentoring'
+    },
+    {
       title: 'របាយការណ៍ទូទៅសាលារៀន',
       icon: <BarChartOutlined style={{ fontSize: 24 }} />,
       color: '#faad14',
