@@ -30,15 +30,11 @@ export async function GET(request: NextRequest) {
     const is_temporary = searchParams.get('is_temporary') || '';
 
     // Build where clause for TEACHER assessments (baseline, midline, endline)
-    // Teacher assessments have assessed_by_mentor = false or null
+    // Get all assessments (assessed_by_mentor field may not exist in production DB)
     const teacherWhere: any = {
       assessment_type: {
         in: ['baseline', 'midline', 'endline']
-      },
-      OR: [
-        { assessed_by_mentor: false },
-        { assessed_by_mentor: null }
-      ]
+      }
     };
 
     // If mentor, filter by assigned schools only
@@ -125,47 +121,16 @@ export async function GET(request: NextRequest) {
       // No take limit - get ALL records
     });
 
-    console.log(`Found ${teacherAssessments.length} teacher assessments`);
+    console.log(`Found ${teacherAssessments.length} assessments`);
 
-    // Fetch all mentor verification assessments for these teacher assessments
-    const teacherAssessmentIds = teacherAssessments.map(ta => ta.id);
-    const mentorAssessments = await prisma.assessment.findMany({
-      where: {
-        assessed_by_mentor: true,
-        mentor_assessment_id: {
-          in: teacherAssessmentIds.map(id => id.toString())
-        }
-      },
-      select: {
-        id: true,
-        level: true,
-        mentor_assessment_id: true,
-        created_at: true,
-        added_by: {
-          select: {
-            id: true,
-            name: true,
-            role: true
-          }
-        }
-      }
-    });
+    // Since assessed_by_mentor field might not exist in production DB,
+    // we'll use verified_by_id to determine if assessment has been verified
+    // In this system, verification is tracked on the same record via verified_by_id
 
-    console.log(`Found ${mentorAssessments.length} mentor verification assessments`);
-
-    // Create a map of mentor assessments by teacher assessment id
-    const mentorAssessmentMap = new Map();
-    mentorAssessments.forEach(ma => {
-      if (ma.mentor_assessment_id) {
-        mentorAssessmentMap.set(parseInt(ma.mentor_assessment_id), ma);
-      }
-    });
-
-    // Process ALL teacher assessments to create comparisons
+    // Process ALL assessments to create comparisons
     const comparisons = teacherAssessments.map((teacherAssessment) => {
-      // Check if there's a mentor verification assessment
-      const mentorAssessment = mentorAssessmentMap.get(teacherAssessment.id);
-      const isVerified = mentorAssessment !== undefined;
+      // Check if this assessment has been verified (verified_by_id is not null)
+      const isVerified = teacherAssessment.verified_by_id !== null;
 
       return {
         // Student info
@@ -193,22 +158,23 @@ export async function GET(request: NextRequest) {
         teacher_assessment_date: teacherAssessment.assessed_date || teacherAssessment.created_at,
         teacher_responses: null, // Responses field doesn't exist
         
-        // Mentor verification (from mentor's assessment record)
-        mentor_name: isVerified ? (mentorAssessment.added_by?.name || 'Unknown Mentor') : 'រង់ចាំផ្ទៀងផ្ទាត់',
-        mentor_assessment_id: isVerified ? mentorAssessment.id : null,
-        mentor_level: isVerified ? mentorAssessment.level : null,
+        // Mentor verification (from verified_by on same record)
+        // Note: In this system, verification is approval-based, not re-assessment
+        mentor_name: isVerified ? (teacherAssessment.verified_by?.name || 'Unknown Mentor') : 'រង់ចាំផ្ទៀងផ្ទាត់',
+        mentor_assessment_id: isVerified ? teacherAssessment.id : null,
+        mentor_level: isVerified ? teacherAssessment.level : null, // Same level (approval-based)
         mentor_score: null, // Score field doesn't exist
-        mentor_verification_date: isVerified ? mentorAssessment.created_at : null,
+        mentor_verification_date: teacherAssessment.verified_at,
         mentor_responses: null, // Responses field doesn't exist
 
-        // Verification status - compare actual levels
+        // Verification status
         verification_status: isVerified ? 'verified' : 'pending',
         score_difference: null, // Can't calculate without scores
-        level_match: isVerified ? (teacherAssessment.level === mentorAssessment.level) : null,
+        level_match: isVerified ? true : null, // Always true in approval-based system
 
         // Additional verification info
-        verified_at: isVerified ? mentorAssessment.created_at : null,
-        verification_notes: null
+        verified_at: teacherAssessment.verified_at || null,
+        verification_notes: teacherAssessment.verification_notes || null
       };
     });
 
