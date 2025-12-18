@@ -62,7 +62,7 @@ export async function POST(
     }
 
     // Check if assessment exists and user has access
-    const assessment = await prisma.assessment.findUnique({
+    const assessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       include: {
         student: {
@@ -141,11 +141,11 @@ export async function POST(
         // For mentors deleting temporary assessments, hard delete
         // For others, soft delete (mark as inactive)
         if (session.user.role === 'mentor' && assessment.is_temporary) {
-          await prisma.assessment.delete({
+          await prisma.assessments.delete({
             where: { id: assessmentId }
           });
         } else {
-          await prisma.assessment.update({
+          await prisma.assessments.update({
             where: { id: assessmentId },
             data: { is_active: false }
           });
@@ -158,7 +158,7 @@ export async function POST(
 
     // Perform update for non-delete operations
     if (operation !== 'delete') {
-      await prisma.assessment.update({
+      await prisma.assessments.update({
         where: { id: assessmentId },
         data: {
           ...updateData,

@@ -204,7 +204,7 @@ export async function GET(request: NextRequest) {
     // SHEET 5: ASSESSMENTS - BASELINE
     // ============================================
     console.log('[Export] Fetching baseline assessments...');
-    const baselineAssessments = await prisma.assessment.findMany({
+    const baselineAssessments = await prisma.assessments.findMany({
       where: {
         assessment_type: 'baseline',
         record_status: 'production',
@@ -248,7 +248,7 @@ export async function GET(request: NextRequest) {
     // SHEET 6: ASSESSMENTS - MIDLINE
     // ============================================
     console.log('[Export] Fetching midline assessments...');
-    const midlineAssessments = await prisma.assessment.findMany({
+    const midlineAssessments = await prisma.assessments.findMany({
       where: {
         assessment_type: 'midline',
         record_status: 'production',
@@ -292,7 +292,7 @@ export async function GET(request: NextRequest) {
     // SHEET 7: ASSESSMENTS - ENDLINE
     // ============================================
     console.log('[Export] Fetching endline assessments...');
-    const endlineAssessments = await prisma.assessment.findMany({
+    const endlineAssessments = await prisma.assessments.findMany({
       where: {
         assessment_type: 'endline',
         record_status: 'production',
@@ -336,7 +336,7 @@ export async function GET(request: NextRequest) {
     // SHEET 8: VERIFIED ASSESSMENTS
     // ============================================
     console.log('[Export] Fetching verified assessments...');
-    const verifiedAssessments = await prisma.assessment.findMany({
+    const verifiedAssessments = await prisma.assessments.findMany({
       where: {
         verified_by_id: {
           not: null,

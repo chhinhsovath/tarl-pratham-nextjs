@@ -42,12 +42,12 @@ export async function GET(request: NextRequest) {
       totalAssessments,
       temporaryAssessments
     ] = await Promise.all([
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           student: schoolFilter
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           is_temporary: true,
           student: schoolFilter
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const recentAssessments = await prisma.assessment.findMany({
+    const recentAssessments = await prisma.assessments.findMany({
       where: {
         assessed_date: {
           gte: sevenDaysAgo
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
     }));
 
     // Get recent activity count filtered by school
-    const assessmentsLast7Days = await prisma.assessment.count({
+    const assessmentsLast7Days = await prisma.assessments.count({
       where: {
         assessed_date: {
           gte: sevenDaysAgo
@@ -103,13 +103,13 @@ export async function GET(request: NextRequest) {
 
     // Assessment distribution data filtered by school and using assessment_type field
     const [baselineCount, midlineCount, endlineCount] = await Promise.all([
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: { assessment_type: 'baseline', student: schoolFilter }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: { assessment_type: 'midline', student: schoolFilter }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: { assessment_type: 'endline', student: schoolFilter }
       })
     ]);

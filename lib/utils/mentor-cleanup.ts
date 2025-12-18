@@ -39,7 +39,7 @@ export async function cleanupMentorData() {
         });
 
         // Delete assessments
-        await prisma.assessment.deleteMany({
+        await prisma.assessments.deleteMany({
           where: {
             student_id: student.id
           }
@@ -57,7 +57,7 @@ export async function cleanupMentorData() {
     });
 
     // Find temporary assessments older than 48 hours (orphaned assessments)
-    const temporaryAssessments = await prisma.assessment.findMany({
+    const temporaryAssessments = await prisma.assessments.findMany({
       where: {
         is_temporary: true,
         assessed_by_mentor: true,
@@ -80,7 +80,7 @@ export async function cleanupMentorData() {
       });
 
       // Delete orphaned temporary assessments
-      const deletedAssessments = await prisma.assessment.deleteMany({
+      const deletedAssessments = await prisma.assessments.deleteMany({
         where: {
           id: {
             in: temporaryAssessments.map(a => a.id)
@@ -139,7 +139,7 @@ export async function getTemporaryDataToExpire() {
         }
       }),
       
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: {
           is_temporary: true,
           assessed_by_mentor: true,
@@ -258,7 +258,7 @@ export async function getAllTemporaryMentorData() {
         orderBy: { mentor_created_at: 'desc' }
       }),
 
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: {
           is_temporary: true,
           assessed_by_mentor: true

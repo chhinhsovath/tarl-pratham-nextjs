@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [assessments, total] = await Promise.all([
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where,
         include: {
           student: {
@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { assessment_date: 'desc' }
       }),
-      prisma.assessment.count({ where })
+      prisma.assessments.count({ where })
     ]);
 
     return NextResponse.json({

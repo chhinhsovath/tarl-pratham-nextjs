@@ -338,7 +338,7 @@ export class TeacherRepository {
         prisma.student.count({
           where: { added_by_id: teacher_id, is_active: true }
         }),
-        prisma.assessment.count({
+        prisma.assessments.count({
           where: { added_by_id: teacher_id }
         }),
         prisma.student.count({
@@ -352,7 +352,7 @@ export class TeacherRepository {
             }
           }
         }),
-        prisma.assessment.count({
+        prisma.assessments.count({
           where: {
             added_by_id: teacher_id,
             assessment_type: { in: ['baseline', 'midline', 'endline'] }
@@ -361,7 +361,7 @@ export class TeacherRepository {
       ]);
 
       // Calculate class average from recent assessments
-      const recentAssessments = await prisma.assessment.findMany({
+      const recentAssessments = await prisma.assessments.findMany({
         where: { added_by_id: teacher_id },
         orderBy: { assessed_date: 'desc' },
         take: 50

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       mentorVerifications
     ] = await Promise.all([
       // Count unique students that have been verified
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: {
           assessment_type: {
             in: ['baseline', 'midline', 'endline']
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       }),
 
       // Get all teacher assessments
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: {
           assessment_type: {
             in: ['baseline', 'midline', 'endline']

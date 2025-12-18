@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     // Admin and Coordinator see all data
 
     // Fetch all assessments for this user's scope, filtered by subject
-    const assessments = await prisma.assessment.findMany({
+    const assessments = await prisma.assessments.findMany({
       where: {
         ...whereClause,
         subject: subject // Filter by subject (khmer or math)

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       prisma.student.count(),
       prisma.student.count({ where: { is_active: true } }),
-      prisma.assessment.count(),
+      prisma.assessments.count(),
       prisma.user.count({ where: { role: 'teacher' } }),
       prisma.user.count({ where: { role: 'mentor' } })
     ]);
@@ -59,12 +59,12 @@ export async function GET(request: NextRequest) {
       math_assessments,
       pending_verifications
     ] = await Promise.all([
-      prisma.assessment.count({ where: { assessment_type: 'baseline' } }),
-      prisma.assessment.count({ where: { assessment_type: 'midline' } }),
-      prisma.assessment.count({ where: { assessment_type: 'endline' } }),
-      prisma.assessment.count({ where: { subject: 'Language' } }),
-      prisma.assessment.count({ where: { subject: 'Math' } }),
-      prisma.assessment.count({ where: { verified_by_id: null } })
+      prisma.assessments.count({ where: { assessment_type: 'baseline' } }),
+      prisma.assessments.count({ where: { assessment_type: 'midline' } }),
+      prisma.assessments.count({ where: { assessment_type: 'endline' } }),
+      prisma.assessments.count({ where: { subject: 'Language' } }),
+      prisma.assessments.count({ where: { subject: 'Math' } }),
+      prisma.assessments.count({ where: { verified_by_id: null } })
     ]);
 
     // BATCH 4: Level distributions and province data (3 queries)
@@ -73,12 +73,12 @@ export async function GET(request: NextRequest) {
       level_distribution_math,
       schools_by_province
     ] = await Promise.all([
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: { subject: 'Language' },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: { subject: 'Math' },
         _count: { id: true }
@@ -98,32 +98,32 @@ export async function GET(request: NextRequest) {
       midline_by_level_math,
       endline_by_level_math
     ] = await Promise.all([
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: { subject: 'Language', assessment_type: 'baseline' },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: { subject: 'Language', assessment_type: 'midline' },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: { subject: 'Language', assessment_type: 'endline' },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: { subject: 'Math', assessment_type: 'baseline' },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: { subject: 'Math', assessment_type: 'midline' },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: { subject: 'Math', assessment_type: 'endline' },
         _count: { id: true }

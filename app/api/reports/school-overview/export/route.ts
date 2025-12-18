@@ -80,21 +80,21 @@ export async function GET(request: NextRequest) {
     });
 
     // BATCH 2: Assessment counts by school and type (1 query instead of N*4 queries)
-    const assessmentsByType = await prisma.assessment.groupBy({
+    const assessmentsByType = await prisma.assessments.groupBy({
       by: ['pilot_school_id', 'assessment_type'],
       where: { pilot_school_id: { in: schoolIds } },
       _count: { id: true }
     });
 
     // BATCH 3: Total assessments per school (1 query)
-    const totalAssessmentCounts = await prisma.assessment.groupBy({
+    const totalAssessmentCounts = await prisma.assessments.groupBy({
       by: ['pilot_school_id'],
       where: { pilot_school_id: { in: schoolIds } },
       _count: { id: true }
     });
 
     // BATCH 4: Verified assessments per school (1 query)
-    const verifiedCounts = await prisma.assessment.groupBy({
+    const verifiedCounts = await prisma.assessments.groupBy({
       by: ['pilot_school_id'],
       where: { pilot_school_id: { in: schoolIds }, verified_by_id: { not: null } },
       _count: { id: true }

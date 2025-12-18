@@ -117,19 +117,19 @@ async function getOverviewReport(baseFilters: any, params: any) {
     recentAssessments
   ] = await Promise.all([
     prisma.student.count({ where: whereStudent }),
-    prisma.assessment.count({ where: whereAssessment }),
+    prisma.assessments.count({ where: whereAssessment }),
     prisma.mentoringVisit.count({ where: whereMentoring }),
     prisma.student.groupBy({
       by: ['gender'],
       where: whereStudent,
       _count: { gender: true }
     }),
-    prisma.assessment.groupBy({
+    prisma.assessments.groupBy({
       by: ['assessment_type', 'subject'],
       where: whereAssessment,
       _count: { assessment_type: true }
     }),
-    prisma.assessment.findMany({
+    prisma.assessments.findMany({
       where: whereAssessment,
       include: {
         student: { select: { name: true } },
@@ -184,7 +184,7 @@ async function getAssessmentProgressReport(baseFilters: any, params: any) {
     assessmentCompletion,
     improvementTrends
   ] = await Promise.all([
-    prisma.assessment.groupBy({
+    prisma.assessments.groupBy({
       by: ['subject', 'level'],
       where: whereAssessment,
       _count: { level: true },
@@ -212,7 +212,7 @@ async function getAssessmentProgressReport(baseFilters: any, params: any) {
         }
       }
     }),
-    prisma.assessment.findMany({
+    prisma.assessments.findMany({
       where: whereAssessment,
       select: {
         student_id: true,
@@ -500,7 +500,7 @@ async function getExportDataReport(baseFilters: any, params: any) {
         added_by: { select: { name: true, role: true } }
       }
     }),
-    prisma.assessment.findMany({
+    prisma.assessments.findMany({
       where: whereAssessment,
       include: {
         student: { select: { name: true } },

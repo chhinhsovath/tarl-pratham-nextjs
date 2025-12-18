@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get assessments grouped by school
-    const assessments = await prisma.assessment.findMany({
+    const assessments = await prisma.assessments.findMany({
       where,
       include: {
         student: {

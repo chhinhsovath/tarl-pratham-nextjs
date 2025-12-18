@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     // Get assessment counts per school and subject (all assessments in mentor's assigned schools)
     const assessmentCounts = schoolIds.length > 0
-      ? await prisma.assessment.groupBy({
+      ? await prisma.assessments.groupBy({
           by: ["pilot_school_id", "subject"],
           where: {
             pilot_school_id: { in: schoolIds }
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     // Get pending tasks/verifications (all unverified assessments in mentor's schools)
     const pendingVerifications = schoolIds.length > 0
-      ? await prisma.assessment.count({
+      ? await prisma.assessments.count({
           where: {
             pilot_school_id: { in: schoolIds },
             verified_at: null
@@ -166,38 +166,38 @@ export async function GET(request: NextRequest) {
       level_distribution_khmer,
       level_distribution_math,
     ] = await Promise.all([
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           pilot_school_id: { in: schoolIds },
           assessment_type: 'baseline'
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           pilot_school_id: { in: schoolIds },
           assessment_type: 'midline'
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           pilot_school_id: { in: schoolIds },
           assessment_type: 'endline'
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Language'
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           pilot_school_id: { in: schoolIds },
           subject: 'Math'
         }
       }),
       // Group assessments by level for Khmer (Language)
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
@@ -206,7 +206,7 @@ export async function GET(request: NextRequest) {
         _count: { id: true }
       }),
       // Group assessments by level for Math
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
@@ -226,7 +226,7 @@ export async function GET(request: NextRequest) {
       endline_by_level_math,
     ] = await Promise.all([
       // Khmer levels by cycle
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
@@ -235,7 +235,7 @@ export async function GET(request: NextRequest) {
         },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
@@ -244,7 +244,7 @@ export async function GET(request: NextRequest) {
         },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
@@ -254,7 +254,7 @@ export async function GET(request: NextRequest) {
         _count: { id: true }
       }),
       // Math levels by cycle
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
@@ -263,7 +263,7 @@ export async function GET(request: NextRequest) {
         },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
@@ -272,7 +272,7 @@ export async function GET(request: NextRequest) {
         },
         _count: { id: true }
       }),
-      prisma.assessment.groupBy({
+      prisma.assessments.groupBy({
         by: ['level'],
         where: {
           pilot_school_id: { in: schoolIds },
@@ -446,7 +446,7 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
         });
 
     // Get recent assessments (all assessments in mentor's assigned schools)
-    const recentAssessments = await prisma.assessment.findMany({
+    const recentAssessments = await prisma.assessments.findMany({
       where: {
         pilot_school_id: { in: schoolIds }
         },

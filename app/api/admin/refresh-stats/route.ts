@@ -152,10 +152,10 @@ async function calculateAllStats() {
     prisma.student.count({ where: schoolFilter }),
     prisma.user.count({ where: { role: 'teacher', is_active: true } }),
     prisma.user.count({ where: { role: 'mentor', is_active: true } }),
-    prisma.assessment.count({ where: schoolFilter }),
-    prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'baseline' } }),
-    prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'midline' } }),
-    prisma.assessment.count({ where: { ...schoolFilter, assessment_type: 'endline' } }),
+    prisma.assessments.count({ where: schoolFilter }),
+    prisma.assessments.count({ where: { ...schoolFilter, assessment_type: 'baseline' } }),
+    prisma.assessments.count({ where: { ...schoolFilter, assessment_type: 'midline' } }),
+    prisma.assessments.count({ where: { ...schoolFilter, assessment_type: 'endline' } }),
   ]);
 
   // Approximate language/math split
@@ -170,7 +170,7 @@ async function calculateAllStats() {
   if (total_assessments > 0) {
     try {
       // Get all assessments with level data
-      const assessments = await prisma.assessment.findMany({
+      const assessments = await prisma.assessments.findMany({
         where: schoolFilter,
         select: {
           subject: true,

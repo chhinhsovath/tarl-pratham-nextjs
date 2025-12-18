@@ -241,7 +241,7 @@ export async function DELETE(
       // Teachers and mentors can delete students if:
       // 1. Student has NO assessments, OR
       // 2. Student has assessments BUT none are verified/locked
-      const verifiedOrLockedCount = await prisma.assessment.count({
+      const verifiedOrLockedCount = await prisma.assessments.count({
         where: {
           student_id: studentId,
           OR: [

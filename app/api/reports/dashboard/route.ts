@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
       }),
 
       // Total assessments count
-      prisma.assessment.count({ where: baseWhere }),
+      prisma.assessments.count({ where: baseWhere }),
 
       // Total schools count
       prisma.pilotSchool.count({
@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
     // BATCH 2: Assessment data with limits (2 queries)
     const [assessments, allStudents] = await Promise.all([
       // All assessments for calculations - LIMITED
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: baseWhere,
         include: {
           student: {
@@ -260,7 +260,7 @@ export async function GET(request: NextRequest) {
     sixMonthsAgo.setDate(1);
 
     // Fetch all assessments for last 6 months in ONE query
-    const monthlyAssessments = await prisma.assessment.findMany({
+    const monthlyAssessments = await prisma.assessments.findMany({
       where: {
         ...baseWhere,
         assessment_date: {

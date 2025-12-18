@@ -36,7 +36,7 @@ export async function PUT(
     }
 
     // Check if assessment is locked
-    const assessment = await prisma.assessment.findUnique({
+    const assessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       select: { is_locked: true },
     });
@@ -49,7 +49,7 @@ export async function PUT(
     }
 
     // Update the assessment
-    await prisma.assessment.update({
+    await prisma.assessments.update({
       where: { id: assessmentId },
       data: {
         record_status: verification_status,

@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Count pending assessments (not yet verified)
-    const pending = await prisma.assessment.count({
+    const pending = await prisma.assessments.count({
       where: {
         ...baseWhere,
         verified_by_id: null,
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Count verified assessments
-    const verified = await prisma.assessment.count({
+    const verified = await prisma.assessments.count({
       where: {
         ...baseWhere,
         verified_by_id: { not: null },
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     // Count rejected assessments (for now, using a pattern in verification_notes)
     // Note: Consider adding an is_rejected boolean field in the future
-    const rejected = await prisma.assessment.count({
+    const rejected = await prisma.assessments.count({
       where: {
         ...baseWhere,
         verified_by_id: { not: null },
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Count locked assessments
-    const locked = await prisma.assessment.count({
+    const locked = await prisma.assessments.count({
       where: {
         ...baseWhere,
         is_locked: true,

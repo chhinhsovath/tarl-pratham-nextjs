@@ -48,18 +48,18 @@ export async function GET(request: NextRequest) {
         assessments_by_cycle_and_level
       ] = await Promise.all([
         prisma.student.count({ where: { is_active: true } }),
-        prisma.assessment.count(),
+        prisma.assessments.count(),
         prisma.pilotSchool.count(),
         prisma.mentoringVisit.count(),
         prisma.user.count({ where: { role: 'teacher', is_active: true } }),
         prisma.user.count({ where: { role: 'mentor', is_active: true } }),
-        prisma.assessment.count({ where: { assessment_type: 'baseline' } }),
-        prisma.assessment.count({ where: { assessment_type: 'midline' } }),
-        prisma.assessment.count({ where: { assessment_type: 'endline' } }),
-        prisma.assessment.count({ where: { subject: 'language' } }),
-        prisma.assessment.count({ where: { subject: 'math' } }),
+        prisma.assessments.count({ where: { assessment_type: 'baseline' } }),
+        prisma.assessments.count({ where: { assessment_type: 'midline' } }),
+        prisma.assessments.count({ where: { assessment_type: 'endline' } }),
+        prisma.assessments.count({ where: { subject: 'language' } }),
+        prisma.assessments.count({ where: { subject: 'math' } }),
         // Query for by_level: Group assessments by level, count khmer and math
-        prisma.assessment.groupBy({
+        prisma.assessments.groupBy({
           by: ['level'],
           _count: {
             id: true,
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
           where: { level: { not: null } }
         }),
         // Query for overall results: Group by assessment_type and level, count by subject
-        prisma.assessment.groupBy({
+        prisma.assessments.groupBy({
           by: ['assessment_type', 'level', 'subject'],
           _count: {
             id: true,

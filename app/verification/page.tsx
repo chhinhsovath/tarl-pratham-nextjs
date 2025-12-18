@@ -458,6 +458,29 @@ export default function VerificationPage() {
     }
   };
 
+  const handleExportMarkdown = async () => {
+    try {
+      message.loading('កំពុងបង្កើតរបាយការណ៍ Markdown...');
+      const response = await fetch('/api/reports/generate-comparison-md');
+      if (!response.ok) {
+        throw new Error('Failed to generate markdown report');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `COMPARISON_REPORT_${dayjs().format('YYYY-MM-DD_HHmm')}.md`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      message.success('បាននាំចេញរបាយការណ៍ Markdown ដោយជោគជ័យ');
+    } catch (error) {
+      console.error('Error exporting markdown:', error);
+      message.error('មានបញ្ហាក្នុងការនាំចេញរបាយការណ៍');
+    }
+  };
+
   const handleBulkVerify = async () => {
     if (selectedAssessments.length === 0) {
       message.warning('សូមជ្រើសរើសការវាយតម្លៃយ៉ាងហោចណាស់មួយ');
@@ -882,16 +905,27 @@ export default function VerificationPage() {
                   សម្អាត
                 </Button>
                 {activeTab === 'comparison' && (
-                  <Button
-                    icon={<DownloadOutlined />}
-                    onClick={handleExportComparison}
-                    loading={loading}
-                    size="middle"
-                    type="default"
-                    disabled={comparisons.length === 0}
-                  >
-                    នាំចេញការប្រៀបធៀប
-                  </Button>
+                  <>
+                    <Button
+                      icon={<DownloadOutlined />}
+                      onClick={handleExportComparison}
+                      loading={loading}
+                      size="middle"
+                      type="default"
+                      disabled={comparisons.length === 0}
+                    >
+                      នាំចេញ Excel
+                    </Button>
+                    <Button
+                      icon={<DownloadOutlined />}
+                      onClick={handleExportMarkdown}
+                      size="middle"
+                      type="default"
+                      disabled={comparisons.length === 0}
+                    >
+                      នាំចេញ Markdown
+                    </Button>
+                  </>
                 )}
                 {selectedAssessments.length > 0 && (
                   <Button

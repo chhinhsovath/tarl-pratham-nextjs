@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get assessment counts by level - OPTIMIZED: Single groupBy query instead of parallel map
-    const levelCounts = await prisma.assessment.groupBy({
+    const levelCounts = await prisma.assessments.groupBy({
       by: ['level'],
       where: { subject: subject },
       _count: { level: true }
@@ -40,19 +40,19 @@ export async function GET(request: NextRequest) {
 
     // BATCH: Cycle counts + comprehensive stats (8 queries)
     const [baseline, midline, endline, totalStudents, totalSchools, totalAssessments, totalMentors, assessedStudents] = await Promise.all([
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           subject: subject,
           assessment_type: "baseline"
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           subject: subject,
           assessment_type: "midline"
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           subject: subject,
           assessment_type: "endline"
@@ -65,11 +65,11 @@ export async function GET(request: NextRequest) {
       // Get total schools
       prisma.pilotSchool.count(),
       // Get total assessments across all subjects
-      prisma.assessment.count(),
+      prisma.assessments.count(),
       // Get total mentoring visits
       prisma.mentoringVisit.count(),
       // Get total unique students assessed for this subject
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: {
           subject: subject
         },

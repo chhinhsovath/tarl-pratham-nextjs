@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
           added_by_id: mentorId
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           record_status: 'test_mentor',
           added_by_id: mentorId
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
         orderBy: { created_at: 'asc' },
         take: 1
       }),
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: {
           record_status: 'test_mentor',
           added_by_id: mentorId
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
         total_records: studentCount + assessmentCount + mentoringVisitCount
       },
       breakdown: {
-        assessment_by_type: await prisma.assessment.groupBy({
+        assessment_by_type: await prisma.assessments.groupBy({
           by: ['assessment_type'],
           where: {
             is_temporary: true,
@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
             id: true
           }
         }),
-        assessment_by_subject: await prisma.assessment.groupBy({
+        assessment_by_subject: await prisma.assessments.groupBy({
           by: ['subject'],
           where: {
             is_temporary: true,

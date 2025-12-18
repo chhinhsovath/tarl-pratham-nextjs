@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     // Check if this is for export (get all records)
     const isExport = searchParams.get('export') === 'true';
     
-    const assessments = await prisma.assessment.findMany({
+    const assessments = await prisma.assessments.findMany({
       where,
       include: {
         student: {

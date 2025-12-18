@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     // Count records before promotion
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
       prisma.student.count({ where: studentWhere }),
-      prisma.assessment.count({ where: assessmentWhere }),
+      prisma.assessments.count({ where: assessmentWhere }),
       prisma.mentoringVisit.count({ where: mentoringVisitWhere })
     ]);
 
@@ -262,7 +262,7 @@ export async function GET(request: NextRequest) {
         },
         take: 100 // Limit preview
       }),
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: assessmentWhere,
         select: {
           id: true,
@@ -294,7 +294,7 @@ export async function GET(request: NextRequest) {
     // Get counts
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
       prisma.student.count({ where: studentWhere }),
-      prisma.assessment.count({ where: assessmentWhere }),
+      prisma.assessments.count({ where: assessmentWhere }),
       prisma.mentoringVisit.count({ where: mentoringVisitWhere })
     ]);
 

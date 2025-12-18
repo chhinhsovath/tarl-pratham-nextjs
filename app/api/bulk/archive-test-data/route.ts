@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     // Count before archiving
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
       prisma.student.count({ where: studentWhere }),
-      prisma.assessment.count({ where: assessmentWhere }),
+      prisma.assessments.count({ where: assessmentWhere }),
       prisma.mentoringVisit.count({ where: mentoringVisitWhere })
     ]);
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           is_active: false
         }
       }),
-      prisma.assessment.updateMany({
+      prisma.assessments.updateMany({
         where: assessmentWhere,
         data: {
           record_status: 'archived'

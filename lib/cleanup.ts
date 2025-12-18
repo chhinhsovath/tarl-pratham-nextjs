@@ -133,7 +133,7 @@ export async function markDataAsPermanent(
       });
       
       // Also mark their assessments as permanent
-      await prisma.assessment.updateMany({
+      await prisma.assessments.updateMany({
         where: {
           student_id: { in: ids }
         },
@@ -144,7 +144,7 @@ export async function markDataAsPermanent(
       
       return result;
     } else {
-      return await prisma.assessment.updateMany({
+      return await prisma.assessments.updateMany({
         where: {
           id: { in: ids }
         },
@@ -188,13 +188,13 @@ export async function getTemporaryDataStats() {
           }
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           is_temporary: true,
           assessed_by_mentor: true
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           is_temporary: true,
           assessed_by_mentor: true,

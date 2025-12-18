@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [assessments, total] = await Promise.all([
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where,
         include: {
           student: {
@@ -243,7 +243,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { assessed_date: "desc" }
       }),
-      prisma.assessment.count({ where })
+      prisma.assessments.count({ where })
     ]);
 
     return NextResponse.json({
@@ -363,7 +363,7 @@ export async function POST(request: NextRequest) {
     const isVerification = validatedData.assessment_type.includes('_verification');
 
     if (!isVerification) {
-      const existingAssessment = await prisma.assessment.findFirst({
+      const existingAssessment = await prisma.assessments.findFirst({
         where: {
           student_id: validatedData.student_id,
           assessment_type: validatedData.assessment_type,
@@ -400,7 +400,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create assessment
-    const assessment = await prisma.assessment.create({
+    const assessment = await prisma.assessments.create({
       data: {
         ...validatedData,
         added_by_id: parseInt(session.user.id),
@@ -453,7 +453,7 @@ export async function POST(request: NextRequest) {
       });
     } else if (validatedData.mentor_assessment_id) {
       // If this is a verification assessment, mark the original teacher assessment as verified
-      await prisma.assessment.update({
+      await prisma.assessments.update({
         where: { id: parseInt(validatedData.mentor_assessment_id) },
         data: {
           is_temporary: false,
@@ -552,7 +552,7 @@ async function handleBulkAssessment(body: any, session: any) {
       subject: a.subject
     }));
 
-    const existingAssessments = await prisma.assessment.findMany({
+    const existingAssessments = await prisma.assessments.findMany({
       where: {
         OR: assessmentQueries
       },
@@ -595,7 +595,7 @@ async function handleBulkAssessment(body: any, session: any) {
         }
 
         // Create assessment
-        const assessment = await prisma.assessment.create({
+        const assessment = await prisma.assessments.create({
           data: {
             ...assessmentData,
             pilot_school_id: pilot_school_id,
@@ -631,7 +631,7 @@ async function handleBulkAssessment(body: any, session: any) {
           });
         } else if (assessmentData.mentor_assessment_id) {
           // If this is a verification assessment, mark the original teacher assessment as verified
-          await prisma.assessment.update({
+          await prisma.assessments.update({
             where: { id: parseInt(assessmentData.mentor_assessment_id) },
             data: {
               is_temporary: false,
@@ -698,7 +698,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if assessment exists and user has access
-    const existingAssessment = await prisma.assessment.findUnique({
+    const existingAssessment = await prisma.assessments.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -715,7 +715,7 @@ export async function PUT(request: NextRequest) {
     const validatedData = updateSchema.parse(updateData);
 
     // Update assessment
-    const assessment = await prisma.assessment.update({
+    const assessment = await prisma.assessments.update({
       where: { id: parseInt(id) },
       data: {
         ...validatedData,
@@ -800,7 +800,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if assessment exists and user has access
-    const existingAssessment = await prisma.assessment.findUnique({
+    const existingAssessment = await prisma.assessments.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -813,7 +813,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete assessment
-    await prisma.assessment.delete({
+    await prisma.assessments.delete({
       where: { id: parseInt(id) }
     });
 

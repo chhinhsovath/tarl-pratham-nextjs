@@ -51,7 +51,7 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid assessment ID' }, { status: 400 });
     }
 
-    const assessment = await prisma.assessment.findUnique({
+    const assessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       include: {
         student: {
@@ -141,7 +141,7 @@ export async function PUT(
     } = body;
 
     // Check if assessment exists
-    const existingAssessment = await prisma.assessment.findUnique({
+    const existingAssessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       select: {
         id: true,
@@ -186,7 +186,7 @@ export async function PUT(
     }
 
     // Update assessment
-    const updatedAssessment = await prisma.assessment.update({
+    const updatedAssessment = await prisma.assessments.update({
       where: { id: assessmentId },
       data: {
         student_id: student_id || existingAssessment.student_id,
@@ -292,7 +292,7 @@ export async function DELETE(
     }
 
     // Check if assessment exists
-    const existingAssessment = await prisma.assessment.findUnique({
+    const existingAssessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       select: { pilot_school_id: true }
     });
@@ -319,7 +319,7 @@ export async function DELETE(
     });
 
     // Delete assessment
-    await prisma.assessment.delete({
+    await prisma.assessments.delete({
       where: { id: assessmentId }
     });
 

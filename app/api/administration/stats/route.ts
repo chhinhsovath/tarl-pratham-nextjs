@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where: { is_active: true } }),
       prisma.pilotSchool.count(),
       prisma.student.count(),
-      prisma.assessment.count(),
+      prisma.assessments.count(),
       prisma.mentoringVisit.count()
     ]);
 

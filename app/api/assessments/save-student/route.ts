@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if assessment already exists for this student/type/subject
-    const existingAssessment = await prisma.assessment.findFirst({
+    const existingAssessment = await prisma.assessments.findFirst({
       where: {
         student_id,
         assessment_type,
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     if (existingAssessment) {
       // Update existing assessment
-      assessment = await prisma.assessment.update({
+      assessment = await prisma.assessments.update({
         where: { id: existingAssessment.id },
         data: {
           level,
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Create new assessment
-      assessment = await prisma.assessment.create({
+      assessment = await prisma.assessments.create({
         data: {
           student_id,
           pilot_school_id: pilotSchoolId || student.pilot_school_id,

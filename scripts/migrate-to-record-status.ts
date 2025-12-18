@@ -126,7 +126,7 @@ async function migrateAssessments(dryRun: boolean, verbose: boolean): Promise<Mi
     already_migrated: 0
   };
 
-  const assessments = await prisma.assessment.findMany({
+  const assessments = await prisma.assessments.findMany({
     select: {
       id: true,
       is_temporary: true,
@@ -171,7 +171,7 @@ async function migrateAssessments(dryRun: boolean, verbose: boolean): Promise<Mi
     }
 
     if (!dryRun && newStatus !== 'production') {
-      await prisma.assessment.update({
+      await prisma.assessments.update({
         where: { id: assessment.id },
         data: {
           record_status: newStatus,

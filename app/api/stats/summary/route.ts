@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      assessmentCount = await prisma.assessment.count();
+      assessmentCount = await prisma.assessments.count();
     } catch (e) {
       console.error('Error counting assessments:', e);
     }

@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get recent assessments to check
-    const recentAssessments = await prisma.assessment.findMany({
+    const recentAssessments = await prisma.assessments.findMany({
       where: {
         added_by_id: parseInt(user.id),
         created_at: {
@@ -135,7 +135,7 @@ export async function GET(req: NextRequest) {
       : {};
 
     // Optimized: Single aggregated query instead of 13 separate calls
-    const assessmentStats = await prisma.assessment.groupBy({
+    const assessmentStats = await prisma.assessments.groupBy({
       by: ['assessment_type', 'subject', 'level'],
       where: {
         student: schoolFilter,

@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       recent_users,
     ] = await Promise.all([
       // Recent assessments - NO JOINS
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: schoolFilter,
         take: limit,
         orderBy: { created_at: 'desc' },

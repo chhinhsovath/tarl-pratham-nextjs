@@ -46,7 +46,7 @@ export async function batchFetchStudents(
  * USAGE: Before bulk creating assessments, check for duplicates
  * ❌ Bad:
  *   for (let item of assessments) {
- *     const existing = await prisma.assessment.findFirst({
+ *     const existing = await prisma.assessments.findFirst({
  *       where: { student_id, assessment_type, subject }
  *     })
  *   }
@@ -70,7 +70,7 @@ export async function batchCheckAssessments(
     subject: q.subject
   }));
 
-  return prisma.assessment.findMany({
+  return prisma.assessments.findMany({
     where: { OR: orConditions },
     select: {
       id: true,
@@ -90,7 +90,7 @@ export async function batchFetchAssessmentsByStudents(
 ) {
   if (studentIds.length === 0) return [];
 
-  return prisma.assessment.findMany({
+  return prisma.assessments.findMany({
     where: { student_id: { in: studentIds } },
     select: {
       id: true,
@@ -132,7 +132,7 @@ export async function batchFetchMentorAssignments(mentorIds: number[]) {
 export async function groupAssessmentsBySubject(
   where?: any
 ) {
-  return prisma.assessment.groupBy({
+  return prisma.assessments.groupBy({
     by: ['subject', 'assessment_type'],
     where,
     _count: {

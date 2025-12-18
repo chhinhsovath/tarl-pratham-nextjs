@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       prisma.user.count(),
       prisma.pilotSchool.count(),
       prisma.student.count(),
-      prisma.assessment.count(),
+      prisma.assessments.count(),
     ]);
 
     // Get database info from environment

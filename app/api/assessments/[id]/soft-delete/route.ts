@@ -45,7 +45,7 @@ export async function DELETE(
     }
 
     // Check if assessment exists
-    const assessment = await prisma.assessment.findUnique({
+    const assessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       include: {
         student: {
@@ -91,7 +91,7 @@ export async function DELETE(
     console.log(`[Soft Delete] Student: ${assessment.student.name}, School: ${assessment.student.pilot_school?.school_name || 'N/A'}`);
 
     // Soft delete the assessment
-    const updatedAssessment = await prisma.assessment.update({
+    const updatedAssessment = await prisma.assessments.update({
       where: { id: assessmentId },
       data: {
         record_status: 'archived',

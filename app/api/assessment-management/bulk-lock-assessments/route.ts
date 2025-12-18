@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const validatedData = bulkLockSchema.parse(body);
 
     // Update assessments to locked status
-    const result = await prisma.assessment.updateMany({
+    const result = await prisma.assessments.updateMany({
       where: {
         id: { in: validatedData.assessment_ids },
         is_locked: false // Only lock unlocked assessments

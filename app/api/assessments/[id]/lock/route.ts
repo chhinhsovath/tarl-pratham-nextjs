@@ -27,7 +27,7 @@ export async function POST(
 
     const { lock, locked_by } = await request.json();
 
-    await prisma.assessment.update({
+    await prisma.assessments.update({
       where: { id: assessmentId },
       data: {
         is_locked: lock,

@@ -115,7 +115,7 @@ export async function POST(
             record_status: 'test_teacher'
           }
         }),
-        prisma.assessment.count({
+        prisma.assessments.count({
           where: {
             added_by_id: userId,
             record_status: 'test_teacher'
@@ -242,7 +242,7 @@ export async function GET(
           record_status: user.role === 'mentor' ? 'test_mentor' : 'test_teacher'
         }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           added_by_id: userId,
           record_status: user.role === 'mentor' ? 'test_mentor' : 'test_teacher'

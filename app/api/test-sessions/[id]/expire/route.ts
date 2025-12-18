@@ -52,7 +52,7 @@ export async function POST(
       prisma.student.count({
         where: { test_session_id: sessionId }
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: { test_session_id: sessionId }
       }),
       prisma.mentoringVisit.count({
@@ -63,7 +63,7 @@ export async function POST(
     if (action === 'delete') {
       // Delete all data in this session
       await prisma.$transaction([
-        prisma.assessment.deleteMany({
+        prisma.assessments.deleteMany({
           where: { test_session_id: sessionId }
         }),
         prisma.student.deleteMany({
@@ -104,7 +104,7 @@ export async function POST(
             is_active: false
           }
         }),
-        prisma.assessment.updateMany({
+        prisma.assessments.updateMany({
           where: { test_session_id: sessionId },
           data: { record_status: 'archived' }
         }),

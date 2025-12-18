@@ -39,7 +39,7 @@ export async function GET() {
       }
     });
 
-    const assessmentCounts = await prisma.assessment.groupBy({
+    const assessmentCounts = await prisma.assessments.groupBy({
       by: ['record_status'],
       _count: {
         id: true

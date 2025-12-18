@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch ALL teacher assessments (these are the primary records we want to show)
     // Include verification fields since verification is stored on the same record
-    const teacherAssessments = await prisma.assessment.findMany({
+    const teacherAssessments = await prisma.assessments.findMany({
       where: teacherWhere,
       select: {
         id: true,
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch all mentor verification assessments for these teacher assessments
     const teacherAssessmentIds = teacherAssessments.map(ta => ta.id);
-    const mentorAssessments = await prisma.assessment.findMany({
+    const mentorAssessments = await prisma.assessments.findMany({
       where: {
         assessed_by_mentor: true,
         mentor_assessment_id: {

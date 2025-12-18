@@ -84,11 +84,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Count total first
-    const total = await prisma.assessment.count({ where });
+    const total = await prisma.assessments.count({ where });
     console.log(`Total teacher assessments in database: ${total}`);
     
     // Fetch ALL assessments - explicitly no limit
-    const assessments = await prisma.assessment.findMany({
+    const assessments = await prisma.assessments.findMany({
       where,
       include: {
         student: {
@@ -139,11 +139,11 @@ export async function GET(request: NextRequest) {
 
     // Optimized statistics calculation using database aggregation
     const [allTeacherAssessments, allVerificationAssessments] = await Promise.all([
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: baseWhere,
         select: { id: true, assessment_type: true, subject: true, student_id: true }
       }),
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         where: {
           // Don't spread baseWhere as it has conflicting assessment_type
           assessment_type: {

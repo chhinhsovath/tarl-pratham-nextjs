@@ -256,7 +256,7 @@ export async function GET(request: NextRequest) {
       const studentIds = students.map(s => s.id);
 
       // Fetch assessments for all students in a single query
-      const assessments = await prisma.assessment.findMany({
+      const assessments = await prisma.assessments.findMany({
         where: {
           student_id: { in: studentIds }
         },
@@ -683,7 +683,7 @@ export async function DELETE(request: NextRequest) {
     if (existingStudent.record_status === 'test_mentor' || existingStudent.record_status === 'test_teacher') {
       // Hard delete student and all related assessments for test data
       await prisma.$transaction([
-        prisma.assessment.deleteMany({
+        prisma.assessments.deleteMany({
           where: { student_id: parseInt(id) }
         }),
         prisma.student.delete({

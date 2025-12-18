@@ -89,7 +89,7 @@ export async function DELETE(
 
     // Also soft delete all related assessments
     if (student.assessments.length > 0) {
-      await prisma.assessment.updateMany({
+      await prisma.assessments.updateMany({
         where: {
           student_id: studentId,
           record_status: 'production',

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       studentCount,
       mentoringVisitCount
     ] = await Promise.all([
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           record_status: 'test_mentor',
           added_by_id: mentorId
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     // Delete test data in correct order (respecting foreign keys)
     await prisma.$transaction([
       // 1. Delete assessments first (they reference students)
-      prisma.assessment.deleteMany({
+      prisma.assessments.deleteMany({
         where: {
           record_status: 'test_mentor',
           added_by_id: mentorId

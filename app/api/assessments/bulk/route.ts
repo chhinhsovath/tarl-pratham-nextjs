@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify all assessments exist and user has access
-    const assessments = await prisma.assessment.findMany({
+    const assessments = await prisma.assessments.findMany({
       where: {
         id: { in: assessment_ids }
       },
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
           
           // Hard delete temporary assessments
           if (temporaryAssessments.length > 0) {
-            await prisma.assessment.deleteMany({
+            await prisma.assessments.deleteMany({
               where: {
                 id: { in: temporaryAssessments.map(a => a.id) }
               }
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
           
           // Soft delete non-temporary assessments
           if (nonTemporaryAssessments.length > 0) {
-            await prisma.assessment.updateMany({
+            await prisma.assessments.updateMany({
               where: {
                 id: { in: nonTemporaryAssessments.map(a => a.id) }
               },
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
           }
         } else {
           // Admin can perform soft delete
-          await prisma.assessment.updateMany({
+          await prisma.assessments.updateMany({
             where: {
               id: { in: assessment_ids }
             },
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
 
     // Perform bulk update for non-delete operations
     if (operation !== 'delete') {
-      await prisma.assessment.updateMany({
+      await prisma.assessments.updateMany({
         where: {
           id: { in: assessment_ids }
         },

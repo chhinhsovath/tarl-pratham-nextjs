@@ -118,6 +118,26 @@ export default function PublicVerificationComparison() {
     }
   };
 
+  const handleExportToMarkdown = async () => {
+    try {
+      const response = await fetch('/api/reports/generate-comparison-md');
+      if (!response.ok) {
+        throw new Error('Failed to generate markdown report');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `COMPARISON_REPORT_${dayjs().format('YYYY-MM-DD_HHmm')}.md`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error exporting markdown:', error);
+    }
+  };
+
   const handleExportToExcel = () => {
     try {
       // Create workbook
@@ -529,6 +549,15 @@ export default function PublicVerificationComparison() {
                   style={{ flex: 1 }}
                 >
                   នាំចេញ Excel
+                </Button>
+                <Button
+                  type="default"
+                  icon={<DownloadOutlined />}
+                  onClick={handleExportToMarkdown}
+                  disabled={comparisons.length === 0}
+                  style={{ flex: 1 }}
+                >
+                  នាំចេញ Markdown
                 </Button>
               </Space>
             </Col>

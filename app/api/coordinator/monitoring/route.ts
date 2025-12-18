@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where: { is_active: true } }),
       prisma.pilotSchool.count(),
       prisma.student.count({ where: { is_active: true } }),
-      prisma.assessment.count(),
+      prisma.assessments.count(),
     ]);
 
     // Batch 2: Time-based assessment counts (4 queries)
@@ -51,23 +51,23 @@ export async function GET(request: NextRequest) {
       pending_verifications,
       recent_activities_raw,
     ] = await Promise.all([
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           created_at: { gte: todayStart },
         },
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           created_at: { gte: weekStart },
         },
       }),
-      prisma.assessment.count({
+      prisma.assessments.count({
         where: {
           verified_at: null,
           record_status: 'production',
         },
       }),
-      prisma.assessment.findMany({
+      prisma.assessments.findMany({
         take: 20,
         orderBy: { created_at: 'desc' },
         include: {

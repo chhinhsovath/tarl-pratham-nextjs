@@ -38,7 +38,7 @@ export async function GET(
     }
 
     // Get assessment history
-    const assessments = await prisma.assessment.findMany({
+    const assessments = await prisma.assessments.findMany({
       where: { student_id: studentId },
       include: {
         added_by: {

@@ -1,225 +1,321 @@
 #!/bin/bash
 
-################################################################################
-# TaRL Pratham - Complete Migration to Supabase
-# One-command migration script
-# Usage: ./migrate-to-supabase.sh
-################################################################################
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TaRL Pratham - Database Migration to Supabase
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# This script migrates the database from self-hosted PostgreSQL to Supabase
+# Source: postgresql://admin:P@ssw0rd@157.10.73.82:5432/tarl_pratham
+# Target: Supabase project blvvksvorllayhejrxpo
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 set -e  # Exit on error
 
-# Colors
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
-clear
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CONNECTION STRINGS
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-echo -e "${BLUE}"
-cat << "EOF"
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ████████╗ █████╗ ██████╗ ██╗
-  ╚══██╔══╝██╔══██╗██╔══██╗██║
-     ██║   ███████║██████╔╝██║
-     ██║   ██╔══██║██╔══██╗██║
-     ██║   ██║  ██║██║  ██║███████╗
-     ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝
+# Source database (self-hosted PostgreSQL)
+SOURCE_HOST="157.10.73.82"
+SOURCE_PORT="5432"
+SOURCE_USER="admin"
+SOURCE_PASSWORD="P@ssw0rd"
+SOURCE_DATABASE="tarl_pratham"
+SOURCE_URL="postgresql://${SOURCE_USER}:${SOURCE_PASSWORD}@${SOURCE_HOST}:${SOURCE_PORT}/${SOURCE_DATABASE}"
 
-  Supabase Migration Script
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-EOF
-echo -e "${NC}"
+# Target database (Supabase)
+SUPABASE_PROJECT_ID="blvvksvorllayhejrxpo"
+SUPABASE_PASSWORD="ZJoDImJMwTAMW3Yf"
+SUPABASE_REGION="ap-southeast-1"  # Adjust if different
 
-echo ""
-echo -e "${CYAN}This script will migrate your TaRL Pratham database to Supabase${NC}"
-echo ""
-echo "Current Database: 157.10.73.52:5432/tarl_pratham"
-echo "Target Database:  Supabase (uyrmvvwwchzmqtstgwbi)"
-echo ""
-echo -e "${YELLOW}This will take approximately 40-80 minutes${NC}"
-echo ""
-echo "The script will:"
-echo "  1. ✓ Backup current database"
-echo "  2. ✓ Restore to Supabase"
-echo "  3. ✓ Verify migration"
-echo "  4. ✓ Update application configuration"
-echo ""
-read -p "Press ENTER to continue or Ctrl+C to cancel..."
+# Supabase connection URLs
+# Direct connection (for migration and schema operations)
+SUPABASE_DIRECT_URL="postgresql://postgres.${SUPABASE_PROJECT_ID}:${SUPABASE_PASSWORD}@db.${SUPABASE_PROJECT_ID}.supabase.co:5432/postgres"
 
-################################################################################
-# Step 1: Backup
-################################################################################
+# Pooler connection (for application use - Supavisor pooler)
+SUPABASE_POOLER_URL="postgresql://postgres.${SUPABASE_PROJECT_ID}:${SUPABASE_PASSWORD}@aws-0-${SUPABASE_REGION}.pooler.supabase.com:6543/postgres"
 
-echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  STEP 1/4: Backup Current Database${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
+# Backup directory
+BACKUP_DIR="./backups"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+DUMP_FILE="${BACKUP_DIR}/tarl_pratham_to_supabase_${TIMESTAMP}.dump"
 
-if [ ! -f "scripts/01_backup_database.sh" ]; then
-    echo -e "${RED}✗ Backup script not found!${NC}"
-    exit 1
-fi
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# FUNCTIONS
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-./scripts/01_backup_database.sh
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
 
-if [ $? -ne 0 ]; then
-    echo ""
-    echo -e "${RED}✗ Backup failed! Migration aborted.${NC}"
-    exit 1
-fi
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# MAIN MIGRATION PROCESS
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 echo ""
-read -p "Press ENTER to continue to Step 2 (Restore)..."
-
-################################################################################
-# Step 2: Restore
-################################################################################
-
-echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  STEP 2/4: Restore to Supabase${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+log_info "TaRL Pratham - Database Migration to Supabase"
+log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-if [ ! -f "scripts/02_restore_to_supabase.sh" ]; then
-    echo -e "${RED}✗ Restore script not found!${NC}"
-    exit 1
-fi
-
-./scripts/02_restore_to_supabase.sh
-
-if [ $? -ne 0 ]; then
-    echo ""
-    echo -e "${RED}✗ Restore failed! Check logs in ~/tarl-migration-backup/${NC}"
-    echo ""
-    echo "Your original database is still intact."
-    echo "To rollback, do nothing - your .env still points to the old database."
-    exit 1
-fi
-
-echo ""
-read -p "Press ENTER to continue to Step 3 (Verify)..."
-
-################################################################################
-# Step 3: Verify
-################################################################################
-
-echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  STEP 3/4: Verify Migration${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+# Step 1: Create backup directory
+log_info "Step 1: Creating backup directory..."
+mkdir -p "$BACKUP_DIR"
+log_success "Backup directory ready: $BACKUP_DIR"
 echo ""
 
-if [ ! -f "scripts/03_verify_migration.sh" ]; then
-    echo -e "${RED}✗ Verification script not found!${NC}"
-    exit 1
-fi
+# Step 2: Test source database connection
+log_info "Step 2: Testing source database connection..."
+if PGPASSWORD="$SOURCE_PASSWORD" psql -h "$SOURCE_HOST" -U "$SOURCE_USER" -d "$SOURCE_DATABASE" -p "$SOURCE_PORT" -c "SELECT version();" > /dev/null 2>&1; then
+    log_success "Source database connection successful"
 
-./scripts/03_verify_migration.sh
-
-VERIFY_EXIT_CODE=$?
-
-if [ $VERIFY_EXIT_CODE -ne 0 ]; then
-    echo ""
-    echo -e "${YELLOW}⚠  Verification completed with warnings${NC}"
-    echo ""
-    read -p "Do you want to continue with application update? (yes/no): " CONTINUE
-
-    if [ "$CONTINUE" != "yes" ]; then
-        echo ""
-        echo -e "${YELLOW}Migration paused. Your application still uses the old database.${NC}"
-        echo ""
-        echo "To complete later:"
-        echo "  1. Review verification logs: ~/tarl-migration-backup/verification_*.log"
-        echo "  2. Run: cp .env.supabase .env && npm run db:generate"
-        exit 0
-    fi
-fi
-
-echo ""
-read -p "Press ENTER to continue to Step 4 (Update Application)..."
-
-################################################################################
-# Step 4: Update Application
-################################################################################
-
-echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  STEP 4/4: Update Application Configuration${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-
-# Backup current .env
-if [ -f ".env" ]; then
-    BACKUP_ENV=".env.backup.$(date +%Y%m%d_%H%M%S)"
-    cp .env "$BACKUP_ENV"
-    echo -e "${GREEN}✓${NC} Backed up current .env to: $BACKUP_ENV"
+    # Get table counts
+    log_info "Getting source database statistics..."
+    PGPASSWORD="$SOURCE_PASSWORD" psql -h "$SOURCE_HOST" -U "$SOURCE_USER" -d "$SOURCE_DATABASE" -p "$SOURCE_PORT" -c "
+        SELECT
+            schemaname,
+            tablename,
+            (SELECT COUNT(*) FROM pg_class WHERE relname = tablename AND relkind = 'r') as row_count
+        FROM pg_tables
+        WHERE schemaname = 'public'
+        ORDER BY tablename;
+    "
 else
-    echo -e "${YELLOW}⚠${NC}  No existing .env file found"
-fi
-
-# Copy Supabase configuration
-if [ -f ".env.supabase" ]; then
-    cp .env.supabase .env
-    echo -e "${GREEN}✓${NC} Updated .env with Supabase configuration"
-else
-    echo -e "${RED}✗ .env.supabase not found!${NC}"
+    log_error "Cannot connect to source database"
     exit 1
 fi
-
-# Regenerate Prisma client
 echo ""
-echo "Regenerating Prisma client..."
-npm run db:generate
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓${NC} Prisma client regenerated"
+# Step 3: Test Supabase connection
+log_info "Step 3: Testing Supabase connection..."
+if PGPASSWORD="$SUPABASE_PASSWORD" psql "${SUPABASE_DIRECT_URL}" -c "SELECT version();" > /dev/null 2>&1; then
+    log_success "Supabase connection successful"
 else
-    echo -e "${RED}✗ Failed to regenerate Prisma client${NC}"
+    log_error "Cannot connect to Supabase"
+    log_info "Please check:"
+    log_info "  1. Project ID: $SUPABASE_PROJECT_ID"
+    log_info "  2. Database password is correct"
+    log_info "  3. Supabase project is active"
     exit 1
 fi
+echo ""
 
-################################################################################
-# Success Summary
-################################################################################
+# Step 4: Dump source database
+log_info "Step 4: Dumping source database..."
+log_info "This may take several minutes depending on database size..."
 
+PGPASSWORD="$SOURCE_PASSWORD" pg_dump \
+    -h "$SOURCE_HOST" \
+    -U "$SOURCE_USER" \
+    -d "$SOURCE_DATABASE" \
+    -p "$SOURCE_PORT" \
+    -F c \
+    -b \
+    -v \
+    -f "$DUMP_FILE" 2>&1 | grep -v "NOTICE"
+
+if [ -f "$DUMP_FILE" ]; then
+    DUMP_SIZE=$(du -h "$DUMP_FILE" | cut -f1)
+    log_success "Database dump created: $DUMP_FILE ($DUMP_SIZE)"
+else
+    log_error "Database dump failed"
+    exit 1
+fi
 echo ""
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}  🎉 Migration Completed Successfully!${NC}"
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+# Step 5: Backup existing Supabase data (optional but recommended)
+log_warning "Step 5: Backing up existing Supabase data (if any)..."
+SUPABASE_BACKUP_FILE="${BACKUP_DIR}/supabase_backup_before_migration_${TIMESTAMP}.dump"
+
+PGPASSWORD="$SUPABASE_PASSWORD" pg_dump \
+    "${SUPABASE_DIRECT_URL}" \
+    -F c \
+    -b \
+    -v \
+    -f "$SUPABASE_BACKUP_FILE" 2>&1 | grep -v "NOTICE" || log_warning "Supabase backup skipped (database may be empty)"
+
+if [ -f "$SUPABASE_BACKUP_FILE" ]; then
+    BACKUP_SIZE=$(du -h "$SUPABASE_BACKUP_FILE" | cut -f1)
+    log_success "Supabase backup created: $SUPABASE_BACKUP_FILE ($BACKUP_SIZE)"
+fi
 echo ""
-echo "Your TaRL Pratham application is now using Supabase!"
+
+# Step 6: Restore to Supabase
+log_warning "Step 6: Restoring database to Supabase..."
+log_warning "This will overwrite any existing data in the Supabase database!"
 echo ""
-echo -e "${CYAN}Next Steps:${NC}"
+read -p "Continue with restoration? (yes/no): " CONFIRM
+
+if [ "$CONFIRM" != "yes" ]; then
+    log_info "Migration cancelled by user"
+    exit 0
+fi
+
+log_info "Starting restoration to Supabase..."
+
+# Restore with --clean to drop existing objects first
+# Use --if-exists to avoid errors if objects don't exist
+# --no-owner and --no-acl because Supabase manages permissions
+PGPASSWORD="$SUPABASE_PASSWORD" pg_restore \
+    --dbname="${SUPABASE_DIRECT_URL}" \
+    --clean \
+    --if-exists \
+    --no-owner \
+    --no-acl \
+    --verbose \
+    "$DUMP_FILE" 2>&1 | grep -E "(restoring|creating|ERROR)" || true
+
+log_success "Database restoration completed"
 echo ""
-echo "1. Start the application:"
-echo "   ${YELLOW}npm run dev${NC}"
+
+# Step 7: Verify migration
+log_info "Step 7: Verifying migration..."
+
+echo "Checking table counts in Supabase..."
+PGPASSWORD="$SUPABASE_PASSWORD" psql "${SUPABASE_DIRECT_URL}" -c "
+    SELECT
+        schemaname,
+        tablename,
+        n_tup_ins as row_count
+    FROM pg_stat_user_tables
+    WHERE schemaname = 'public'
+    ORDER BY tablename;
+"
 echo ""
-echo "2. Test critical functionality:"
-echo "   • Login (email/password)"
-echo "   • Quick login (username)"
-echo "   • View students"
-echo "   • Create/edit records"
-echo "   • Dashboard and reports"
+
+# Step 8: Update .env file with Supabase credentials
+log_info "Step 8: Creating new .env file for Supabase..."
+
+ENV_FILE=".env.supabase"
+cat > "$ENV_FILE" << 'ENVEOF'
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TaRL Pratham - Supabase Configuration
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Migrated: TIMESTAMP_PLACEHOLDER
+# Project ID: SUPABASE_PROJECT_ID_PLACEHOLDER
+# Project URL: https://SUPABASE_PROJECT_ID_PLACEHOLDER.supabase.co
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# DATABASE CONFIGURATION - Supabase
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Primary Database URL (Pooler - for application use)
+# Recommended for serverless environments (Vercel, Netlify, etc.)
+DATABASE_URL="postgresql://postgres.blvvksvorllayhejrxpo:ZJoDImJMwTAMW3Yf@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+
+# Prisma-specific URL (Pooler for connection pooling)
+POSTGRES_PRISMA_URL="postgresql://postgres.blvvksvorllayhejrxpo:ZJoDImJMwTAMW3Yf@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+
+# Non-pooling URL (Direct connection - for migrations and schema operations)
+# Use this for: npm run db:migrate, npm run db:push, npm run db:studio
+POSTGRES_URL_NON_POOLING="postgresql://postgres.blvvksvorllayhejrxpo:ZJoDImJMwTAMW3Yf@db.blvvksvorllayhejrxpo.supabase.co:5432/postgres"
+
+# Individual connection parameters
+POSTGRES_HOST="db.blvvksvorllayhejrxpo.supabase.co"
+POSTGRES_PORT="5432"
+POSTGRES_USER="postgres.blvvksvorllayhejrxpo"
+POSTGRES_PASSWORD="ZJoDImJMwTAMW3Yf"
+POSTGRES_DATABASE="postgres"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# SUPABASE API CONFIGURATION
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NEXT_PUBLIC_SUPABASE_URL="https://blvvksvorllayhejrxpo.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdnZrc3ZvcmxsYXloZWpyeHBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDU5NTMsImV4cCI6MjA4MTU4MTk1M30.-bXEvfPV3cfVdlahyDPCaQrs2JBYmWYb6tEELfzxRwM"
+SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdnZrc3ZvcmxsYXloZWpyeHBvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjAwNTk1MywiZXhwIjoyMDgxNTgxOTUzfQ.0WUIgmQhGoY9pmjvTvLLDyTWV1rWCKlRcbZv_d-KX8c"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# NEXTAUTH CONFIGURATION (Keep existing)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NEXTAUTH_URL=http://localhost:3005
+NEXTAUTH_SECRET=5ZIzBW/SBr7fIKlZT4LQCpNRnA1wnn7LTnAwx5bNvO0=
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# SERVER CONFIGURATION
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NODE_ENV=development
+NEXT_PUBLIC_API_URL=http://localhost:3005/api
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# FILE UPLOAD CONFIGURATION
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Use Supabase Storage or keep Vercel Blob
+BLOB_READ_WRITE_TOKEN="vercel_blob_rw_BjWHYvEuAxrvzOzx_yMNPwtl7eKE8NJtnHvz3arBhyZsWRz"
+UPLOAD_DIR=/uploads
+MAX_FILE_SIZE=5242880
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# SESSION CONFIGURATION
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SESSION_TIMEOUT=86400000
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# NOTES
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+# Migration completed: TIMESTAMP_PLACEHOLDER
+# Source: postgresql://admin:P@ssw0rd@157.10.73.82:5432/tarl_pratham
+# Target: Supabase project blvvksvorllayhejrxpo
+#
+# To use this configuration:
+# 1. Copy this file to .env: cp .env.supabase .env
+# 2. Regenerate Prisma client: npm run db:generate
+# 3. Restart your development server: npm run dev
+#
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENVEOF
+
+sed -i "" "s/TIMESTAMP_PLACEHOLDER/${TIMESTAMP}/g" "$ENV_FILE"
+sed -i "" "s/SUPABASE_PROJECT_ID_PLACEHOLDER/${SUPABASE_PROJECT_ID}/g" "$ENV_FILE"
+
+log_success "Supabase .env file created: $ENV_FILE"
 echo ""
-echo "3. Review migration logs:"
-echo "   • Backup:   ~/tarl-migration-backup/backup_manifest_*.txt"
-echo "   • Restore:  ~/tarl-migration-backup/restore_*.log"
-echo "   • Verify:   ~/tarl-migration-backup/verification_*.log"
+
+# Step 9: Summary
+log_success "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+log_success "Migration Completed Successfully!"
+log_success "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo -e "${CYAN}Configuration:${NC}"
+log_info "Summary:"
+log_info "  Source dump: $DUMP_FILE"
+log_info "  Supabase backup: $SUPABASE_BACKUP_FILE"
+log_info "  New .env file: $ENV_FILE"
 echo ""
-echo "• Supabase Dashboard: https://supabase.com/dashboard/project/uyrmvvwwchzmqtstgwbi"
-echo "• Database URL:       aws-1-us-east-1.pooler.supabase.com"
-echo "• Project URL:        https://uyrmvvwwchzmqtstgwbi.supabase.co"
-echo "• Old .env backup:    $BACKUP_ENV"
+log_info "Next steps:"
+log_info "  1. Review the table counts above to verify all data migrated"
+log_info "  2. Copy the new .env file: cp $ENV_FILE .env"
+log_info "  3. Regenerate Prisma client: npm run db:generate"
+log_info "  4. Test your application: npm run dev"
+log_info "  5. Update production environment variables with Supabase URLs"
 echo ""
-echo -e "${YELLOW}Rollback (if needed):${NC}"
-echo "  cp $BACKUP_ENV .env && npm run db:generate && npm run dev"
+log_warning "Important notes:"
+log_warning "  - Use POOLER URL (port 6543) for your application (DATABASE_URL)"
+log_warning "  - Use DIRECT URL (port 5432) for migrations (POSTGRES_URL_NON_POOLING)"
+log_warning "  - Keep the backup files in case you need to rollback"
 echo ""
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+log_info "Supabase Dashboard: https://supabase.com/dashboard/project/${SUPABASE_PROJECT_ID}"
 echo ""

@@ -70,7 +70,7 @@ export async function canMentorAccessAssessment(
   checkSubject: boolean = true
 ): Promise<AuthorizationResult> {
   try {
-    const assessment = await prisma.assessment.findUnique({
+    const assessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       select: {
         pilot_school_id: true,
