@@ -15,7 +15,8 @@ export async function middleware(request: NextRequest) {
                        request.nextUrl.pathname.startsWith('/api/pilot-schools') ||
                        request.nextUrl.pathname.startsWith('/help') ||
                        request.nextUrl.pathname === '/about' ||
-                       request.nextUrl.pathname === '/public-verification-dashboard';
+                       request.nextUrl.pathname === '/public-verification-dashboard' ||
+                       request.nextUrl.pathname === '/public-verification-comparison';
 
   // For API routes, let them handle authentication internally (don't redirect)
   if (isAPIRoute && !isPublicPage) {
