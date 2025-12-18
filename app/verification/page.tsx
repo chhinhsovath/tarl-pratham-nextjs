@@ -62,7 +62,17 @@ export default function VerificationPage() {
     school_id: '',
     teacher_id: ''
   });
-  
+
+  // Comparison data state
+  const [comparisons, setComparisons] = useState([]);
+  const [comparisonStats, setComparisonStats] = useState({
+    total_assessments: 0,
+    verified_count: 0,
+    pending_count: 0,
+    level_match_count: 0,
+    level_mismatch_count: 0
+  });
+
   // Statistics
   const [stats, setStats] = useState({
     pending: 0,
@@ -82,8 +92,12 @@ export default function VerificationPage() {
   }, [session, router]);
 
   useEffect(() => {
-    fetchAssessments();
-    fetchStats();
+    if (activeTab === 'comparison') {
+      fetchComparisons();
+    } else {
+      fetchAssessments();
+      fetchStats();
+    }
   }, [activeTab, filters]);
 
   const fetchAssessments = async () => {
@@ -161,6 +175,32 @@ export default function VerificationPage() {
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
+    }
+  };
+
+  const fetchComparisons = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filters.assessment_type) params.append('assessment_type', filters.assessment_type);
+      if (filters.subject) params.append('subject', filters.subject);
+      if (filters.school_id) params.append('school_id', filters.school_id);
+
+      const response = await fetch(`/api/assessments/verify/comparison?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch comparison data');
+      }
+
+      const data = await response.json();
+      setComparisons(data.comparisons || []);
+      setComparisonStats(data.statistics || {});
+    } catch (error) {
+      console.error('Error fetching comparisons:', error);
+      message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យប្រៀបធៀប');
+      setComparisons([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -618,6 +658,120 @@ export default function VerificationPage() {
     }
   ];
 
+  // Comparison columns for side-by-side view
+  const comparisonColumns = [
+    {
+      title: 'សិស្ស',
+      key: 'student',
+      fixed: 'left' as const,
+      width: 150,
+      render: (record: any) => (
+        <div>
+          <div className="font-semibold">{record.student_name}</div>
+          <div className="text-xs text-gray-500">{record.student_id}</div>
+        </div>
+      )
+    },
+    {
+      title: 'សាលា',
+      key: 'school',
+      width: 150,
+      render: (record: any) => (
+        <div className="text-sm">{record.school_name || '-'}</div>
+      )
+    },
+    {
+      title: 'ប្រភេទ',
+      dataIndex: 'assessment_type',
+      key: 'assessment_type',
+      width: 100,
+      render: (type: string) => {
+        const typeMap = {
+          baseline: { label: 'មូលដ្ឋាន', color: 'blue' },
+          midline: { label: 'ពាក់កណ្តាល', color: 'orange' },
+          endline: { label: 'បញ្ចប់', color: 'green' }
+        };
+        const config = typeMap[type as keyof typeof typeMap];
+        return <Tag color={config?.color}>{config?.label}</Tag>;
+      }
+    },
+    {
+      title: 'មុខវិជ្ជា',
+      dataIndex: 'subject',
+      key: 'subject',
+      width: 100,
+      render: (subject: string) => (
+        <Tag color={subject === 'language' || subject === 'khmer' ? 'purple' : 'cyan'}>
+          {subject === 'language' || subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា'}
+        </Tag>
+      )
+    },
+    {
+      title: 'កម្រិតរបស់គ្រូ',
+      key: 'teacher_level',
+      width: 150,
+      render: (record: any) => {
+        const subject = record.subject === 'language' || record.subject === 'khmer' ? 'language' : 'math';
+        return (
+          <div>
+            <div className="font-medium">{getLevelLabelKM(subject, record.teacher_level)}</div>
+            <div className="text-xs text-gray-500">{record.teacher_name}</div>
+          </div>
+        );
+      }
+    },
+    {
+      title: 'កម្រិតរបស់គ្រូណែនាំ',
+      key: 'mentor_level',
+      width: 150,
+      render: (record: any) => {
+        if (record.verification_status === 'pending') {
+          return <Tag color="orange">រង់ចាំផ្ទៀងផ្ទាត់</Tag>;
+        }
+        const subject = record.subject === 'language' || record.subject === 'khmer' ? 'language' : 'math';
+        const mentorLevel = record.mentor_level || record.teacher_level;
+        return (
+          <div>
+            <div className="font-medium">{getLevelLabelKM(subject, mentorLevel)}</div>
+            <div className="text-xs text-gray-500">{record.mentor_name}</div>
+          </div>
+        );
+      }
+    },
+    {
+      title: 'ស្ថានភាព',
+      key: 'comparison_status',
+      width: 120,
+      render: (record: any) => {
+        if (record.verification_status === 'pending') {
+          return <Tag color="orange">រង់ចាំផ្ទៀងផ្ទាត់</Tag>;
+        }
+
+        // Check if levels match
+        const teacherLevel = record.teacher_level;
+        const mentorLevel = record.mentor_level || record.teacher_level;
+        const levelsMatch = teacherLevel === mentorLevel;
+
+        if (levelsMatch) {
+          return <Tag icon={<CheckCircleOutlined />} color="green">ត្រូវគ្នា</Tag>;
+        } else {
+          return <Tag icon={<CloseCircleOutlined />} color="red">មិនត្រូវគ្នា</Tag>;
+        }
+      }
+    },
+    {
+      title: 'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់',
+      key: 'verified_at',
+      width: 130,
+      render: (record: any) => {
+        if (record.verified_at) {
+          return dayjs(record.verified_at).format('DD/MM/YYYY');
+        }
+        return '-';
+      }
+    }
+  ];
+
   const rowSelection = {
     selectedRowKeys: selectedAssessments,
     onChange: (selectedRowKeys: React.Key[]) => {
@@ -791,26 +945,94 @@ export default function VerificationPage() {
                     <Badge count={stats.rejected} offset={[5, 0]} showZero color="red" style={{ marginLeft: '4px' }} />
                   </span>
                 )
+              },
+              {
+                key: 'comparison',
+                label: (
+                  <span style={{ fontSize: '14px' }}>
+                    ការប្រៀបធៀប
+                    <Badge count={comparisonStats.total_assessments} offset={[5, 0]} showZero color="blue" style={{ marginLeft: '4px' }} />
+                  </span>
+                )
               }
             ]}
           />
 
-          {/* Table - Show ALL records, no pagination */}
-          <Table
-            scroll={{ x: 800, y: 600 }}
-            rowSelection={activeTab === 'pending' ? rowSelection : undefined}
-            columns={columns}
-            dataSource={assessments.filter(a => a.status === activeTab)}
-            rowKey="id"
-            loading={loading}
-            pagination={false}  // Disable pagination completely
-            size="small"
-            footer={() => (
-              <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                សរុប {assessments.filter(a => a.status === activeTab).length} ការវាយតម្លៃ
-              </div>
-            )}
-          />
+          {/* Conditional rendering based on active tab */}
+          {activeTab === 'comparison' ? (
+            // Comparison Table with statistics
+            <>
+              <Row gutter={16} className="mb-4">
+                <Col xs={12} sm={8} md={6}>
+                  <Card>
+                    <Statistic
+                      title="សរុប"
+                      value={comparisonStats.total_assessments}
+                      valueStyle={{ color: '#1890ff' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <Card>
+                    <Statistic
+                      title="បានផ្ទៀងផ្ទាត់"
+                      value={comparisonStats.verified_count}
+                      valueStyle={{ color: '#52c41a' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <Card>
+                    <Statistic
+                      title="រង់ចាំ"
+                      value={comparisonStats.pending_count}
+                      valueStyle={{ color: '#faad14' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={12} sm={8} md={6}>
+                  <Card>
+                    <Statistic
+                      title="មិនត្រូវគ្នា"
+                      value={comparisonStats.level_mismatch_count}
+                      valueStyle={{ color: '#ff4d4f' }}
+                    />
+                  </Card>
+                </Col>
+              </Row>
+              <Table
+                scroll={{ x: 1200, y: 600 }}
+                columns={comparisonColumns}
+                dataSource={comparisons}
+                rowKey={(record) => `${record.teacher_assessment_id}_${record.student_id}`}
+                loading={loading}
+                pagination={{
+                  pageSize: 20,
+                  showSizeChanger: true,
+                  pageSizeOptions: ['10', '20', '50', '100'],
+                  showTotal: (total) => `សរុប ${total} ការវាយតម្លៃ`
+                }}
+                size="small"
+              />
+            </>
+          ) : (
+            // Regular verification table
+            <Table
+              scroll={{ x: 800, y: 600 }}
+              rowSelection={activeTab === 'pending' ? rowSelection : undefined}
+              columns={columns}
+              dataSource={assessments.filter(a => a.status === activeTab)}
+              rowKey="id"
+              loading={loading}
+              pagination={false}  // Disable pagination completely
+              size="small"
+              footer={() => (
+                <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                  សរុប {assessments.filter(a => a.status === activeTab).length} ការវាយតម្លៃ
+                </div>
+              )}
+            />
+          )}
         </Card>
 
         {/* Verification Modal */}
