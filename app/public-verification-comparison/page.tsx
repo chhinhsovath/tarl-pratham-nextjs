@@ -22,10 +22,12 @@ import {
   CalculatorOutlined,
   UserOutlined,
   ReloadOutlined,
-  FilterOutlined
+  FilterOutlined,
+  DownloadOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { getLevelLabelKM } from '@/lib/constants/assessment-levels';
+import * as XLSX from 'xlsx';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -113,6 +115,150 @@ export default function PublicVerificationComparison() {
       console.error('Error fetching comparison data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportToExcel = () => {
+    try {
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+
+      // Summary sheet
+      const summaryHeaders = ['របាយការណ៍ប្រៀបធៀបការវាយតម្លៃគ្រូ និងការផ្ទៀងផ្ទាត់គ្រូណែនាំ'];
+      const summaryData = [
+        summaryHeaders,
+        [],
+        ['សង្ខេប', 'ចំនួន'],
+        ['សរុបទាំងអស់', stats.total_assessments],
+        ['បានផ្ទៀងផ្ទាត់', stats.verified_count],
+        ['រង់ចាំផ្ទៀងផ្ទាត់', stats.pending_count],
+        ['ត្រូវគ្នា', stats.level_match_count],
+        ['មិនត្រូវគ្នា', stats.level_mismatch_count],
+        [],
+        ['កាលបរិច្ឆេទនាំចេញ:', dayjs().format('DD/MM/YYYY HH:mm')]
+      ];
+
+      const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, summarySheet, 'សង្ខេប');
+
+      // Detailed comparison sheet
+      const detailHeaders = [
+        'លេខសិស្ស',
+        'ឈ្មោះសិស្ស',
+        'ភេទ',
+        'អាយុ',
+        'ថ្នាក់',
+        'សាលា',
+        'ខេត្ត',
+        'ស្រុក',
+        'ប្រភេទការវាយតម្លៃ',
+        'មុខវិជ្ជា',
+        'គ្រូ',
+        'កម្រិតគ្រូ',
+        'កាលបរិច្ឆេទវាយតម្លៃគ្រូ',
+        'គ្រូណែនាំ',
+        'កម្រិតគ្រូណែនាំ',
+        'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់',
+        'ស្ថានភាព'
+      ];
+
+      const detailData = comparisons.map((comp) => {
+        const subject = comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math';
+        const teacherLevelLabel = getLevelLabelKM(subject, comp.teacher_level);
+        const mentorLevelLabel = comp.mentor_level ? getLevelLabelKM(subject, comp.mentor_level) : '-';
+
+        let statusLabel = '';
+        if (comp.verification_status === 'pending') {
+          statusLabel = 'រង់ចាំផ្ទៀងផ្ទាត់';
+        } else if (comp.level_match) {
+          statusLabel = 'ត្រូវគ្នា';
+        } else {
+          statusLabel = 'មិនត្រូវគ្នា';
+        }
+
+        const assessmentTypeLabel =
+          comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' :
+          comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់';
+
+        const subjectLabel = (comp.subject === 'language' || comp.subject === 'khmer') ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា';
+
+        return [
+          comp.student_id || '-',
+          comp.student_name || '-',
+          comp.gender || '-',
+          comp.age || '-',
+          comp.grade || '-',
+          comp.school_name || '-',
+          comp.province || '-',
+          comp.district || '-',
+          assessmentTypeLabel,
+          subjectLabel,
+          comp.teacher_name || '-',
+          teacherLevelLabel,
+          comp.teacher_assessment_date ? dayjs(comp.teacher_assessment_date).format('DD/MM/YYYY') : '-',
+          comp.mentor_name || '-',
+          mentorLevelLabel,
+          comp.verified_at ? dayjs(comp.verified_at).format('DD/MM/YYYY') : '-',
+          statusLabel
+        ];
+      });
+
+      const detailSheet = XLSX.utils.aoa_to_sheet([detailHeaders, ...detailData]);
+      XLSX.utils.book_append_sheet(wb, detailSheet, 'ការប្រៀបធៀបលម្អិត');
+
+      // Mismatch only sheet
+      const mismatchComparisons = comparisons.filter(c => c.verification_status === 'verified' && !c.level_match);
+
+      if (mismatchComparisons.length > 0) {
+        const mismatchData = mismatchComparisons.map((comp) => {
+          const subject = comp.subject === 'language' || comp.subject === 'khmer' ? 'language' : 'math';
+          const teacherLevelLabel = getLevelLabelKM(subject, comp.teacher_level);
+          const mentorLevelLabel = comp.mentor_level ? getLevelLabelKM(subject, comp.mentor_level) : '-';
+
+          const assessmentTypeLabel =
+            comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' :
+            comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់';
+
+          const subjectLabel = (comp.subject === 'language' || comp.subject === 'khmer') ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា';
+
+          return [
+            comp.student_id || '-',
+            comp.student_name || '-',
+            comp.school_name || '-',
+            comp.province || '-',
+            comp.district || '-',
+            assessmentTypeLabel,
+            subjectLabel,
+            teacherLevelLabel,
+            mentorLevelLabel,
+            `${teacherLevelLabel} → ${mentorLevelLabel}`
+          ];
+        });
+
+        const mismatchHeaders = [
+          'លេខសិស្ស',
+          'ឈ្មោះសិស្ស',
+          'សាលា',
+          'ខេត្ត',
+          'ស្រុក',
+          'ប្រភេទ',
+          'មុខវិជ្ជា',
+          'កម្រិតគ្រូ',
+          'កម្រិតគ្រូណែនាំ',
+          'ភាពខុសគ្នា'
+        ];
+
+        const mismatchSheet = XLSX.utils.aoa_to_sheet([mismatchHeaders, ...mismatchData]);
+        XLSX.utils.book_append_sheet(wb, mismatchSheet, 'មិនត្រូវគ្នា');
+      }
+
+      // Generate filename with timestamp
+      const fileName = `comparison_report_${dayjs().format('YYYY-MM-DD_HHmm')}.xlsx`;
+
+      // Write and download
+      XLSX.writeFile(wb, fileName);
+    } catch (error) {
+      console.error('Export error:', error);
     }
   };
 
@@ -361,19 +507,30 @@ export default function PublicVerificationComparison() {
               </Select>
             </Col>
             <Col xs={24} sm={12} md={6}>
-              <Button
-                icon={<ReloadOutlined />}
-                onClick={() => {
-                  setFilters({
-                    assessment_type: '',
-                    subject: '',
-                    status: ''
-                  });
-                }}
-                style={{ width: '100%' }}
-              >
-                សម្អាតតម្រង
-              </Button>
+              <Space style={{ width: '100%' }}>
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={() => {
+                    setFilters({
+                      assessment_type: '',
+                      subject: '',
+                      status: ''
+                    });
+                  }}
+                  style={{ flex: 1 }}
+                >
+                  សម្អាតតម្រង
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<DownloadOutlined />}
+                  onClick={handleExportToExcel}
+                  disabled={comparisons.length === 0}
+                  style={{ flex: 1 }}
+                >
+                  នាំចេញ Excel
+                </Button>
+              </Space>
             </Col>
           </Row>
         </Card>

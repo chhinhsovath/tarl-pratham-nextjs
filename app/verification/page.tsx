@@ -245,22 +245,13 @@ export default function VerificationPage() {
       setLoading(true);
       message.loading('កំពុងទាញយកទិន្នន័យប្រៀបធៀប...');
 
-      // Build query params
-      const params = new URLSearchParams();
-      if (filters.assessment_type) params.append('assessment_type', filters.assessment_type);
-      if (filters.subject) params.append('subject', filters.subject);
+      // Use the already loaded comparison data
+      const dataToExport = comparisons;
+      const stats = comparisonStats;
 
-      // Fetch comparison data
-      const response = await fetch(`/api/assessments/verify/comparison?${params.toString()}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch comparison data');
-      }
-
-      const { comparisons, statistics } = await response.json();
-
-      if (!comparisons || comparisons.length === 0) {
+      if (!dataToExport || dataToExport.length === 0) {
         message.warning('មិនមានទិន្នន័យសម្រាប់នាំចេញ');
+        setLoading(false);
         return;
       }
 
@@ -273,15 +264,15 @@ export default function VerificationPage() {
         ['កាលបរិច្ឆេទនាំចេញ:', dayjs().format('YYYY-MM-DD HH:mm')],
         [],
         ['សង្ខេបទិន្នន័យ'],
-        ['ចំនួនការវាយតម្លៃដោយគ្រូសរុប:', statistics.total_assessments || 0],
-        ['បានផ្ទៀងផ្ទាត់ដោយគ្រូណែនាំ:', statistics.verified_count || 0],
-        ['រង់ចាំការផ្ទៀងផ្ទាត់:', statistics.pending_count || 0],
+        ['ចំនួនការវាយតម្លៃដោយគ្រូសរុប:', stats.total_assessments || 0],
+        ['បានផ្ទៀងផ្ទាត់ដោយគ្រូណែនាំ:', stats.verified_count || 0],
+        ['រង់ចាំការផ្ទៀងផ្ទាត់:', stats.pending_count || 0],
         [],
         ['សម្រាប់ការផ្ទៀងផ្ទាត់ដែលបានធ្វើ:'],
-        ['កម្រិតត្រូវគ្នា:', statistics.level_match_count || 0],
-        ['កម្រិតមិនត្រូវគ្នា:', statistics.level_mismatch_count || 0],
-        ['ភាគរយកម្រិតត្រូវគ្នា:', statistics.verified_count > 0 ? 
-          ((statistics.level_match_count / statistics.verified_count * 100).toFixed(1) + '%') : '0%'],
+        ['កម្រិតត្រូវគ្នា:', stats.level_match_count || 0],
+        ['កម្រិតមិនត្រូវគ្នា:', stats.level_mismatch_count || 0],
+        ['ភាគរយកម្រិតត្រូវគ្នា:', stats.verified_count > 0 ?
+          ((stats.level_match_count / stats.verified_count * 100).toFixed(1) + '%') : '0%'],
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summarySheet, 'សង្ខេប');
@@ -310,7 +301,7 @@ export default function VerificationPage() {
         'កំណត់ចំណាំ'
       ];
 
-      const detailData = comparisons.map((comp: any) => {
+      const detailData = dataToExport.map((comp: any) => {
         // Calculate level difference
         let levelDifference = '';
         if (comp.teacher_level && comp.mentor_level && comp.teacher_level !== comp.mentor_level) {
@@ -370,7 +361,7 @@ export default function VerificationPage() {
       XLSX.utils.book_append_sheet(wb, detailSheet, 'ការប្រៀបធៀបលម្អិត');
 
       // 3. Pending verifications sheet (students not yet verified)
-      const pendingComparisons = comparisons.filter((c: any) => c.verification_status === 'pending');
+      const pendingComparisons = dataToExport.filter((c: any) => c.verification_status === 'pending');
       if (pendingComparisons.length > 0) {
         const pendingHeaders = [
           'លេខសិស្ស',
@@ -407,7 +398,7 @@ export default function VerificationPage() {
       }
 
       // 4. Level discrepancies sheet (different levels between teacher and mentor)
-      const levelDiscrepancies = comparisons.filter((c: any) => 
+      const levelDiscrepancies = dataToExport.filter((c: any) =>
         c.level_match === false && c.mentor_level !== null
       );
 
@@ -890,15 +881,18 @@ export default function VerificationPage() {
                 >
                   សម្អាត
                 </Button>
-                <Button
-                  icon={<DownloadOutlined />}
-                  onClick={handleExportComparison}
-                  loading={loading}
-                  size="middle"
-                  type="default"
-                >
-                  នាំចេញការប្រៀបធៀប
-                </Button>
+                {activeTab === 'comparison' && (
+                  <Button
+                    icon={<DownloadOutlined />}
+                    onClick={handleExportComparison}
+                    loading={loading}
+                    size="middle"
+                    type="default"
+                    disabled={comparisons.length === 0}
+                  >
+                    នាំចេញការប្រៀបធៀប
+                  </Button>
+                )}
                 {selectedAssessments.length > 0 && (
                   <Button
                     type="primary"
