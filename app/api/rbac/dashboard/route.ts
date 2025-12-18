@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       totalMentoringVisits
     ] = await Promise.all([
       prisma.pilotSchool.count(),
-      prisma.student.count(),
+      prisma.students.count(),
       prisma.assessments.count(),
       prisma.mentoringVisit.count()
     ]);
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     const recentActivities = await prisma.user.findMany({
       where: { is_active: true },
       include: {
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
         user_pilot_school_assignments: {
           take: 10, // Limit nested assignments to prevent unbounded query
           include: {
-            pilot_school: {
+            pilot_schools: {
               select: {
                 id: true,
                 school_name: true

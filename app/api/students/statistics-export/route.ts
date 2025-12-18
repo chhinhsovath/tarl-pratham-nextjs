@@ -322,7 +322,7 @@ export async function GET(request: NextRequest) {
       include: {
         pilot_school: true,
         school_class: true,
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -347,11 +347,11 @@ export async function GET(request: NextRequest) {
         s.gender || '',
         s.age || '',
         s.grade || '',
-        s.pilot_school?.school_name || '',
-        s.pilot_school?.school_code || '',
-        s.pilot_school?.province || '',
-        s.pilot_school?.district || '',
-        s.pilot_school?.cluster || '',
+        s.pilot_schools?.school_name || '',
+        s.pilot_schools?.school_code || '',
+        s.pilot_schools?.province || '',
+        s.pilot_schools?.district || '',
+        s.pilot_schools?.cluster || '',
         s.guardian_name || '',
         s.guardian_phone || '',
         s.baseline_khmer_level || '',
@@ -360,7 +360,7 @@ export async function GET(request: NextRequest) {
         s.midline_math_level || '',
         s.endline_khmer_level || '',
         s.endline_math_level || '',
-        s.added_by?.name || '',
+        s.users_assessments_added_by_idTousers?.name || '',
         s.record_status || '',
         s.created_at.toISOString().split('T')[0]
       ])

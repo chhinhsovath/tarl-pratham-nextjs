@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify all students exist and user has access
-    const students = await prisma.student.findMany({
+    const students = await prisma.students.findMany({
       where: {
         id: { in: student_ids }
       },
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Bulk update students to assign them to the class
-    await prisma.student.updateMany({
+    await prisma.students.updateMany({
       where: {
         id: { in: student_ids }
       },
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Update student count in the class
-    const newStudentCount = await prisma.student.count({
+    const newStudentCount = await prisma.students.count({
       where: {
         school_class_id: schoolClass.id,
         is_active: true

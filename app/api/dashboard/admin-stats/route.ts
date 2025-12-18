@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
       totalTeachers,
       totalMentors
     ] = await Promise.all([
-      prisma.student.count(),
-      prisma.student.count({ where: { is_active: true } }),
+      prisma.students.count(),
+      prisma.students.count({ where: { is_active: true } }),
       prisma.assessments.count(),
       prisma.user.count({ where: { role: 'teacher' } }),
       prisma.user.count({ where: { role: 'mentor' } })
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       prisma.pilotSchool.count(),
       prisma.mentoringVisit.count(),
-      prisma.student.count({
+      prisma.students.count({
         where: {
           OR: [
             { is_active: false },
@@ -203,7 +203,7 @@ export async function GET(request: NextRequest) {
     const averageAttendance = 0; // TODO: Implement actual attendance tracking
 
     // Get at-risk students details
-    const atRiskStudentsData = await prisma.student.findMany({
+    const atRiskStudentsData = await prisma.students.findMany({
       where: {
         OR: [
           { is_active: false },

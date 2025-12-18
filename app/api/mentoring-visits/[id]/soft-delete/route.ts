@@ -86,7 +86,7 @@ export async function DELETE(
     console.log(`[Soft Delete] User ${session.user.email} (${userRole}) deleting mentoring visit ID ${visitId}`);
     console.log(`[Soft Delete] Visit date: ${visit.visit_date}`);
     console.log(`[Soft Delete] Mentor: ${visit.mentor.name}, Teacher: ${visit.teacher?.name || 'N/A'}`);
-    console.log(`[Soft Delete] School: ${visit.pilot_school?.school_name || 'N/A'}`);
+    console.log(`[Soft Delete] School: ${visit.pilot_schools?.school_name || 'N/A'}`);
 
     // Soft delete the mentoring visit
     const updatedVisit = await prisma.mentoringVisit.update({
@@ -107,7 +107,7 @@ export async function DELETE(
         visit_date: visit.visit_date,
         mentor: visit.mentor.name,
         teacher: visit.teacher?.name,
-        school: visit.pilot_school?.school_name,
+        school: visit.pilot_schools?.school_name,
         deleted_at: new Date().toISOString(),
         deleted_by: session.user.email,
       },

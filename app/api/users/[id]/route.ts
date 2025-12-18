@@ -56,7 +56,7 @@ export async function GET(
         show_onboarding: true,
         created_at: true,
         updated_at: true,
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

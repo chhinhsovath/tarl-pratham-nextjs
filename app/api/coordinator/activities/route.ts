@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       }),
 
       // Recent students - NO JOINS
-      prisma.student.findMany({
+      prisma.students.findMany({
         where: schoolFilter,
         take: limit,
         orderBy: { created_at: 'desc' },

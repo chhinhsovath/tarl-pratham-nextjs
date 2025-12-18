@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     // Get students based on role
     const recordStatus = userRole === 'teacher' ? 'production' : 'test_mentor';
 
-    const students = await prisma.student.findMany({
+    const students = await prisma.students.findMany({
       where: {
         record_status: recordStatus,
         ...(user.pilot_school_id ? { pilot_school_id: user.pilot_school_id } : {})

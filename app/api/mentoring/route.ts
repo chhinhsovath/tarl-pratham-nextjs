@@ -304,7 +304,7 @@ export async function GET(request: NextRequest) {
               role: true
             }
           },
-          pilot_school: {
+          pilot_schools: {
             select: {
               id: true,
               school_name: true,
@@ -433,7 +433,7 @@ export async function POST(request: NextRequest) {
             role: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
@@ -574,7 +574,7 @@ export async function PUT(request: NextRequest) {
             role: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (row.pilot_school) {
-        const pilotSchoolKey = row.pilot_school.toString().toLowerCase();
+        const pilotSchoolKey = row.pilot_schools.toString().toLowerCase();
         pilot_school_id = pilotSchoolMap.get(pilotSchoolKey);
         if (!pilot_school_id) {
           rowErrors.push('Invalid pilot school');
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     // Create students in database
     const createdStudents = await prisma.$transaction(
       validStudents.map(student => 
-        prisma.student.create({
+        prisma.students.create({
           data: student,
           include: {
             school_class: {
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
                 }
               }
             },
-            pilot_school: {
+            pilot_schools: {
               select: { name: true }
             }
           }

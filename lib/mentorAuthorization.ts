@@ -23,7 +23,7 @@ export async function canMentorAccessStudent(
   studentId: number
 ): Promise<AuthorizationResult> {
   try {
-    const student = await prisma.student.findUnique({
+    const student = await prisma.students.findUnique({
       where: { id: studentId },
       select: { pilot_school_id: true },
     });
@@ -180,7 +180,7 @@ export async function filterAccessibleStudents(
 
   const allowedSchoolIds = await getMentorSchoolIds(mentorId);
 
-  const students = await prisma.student.findMany({
+  const students = await prisma.students.findMany({
     where: {
       id: { in: studentIds },
       pilot_school_id: { in: allowedSchoolIds },

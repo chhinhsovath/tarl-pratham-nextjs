@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         id: { in: assessment_ids }
       },
       include: {
-        student: {
+        students: {
           select: {
             pilot_school_id: true
           }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     if (session.user.role === 'mentor') {
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
       const hasUnauthorizedAccess = assessments.some(assessment =>
-        !mentorSchoolIds.includes(assessment.student.pilot_school_id)
+        !mentorSchoolIds.includes(assessment.students.pilot_school_id)
       );
 
       if (hasUnauthorizedAccess) {

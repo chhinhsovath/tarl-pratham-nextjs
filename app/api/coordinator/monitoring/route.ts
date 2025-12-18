@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       prisma.user.count(),
       prisma.user.count({ where: { is_active: true } }),
       prisma.pilotSchool.count(),
-      prisma.student.count({ where: { is_active: true } }),
+      prisma.students.count({ where: { is_active: true } }),
       prisma.assessments.count(),
     ]);
 
@@ -71,10 +71,10 @@ export async function GET(request: NextRequest) {
         take: 20,
         orderBy: { created_at: 'desc' },
         include: {
-          added_by: {
+          users_assessments_added_by_idTousers: {
             select: { name: true },
           },
-          student: {
+          students: {
             select: { name: true },
           },
         },
@@ -123,8 +123,8 @@ export async function GET(request: NextRequest) {
     const recent_activities = recent_activities_raw.map((assessment) => ({
       id: assessment.id,
       type: 'assessment',
-      description: `New ${assessment.assessment_type} assessment for ${assessment.student?.name}`,
-      user_name: assessment.added_by?.name || 'Unknown',
+      description: `New ${assessment.assessment_type} assessment for ${assessment.students?.name}`,
+      user_name: assessment.users_assessments_added_by_idTousers?.name || 'Unknown',
       created_at: assessment.created_at.toISOString(),
     }));
 

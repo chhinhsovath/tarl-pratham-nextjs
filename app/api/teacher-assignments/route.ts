@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
               province: true,
             }
           },
-          pilot_school: {
+          pilot_schools: {
             select: {
               id: true,
               school_name: true,
@@ -234,7 +234,7 @@ export async function POST(request: NextRequest) {
             email: true,
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
@@ -335,7 +335,7 @@ export async function PUT(request: NextRequest) {
             email: true,
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

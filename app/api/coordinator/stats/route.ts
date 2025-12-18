@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         assessments_by_level,
         assessments_by_cycle_and_level
       ] = await Promise.all([
-        prisma.student.count({ where: { is_active: true } }),
+        prisma.students.count({ where: { is_active: true } }),
         prisma.assessments.count(),
         prisma.pilotSchool.count(),
         prisma.mentoringVisit.count(),

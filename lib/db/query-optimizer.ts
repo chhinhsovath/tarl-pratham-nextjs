@@ -17,7 +17,7 @@ import { prisma } from '@/lib/prisma';
  * USAGE: Instead of loop with findUnique, use this
  * ❌ Bad:
  *   for (let id of studentIds) {
- *     const student = await prisma.student.findUnique({...})
+ *     const student = await prisma.students.findUnique({...})
  *   }
  *
  * ✅ Good:
@@ -34,7 +34,7 @@ export async function batchFetchStudents(
     ? { [fields[0]]: true, id: true }
     : studentFieldSelectors.minimal;
 
-  return prisma.student.findMany({
+  return prisma.students.findMany({
     where: { id: { in: studentIds } },
     select: selector as any
   });
@@ -214,7 +214,7 @@ export const assessmentFieldSelectors = {
     verified_by_id: true,
     is_locked: true,
     created_at: true,
-    student: {
+    students: {
       select: {
         id: true,
         name: true,

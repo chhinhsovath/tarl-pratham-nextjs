@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     const schoolIds = schools.map(s => s.id);
 
     // BATCH 1: Student counts per school (1 query instead of N queries)
-    const studentCounts = await prisma.student.groupBy({
+    const studentCounts = await prisma.students.groupBy({
       by: ['pilot_school_id'],
       where: { pilot_school_id: { in: schoolIds }, is_active: true },
       _count: { id: true }

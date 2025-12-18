@@ -59,10 +59,10 @@ export interface EnrichedStudentData {
 export async function getEnrichedStudentData(
   studentId: number
 ): Promise<EnrichedStudentData | null> {
-  const student = await prisma.student.findUnique({
+  const student = await prisma.students.findUnique({
     where: { id: studentId },
     include: {
-      added_by: {
+      users_assessments_added_by_idTousers: {
         select: {
           id: true,
           name: true,
@@ -75,7 +75,7 @@ export async function getEnrichedStudentData(
           phone: true
         }
       },
-      pilot_school: {
+      pilot_schools: {
         select: {
           id: true,
           school_name: true,
@@ -119,11 +119,11 @@ export async function getEnrichedStudentData(
       phone: student.added_by.phone ?? undefined
     } : undefined,
     school: student.pilot_school ? {
-      id: student.pilot_school.id,
-      school_name: student.pilot_school.school_name,
-      school_code: student.pilot_school.school_code,
-      province: student.pilot_school.province ?? undefined,
-      district: student.pilot_school.district ?? undefined
+      id: student.pilot_schools.id,
+      school_name: student.pilot_schools.school_name,
+      school_code: student.pilot_schools.school_code,
+      province: student.pilot_schools.province ?? undefined,
+      district: student.pilot_schools.district ?? undefined
     } : undefined,
     class: student.school_class ? {
       id: student.school_class.id,
@@ -165,10 +165,10 @@ export async function getEnrichedStudentsList(filters: {
     };
   }
 
-  const students = await prisma.student.findMany({
+  const students = await prisma.students.findMany({
     where,
     include: {
-      added_by: {
+      users_assessments_added_by_idTousers: {
         select: {
           id: true,
           name: true,
@@ -181,7 +181,7 @@ export async function getEnrichedStudentsList(filters: {
           phone: true
         }
       },
-      pilot_school: {
+      pilot_schools: {
         select: {
           id: true,
           school_name: true,
@@ -226,11 +226,11 @@ export async function getEnrichedStudentsList(filters: {
       phone: student.added_by.phone ?? undefined
     } : undefined,
     school: student.pilot_school ? {
-      id: student.pilot_school.id,
-      school_name: student.pilot_school.school_name,
-      school_code: student.pilot_school.school_code,
-      province: student.pilot_school.province ?? undefined,
-      district: student.pilot_school.district ?? undefined
+      id: student.pilot_schools.id,
+      school_name: student.pilot_schools.school_name,
+      school_code: student.pilot_schools.school_code,
+      province: student.pilot_schools.province ?? undefined,
+      district: student.pilot_schools.district ?? undefined
     } : undefined,
     class: student.school_class ? {
       id: student.school_class.id,

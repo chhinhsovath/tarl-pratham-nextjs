@@ -49,7 +49,7 @@ export async function POST(
 
     // Get counts of data in this session
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
-      prisma.student.count({
+      prisma.students.count({
         where: { test_session_id: sessionId }
       }),
       prisma.assessments.count({
@@ -66,7 +66,7 @@ export async function POST(
         prisma.assessments.deleteMany({
           where: { test_session_id: sessionId }
         }),
-        prisma.student.deleteMany({
+        prisma.students.deleteMany({
           where: { test_session_id: sessionId }
         }),
         prisma.mentoringVisit.deleteMany({
@@ -97,7 +97,7 @@ export async function POST(
     } else {
       // Archive all data in this session
       await prisma.$transaction([
-        prisma.student.updateMany({
+        prisma.students.updateMany({
           where: { test_session_id: sessionId },
           data: {
             record_status: 'archived',

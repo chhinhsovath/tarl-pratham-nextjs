@@ -54,7 +54,7 @@ export async function GET(
     const assessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       include: {
-        student: {
+        students: {
           include: {
             school_class: {
               include: {
@@ -63,15 +63,15 @@ export async function GET(
                 }
               }
             },
-            pilot_school: {
+            pilot_schools: {
               select: { school_name: true, school_code: true }
             }
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: { school_name: true, school_code: true }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: { name: true, role: true }
         },
         assessment_histories: {
@@ -200,13 +200,13 @@ export async function PUT(
         updated_at: new Date()
       },
       include: {
-        student: {
+        students: {
           select: { name: true }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: { name: true, role: true }
         },
-        pilot_school: {
+        pilot_schools: {
           select: { school_name: true }
         }
       }
@@ -244,7 +244,7 @@ export async function PUT(
     // Update student level field
     if (level && level !== existingAssessment.level) {
       const levelUpdateField = `${updatedAssessment.assessment_type}_${updatedAssessment.subject}_level`;
-      await prisma.student.update({
+      await prisma.students.update({
         where: { id: updatedAssessment.student_id },
         data: {
           [levelUpdateField]: level

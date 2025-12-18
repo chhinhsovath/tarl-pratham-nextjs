@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
           added_by_id: mentorId
         }
       }),
-      prisma.student.count({
+      prisma.students.count({
         where: {
           record_status: 'test_mentor',
           added_by_id: mentorId
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       }),
 
       // 2. Delete students
-      prisma.student.deleteMany({
+      prisma.students.deleteMany({
         where: {
           record_status: 'test_mentor',
           added_by_id: mentorId

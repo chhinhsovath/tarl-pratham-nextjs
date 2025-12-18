@@ -161,21 +161,21 @@ export function exportAssessments(assessments: any[]): void {
   ];
 
   const data = assessments.map(assessment => ({
-    'ឈ្មោះសិស្ស (Student Name)': assessment.student?.name || '',
-    'លេខសម្គាល់សិស្ស (Student ID)': assessment.student?.student_id || assessment.student?.id || '',
-    'អាយុ (Age)': assessment.student?.age || '',
-    'ភេទ (Gender)': assessment.student?.gender || '',
-    'សាលារៀន (School)': assessment.pilot_school?.school_name || assessment.pilot_school?.name || '',
-    'លេខកូដសាលា (School Code)': assessment.pilot_school?.school_code || '',
+    'ឈ្មោះសិស្ស (Student Name)': assessment.students?.name || '',
+    'លេខសម្គាល់សិស្ស (Student ID)': assessment.students?.student_id || assessment.students?.id || '',
+    'អាយុ (Age)': assessment.students?.age || '',
+    'ភេទ (Gender)': assessment.students?.gender || '',
+    'សាលារៀន (School)': assessment.pilot_schools?.school_name || assessment.pilot_schools?.name || '',
+    'លេខកូដសាលា (School Code)': assessment.pilot_schools?.school_code || '',
     'ប្រភេទការវាយតម្លៃ (Assessment Type)': assessment.assessment_type?.toUpperCase() || '',
     'មុខវិជ្ជា (Subject)': assessment.subject?.toUpperCase() || '',
     'កម្រិត (Level)': assessment.level || '',
     'ពិន្ទុ (Score)': assessment.score !== null ? assessment.score : '',
     'កាលបរិច្ឆេទវាយតម្លៃ (Assessment Date)': assessment.assessed_date ? new Date(assessment.assessed_date).toLocaleDateString('km-KH') : '',
-    'វាយតម្លៃដោយ (Assessed By)': assessment.added_by?.name || '',
-    'តួនាទី (Role)': assessment.added_by?.role?.toUpperCase() || '',
+    'វាយតម្លៃដោយ (Assessed By)': assessment.users_assessments_added_by_idTousers?.name || '',
+    'តួនាទី (Role)': assessment.users_assessments_added_by_idTousers?.role?.toUpperCase() || '',
     'ស្ថានភាពផ្ទៀងផ្ទាត់ (Verification Status)': assessment.verified_by_id ? 'VERIFIED' : 'PENDING',
-    'ផ្ទៀងផ្ទាត់ដោយ (Verified By)': assessment.verified_by?.name || '',
+    'ផ្ទៀងផ្ទាត់ដោយ (Verified By)': assessment.users_assessments_verified_by_idTousers?.name || '',
     'កំណត់ចំណាំផ្ទៀងផ្ទាត់ (Verification Notes)': assessment.verification_notes || '',
     'កាលបរិច្ឆេទផ្ទៀងផ្ទាត់ (Verification Date)': assessment.verified_at ? new Date(assessment.verified_at).toLocaleDateString('km-KH') : '',
     'ស្ថានភាពសោ (Lock Status)': assessment.is_locked ? 'ជាប់សោ (LOCKED)' : 'សកម្ម (ACTIVE)',
@@ -220,8 +220,8 @@ export function exportStudents(students: any[]): void {
     'Address': student.address || '',
     'School Class': student.school_class?.name || '',
     'School Name': student.school_class?.school?.name || '',
-    'Pilot School': student.pilot_school?.name || '',
-    'Added By': student.added_by?.name || '',
+    'Pilot School': student.pilot_schools?.name || '',
+    'Added By': student.users_assessments_added_by_idTousers?.name || '',
     'Is Temporary': student.is_temporary ? 'Yes' : 'No',
     'Created Date': new Date(student.created_at).toLocaleDateString()
   }));
@@ -274,8 +274,8 @@ export function exportMentoringVisits(visits: any[]): void {
 
     const summaryData = visits.map(visit => [
       visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('km-KH') : '',
-      visit.pilot_school?.school_name || '',
-      visit.pilot_school?.school_code || '',
+      visit.pilot_schools?.school_name || '',
+      visit.pilot_schools?.school_code || '',
       visit.mentor?.name || '',
       visit.teacher?.name || 'មិនបានបញ្ជាក់',
       visit.score !== undefined ? visit.score : '',
@@ -295,8 +295,8 @@ export function exportMentoringVisits(visits: any[]): void {
       const visitData = [
         ['ព័ត៌មានមូលដ្ឋាន (Basic Information)', ''],
         ['កាលបរិច្ឆេទចុះអប់រំ', visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('km-KH') : ''],
-        ['សាលារៀន', visit.pilot_school?.school_name || ''],
-        ['លេខកូដសាលា', visit.pilot_school?.school_code || ''],
+        ['សាលារៀន', visit.pilot_schools?.school_name || ''],
+        ['លេខកូដសាលា', visit.pilot_schools?.school_code || ''],
         ['គ្រូព្រឹក្សា', visit.mentor?.name || ''],
         ['អ៊ីមែលគ្រូព្រឹក្សា', visit.mentor?.email || ''],
         ['គ្រូបង្រៀន', visit.teacher?.name || 'មិនបានបញ្ជាក់'],
@@ -477,7 +477,7 @@ export function exportUsers(users: any[]): void {
     'Province': user.province || '',
     'Subject': user.subject || '',
     'Phone': user.phone || '',
-    'Pilot School': user.pilot_school?.name || '',
+    'Pilot School': user.pilot_schools?.name || '',
     'Profile Setup Complete': user.teacher_profile_setup ? 'Yes' : 'No',
     'Created Date': new Date(user.created_at).toLocaleDateString()
   }));
@@ -511,7 +511,7 @@ export function exportComprehensiveData(data: {
         student.gender,
         student.guardian_name,
         student.guardian_phone,
-        student.school_class?.school?.name || student.pilot_school?.name || '',
+        student.school_class?.school?.name || student.pilot_schools?.name || '',
         student.is_temporary ? 'Yes' : 'No',
         new Date(student.created_at).toLocaleDateString()
       ]);
@@ -526,13 +526,13 @@ export function exportComprehensiveData(data: {
     // Assessments sheet
     if (data.assessments.length > 0) {
       const assessmentsData = data.assessments.map(assessment => [
-        assessment.student?.name,
+        assessment.students?.name,
         assessment.assessment_type,
         assessment.subject,
         assessment.level,
         assessment.score,
         assessment.assessed_date ? new Date(assessment.assessed_date).toLocaleDateString() : '',
-        assessment.added_by?.name,
+        assessment.users_assessments_added_by_idTousers?.name,
         assessment.is_temporary ? 'Yes' : 'No'
       ]);
       
@@ -570,7 +570,7 @@ export function exportComprehensiveData(data: {
         user.role,
         user.province,
         user.subject,
-        user.pilot_school?.name || ''
+        user.pilot_schools?.name || ''
       ]);
       
       const usersSheet = XLSX.utils.aoa_to_sheet([
@@ -584,7 +584,7 @@ export function exportComprehensiveData(data: {
     if (data.mentoringVisits.length > 0) {
       const visitsData = data.mentoringVisits.map(visit => [
         visit.mentor?.name,
-        visit.pilot_school?.name,
+        visit.pilot_schools?.name,
         visit.visit_date ? new Date(visit.visit_date).toLocaleDateString() : '',
         visit.status,
         visit.participants_count,

@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         }
       }),
       // Get total students (all students, not just assessed ones)
-      prisma.student.count({
+      prisma.students.count({
         where: { is_active: true }
       }),
       // Get total schools

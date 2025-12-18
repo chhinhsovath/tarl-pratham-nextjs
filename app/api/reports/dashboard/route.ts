@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       totalTeachers
     ] = await Promise.all([
       // Total students count
-      prisma.student.count({
+      prisma.students.count({
         where: {
           is_active: true,
           ...(session.user.role === 'mentor' && session.user.pilot_school_id && {
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
       prisma.assessments.findMany({
         where: baseWhere,
         include: {
-          student: {
+          students: {
             include: {
               pilotSchool: true
             }
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
       }),
 
       // All students for completion rate calculation - LIMITED
-      prisma.student.findMany({
+      prisma.students.findMany({
         where: {
           is_active: true,
           ...(session.user.role === 'mentor' && session.user.pilot_school_id && {
@@ -309,9 +309,9 @@ export async function GET(request: NextRequest) {
     );
 
     const atRiskStudents = atRiskAssessments.slice(0, 20).map(assessment => ({
-      id: assessment.student.id,
-      name: assessment.student.name,
-      school: assessment.student.pilotSchool.school_name,
+      id: assessment.students.id,
+      name: assessment.students.name,
+      school: assessment.students.pilotSchool.school_name,
       khmer_level: assessment.khmer_level,
       math_level: assessment.math_level,
       last_assessment: assessment.assessment_date

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
           } = assessmentData;
 
           // Check if student exists
-          const student = await tx.student.findUnique({
+          const student = await tx.students.findUnique({
             where: { id: student_id },
             include: { pilot_school: true }
           });
@@ -94,9 +94,9 @@ export async function POST(request: NextRequest) {
                 updated_at: new Date()
               },
               include: {
-                student: { select: { name: true } },
-                added_by: { select: { name: true, role: true } },
-                pilot_school: { select: { school_name: true } }
+                students: { select: { name: true } },
+                users_assessments_added_by_idTousers: { select: { name: true, role: true } },
+                pilot_schools: { select: { school_name: true } }
               }
             });
 
@@ -120,9 +120,9 @@ export async function POST(request: NextRequest) {
                   `${student_id}_${assessment_type}_${subject}_${Date.now()}` : null
               },
               include: {
-                student: { select: { name: true } },
-                added_by: { select: { name: true, role: true } },
-                pilot_school: { select: { school_name: true } }
+                students: { select: { name: true } },
+                users_assessments_added_by_idTousers: { select: { name: true, role: true } },
+                pilot_schools: { select: { school_name: true } }
               }
             });
 
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
           // Update student level fields
           const levelUpdateField = `${assessment_type}_${subject}_level`;
-          await tx.student.update({
+          await tx.students.update({
             where: { id: student_id },
             data: {
               [levelUpdateField]: level,

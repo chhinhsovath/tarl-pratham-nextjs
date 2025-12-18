@@ -24,7 +24,7 @@ function canAccessAssessment(userRole: string, userId: number, assessment: any):
   
   if (userRole === 'mentor') {
     // Mentors can only access assessments from their assigned school
-    return assessment.student.pilot_school_id === parseInt(userId.toString()); // This should be pilot_school_id from session
+    return assessment.students.pilot_school_id === parseInt(userId.toString()); // This should be pilot_school_id from session
   }
   
   if (userRole === 'teacher') {
@@ -65,7 +65,7 @@ export async function POST(
     const assessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       include: {
-        student: {
+        students: {
           select: {
             pilot_school_id: true
           }
@@ -79,7 +79,7 @@ export async function POST(
 
     // For mentors, check school access
     if (session.user.role === 'mentor' && session.user.pilot_school_id) {
-      if (assessment.student.pilot_school_id !== session.user.pilot_school_id) {
+      if (assessment.students.pilot_school_id !== session.user.pilot_school_id) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     }

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const pilotSchoolId = pilotSchoolHeader ? parseInt(pilotSchoolHeader) : null;
 
     // Validate student exists
-    const student = await prisma.student.findUnique({
+    const student = await prisma.students.findUnique({
       where: { id: student_id },
       include: {
         pilot_school: true,
@@ -69,13 +69,13 @@ export async function POST(request: NextRequest) {
           updated_at: new Date()
         },
         include: {
-          student: {
+          students: {
             select: { name: true }
           },
-          added_by: {
+          users_assessments_added_by_idTousers: {
             select: { name: true, role: true }
           },
-          pilot_school: {
+          pilot_schools: {
             select: { name: true }
           }
         }
@@ -99,13 +99,13 @@ export async function POST(request: NextRequest) {
           expires_at: userRole === 'mentor' && student.is_temporary ? new Date(Date.now() + 48 * 60 * 60 * 1000) : null
         },
         include: {
-          student: {
+          students: {
             select: { name: true }
           },
-          added_by: {
+          users_assessments_added_by_idTousers: {
             select: { name: true, role: true }
           },
-          pilot_school: {
+          pilot_schools: {
             select: { name: true }
           }
         }
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
 
     // Update student level fields
     const levelUpdateField = `${assessment_type}_${subject}_level`;
-    await prisma.student.update({
+    await prisma.students.update({
       where: { id: student_id },
       data: {
         [levelUpdateField]: level,

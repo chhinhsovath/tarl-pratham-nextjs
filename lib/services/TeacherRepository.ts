@@ -90,7 +90,7 @@ export class TeacherRepository {
       const teacher_id = typeof teacherId === 'string' ? parseInt(teacherId) : teacherId;
 
       // Get students added by this teacher
-      const students = await prisma.student.findMany({
+      const students = await prisma.students.findMany({
         where: {
           added_by_id: teacher_id,
           is_active: true,
@@ -146,7 +146,7 @@ export class TeacherRepository {
       const teacher_id = typeof teacherId === 'string' ? parseInt(teacherId) : teacherId;
 
       // Get all students for this teacher
-      const students = await prisma.student.findMany({
+      const students = await prisma.students.findMany({
         where: {
           added_by_id: teacher_id,
           is_active: true
@@ -258,7 +258,7 @@ export class TeacherRepository {
       const teacher_id = typeof teacherId === 'string' ? parseInt(teacherId) : teacherId;
 
       // Get students without baseline assessments (pending task)
-      const studentsWithoutBaseline = await prisma.student.findMany({
+      const studentsWithoutBaseline = await prisma.students.findMany({
         where: {
           added_by_id: teacher_id,
           is_active: true,
@@ -335,13 +335,13 @@ export class TeacherRepository {
         pendingAssessments,
         completedAssessments
       ] = await Promise.all([
-        prisma.student.count({
+        prisma.students.count({
           where: { added_by_id: teacher_id, is_active: true }
         }),
         prisma.assessments.count({
           where: { added_by_id: teacher_id }
         }),
-        prisma.student.count({
+        prisma.students.count({
           where: {
             added_by_id: teacher_id,
             is_active: true,

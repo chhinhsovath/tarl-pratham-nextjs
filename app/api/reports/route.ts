@@ -116,10 +116,10 @@ async function getOverviewReport(baseFilters: any, params: any) {
     assessmentsByType,
     recentAssessments
   ] = await Promise.all([
-    prisma.student.count({ where: whereStudent }),
+    prisma.students.count({ where: whereStudent }),
     prisma.assessments.count({ where: whereAssessment }),
     prisma.mentoringVisit.count({ where: whereMentoring }),
-    prisma.student.groupBy({
+    prisma.students.groupBy({
       by: ['gender'],
       where: whereStudent,
       _count: { gender: true }
@@ -132,8 +132,8 @@ async function getOverviewReport(baseFilters: any, params: any) {
     prisma.assessments.findMany({
       where: whereAssessment,
       include: {
-        student: { select: { name: true } },
-        pilot_school: { select: { school_name: true } }
+        students: { select: { name: true } },
+        pilot_schools: { select: { school_name: true } }
       },
       orderBy: { assessed_date: 'desc' },
       take: 10
@@ -190,7 +190,7 @@ async function getAssessmentProgressReport(baseFilters: any, params: any) {
       _count: { level: true },
       _avg: { score: true }
     }),
-    prisma.student.findMany({
+    prisma.students.findMany({
       where: whereStudent,
       select: {
         id: true,
@@ -243,10 +243,10 @@ async function getStudentPerformanceReport(baseFilters: any, params: any) {
     whereStudent.pilot_school_id = parseInt(params.pilot_school_id);
   }
 
-  const studentsWithPerformance = await prisma.student.findMany({
+  const studentsWithPerformance = await prisma.students.findMany({
     where: whereStudent,
     include: {
-      pilot_school: { select: { school_name: true, school_code: true } },
+      pilot_schools: { select: { school_name: true, school_code: true } },
       school_class: {
         include: {
           school: { select: { name: true, code: true } }
@@ -275,7 +275,7 @@ async function getStudentPerformanceReport(baseFilters: any, params: any) {
       student_name: student.name,
       age: student.age,
       gender: student.gender,
-      school: student.school_class?.school?.name || student.pilot_school?.school_name,
+      school: student.school_class?.school?.name || student.pilot_schools?.school_name,
       language_progress: calculateProgress(languageAssessments),
       math_progress: calculateProgress(mathAssessments),
       latest_language_level: languageAssessments[0]?.level || null,
@@ -346,7 +346,7 @@ async function getMentorActivityReport(baseFilters: any, params: any) {
       where: whereMentoring,
       include: {
         mentor: { select: { name: true, email: true } },
-        pilot_school: { select: { school_name: true, school_code: true } }
+        pilot_schools: { select: { school_name: true, school_code: true } }
       },
       orderBy: { visit_date: 'desc' }
     }),
@@ -356,15 +356,15 @@ async function getMentorActivityReport(baseFilters: any, params: any) {
       _count: { mentor_id: true },
       _avg: { duration_minutes: true, participants_count: true }
     }),
-    prisma.student.findMany({
+    prisma.students.findMany({
       where: {
         is_temporary: true,
         added_by_mentor: true,
         ...baseFilters
       },
       include: {
-        added_by: { select: { name: true } },
-        pilot_school: { select: { school_name: true } }
+        users_assessments_added_by_idTousers: { select: { name: true } },
+        pilot_schools: { select: { school_name: true } }
       }
     })
   ]);
@@ -490,22 +490,22 @@ async function getExportDataReport(baseFilters: any, params: any) {
   }
 
   const [students, assessments] = await Promise.all([
-    prisma.student.findMany({
+    prisma.students.findMany({
       where: whereStudent,
       include: {
         school_class: {
           include: { school: true }
         },
         pilot_school: true,
-        added_by: { select: { name: true, role: true } }
+        users_assessments_added_by_idTousers: { select: { name: true, role: true } }
       }
     }),
     prisma.assessments.findMany({
       where: whereAssessment,
       include: {
-        student: { select: { name: true } },
-        pilot_school: { select: { school_name: true } },
-        added_by: { select: { name: true, role: true } }
+        students: { select: { name: true } },
+        pilot_schools: { select: { school_name: true } },
+        users_assessments_added_by_idTousers: { select: { name: true, role: true } }
       }
     })
   ]);

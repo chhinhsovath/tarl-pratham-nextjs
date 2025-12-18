@@ -11,7 +11,7 @@ export async function cleanupMentorData() {
     console.log('Starting mentor data cleanup...');
     
     // Find temporary students older than 48 hours
-    const temporaryStudents = await prisma.student.findMany({
+    const temporaryStudents = await prisma.students.findMany({
       where: {
         is_temporary: true,
         added_by_mentor: true,
@@ -48,7 +48,7 @@ export async function cleanupMentorData() {
     }
 
     // Delete temporary students
-    const deletedStudents = await prisma.student.deleteMany({
+    const deletedStudents = await prisma.students.deleteMany({
       where: {
         id: {
           in: temporaryStudents.map(s => s.id)
@@ -120,7 +120,7 @@ export async function getTemporaryDataToExpire() {
     const twentyFourHoursFromNow = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const [temporaryStudents, temporaryAssessments] = await Promise.all([
-      prisma.student.findMany({
+      prisma.students.findMany({
         where: {
           is_temporary: true,
           added_by_mentor: true,
@@ -133,7 +133,7 @@ export async function getTemporaryDataToExpire() {
           id: true,
           name: true,
           mentor_created_at: true,
-          added_by: {
+          users_assessments_added_by_idTousers: {
             select: { name: true }
           }
         }
@@ -153,10 +153,10 @@ export async function getTemporaryDataToExpire() {
           assessment_type: true,
           subject: true,
           created_at: true,
-          student: {
+          students: {
             select: { name: true }
           },
-          added_by: {
+          users_assessments_added_by_idTousers: {
             select: { name: true }
           }
         }
@@ -186,7 +186,7 @@ export async function getTemporaryDataToExpire() {
 export async function markMentorDataAsPermanent(studentIds: number[], assessmentIds: number[]) {
   try {
     const results = await prisma.$transaction(async (tx) => {
-      const updatedStudents = studentIds.length > 0 ? await tx.student.updateMany({
+      const updatedStudents = studentIds.length > 0 ? await tx.students.updateMany({
         where: {
           id: { in: studentIds },
           is_temporary: true,
@@ -242,16 +242,16 @@ export async function markMentorDataAsPermanent(studentIds: number[], assessment
 export async function getAllTemporaryMentorData() {
   try {
     const [students, assessments] = await Promise.all([
-      prisma.student.findMany({
+      prisma.students.findMany({
         where: {
           is_temporary: true,
           added_by_mentor: true
         },
         include: {
-          added_by: {
+          users_assessments_added_by_idTousers: {
             select: { name: true, role: true }
           },
-          pilot_school: {
+          pilot_schools: {
             select: { name: true }
           }
         },
@@ -264,13 +264,13 @@ export async function getAllTemporaryMentorData() {
           assessed_by_mentor: true
         },
         include: {
-          student: {
+          students: {
             select: { name: true }
           },
-          added_by: {
+          users_assessments_added_by_idTousers: {
             select: { name: true, role: true }
           },
-          pilot_school: {
+          pilot_schools: {
             select: { name: true }
           }
         },

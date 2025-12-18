@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
           is_active: true,
           created_at: true,
           updated_at: true,
-          pilot_school: {
+          pilot_schools: {
             select: {
               id: true,
               school_name: true,
@@ -244,7 +244,7 @@ export async function GET(request: NextRequest) {
         is_active: true,
         created_at: new Date(),
         updated_at: new Date(),
-        pilot_school: {
+        pilot_schools: {
           id: 1,
           school_name: "សាលាបឋមសិក្សាគំរូ",
           school_code: "SCH001"
@@ -263,7 +263,7 @@ export async function GET(request: NextRequest) {
         is_active: true,
         created_at: new Date(),
         updated_at: new Date(),
-        pilot_school: {
+        pilot_schools: {
           id: 2,
           school_name: "សាលាបឋមសិក្សាទី២",
           school_code: "SCH002"
@@ -409,7 +409,7 @@ export async function POST(request: NextRequest) {
         phone: true,
         pilot_school_id: true,
         created_at: true,
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
@@ -487,7 +487,7 @@ export async function PUT(request: NextRequest) {
         phone: true,
         pilot_school_id: true,
         updated_at: true,
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

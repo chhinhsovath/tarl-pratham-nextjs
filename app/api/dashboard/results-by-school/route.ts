@@ -34,9 +34,9 @@ export async function GET(request: NextRequest) {
     const assessments = await prisma.assessments.findMany({
       where,
       include: {
-        student: {
+        students: {
           include: {
-            pilot_school: {
+            pilot_schools: {
               select: {
                 id: true,
                 school_name: true,
@@ -79,8 +79,8 @@ export async function GET(request: NextRequest) {
     };
 
     assessments.forEach(assessment => {
-      const schoolId = assessment.student?.pilot_school?.id;
-      const schoolName = assessment.student?.pilot_school?.school_name || 'Unknown School';
+      const schoolId = assessment.students?.pilot_schools?.id;
+      const schoolName = assessment.students?.pilot_schools?.school_name || 'Unknown School';
       const rawLevel = assessment.level || 'beginner';
 
       // Map to standardized level for consistent chart display

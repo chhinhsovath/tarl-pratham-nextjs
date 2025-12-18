@@ -151,7 +151,7 @@ export async function GET(
             email: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
@@ -278,7 +278,7 @@ export async function PUT(
             email: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

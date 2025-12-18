@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
         verified_by_id: true,
         verified_at: true,
         verification_notes: true,
-        student: {
+        students: {
           select: {
             id: true,
             student_id: true,
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
             grade: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
@@ -103,14 +103,14 @@ export async function GET(request: NextRequest) {
             district: true
           }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
             role: true
           }
         },
-        verified_by: {
+        users_assessments_verified_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
         level: true,
         mentor_assessment_id: true,
         created_at: true,
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -169,24 +169,24 @@ export async function GET(request: NextRequest) {
 
       return {
         // Student info
-        student_id: teacherAssessment.student?.student_id,
-        student_name: teacherAssessment.student?.name,
-        gender: teacherAssessment.student?.gender,
-        age: teacherAssessment.student?.age,
-        grade: teacherAssessment.student?.grade,
+        student_id: teacherAssessment.students?.student_id,
+        student_name: teacherAssessment.students?.name,
+        gender: teacherAssessment.students?.gender,
+        age: teacherAssessment.students?.age,
+        grade: teacherAssessment.students?.grade,
         
         // School info
-        school_name: teacherAssessment.pilot_school?.school_name,
-        school_code: teacherAssessment.pilot_school?.school_code,
-        province: teacherAssessment.pilot_school?.province,
-        district: teacherAssessment.pilot_school?.district,
+        school_name: teacherAssessment.pilot_schools?.school_name,
+        school_code: teacherAssessment.pilot_schools?.school_code,
+        province: teacherAssessment.pilot_schools?.province,
+        district: teacherAssessment.pilot_schools?.district,
         
         // Assessment info
         assessment_type: teacherAssessment.assessment_type,
         subject: teacherAssessment.subject,
         
         // Teacher assessment (always present)
-        teacher_name: teacherAssessment.added_by?.name || 'Unknown Teacher',
+        teacher_name: teacherAssessment.users_assessments_added_by_idTousers?.name || 'Unknown Teacher',
         teacher_assessment_id: teacherAssessment.id,
         teacher_level: teacherAssessment.level,
         teacher_score: null, // Score field doesn't exist in database
@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
         teacher_responses: null, // Responses field doesn't exist
         
         // Mentor verification (from mentor's assessment record)
-        mentor_name: isVerified ? (mentorAssessment.added_by?.name || 'Unknown Mentor') : 'រង់ចាំផ្ទៀងផ្ទាត់',
+        mentor_name: isVerified ? (mentorAssessment.users_assessments_added_by_idTousers?.name || 'Unknown Mentor') : 'រង់ចាំផ្ទៀងផ្ទាត់',
         mentor_assessment_id: isVerified ? mentorAssessment.id : null,
         mentor_level: isVerified ? mentorAssessment.level : null,
         mentor_score: null, // Score field doesn't exist

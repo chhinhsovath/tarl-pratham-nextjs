@@ -33,10 +33,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Get students with their attendance records
-    const students = await prisma.student.findMany({
+    const students = await prisma.students.findMany({
       where: whereStudent,
       include: {
-        pilot_school: { select: { school_name: true } },
+        pilot_schools: { select: { school_name: true } },
         school_class: {
           include: {
             school: { select: { name: true } }
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         id: student.id,
         student_id: student.student_id,
         student_name: student.name,
-        school_name: student.pilot_school?.school_name || student.school_class?.school?.name || '-',
+        school_name: student.pilot_schools?.school_name || student.school_class?.school?.name || '-',
         class_name: '-',
         grade: student.grade || 0,
         gender: student.gender || '-',

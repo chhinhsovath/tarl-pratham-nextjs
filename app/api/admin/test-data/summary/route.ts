@@ -27,7 +27,7 @@ export async function GET() {
     }
 
     // Get counts grouped by record_status
-    const studentCounts = await prisma.student.groupBy({
+    const studentCounts = await prisma.students.groupBy({
       by: ['record_status'],
       _count: {
         id: true

@@ -109,7 +109,7 @@ export async function POST(
     // If disabling test mode, check if user has test data
     if (!enabled) {
       const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
-        prisma.student.count({
+        prisma.students.count({
           where: {
             added_by_id: userId,
             record_status: 'test_teacher'
@@ -236,7 +236,7 @@ export async function GET(
 
     // Get test data counts
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
-      prisma.student.count({
+      prisma.students.count({
         where: {
           added_by_id: userId,
           record_status: user.role === 'mentor' ? 'test_mentor' : 'test_teacher'

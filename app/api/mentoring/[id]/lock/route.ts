@@ -64,7 +64,7 @@ export async function POST(
             role: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             name: true,
@@ -156,7 +156,7 @@ export async function DELETE(
             role: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             name: true,

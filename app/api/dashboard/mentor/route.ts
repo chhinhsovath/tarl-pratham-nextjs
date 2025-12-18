@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // Get student counts per school (all students in mentor's assigned schools)
     const studentCounts = schoolIds.length > 0
-      ? await prisma.student.groupBy({
+      ? await prisma.students.groupBy({
           by: ["pilot_school_id"],
           where: {
             pilot_school_id: { in: schoolIds },
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
             ]
         },
           include: {
-            pilot_school: {
+            pilot_schools: {
               select: {
                 id: true,
                 school_name: true,
@@ -421,7 +421,7 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
     if (schoolIds.length === 0) return [];
 
     // Get recent students (all students in mentor's assigned schools)
-    const recentStudents = await prisma.student.findMany({
+    const recentStudents = await prisma.students.findMany({
       where: {
         pilot_school_id: { in: schoolIds },
         is_active: true
@@ -430,12 +430,12 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
         id: true,
         name: true,
         created_at: true,
-        pilot_school: {
+        pilot_schools: {
           select: {
             school_name: true
         }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             name: true
         }
@@ -455,17 +455,17 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
         assessment_type: true,
         subject: true,
         created_at: true,
-        student: {
+        students: {
           select: {
             name: true
         }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             school_name: true
         }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             name: true
         }
@@ -480,15 +480,15 @@ async function getRecentActivities(mentorId: number, schoolIds: number[]) {
       ...recentStudents.map((s) => ({
         type: "student_added",
         description: `ថ្មី​សិស្ស: ${s.name}`,
-        school: s.pilot_school?.school_name || "Unknown",
-        user: s.added_by?.name || "System",
+        school: s.pilot_schools?.school_name || "Unknown",
+        user: s.users_assessments_added_by_idTousers?.name || "System",
         created_at: s.created_at
         })),
       ...recentAssessments.map((a) => ({
         type: "assessment_added",
-        description: `${a.assessment_type} ${a.subject} សម្រាប់ ${a.student.name}`,
-        school: a.pilot_school?.school_name || "Unknown",
-        user: a.added_by?.name || "System",
+        description: `${a.assessment_type} ${a.subject} សម្រាប់ ${a.students.name}`,
+        school: a.pilot_schools?.school_name || "Unknown",
+        user: a.users_assessments_added_by_idTousers?.name || "System",
         created_at: a.created_at
         })),
     ];

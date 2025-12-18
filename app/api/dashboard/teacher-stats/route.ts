@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       const grades = user.holding_classes === 'grade_4' ? [4] :
                    user.holding_classes === 'grade_5' ? [5] : [4, 5];
 
-      studentCount = await prisma.student.count({
+      studentCount = await prisma.students.count({
         where: {
           pilot_school_id: user.pilot_school_id,
           grade: { in: grades },

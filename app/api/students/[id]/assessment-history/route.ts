@@ -17,7 +17,7 @@ export async function GET(
     }
 
     // Get student info
-    const student = await prisma.student.findUnique({
+    const student = await prisma.students.findUnique({
       where: { id: studentId },
       include: {
         school_class: {
@@ -27,7 +27,7 @@ export async function GET(
             }
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: { school_name: true }
         }
       }
@@ -41,10 +41,10 @@ export async function GET(
     const assessments = await prisma.assessments.findMany({
       where: { student_id: studentId },
       include: {
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: { name: true, role: true }
         },
-        pilot_school: {
+        pilot_schools: {
           select: { school_name: true }
         }
       },

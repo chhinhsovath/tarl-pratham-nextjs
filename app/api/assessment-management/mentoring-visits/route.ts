@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
             role: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             name: true,

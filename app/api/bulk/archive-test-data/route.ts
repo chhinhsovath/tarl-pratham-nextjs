@@ -62,14 +62,14 @@ export async function POST(request: NextRequest) {
 
     // Count before archiving
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
-      prisma.student.count({ where: studentWhere }),
+      prisma.students.count({ where: studentWhere }),
       prisma.assessments.count({ where: assessmentWhere }),
       prisma.mentoringVisit.count({ where: mentoringVisitWhere })
     ]);
 
     // Perform bulk archiving
     await prisma.$transaction([
-      prisma.student.updateMany({
+      prisma.students.updateMany({
         where: studentWhere,
         data: {
           record_status: 'archived',

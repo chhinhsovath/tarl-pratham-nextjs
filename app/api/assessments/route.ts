@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
     if (search) {
       where.OR = [
         { 
-          student: { 
+          students: { 
             name: { contains: search, mode: "insensitive" } 
           } 
         },
@@ -214,7 +214,7 @@ export async function GET(request: NextRequest) {
       prisma.assessments.findMany({
         where,
         include: {
-          student: {
+          students: {
             select: {
               id: true,
               student_id: true,
@@ -224,14 +224,14 @@ export async function GET(request: NextRequest) {
               is_temporary: true
             }
           },
-          pilot_school: {
+          pilot_schools: {
             select: {
               id: true,
               school_name: true,
               school_code: true
             }
           },
-          added_by: {
+          users_assessments_added_by_idTousers: {
             select: {
               id: true,
               name: true,
@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
     const validatedData = assessmentSchema.parse(body);
 
     // Verify student exists and user has access
-    const student = await prisma.student.findUnique({
+    const student = await prisma.students.findUnique({
       where: { id: validatedData.student_id }
     });
 
@@ -415,7 +415,7 @@ export async function POST(request: NextRequest) {
         mentor_assessment_id: validatedData.mentor_assessment_id || null
       },
       include: {
-        student: {
+        students: {
           select: {
             id: true,
             name: true,
@@ -423,14 +423,14 @@ export async function POST(request: NextRequest) {
             gender: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
             school_code: true
           }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -444,7 +444,7 @@ export async function POST(request: NextRequest) {
     // Verification assessments should NOT overwrite the original teacher's assessment
     if (!isVerification) {
       const levelField = buildLevelFieldName(validatedData.assessment_type, validatedData.subject);
-      await prisma.student.update({
+      await prisma.students.update({
         where: { id: validatedData.student_id },
         data: {
           [levelField]: validatedData.level,
@@ -535,7 +535,7 @@ async function handleBulkAssessment(body: any, session: any) {
 
     // ✅ OPTIMIZATION: Batch fetch all students at once (N+1 fix)
     const studentIds = validatedData.assessments.map(a => a.student_id);
-    const students = await prisma.student.findMany({
+    const students = await prisma.students.findMany({
       where: { id: { in: studentIds } },
       select: {
         id: true,
@@ -609,7 +609,7 @@ async function handleBulkAssessment(body: any, session: any) {
             mentor_assessment_id: assessmentData.mentor_assessment_id || null
           },
           include: {
-            student: {
+            students: {
               select: {
                 id: true,
                 name: true
@@ -622,7 +622,7 @@ async function handleBulkAssessment(body: any, session: any) {
         const isVerification = assessmentData.assessment_type.includes('_verification');
         if (!isVerification) {
           const levelField = buildLevelFieldName(assessmentData.assessment_type, assessmentData.subject);
-          await prisma.student.update({
+          await prisma.students.update({
             where: { id: assessmentData.student_id },
             data: {
               [levelField]: assessmentData.level,
@@ -722,7 +722,7 @@ export async function PUT(request: NextRequest) {
         assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : undefined
       },
       include: {
-        student: {
+        students: {
           select: {
             id: true,
             name: true,
@@ -730,14 +730,14 @@ export async function PUT(request: NextRequest) {
             gender: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
             school_code: true
           }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -750,7 +750,7 @@ export async function PUT(request: NextRequest) {
     // Update student assessment level if level was changed
     if (validatedData.level) {
       const levelField = `${existingAssessment.assessment_type}_${existingAssessment.subject}_level`;
-      await prisma.student.update({
+      await prisma.students.update({
         where: { id: existingAssessment.student_id },
         data: {
           [levelField]: validatedData.level
@@ -819,7 +819,7 @@ export async function DELETE(request: NextRequest) {
 
     // Clear student assessment level
     const levelField = `${existingAssessment.assessment_type}_${existingAssessment.subject}_level`;
-    await prisma.student.update({
+    await prisma.students.update({
       where: { id: existingAssessment.student_id },
       data: {
         [levelField]: null

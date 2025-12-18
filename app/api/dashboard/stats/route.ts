@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
     // Simple counts matching Laravel exactly
     const [totalStudents, totalAssessments, totalSchools, totalMentoringVisits] = await Promise.all([
-      prisma.student.count().catch(() => 0),
+      prisma.students.count().catch(() => 0),
       prisma.assessments.count().catch(() => 0),
       prisma.pilotSchool.count().catch(() => 0),
       prisma.mentoringVisit.count().catch(() => 0)

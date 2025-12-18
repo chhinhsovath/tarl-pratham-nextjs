@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
         { email: { contains: search, mode: 'insensitive' } },
         { phone: { contains: search } },
         {
-          pilot_school: {
+          pilot_schools: {
             school_name: { contains: search, mode: 'insensitive' }
           }
         }
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       prisma.user.findMany({
         where,
         include: {
-          pilot_school: {
+          pilot_schools: {
             select: {
               id: true,
               school_name: true
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
           user_pilot_school_assignments: {
             take: 10, // Limit nested assignments to prevent unbounded query
             include: {
-              pilot_school: {
+              pilot_schools: {
                 select: {
                   id: true,
                   school_name: true
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
         is_active: validatedData.is_active,
       },
       include: {
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true

@@ -206,7 +206,7 @@ export async function GET(request: NextRequest) {
     // Even 2 joins were too expensive under production load
     // Returns raw student data with IDs only - frontend handles display
     const [students, total] = await Promise.all([
-      prisma.student.findMany({
+      prisma.students.findMany({
         where,
         select: {
           id: true,
@@ -235,7 +235,7 @@ export async function GET(request: NextRequest) {
           pilot_school_id: true,
           school_class_id: true,
           added_by_id: true,
-          pilot_school: {
+          pilot_schools: {
             select: {
               id: true,
               school_name: true,
@@ -247,7 +247,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { created_at: "desc" }
       }),
-      prisma.student.count({ where })
+      prisma.students.count({ where })
     ]);
 
     // Fetch assessment status if requested
@@ -405,7 +405,7 @@ export async function POST(request: NextRequest) {
     // Create student - extract IDs separately to avoid Prisma relation error
     const { school_class_id, pilot_school_id, ...otherData } = validatedData;
 
-    const student = await prisma.student.create({
+    const student = await prisma.students.create({
       data: {
         ...otherData,
         school_class_id,
@@ -430,14 +430,14 @@ export async function POST(request: NextRequest) {
             }
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
             school_code: true
           }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -499,7 +499,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if student exists and user has access
-    const existingStudent = await prisma.student.findUnique({
+    const existingStudent = await prisma.students.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -573,7 +573,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update student
-    const student = await prisma.student.update({
+    const student = await prisma.students.update({
       where: { id: parseInt(id) },
       data: validatedData,
       include: {
@@ -588,14 +588,14 @@ export async function PUT(request: NextRequest) {
             }
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
             school_code: true
           }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -656,7 +656,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if student exists and user has access
-    const existingStudent = await prisma.student.findUnique({
+    const existingStudent = await prisma.students.findUnique({
       where: { id: parseInt(id) },
       include: {
         assessments: true
@@ -686,13 +686,13 @@ export async function DELETE(request: NextRequest) {
         prisma.assessments.deleteMany({
           where: { student_id: parseInt(id) }
         }),
-        prisma.student.delete({
+        prisma.students.delete({
           where: { id: parseInt(id) }
         })
       ]);
     } else {
       // Soft delete production data by archiving
-      await prisma.student.update({
+      await prisma.students.update({
         where: { id: parseInt(id) },
         data: {
           is_active: false,

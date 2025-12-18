@@ -90,7 +90,7 @@ export async function GET(
             role: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
@@ -359,7 +359,7 @@ export async function PUT(
             role: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

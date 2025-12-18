@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     // Count records before promotion
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
-      prisma.student.count({ where: studentWhere }),
+      prisma.students.count({ where: studentWhere }),
       prisma.assessments.count({ where: assessmentWhere }),
       prisma.mentoringVisit.count({ where: mentoringVisitWhere })
     ]);
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       // Promote students
       if (studentCount > 0) {
         updates.push(
-          tx.student.updateMany({
+          tx.students.updateMany({
             where: studentWhere,
             data: {
               record_status: 'production',
@@ -250,14 +250,14 @@ export async function GET(request: NextRequest) {
 
     // Get preview data
     const [students, assessments, mentoringVisits] = await Promise.all([
-      prisma.student.findMany({
+      prisma.students.findMany({
         where: studentWhere,
         select: {
           id: true,
           name: true,
           record_status: true,
           test_session_id: true,
-          added_by: { select: { id: true, name: true } },
+          users_assessments_added_by_idTousers: { select: { id: true, name: true } },
           created_at: true
         },
         take: 100 // Limit preview
@@ -270,8 +270,8 @@ export async function GET(request: NextRequest) {
           subject: true,
           record_status: true,
           test_session_id: true,
-          added_by: { select: { id: true, name: true } },
-          student: { select: { id: true, name: true } },
+          users_assessments_added_by_idTousers: { select: { id: true, name: true } },
+          students: { select: { id: true, name: true } },
           assessed_date: true
         },
         take: 100
@@ -284,7 +284,7 @@ export async function GET(request: NextRequest) {
           record_status: true,
           test_session_id: true,
           mentor: { select: { id: true, name: true } },
-          pilot_school: { select: { id: true, school_name: true } },
+          pilot_schools: { select: { id: true, school_name: true } },
           created_at: true
         },
         take: 100
@@ -293,7 +293,7 @@ export async function GET(request: NextRequest) {
 
     // Get counts
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
-      prisma.student.count({ where: studentWhere }),
+      prisma.students.count({ where: studentWhere }),
       prisma.assessments.count({ where: assessmentWhere }),
       prisma.mentoringVisit.count({ where: mentoringVisitWhere })
     ]);

@@ -76,9 +76,9 @@ export async function GET(request: NextRequest) {
     const assessments = await prisma.assessments.findMany({
       where,
       include: {
-        student: {
+        students: {
           include: {
-            pilot_school: {
+            pilot_schools: {
               include: {
                 province: {
                   select: {

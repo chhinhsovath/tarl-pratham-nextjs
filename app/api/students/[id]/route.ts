@@ -66,7 +66,7 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const student = await prisma.student.findUnique({
+    const student = await prisma.students.findUnique({
       where: { id: studentId },
       include: {
         school_class: {
@@ -80,7 +80,7 @@ export async function GET(
             }
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
@@ -89,7 +89,7 @@ export async function GET(
             district: true
           }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
@@ -152,7 +152,7 @@ export async function PUT(
     }
 
     // Fetch existing student to check access
-    const existingStudent = await prisma.student.findUnique({
+    const existingStudent = await prisma.students.findUnique({
       where: { id: studentId },
       select: { pilot_school_id: true }
     });
@@ -172,7 +172,7 @@ export async function PUT(
     // Don't allow changing record_status directly via this endpoint
     const { record_status: _, ...updateData } = body;
 
-    const student = await prisma.student.update({
+    const student = await prisma.students.update({
       where: { id: studentId },
       data: {
         ...updateData,
@@ -219,7 +219,7 @@ export async function DELETE(
     }
 
     // Fetch existing student to check access
-    const existingStudent = await prisma.student.findUnique({
+    const existingStudent = await prisma.students.findUnique({
       where: { id: studentId },
       select: { pilot_school_id: true }
     });
@@ -281,7 +281,7 @@ export async function DELETE(
       });
 
       // Finally, delete the student
-      await tx.student.delete({
+      await tx.students.delete({
         where: { id: studentId }
       });
     });

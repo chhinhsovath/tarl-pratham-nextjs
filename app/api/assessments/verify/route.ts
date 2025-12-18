@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     if (search) {
       where.OR = [
         {
-          student: {
+          students: {
             name: { contains: search, mode: 'insensitive' }
           }
         },
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     const assessments = await prisma.assessments.findMany({
       where,
       include: {
-        student: {
+        students: {
           select: {
             id: true,
             student_id: true,
@@ -101,14 +101,14 @@ export async function GET(request: NextRequest) {
             is_temporary: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
             school_code: true
           }
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,

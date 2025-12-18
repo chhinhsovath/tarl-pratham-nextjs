@@ -48,7 +48,7 @@ export async function cleanupTemporaryMentorData() {
       });
 
       // Find temporary students created by mentors older than 48 hours
-      const studentsToDelete = await tx.student.findMany({
+      const studentsToDelete = await tx.students.findMany({
         where: {
           is_temporary: true,
           added_by_mentor: true,
@@ -89,7 +89,7 @@ export async function cleanupTemporaryMentorData() {
       });
 
       // Delete the temporary students
-      const deletedStudents = await tx.student.deleteMany({
+      const deletedStudents = await tx.students.deleteMany({
         where: {
           id: {
             in: studentsToDelete.map(s => s.id)
@@ -123,7 +123,7 @@ export async function markDataAsPermanent(
 ) {
   try {
     if (type === 'student') {
-      const result = await prisma.student.updateMany({
+      const result = await prisma.students.updateMany({
         where: {
           id: { in: ids }
         },
@@ -173,13 +173,13 @@ export async function getTemporaryDataStats() {
       totalTempAssessments,
       expiredTempAssessments
     ] = await Promise.all([
-      prisma.student.count({
+      prisma.students.count({
         where: {
           is_temporary: true,
           added_by_mentor: true
         }
       }),
-      prisma.student.count({
+      prisma.students.count({
         where: {
           is_temporary: true,
           added_by_mentor: true,

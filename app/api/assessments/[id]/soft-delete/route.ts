@@ -48,7 +48,7 @@ export async function DELETE(
     const assessment = await prisma.assessments.findUnique({
       where: { id: assessmentId },
       include: {
-        student: {
+        students: {
           include: {
             pilot_school: true,
           },
@@ -69,7 +69,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: 'ការវាយតម្លៃត្រូវបានលុបរួចហើយ។',
-          message: `ការវាយតម្លៃសម្រាប់សិស្ស ${assessment.student.name} ត្រូវបានលុបពីមុនមកហើយ។`
+          message: `ការវាយតម្លៃសម្រាប់សិស្ស ${assessment.students.name} ត្រូវបានលុបពីមុនមកហើយ។`
         },
         { status: 400 }
       );
@@ -88,7 +88,7 @@ export async function DELETE(
 
     console.log(`[Soft Delete] User ${session.user.email} (${userRole}) deleting assessment ID ${assessmentId}`);
     console.log(`[Soft Delete] Assessment type: ${assessment.assessment_type}, Subject: ${assessment.subject}`);
-    console.log(`[Soft Delete] Student: ${assessment.student.name}, School: ${assessment.student.pilot_school?.school_name || 'N/A'}`);
+    console.log(`[Soft Delete] Student: ${assessment.students.name}, School: ${assessment.students.pilot_schools?.school_name || 'N/A'}`);
 
     // Soft delete the assessment
     const updatedAssessment = await prisma.assessments.update({
@@ -103,13 +103,13 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: `ការវាយតម្លៃសម្រាប់សិស្ស ${assessment.student.name} ត្រូវបានលុបដោយជោគជ័យ។`,
+      message: `ការវាយតម្លៃសម្រាប់សិស្ស ${assessment.students.name} ត្រូវបានលុបដោយជោគជ័យ។`,
       data: {
         assessment_id: updatedAssessment.id,
         assessment_type: updatedAssessment.assessment_type,
         subject: updatedAssessment.subject,
-        student_name: assessment.student.name,
-        school: assessment.student.pilot_school?.school_name,
+        student_name: assessment.students.name,
+        school: assessment.students.pilot_schools?.school_name,
         deleted_at: new Date().toISOString(),
         deleted_by: session.user.email,
       },

@@ -97,7 +97,7 @@ async function fetchMentorAssignedSchools(
         select: {
           pilot_school_id: true,
           subject: true,
-          pilot_school: {
+          pilot_schools: {
             select: {
               id: true,
               school_name: true,
@@ -114,7 +114,7 @@ async function fetchMentorAssignedSchools(
             select: {
               id: true,
               pilot_school_id: true,
-              pilot_school: {
+              pilot_schools: {
                 select: {
                   id: true,
                   school_name: true,
@@ -132,9 +132,9 @@ async function fetchMentorAssignedSchools(
       return assignments.map((assignment) => ({
         pilot_school_id: assignment.pilot_school_id,
         subject: assignment.subject,
-        school_name: assignment.pilot_school.school_name,
-        province: assignment.pilot_school.province,
-        district: assignment.pilot_school.district,
+        school_name: assignment.pilot_schools.school_name,
+        province: assignment.pilot_schools.province,
+        district: assignment.pilot_schools.district,
       }));
     }
 
@@ -274,7 +274,7 @@ export async function getMentorDetailedAssignments(mentorId: number) {
         is_active: true,
       },
       include: {
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

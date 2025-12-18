@@ -54,7 +54,7 @@ export async function POST(
       where: { id: userId },
       data: { is_active: !user.is_active },
       include: {
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true

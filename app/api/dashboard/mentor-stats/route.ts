@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
       temporaryStudents,
       totalPilotSchools
     ] = await Promise.all([
-      prisma.student.count({ where: schoolFilter }),
-      prisma.student.count({ where: { ...schoolFilter, is_temporary: true } }),
+      prisma.students.count({ where: schoolFilter }),
+      prisma.students.count({ where: { ...schoolFilter, is_temporary: true } }),
       Promise.resolve(mentorUser.pilot_school_id ? 1 : 0) // Mentor assigned to 1 school or 0
     ]);
 
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
         assessed_date: 'desc'
       },
       include: {
-        student: {
+        students: {
           select: {
             id: true,
             name: true,
@@ -83,8 +83,8 @@ export async function GET(request: NextRequest) {
 
     const processedRecentAssessments = recentAssessments.map((assessment, index) => ({
       key: assessment.id.toString(),
-      student_name: assessment.student?.name || 'Unknown',
-      is_temporary: assessment.student?.is_temporary || false,
+      student_name: assessment.students?.name || 'Unknown',
+      is_temporary: assessment.students?.is_temporary || false,
       assessment_type: assessment.cycle || 'baseline',
       subject: assessment.subject || 'khmer',
       level: assessment.level || 'beginner',

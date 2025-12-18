@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
         pilot_school_id: true,
         province: true,
         district: true,
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,
@@ -190,7 +190,7 @@ export async function GET(request: NextRequest) {
         is_active: true
       },
       include: {
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

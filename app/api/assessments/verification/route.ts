@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     const assessments = await prisma.assessments.findMany({
       where,
       include: {
-        student: {
+        students: {
           select: {
             id: true,
             name: true,
@@ -77,21 +77,21 @@ export async function GET(request: NextRequest) {
             gender: true,
           },
         },
-        added_by: {
+        users_assessments_added_by_idTousers: {
           select: {
             id: true,
             name: true,
             role: true,
           },
         },
-        verified_by: {
+        users_assessments_verified_by_idTousers: {
           select: {
             id: true,
             name: true,
             role: true,
           },
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             school_name: true,

@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     // Count before deletion
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
-      prisma.student.count({ where: studentWhere }),
+      prisma.students.count({ where: studentWhere }),
       prisma.assessments.count({ where: assessmentWhere }),
       prisma.mentoringVisit.count({ where: mentoringVisitWhere })
     ]);
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     // Perform bulk deletion
     await prisma.$transaction([
       prisma.assessments.deleteMany({ where: assessmentWhere }),
-      prisma.student.deleteMany({ where: studentWhere }),
+      prisma.students.deleteMany({ where: studentWhere }),
       prisma.mentoringVisit.deleteMany({ where: mentoringVisitWhere })
     ]);
 

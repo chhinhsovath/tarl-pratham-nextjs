@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
             role: true
           }
         },
-        pilot_school: {
+        pilot_schools: {
           select: {
             id: true,
             name: true,
@@ -147,8 +147,8 @@ export async function GET(request: NextRequest) {
     const csvRows = visits.map(visit => [
       visit.id,
       visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('km-KH') : '',
-      visit.pilot_school?.school_name || '',
-      visit.pilot_school?.school_code || '',
+      visit.pilot_schools?.school_name || '',
+      visit.pilot_schools?.school_code || '',
       visit.mentor?.name || '',
       visit.teacher?.name || '',
       visit.class_in_session ? 'បាទ/ចាស' : 'ទេ',

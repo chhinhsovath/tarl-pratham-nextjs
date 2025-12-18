@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
             is_active: true,
             created_at: true,
             updated_at: true,
-            pilot_school: {
+            pilot_schools: {
               select: {
                 id: true,
                 school_name: true,

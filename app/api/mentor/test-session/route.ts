@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       assessments,
       activeSessions
     ] = await Promise.all([
-      prisma.student.count({
+      prisma.students.count({
         where: {
           record_status: 'test_mentor',
           added_by_id: mentorId
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           mentor_id: mentorId
         }
       }),
-      prisma.student.findMany({
+      prisma.students.findMany({
         where: {
           record_status: 'test_mentor',
           added_by_id: mentorId
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
             id: true
           }
         }),
-        students_by_gender: await prisma.student.groupBy({
+        students_by_gender: await prisma.students.groupBy({
           by: ['gender'],
           where: {
             is_temporary: true,

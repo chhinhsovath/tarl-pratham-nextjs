@@ -63,10 +63,10 @@ export async function GET(request: NextRequest) {
       'Username': teacher.username || teacher.username_login || '',
       'Phone': teacher.phone || '',
       'Sex': teacher.sex || '',
-      'School': teacher.pilot_school?.school_name || '',
-      'School Code': teacher.pilot_school?.school_code || '',
-      'Province': teacher.province || teacher.pilot_school?.province || '',
-      'District': teacher.district || teacher.pilot_school?.district || '',
+      'School': teacher.pilot_schools?.school_name || '',
+      'School Code': teacher.pilot_schools?.school_code || '',
+      'Province': teacher.province || teacher.pilot_schools?.province || '',
+      'District': teacher.district || teacher.pilot_schools?.district || '',
       'Assigned Subject': teacher.assigned_subject || teacher.subject || '',
       'Holding Classes': teacher.holding_classes || '',
       'Active': teacher.is_active ? 'Yes' : 'No',
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
     // SHEET 4: STUDENTS
     // ============================================
     console.log('[Export] Fetching students...');
-    const students = await prisma.student.findMany({
+    const students = await prisma.students.findMany({
       where: {
         is_active: true,
         record_status: 'production',
@@ -180,10 +180,10 @@ export async function GET(request: NextRequest) {
       'Age': student.age || '',
       'Gender': student.gender || '',
       'Grade': student.grade || '',
-      'School': student.pilot_school?.school_name || '',
-      'School Code': student.pilot_school?.school_code || '',
-      'Province': student.pilot_school?.province || '',
-      'District': student.pilot_school?.district || '',
+      'School': student.pilot_schools?.school_name || '',
+      'School Code': student.pilot_schools?.school_code || '',
+      'Province': student.pilot_schools?.province || '',
+      'District': student.pilot_schools?.district || '',
       'Guardian Name': student.guardian_name || '',
       'Guardian Phone': student.guardian_phone || '',
       'Baseline Khmer Level': student.baseline_khmer_level || '',
@@ -192,7 +192,7 @@ export async function GET(request: NextRequest) {
       'Midline Math Level': student.midline_math_level || '',
       'Endline Khmer Level': student.endline_khmer_level || '',
       'Endline Math Level': student.endline_math_level || '',
-      'Added By': student.added_by?.name || '',
+      'Added By': student.users_assessments_added_by_idTousers?.name || '',
       'Added By Mentor': student.added_by_mentor ? 'Yes' : 'No',
       'Created At': student.created_at.toISOString().split('T')[0],
     }));
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
         record_status: 'production',
       },
       include: {
-        student: {
+        students: {
           include: {
             pilot_school: true,
           },
@@ -223,19 +223,19 @@ export async function GET(request: NextRequest) {
 
     const baselineData = baselineAssessments.map((assessment) => ({
       'Assessment ID': assessment.id,
-      'Student Name': assessment.student.name,
-      'Student Code': assessment.student.student_id || '',
-      'School': assessment.student.pilot_school?.school_name || '',
-      'School Code': assessment.student.pilot_school?.school_code || '',
+      'Student Name': assessment.students.name,
+      'Student Code': assessment.students.student_id || '',
+      'School': assessment.students.pilot_schools?.school_name || '',
+      'School Code': assessment.students.pilot_schools?.school_code || '',
       'Subject': assessment.subject,
       'Level': assessment.level || '',
       'Assessment Sample': assessment.assessment_sample || '',
       'Student Consent': assessment.student_consent || '',
       'Assessed Date': assessment.assessed_date ? assessment.assessed_date.toISOString().split('T')[0] : '',
-      'Assessed By': assessment.added_by?.name || '',
+      'Assessed By': assessment.users_assessments_added_by_idTousers?.name || '',
       'Assessed By Mentor': assessment.assessed_by_mentor ? 'Yes' : 'No',
       'Verified': assessment.verified_by_id ? 'Yes' : 'No',
-      'Verified By': assessment.verified_by?.name || '',
+      'Verified By': assessment.users_assessments_verified_by_idTousers?.name || '',
       'Verified At': assessment.verified_at ? assessment.verified_at.toISOString().split('T')[0] : '',
       'Notes': assessment.notes || '',
       'Created At': assessment.created_at.toISOString().split('T')[0],
@@ -254,7 +254,7 @@ export async function GET(request: NextRequest) {
         record_status: 'production',
       },
       include: {
-        student: {
+        students: {
           include: {
             pilot_school: true,
           },
@@ -267,19 +267,19 @@ export async function GET(request: NextRequest) {
 
     const midlineData = midlineAssessments.map((assessment) => ({
       'Assessment ID': assessment.id,
-      'Student Name': assessment.student.name,
-      'Student Code': assessment.student.student_id || '',
-      'School': assessment.student.pilot_school?.school_name || '',
-      'School Code': assessment.student.pilot_school?.school_code || '',
+      'Student Name': assessment.students.name,
+      'Student Code': assessment.students.student_id || '',
+      'School': assessment.students.pilot_schools?.school_name || '',
+      'School Code': assessment.students.pilot_schools?.school_code || '',
       'Subject': assessment.subject,
       'Level': assessment.level || '',
       'Assessment Sample': assessment.assessment_sample || '',
       'Student Consent': assessment.student_consent || '',
       'Assessed Date': assessment.assessed_date ? assessment.assessed_date.toISOString().split('T')[0] : '',
-      'Assessed By': assessment.added_by?.name || '',
+      'Assessed By': assessment.users_assessments_added_by_idTousers?.name || '',
       'Assessed By Mentor': assessment.assessed_by_mentor ? 'Yes' : 'No',
       'Verified': assessment.verified_by_id ? 'Yes' : 'No',
-      'Verified By': assessment.verified_by?.name || '',
+      'Verified By': assessment.users_assessments_verified_by_idTousers?.name || '',
       'Verified At': assessment.verified_at ? assessment.verified_at.toISOString().split('T')[0] : '',
       'Notes': assessment.notes || '',
       'Created At': assessment.created_at.toISOString().split('T')[0],
@@ -298,7 +298,7 @@ export async function GET(request: NextRequest) {
         record_status: 'production',
       },
       include: {
-        student: {
+        students: {
           include: {
             pilot_school: true,
           },
@@ -311,19 +311,19 @@ export async function GET(request: NextRequest) {
 
     const endlineData = endlineAssessments.map((assessment) => ({
       'Assessment ID': assessment.id,
-      'Student Name': assessment.student.name,
-      'Student Code': assessment.student.student_id || '',
-      'School': assessment.student.pilot_school?.school_name || '',
-      'School Code': assessment.student.pilot_school?.school_code || '',
+      'Student Name': assessment.students.name,
+      'Student Code': assessment.students.student_id || '',
+      'School': assessment.students.pilot_schools?.school_name || '',
+      'School Code': assessment.students.pilot_schools?.school_code || '',
       'Subject': assessment.subject,
       'Level': assessment.level || '',
       'Assessment Sample': assessment.assessment_sample || '',
       'Student Consent': assessment.student_consent || '',
       'Assessed Date': assessment.assessed_date ? assessment.assessed_date.toISOString().split('T')[0] : '',
-      'Assessed By': assessment.added_by?.name || '',
+      'Assessed By': assessment.users_assessments_added_by_idTousers?.name || '',
       'Assessed By Mentor': assessment.assessed_by_mentor ? 'Yes' : 'No',
       'Verified': assessment.verified_by_id ? 'Yes' : 'No',
-      'Verified By': assessment.verified_by?.name || '',
+      'Verified By': assessment.users_assessments_verified_by_idTousers?.name || '',
       'Verified At': assessment.verified_at ? assessment.verified_at.toISOString().split('T')[0] : '',
       'Notes': assessment.notes || '',
       'Created At': assessment.created_at.toISOString().split('T')[0],
@@ -344,7 +344,7 @@ export async function GET(request: NextRequest) {
         record_status: 'production',
       },
       include: {
-        student: {
+        students: {
           include: {
             pilot_school: true,
           },
@@ -358,15 +358,15 @@ export async function GET(request: NextRequest) {
     const verifiedData = verifiedAssessments.map((assessment) => ({
       'Assessment ID': assessment.id,
       'Assessment Type': assessment.assessment_type,
-      'Student Name': assessment.student.name,
-      'Student Code': assessment.student.student_id || '',
-      'School': assessment.student.pilot_school?.school_name || '',
-      'School Code': assessment.student.pilot_school?.school_code || '',
+      'Student Name': assessment.students.name,
+      'Student Code': assessment.students.student_id || '',
+      'School': assessment.students.pilot_schools?.school_name || '',
+      'School Code': assessment.students.pilot_schools?.school_code || '',
       'Subject': assessment.subject,
       'Level': assessment.level || '',
       'Assessed Date': assessment.assessed_date ? assessment.assessed_date.toISOString().split('T')[0] : '',
-      'Assessed By': assessment.added_by?.name || '',
-      'Verified By': assessment.verified_by?.name || '',
+      'Assessed By': assessment.users_assessments_added_by_idTousers?.name || '',
+      'Verified By': assessment.users_assessments_verified_by_idTousers?.name || '',
       'Verified At': assessment.verified_at ? assessment.verified_at.toISOString().split('T')[0] : '',
       'Verification Notes': assessment.verification_notes || '',
       'Is Locked': assessment.is_locked ? 'Yes' : 'No',
@@ -397,10 +397,10 @@ export async function GET(request: NextRequest) {
       'Visit Date': visit.visit_date.toISOString().split('T')[0],
       'Mentor': visit.mentor.name,
       'Teacher': visit.teacher?.name || '',
-      'School': visit.pilot_school?.school_name || '',
-      'School Code': visit.pilot_school?.school_code || '',
-      'Province': visit.province || visit.pilot_school?.province || '',
-      'District': visit.district || visit.pilot_school?.district || '',
+      'School': visit.pilot_schools?.school_name || '',
+      'School Code': visit.pilot_schools?.school_code || '',
+      'Province': visit.province || visit.pilot_schools?.province || '',
+      'District': visit.district || visit.pilot_schools?.district || '',
       'Level': visit.level || '',
       'Subject Observed': visit.subject_observed || '',
       'Grades Observed': visit.grades_observed || '',

@@ -45,7 +45,7 @@ export async function DELETE(
     }
 
     // Check if student exists
-    const student = await prisma.student.findUnique({
+    const student = await prisma.students.findUnique({
       where: { id: studentId },
       include: {
         pilot_school: true,
@@ -78,7 +78,7 @@ export async function DELETE(
     console.log(`[Soft Delete] User ${session.user.email} (${userRole}) deleting student ID ${studentId}: ${student.name}`);
 
     // Soft delete the student
-    const updatedStudent = await prisma.student.update({
+    const updatedStudent = await prisma.students.update({
       where: { id: studentId },
       data: {
         is_active: false,
@@ -103,7 +103,7 @@ export async function DELETE(
     }
 
     console.log(`[Soft Delete] Successfully soft-deleted student ${studentId}: ${student.name}`);
-    console.log(`[Soft Delete] School: ${student.pilot_school?.school_name || 'N/A'}`);
+    console.log(`[Soft Delete] School: ${student.pilot_schools?.school_name || 'N/A'}`);
     console.log(`[Soft Delete] Related assessments archived: ${student.assessments.length}`);
 
     return NextResponse.json({
@@ -112,7 +112,7 @@ export async function DELETE(
       data: {
         student_id: updatedStudent.id,
         student_name: updatedStudent.name,
-        school: student.pilot_school?.school_name,
+        school: student.pilot_schools?.school_name,
         assessments_archived: student.assessments.length,
         deleted_at: new Date().toISOString(),
         deleted_by: session.user.email,

@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     if (search) {
       where.OR = [
         { 
-          student: {
+          students: {
             name: { contains: search, mode: 'insensitive' }
           }
         },
@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
       prisma.assessments.findMany({
         where,
         include: {
-          student: {
+          students: {
             include: {
               pilotSchool: {
                 select: {
@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
               email: true
             }
           },
-          verified_by: {
+          users_assessments_verified_by_idTousers: {
             select: {
               id: true,
               name: true
@@ -231,7 +231,7 @@ export async function GET(request: NextRequest) {
         is_temporary: false,
         created_at: new Date(),
         updated_at: new Date(),
-        student: {
+        students: {
           id: 1,
           student_name: 'សិស្ស ទី១',
           gender: 'male',
@@ -268,7 +268,7 @@ export async function GET(request: NextRequest) {
         verified_at: new Date('2024-01-17'),
         created_at: new Date(),
         updated_at: new Date(),
-        student: {
+        students: {
           id: 2,
           student_name: 'សិស្ស ទី២',
           gender: 'female',
@@ -284,7 +284,7 @@ export async function GET(request: NextRequest) {
           name: 'គ្រូ សុខា',
           email: 'sokha@example.com'
         },
-        verified_by: {
+        users_assessments_verified_by_idTousers: {
           id: 2,
           name: 'គ្រូ មករា'
         }
