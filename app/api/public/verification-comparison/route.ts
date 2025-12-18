@@ -9,10 +9,15 @@ export async function GET(request: NextRequest) {
     const school_id = searchParams.get('school_id') || '';
 
     // Build where clause for TEACHER assessments (baseline, midline, endline)
+    // Teacher assessments have assessed_by_mentor = false or null
     const teacherWhere: any = {
       assessment_type: {
         in: ['baseline', 'midline', 'endline']
-      }
+      },
+      OR: [
+        { assessed_by_mentor: false },
+        { assessed_by_mentor: null }
+      ]
     };
 
     // Apply filters
@@ -85,10 +90,45 @@ export async function GET(request: NextRequest) {
 
     console.log(`[Public] Found ${teacherAssessments.length} teacher assessments`);
 
+    // Fetch all mentor verification assessments for these teacher assessments
+    const teacherAssessmentIds = teacherAssessments.map(ta => ta.id);
+    const mentorAssessments = await prisma.assessment.findMany({
+      where: {
+        assessed_by_mentor: true,
+        mentor_assessment_id: {
+          in: teacherAssessmentIds.map(id => id.toString())
+        }
+      },
+      select: {
+        id: true,
+        level: true,
+        mentor_assessment_id: true,
+        created_at: true,
+        added_by: {
+          select: {
+            id: true,
+            name: true,
+            role: true
+          }
+        }
+      }
+    });
+
+    console.log(`[Public] Found ${mentorAssessments.length} mentor verification assessments`);
+
+    // Create a map of mentor assessments by teacher assessment id
+    const mentorAssessmentMap = new Map();
+    mentorAssessments.forEach(ma => {
+      if (ma.mentor_assessment_id) {
+        mentorAssessmentMap.set(parseInt(ma.mentor_assessment_id), ma);
+      }
+    });
+
     // Process ALL teacher assessments to create comparisons
     const comparisons = teacherAssessments.map((teacherAssessment) => {
-      // Check if this assessment has been verified (verified_by_id is not null)
-      const isVerified = teacherAssessment.verified_by_id !== null;
+      // Check if there's a mentor verification assessment
+      const mentorAssessment = mentorAssessmentMap.get(teacherAssessment.id);
+      const isVerified = mentorAssessment !== undefined;
 
       return {
         // Student info
@@ -114,19 +154,19 @@ export async function GET(request: NextRequest) {
         teacher_level: teacherAssessment.level,
         teacher_assessment_date: teacherAssessment.assessed_date || teacherAssessment.created_at,
 
-        // Mentor verification (from the same record)
-        mentor_name: isVerified ? (teacherAssessment.verified_by?.name || 'Unknown Mentor') : 'រង់ចាំផ្ទៀងផ្ទាត់',
-        mentor_assessment_id: isVerified ? teacherAssessment.id : null,
-        mentor_level: isVerified ? teacherAssessment.level : null,
-        mentor_verification_date: teacherAssessment.verified_at,
+        // Mentor verification (from mentor's assessment record)
+        mentor_name: isVerified ? (mentorAssessment.added_by?.name || 'Unknown Mentor') : 'រង់ចាំផ្ទៀងផ្ទាត់',
+        mentor_assessment_id: isVerified ? mentorAssessment.id : null,
+        mentor_level: isVerified ? mentorAssessment.level : null,
+        mentor_verification_date: isVerified ? mentorAssessment.created_at : null,
 
-        // Verification status
+        // Verification status - compare actual levels
         verification_status: isVerified ? 'verified' : 'pending',
-        level_match: isVerified ? true : null, // Same assessment, so level should match
+        level_match: isVerified ? (teacherAssessment.level === mentorAssessment.level) : null,
 
         // Additional verification info
-        verified_at: teacherAssessment.verified_at || null,
-        verification_notes: teacherAssessment.verification_notes || null
+        verified_at: isVerified ? mentorAssessment.created_at : null,
+        verification_notes: null
       };
     });
 
