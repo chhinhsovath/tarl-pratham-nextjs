@@ -276,8 +276,8 @@ export function exportMentoringVisits(visits: any[]): void {
       visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('km-KH') : '',
       visit.pilot_schools?.school_name || '',
       visit.pilot_schools?.school_code || '',
-      visit.mentor?.name || '',
-      visit.teacher?.name || 'មិនបានបញ្ជាក់',
+      visit.users?.name || '',
+      'មិនបានបញ្ជាក់', // teacher info not in relation
       visit.score !== undefined ? visit.score : '',
       visit.follow_up_required ? 'បាទ/ចាស' : 'ទេ',
       visit.is_locked ? 'ជាប់សោ' : (visit.is_temporary ? 'បណ្តោះអាសន្ន' : 'សកម្ម')
@@ -297,10 +297,10 @@ export function exportMentoringVisits(visits: any[]): void {
         ['កាលបរិច្ឆេទចុះអប់រំ', visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('km-KH') : ''],
         ['សាលារៀន', visit.pilot_schools?.school_name || ''],
         ['លេខកូដសាលា', visit.pilot_schools?.school_code || ''],
-        ['គ្រូព្រឹក្សា', visit.mentor?.name || ''],
-        ['អ៊ីមែលគ្រូព្រឹក្សា', visit.mentor?.email || ''],
-        ['គ្រូបង្រៀន', visit.teacher?.name || 'មិនបានបញ្ជាក់'],
-        ['អ៊ីមែលគ្រូបង្រៀន', visit.teacher?.email || ''],
+        ['គ្រូព្រឹក្សា', visit.users?.name || ''],
+        ['អ៊ីមែលគ្រូព្រឹក្សា', visit.users?.email || ''],
+        ['គ្រូបង្រៀន', 'មិនបានបញ្ជាក់'],
+        ['អ៊ីមែលគ្រូបង្រៀន', ''],
         ['តំបន់', visit.region || ''],
         ['ជួរ', visit.cluster || ''],
         ['ប្រភេទកម្មវិធី', visit.program_type || ''],
@@ -583,7 +583,7 @@ export function exportComprehensiveData(data: {
     // Mentoring visits sheet
     if (data.mentoringVisits.length > 0) {
       const visitsData = data.mentoringVisits.map(visit => [
-        visit.mentor?.name,
+        visit.users?.name,
         visit.pilot_schools?.name,
         visit.visit_date ? new Date(visit.visit_date).toLocaleDateString() : '',
         visit.status,
