@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       prisma.users.findMany({
         where: {
           role: 'mentor',
-          assessments_verified: {
+          assessments_assessments_verified_by_idTousers: {
             some: {}
           }
         },
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
           name: true,
           _count: {
             select: {
-              assessments_verified: {
+              assessments_assessments_verified_by_idTousers: {
                 where: {
                   verified_at: {
                     not: null
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     const mentorStats = mentorVerifications.map(mentor => ({
       mentor_id: mentor.id,
       mentor_name: mentor.name,
-      verifications_count: mentor._count.assessments_verified
+      verifications_count: mentor._count.assessments_assessments_verified_by_idTousers
     })).sort((a, b) => b.verifications_count - a.verifications_count);
 
     // Get verification rate by assessment type
