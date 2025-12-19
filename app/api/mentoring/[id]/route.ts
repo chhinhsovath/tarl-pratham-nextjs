@@ -82,7 +82,7 @@ export async function GET(
     const visit = await prisma.mentoring_visits.findUnique({
       where: { id: visitId },
       include: {
-        mentor: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -98,13 +98,6 @@ export async function GET(
             province: true,
             district: true,
             cluster: true
-          }
-        },
-        teacher: {
-          select: {
-            id: true,
-            name: true,
-            email: true
           }
         }
       }
@@ -334,24 +327,42 @@ export async function PUT(
       }
     }
 
-    // Remove fields that should not be updated (mentor_id and mentor_name from form)
-    const { mentor_id, mentor_name, ...updateData } = validatedData;
+    // Remove fields that should not be updated and map form field names to database columns
+    const {
+      mentor_id,
+      mentor_name,
+      // Map form field names to database column names
+      children_grouped_appropriately,
+      students_fully_involved,
+      has_session_plan,
+      followed_session_plan,
+      session_plan_appropriate,
+      session_plan_notes,
+      ...cleanedUpdateData
+    } = validatedData;
 
     // Update mentoring visit
     const visit = await prisma.mentoring_visits.update({
       where: { id: visitId },
       data: {
-        ...updateData,
-        visit_date: updateData.visit_date ? new Date(updateData.visit_date) : undefined,
-        photos: updateData.photos ? JSON.stringify(updateData.photos) : undefined,
-        grades_observed: updateData.grades_observed ? JSON.stringify(updateData.grades_observed) : undefined,
-        language_levels_observed: updateData.language_levels_observed ? JSON.stringify(updateData.language_levels_observed) : undefined,
-        numeracy_levels_observed: updateData.numeracy_levels_observed ? JSON.stringify(updateData.numeracy_levels_observed) : undefined,
-        materials_present: updateData.materials_present ? JSON.stringify(updateData.materials_present) : undefined,
-        teaching_materials: updateData.teaching_materials ? JSON.stringify(updateData.teaching_materials) : undefined
+        ...cleanedUpdateData,
+        visit_date: cleanedUpdateData.visit_date ? new Date(cleanedUpdateData.visit_date) : undefined,
+        lesson_plan_feedback: session_plan_notes || undefined,
+        // Map form fields to correct database columns
+        students_grouped_by_level: validatedData.students_grouped_by_level !== undefined ? validatedData.students_grouped_by_level : (children_grouped_appropriately !== undefined ? children_grouped_appropriately : undefined),
+        students_active_participation: validatedData.students_active_participation !== undefined ? validatedData.students_active_participation : (students_fully_involved !== undefined ? students_fully_involved : undefined),
+        teacher_has_lesson_plan: validatedData.teacher_has_lesson_plan !== undefined ? validatedData.teacher_has_lesson_plan : (has_session_plan !== undefined ? has_session_plan : undefined),
+        followed_lesson_plan: validatedData.followed_lesson_plan !== undefined ? validatedData.followed_lesson_plan : (followed_session_plan !== undefined ? followed_session_plan : undefined),
+        plan_appropriate_for_levels: validatedData.plan_appropriate_for_levels !== undefined ? validatedData.plan_appropriate_for_levels : (session_plan_appropriate !== undefined ? session_plan_appropriate : undefined),
+        photos: cleanedUpdateData.photos ? JSON.stringify(cleanedUpdateData.photos) : undefined,
+        grades_observed: cleanedUpdateData.grades_observed ? JSON.stringify(cleanedUpdateData.grades_observed) : undefined,
+        language_levels_observed: cleanedUpdateData.language_levels_observed ? JSON.stringify(cleanedUpdateData.language_levels_observed) : undefined,
+        numeracy_levels_observed: cleanedUpdateData.numeracy_levels_observed ? JSON.stringify(cleanedUpdateData.numeracy_levels_observed) : undefined,
+        materials_present: cleanedUpdateData.materials_present ? JSON.stringify(cleanedUpdateData.materials_present) : undefined,
+        teaching_materials: cleanedUpdateData.teaching_materials ? JSON.stringify(cleanedUpdateData.teaching_materials) : undefined
       },
       include: {
-        mentor: {
+        users: {
           select: {
             id: true,
             name: true,
