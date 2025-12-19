@@ -227,6 +227,20 @@ function CoordinatorWorkspaceContent() {
       path: '/assessments/verify'
     },
     {
+      title: 'ផ្ទាំងពិនិត្យការផ្ទៀងផ្ទាត់',
+      icon: <CheckCircleOutlined style={{ fontSize: 24 }} />,
+      color: '#10b981',
+      description: 'មើលស្ថិតិនិងទិន្នន័យការផ្ទៀងផ្ទាត់សាធារណៈ',
+      path: '/public-verification-dashboard'
+    },
+    {
+      title: 'ប្រៀបធៀបគ្រូ-គ្រូព្រឹក្សា',
+      icon: <BarChartOutlined style={{ fontSize: 24 }} />,
+      color: '#8b5cf6',
+      description: 'ប្រៀបធៀបការវាយតម្លៃរវាងគ្រូនិងគ្រូព្រឹក្សា',
+      path: '/public-verification-comparison'
+    },
+    {
       title: 'គ្រប់គ្រងការចុះអប់រំ',
       icon: <TeamOutlined style={{ fontSize: 24 }} />,
       color: '#9333ea',
