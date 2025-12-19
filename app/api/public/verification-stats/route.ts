@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
  * GET /api/public/verification-stats
  * Public endpoint to get verification statistics
  * No authentication required
+ * Last updated: 2025-12-19 - Force rebuild for Prisma Client regeneration
  */
 export async function GET(request: NextRequest) {
   try {
