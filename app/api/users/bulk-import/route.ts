@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
     // Check for duplicate emails in database
     const emails = validUsers.map(user => user.email);
-    const existingUsers = await prisma.user.findMany({
+    const existingUsers = await prisma.users.findMany({
       where: { email: { in: emails } },
       select: { email: true }
     });
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     // Create users in database
     const createdUsers = await prisma.$transaction(
       hashedUsers.map(user => 
-        prisma.user.create({
+        prisma.users.create({
           data: user,
           select: {
             id: true,

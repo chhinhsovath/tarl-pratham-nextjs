@@ -27,7 +27,7 @@ export async function POST(
     }
 
     // Get current user
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId }
     });
 
@@ -37,7 +37,7 @@ export async function POST(
 
     // Prevent deactivating the last admin
     if (user.role === 'admin' && user.is_active) {
-      const adminCount = await prisma.user.count({
+      const adminCount = await prisma.users.count({
         where: { role: 'admin', is_active: true }
       });
       
@@ -50,7 +50,7 @@ export async function POST(
     }
 
     // Toggle user status
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: { is_active: !user.is_active },
       include: {

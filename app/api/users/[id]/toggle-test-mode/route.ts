@@ -39,7 +39,7 @@ export async function POST(
     }
 
     // Get the target user
-    const targetUser = await prisma.user.findUnique({
+    const targetUser = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -86,7 +86,7 @@ export async function POST(
 
       if (activeSession) {
         // Already has an active session, just enable test mode
-        const updatedUser = await prisma.user.update({
+        const updatedUser = await prisma.users.update({
           where: { id: userId },
           data: { test_mode_enabled: true },
           select: {
@@ -146,7 +146,7 @@ export async function POST(
     }
 
     // Toggle test mode
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: { test_mode_enabled: enabled },
       select: {
@@ -209,7 +209,7 @@ export async function GET(
     }
 
     // Get user info
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,

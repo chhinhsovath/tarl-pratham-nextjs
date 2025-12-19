@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     let assessmentCount = 0;
 
     try {
-      teacherCount = await prisma.user.count({
+      teacherCount = await prisma.users.count({
         where: { role: 'teacher', is_active: true }
       });
     } catch (e) {
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      mentorCount = await prisma.user.count({
+      mentorCount = await prisma.users.count({
         where: { role: 'mentor', is_active: true }
       });
     } catch (e) {

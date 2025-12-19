@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
     });
 
     // BATCH 6: Mentors per school (1 query)
-    const mentors = await prisma.user.findMany({
+    const mentors = await prisma.users.findMany({
       where: {
         pilot_school_id: { in: schoolIds },
         role: 'mentor',

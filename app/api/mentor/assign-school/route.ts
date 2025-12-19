@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user's pilot_school_id
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: mentorId },
       data: {
         pilot_school_id: validatedData.pilot_school_id,
@@ -161,7 +161,7 @@ export async function GET(request: NextRequest) {
     const mentorId = parseInt(session.user.id);
 
     // Get user with school info
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: mentorId },
       select: {
         id: true,

@@ -241,7 +241,7 @@ export async function PUT(
 
     // Verify teacher exists if being updated
     if (validatedData.teacher_id) {
-      const teacher = await prisma.user.findFirst({
+      const teacher = await prisma.users.findFirst({
         where: { 
           id: validatedData.teacher_id,
           role: 'teacher'

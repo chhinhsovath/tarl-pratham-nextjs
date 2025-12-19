@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get all users without usernames
-    const usersWithoutUsernames = await prisma.user.findMany({
+    const usersWithoutUsernames = await prisma.users.findMany({
       where: {
         username: null,
         is_active: true
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         let counter = 1;
 
         while (true) {
-          const existingUser = await prisma.user.findFirst({
+          const existingUser = await prisma.users.findFirst({
             where: {
               username: usernameToUse,
               id: { not: user.id } // Don't check against self
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Update the user with the generated username
-        const updatedUser = await prisma.user.update({
+        const updatedUser = await prisma.users.update({
           where: { id: user.id },
           data: { username: usernameToUse },
           select: {
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Count users without usernames
-    const count = await prisma.user.count({
+    const count = await prisma.users.count({
       where: {
         username: null,
         is_active: true
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get sample of users without usernames (limit 10)
-    const samples = await prisma.user.findMany({
+    const samples = await prisma.users.findMany({
       where: {
         username: null,
         is_active: true

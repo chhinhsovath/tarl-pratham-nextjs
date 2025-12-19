@@ -28,8 +28,8 @@ export async function GET(request: NextRequest) {
       prisma.students.count(),
       prisma.students.count({ where: { is_active: true } }),
       prisma.assessments.count(),
-      prisma.user.count({ where: { role: 'teacher' } }),
-      prisma.user.count({ where: { role: 'mentor' } })
+      prisma.users.count({ where: { role: 'teacher' } }),
+      prisma.users.count({ where: { role: 'mentor' } })
     ]);
 
     // BATCH 2: System counts (3 queries)

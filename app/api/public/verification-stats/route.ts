@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       }),
 
       // Get mentor information for verifications
-      prisma.user.findMany({
+      prisma.users.findMany({
         where: {
           role: 'mentor',
           assessments_verified: {

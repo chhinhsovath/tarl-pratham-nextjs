@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const userId = parseInt(session.user.id);
 
     // Get current user
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId }
     });
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       completedSteps.push(stepId);
 
       // Update user with new completed steps
-      await prisma.user.update({
+      await prisma.users.update({
         where: { id: userId },
         data: {
           onboarding_completed: JSON.stringify(completedSteps),

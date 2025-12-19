@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
       }),
 
       // Recent users - NO JOINS
-      prisma.user.findMany({
+      prisma.users.findMany({
         where: schoolFilter,
         take: limit,
         orderBy: { created_at: 'desc' },

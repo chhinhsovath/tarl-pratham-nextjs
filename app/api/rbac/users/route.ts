@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
 
     // Get users with relationships
     const [users, totalCount] = await Promise.all([
-      prisma.user.findMany({
+      prisma.users.findMany({
         where,
         include: {
           pilot_schools: {
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         skip: offset,
         take: limit
       }),
-      prisma.user.count({ where })
+      prisma.users.count({ where })
     ]);
 
     // Transform users to include assigned_pilot_schools
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createUserSchema.parse(body);
 
     // Check if email already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email: validatedData.email }
     });
 
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
     // Create user
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         name: validatedData.name,
         email: validatedData.email,

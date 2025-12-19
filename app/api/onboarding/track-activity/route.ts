@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const userId = parseInt(session.user.id);
 
     // Get user's current onboarding data
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         onboarding_completed: true,
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       activities.push(activityType);
 
       // Update user's activities
-      await prisma.user.update({
+      await prisma.users.update({
         where: { id: userId },
         data: {
           onboarding_activities: JSON.stringify(activities),
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
 
     // Update completed steps if any new ones
     if (newlyCompletedSteps.length > 0) {
-      await prisma.user.update({
+      await prisma.users.update({
         where: { id: userId },
         data: {
           onboarding_completed: JSON.stringify(completedSteps),
@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
 
     const userId = parseInt(session.user.id);
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         onboarding_completed: true,

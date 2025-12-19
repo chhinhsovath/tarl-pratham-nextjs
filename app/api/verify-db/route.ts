@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     // Get basic statistics - Prisma connects automatically on first query
     const [userCount, schoolCount, studentCount, assessmentCount] = await Promise.all([
-      prisma.user.count(),
+      prisma.users.count(),
       prisma.pilot_schools.count(),
       prisma.students.count(),
       prisma.assessments.count(),

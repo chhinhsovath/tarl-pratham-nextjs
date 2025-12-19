@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
 
         // Quick login with username (now using unified users table)
         if (credentials.loginType === "quick" && credentials.username) {
-          const user = await prisma.user.findFirst({
+          const user = await prisma.users.findFirst({
             where: {
               OR: [
                 { username: credentials.username },
@@ -68,7 +68,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Email is required for regular login");
         }
 
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
           where: { email: credentials.email }
         });
 
@@ -132,7 +132,7 @@ export const authOptions: NextAuthOptions = {
           const userId = parseInt(token.id as string);
 
           // Query unified users table (no more separate tables!)
-          const freshUser = await prisma.user.findUnique({
+          const freshUser = await prisma.users.findUnique({
             where: { id: userId },
             select: {
               role: true,
@@ -177,7 +177,7 @@ export const authOptions: NextAuthOptions = {
 
           // Query unified users table (no more separate tables!)
           console.log('🔍 [AUTH] Refreshing user data from unified users table');
-          const freshUser = await prisma.user.findUnique({
+          const freshUser = await prisma.users.findUnique({
             where: { id: userId },
             select: {
               role: true,

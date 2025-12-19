@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     
     try {
       // Query unified users table - return ALL users with usernames
-      quickUsers = await prisma.user.findMany({
+      quickUsers = await prisma.users.findMany({
         where: {
           is_active: true,
           username: { not: null } // Show all users that have a username

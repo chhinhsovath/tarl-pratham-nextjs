@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if username already exists in unified users table
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await prisma.users.findFirst({
       where: {
         OR: [
           { username: username },
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       : holding_classes;
 
     // Create new user in unified users table with username login type
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         username,
         username_login: username,

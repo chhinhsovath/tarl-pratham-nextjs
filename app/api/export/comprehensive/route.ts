@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     // SHEET 1: TEACHERS
     // ============================================
     console.log('[Export] Fetching teachers...');
-    const teachers = await prisma.user.findMany({
+    const teachers = await prisma.users.findMany({
       where: {
         role: 'teacher',
         is_active: true,
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     // SHEET 2: MENTORS
     // ============================================
     console.log('[Export] Fetching mentors...');
-    const mentors = await prisma.user.findMany({
+    const mentors = await prisma.users.findMany({
       where: {
         role: 'mentor',
         is_active: true,

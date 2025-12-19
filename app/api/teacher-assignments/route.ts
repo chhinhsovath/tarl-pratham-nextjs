@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
     const validatedData = teacherAssignmentSchema.parse(body);
 
     // Verify teacher exists and has teacher role
-    const teacher = await prisma.user.findUnique({
+    const teacher = await prisma.users.findUnique({
       where: { id: validatedData.teacher_id }
     });
 

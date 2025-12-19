@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     try {
       // Query unified users table - return ALL users with usernames (both email and username login types)
       // Include email as fallback for users without username
-      users = await prisma.user.findMany({
+      users = await prisma.users.findMany({
         select: {
           id: true,
           username: true,
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       console.log(`✅ [QUICK-LOGIN] Found ${users.length} active users with usernames for login dropdown`);
 
       // Log if we find users without usernames (this should be empty after fix)
-      const usersWithoutUsername = await prisma.user.count({
+      const usersWithoutUsername = await prisma.users.count({
         where: {
           is_active: true,
           username: null

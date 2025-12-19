@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.users.findMany({
         where,
         select: {
           id: true,
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { created_at: "desc" }
       }),
-      prisma.user.count({ where })
+      prisma.users.count({ where })
     ]);
 
     // Compute profile completion status based on role and assigned fields
@@ -173,7 +173,7 @@ export async function GET(request: NextRequest) {
     };
 
     try {
-      const roleStats = await prisma.user.groupBy({
+      const roleStats = await prisma.users.groupBy({
         by: ['role'],
         where,
         _count: {
@@ -307,7 +307,7 @@ export async function POST(request: NextRequest) {
 
     // Check if email already exists (only if email was provided)
     if (validatedData.email) {
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.users.findUnique({
         where: { email: validatedData.email }
       });
 
@@ -338,7 +338,7 @@ export async function POST(request: NextRequest) {
     let counter = 1;
 
     while (true) {
-      const existingUser = await prisma.user.findFirst({
+      const existingUser = await prisma.users.findFirst({
         where: { username: username }
       });
 
@@ -375,7 +375,7 @@ export async function POST(request: NextRequest) {
       let emailCounter = 1;
       let emailToCheck = email;
       while (true) {
-        const existingEmail = await prisma.user.findFirst({
+        const existingEmail = await prisma.users.findFirst({
           where: { email: emailToCheck }
         });
 
@@ -391,7 +391,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         ...validatedData,
         username, // Set the auto-generated username from name
@@ -474,7 +474,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update user
-    const user = await prisma.user.update({
+    const user = await prisma.users.update({
       where: { id: parseInt(id) },
       data: validatedData,
       select: {
@@ -546,7 +546,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete user
-    await prisma.user.delete({
+    await prisma.users.delete({
       where: { id: parseInt(id) }
     });
 

@@ -25,10 +25,10 @@ export async function GET(request: NextRequest) {
       adminUsers,
       coordinatorUsers
     ] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { is_active: true } }),
-      prisma.user.count({ where: { role: "admin" } }),
-      prisma.user.count({ where: { role: "coordinator" } })
+      prisma.users.count(),
+      prisma.users.count({ where: { is_active: true } }),
+      prisma.users.count({ where: { role: "admin" } }),
+      prisma.users.count({ where: { role: "coordinator" } })
     ]);
 
     // BATCH 2: More user counts (3 queries)
@@ -37,9 +37,9 @@ export async function GET(request: NextRequest) {
       teacherUsers,
       viewerUsers
     ] = await Promise.all([
-      prisma.user.count({ where: { role: "mentor" } }),
-      prisma.user.count({ where: { role: "teacher" } }),
-      prisma.user.count({ where: { role: "viewer" } })
+      prisma.users.count({ where: { role: "mentor" } }),
+      prisma.users.count({ where: { role: "teacher" } }),
+      prisma.users.count({ where: { role: "viewer" } })
     ]);
 
     // BATCH 3: System resources (4 queries)
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Get recent user activities
-    const recentActivities = await prisma.user.findMany({
+    const recentActivities = await prisma.users.findMany({
       where: { is_active: true },
       include: {
         pilot_schools: {

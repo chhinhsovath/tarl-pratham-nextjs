@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user in database
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email: session.user.email },
       select: { id: true, password: true }
     });
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const hashedNewPassword = await bcrypt.hash(newPassword, 12);
 
     // Update password in database
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: user.id },
       data: { password: hashedNewPassword }
     });

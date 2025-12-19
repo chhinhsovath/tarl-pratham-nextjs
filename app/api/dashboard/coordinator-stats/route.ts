@@ -19,10 +19,10 @@ export async function GET(request: NextRequest) {
       totalUsers
     ] = await Promise.all([
       prisma.pilot_schools.count(),
-      prisma.user.count({ where: { role: 'teacher' } }),
-      prisma.user.count({ where: { role: 'mentor' } }),
-      prisma.user.count({ where: { role: 'coordinator' } }),
-      prisma.user.count({
+      prisma.users.count({ where: { role: 'teacher' } }),
+      prisma.users.count({ where: { role: 'mentor' } }),
+      prisma.users.count({ where: { role: 'coordinator' } }),
+      prisma.users.count({
         where: {
           role: { in: ['teacher', 'mentor', 'coordinator'] }
         }
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
           }
         }
       }),
-      prisma.user.count({
+      prisma.users.count({
         where: {
           role: { in: ['teacher', 'mentor'] },
           created_at: {
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
           }
         }
       }),
-      prisma.user.count({
+      prisma.users.count({
         where: {
           role: { in: ['teacher', 'mentor'] },
           created_at: {

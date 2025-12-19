@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const userId = parseInt(session.user.id);
 
     // Query unified users table
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,

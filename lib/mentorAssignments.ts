@@ -109,7 +109,7 @@ async function fetchMentorAssignedSchools(
       }),
       // Query 2: Fetch user for fallback (only if needed)
       activeOnly
-        ? prisma.user.findUnique({
+        ? prisma.users.findUnique({
             where: { id: mentorId },
             select: {
               id: true,
@@ -299,7 +299,7 @@ export async function getMentorDetailedAssignments(mentorId: number) {
 
     // Backwards compatibility
     if (assignments.length === 0) {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: mentorId },
         include: {
           pilot_school: true,

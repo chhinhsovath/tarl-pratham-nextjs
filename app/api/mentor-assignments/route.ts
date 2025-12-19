@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
     const validatedData = mentorAssignmentSchema.parse(body);
 
     // Verify mentor exists and has mentor role
-    const mentor = await prisma.user.findUnique({
+    const mentor = await prisma.users.findUnique({
       where: { id: validatedData.mentor_id }
     });
 

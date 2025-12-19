@@ -282,7 +282,7 @@ export async function POST(request: NextRequest) {
 
     // Verify teacher exists if provided
     if (validatedData.teacher_id) {
-      const teacher = await prisma.user.findFirst({
+      const teacher = await prisma.users.findFirst({
         where: { 
           id: validatedData.teacher_id,
           role: 'teacher'

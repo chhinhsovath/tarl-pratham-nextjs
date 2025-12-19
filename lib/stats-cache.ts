@@ -142,8 +142,8 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
   ] = await Promise.all([
     prisma.pilot_schools.count(),
     prisma.students.count({ where: schoolFilter }),
-    prisma.user.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
-    prisma.user.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
+    prisma.users.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
+    prisma.users.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
     prisma.assessments.count({ where: schoolFilter }),
     prisma.assessments.count({ where: { ...schoolFilter, assessment_type: 'baseline' } }),
     prisma.assessments.count({ where: { ...schoolFilter, assessment_type: 'midline' } }),

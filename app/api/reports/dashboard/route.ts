@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       }),
 
       // Total teachers count
-      prisma.user.count({
+      prisma.users.count({
         where: {
           role: 'teacher',
           ...(session.user.role === 'mentor' && session.user.pilot_school_id && {

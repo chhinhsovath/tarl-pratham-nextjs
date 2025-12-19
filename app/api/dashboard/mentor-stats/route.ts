@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get mentor's user record to find assigned pilot_school_id
-    const mentorUser = await prisma.user.findUnique({
+    const mentorUser = await prisma.users.findUnique({
       where: { id: parseInt(userId) },
       select: { pilot_school_id: true, role: true }
     });

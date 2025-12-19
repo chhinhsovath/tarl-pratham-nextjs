@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     console.log('👤 Full session user:', session.user);
 
     // Query unified users table
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId }
     });
 
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user profile in unified users table
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: userId },
       data: updateData
     });

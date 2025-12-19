@@ -137,7 +137,7 @@ export async function GET(request: NextRequest) {
 
       // Query database
       const [users, total] = await Promise.all([
-        prisma.user.findMany({
+        prisma.users.findMany({
           where,
           select: {
             id: true,
@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
           take: limit,
           orderBy: { [sortBy as string]: sortOrder },
         }),
-        prisma.user.count({ where })
+        prisma.users.count({ where })
       ]);
 
       return NextResponse.json({
@@ -259,7 +259,7 @@ export async function POST(request: NextRequest) {
       const validatedData = validation.data!;
 
       // Check for duplicate email
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.users.findUnique({
         where: { email: validatedData.email }
       });
 
@@ -277,7 +277,7 @@ export async function POST(request: NextRequest) {
       const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
       // Create user
-      const newUser = await prisma.user.create({
+      const newUser = await prisma.users.create({
         data: {
           ...validatedData,
           password: hashedPassword
@@ -358,7 +358,7 @@ export async function PUT(request: NextRequest) {
       }
 
       // Get existing user
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.users.findUnique({
         where: { id: targetUserId }
       });
 
@@ -437,7 +437,7 @@ export async function PUT(request: NextRequest) {
       }
 
       // Update user
-      const updatedUser = await prisma.user.update({
+      const updatedUser = await prisma.users.update({
         where: { id: targetUserId },
         data: validatedData,
         select: {
@@ -527,7 +527,7 @@ export async function DELETE(request: NextRequest) {
       }
 
       // Get existing user
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.users.findUnique({
         where: { id: targetUserId }
       });
 
@@ -566,7 +566,7 @@ export async function DELETE(request: NextRequest) {
       }
 
       // Delete user
-      await prisma.user.delete({
+      await prisma.users.delete({
         where: { id: targetUserId }
       });
 
