@@ -227,6 +227,13 @@ function CoordinatorWorkspaceContent() {
       path: '/assessments/verify'
     },
     {
+      title: 'ការចុះអប់រំមិនពេញលេញ',
+      icon: <WarningOutlined style={{ fontSize: 24 }} />,
+      color: '#ff4d4f',
+      description: 'បំពេញទិន្នន័យដែលបាត់សម្រាប់ការចុះអប់រំ',
+      path: '/coordinator/incomplete-visits'
+    },
+    {
       title: 'ផ្ទាំងពិនិត្យការផ្ទៀងផ្ទាត់',
       icon: <CheckCircleOutlined style={{ fontSize: 24 }} />,
       color: '#10b981',
