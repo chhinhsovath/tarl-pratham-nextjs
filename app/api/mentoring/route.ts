@@ -296,7 +296,7 @@ export async function GET(request: NextRequest) {
       prisma.mentoring_visits.findMany({
         where,
         include: {
-          mentor: {
+          users: {
             select: {
               id: true,
               name: true,
@@ -312,13 +312,6 @@ export async function GET(request: NextRequest) {
               province: true,
               district: true,
               cluster: true
-            }
-          },
-          teacher: {
-            select: {
-              id: true,
-              name: true,
-              email: true
             }
           }
         },
@@ -425,7 +418,7 @@ export async function POST(request: NextRequest) {
     const visit = await prisma.mentoring_visits.create({
       data: dbData,
       include: {
-        mentor: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -566,7 +559,7 @@ export async function PUT(request: NextRequest) {
       where: { id: parseInt(id) },
       data: updateDbData,
       include: {
-        mentor: {
+        users: {
           select: {
             id: true,
             name: true,
