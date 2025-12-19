@@ -44,12 +44,14 @@ const mentoringVisitSchema = z.object({
   numeracy_levels_observed: z.any().optional(),
   
   // Classroom Organization - Support both boolean and number (0/1)
+  // REQUIRED: At least one grouping/participation field must be provided
   students_grouped_by_level: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   children_grouped_appropriately: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   students_active_participation: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   students_fully_involved: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
 
   // Teacher Planning - Support both boolean and number (0/1)
+  // REQUIRED: Session plan information must be provided
   has_session_plan: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   followed_session_plan: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
   no_session_plan_reason: z.string().optional(),
@@ -398,6 +400,12 @@ export async function POST(request: NextRequest) {
       activity3_not_followed_reason,
       mentor_name, // Form sends this but we override with session
       session_plan_notes, // Map to lesson_plan_feedback
+      // Map form field names to database column names
+      children_grouped_appropriately,
+      students_fully_involved,
+      has_session_plan,
+      followed_session_plan,
+      session_plan_appropriate,
       ...cleanedData
     } = validatedData;
 
@@ -406,6 +414,12 @@ export async function POST(request: NextRequest) {
       mentor_id: parseInt(session.user.id),
       visit_date: new Date(validatedData.visit_date),
       lesson_plan_feedback: session_plan_notes || null, // Map session_plan_notes to lesson_plan_feedback
+      // Map form fields to correct database columns
+      students_grouped_by_level: validatedData.students_grouped_by_level || children_grouped_appropriately || null,
+      students_active_participation: validatedData.students_active_participation || students_fully_involved || null,
+      teacher_has_lesson_plan: validatedData.teacher_has_lesson_plan || has_session_plan || null,
+      followed_lesson_plan: validatedData.followed_lesson_plan || followed_session_plan || null,
+      plan_appropriate_for_levels: validatedData.plan_appropriate_for_levels || session_plan_appropriate || null,
       photos: validatedData.photos ? JSON.stringify(validatedData.photos) : null,
       grades_observed: validatedData.grades_observed ? JSON.stringify(validatedData.grades_observed) : null,
       language_levels_observed: validatedData.language_levels_observed ? JSON.stringify(validatedData.language_levels_observed) : null,
@@ -539,6 +553,12 @@ export async function PUT(request: NextRequest) {
       activity3_not_followed_reason: _activity3_not_followed,
       mentor_name: _mentor_name,
       session_plan_notes, // Map to lesson_plan_feedback
+      // Map form field names to database column names
+      children_grouped_appropriately,
+      students_fully_involved,
+      has_session_plan,
+      followed_session_plan,
+      session_plan_appropriate,
       ...cleanedUpdateData
     } = validatedData;
 
@@ -546,6 +566,12 @@ export async function PUT(request: NextRequest) {
       ...cleanedUpdateData,
       visit_date: validatedData.visit_date ? new Date(validatedData.visit_date) : undefined,
       lesson_plan_feedback: session_plan_notes || undefined, // Map session_plan_notes to lesson_plan_feedback
+      // Map form fields to correct database columns
+      students_grouped_by_level: validatedData.students_grouped_by_level !== undefined ? validatedData.students_grouped_by_level : (children_grouped_appropriately !== undefined ? children_grouped_appropriately : undefined),
+      students_active_participation: validatedData.students_active_participation !== undefined ? validatedData.students_active_participation : (students_fully_involved !== undefined ? students_fully_involved : undefined),
+      teacher_has_lesson_plan: validatedData.teacher_has_lesson_plan !== undefined ? validatedData.teacher_has_lesson_plan : (has_session_plan !== undefined ? has_session_plan : undefined),
+      followed_lesson_plan: validatedData.followed_lesson_plan !== undefined ? validatedData.followed_lesson_plan : (followed_session_plan !== undefined ? followed_session_plan : undefined),
+      plan_appropriate_for_levels: validatedData.plan_appropriate_for_levels !== undefined ? validatedData.plan_appropriate_for_levels : (session_plan_appropriate !== undefined ? session_plan_appropriate : undefined),
       photos: validatedData.photos ? JSON.stringify(validatedData.photos) : undefined,
       grades_observed: validatedData.grades_observed ? JSON.stringify(validatedData.grades_observed) : undefined,
       language_levels_observed: validatedData.language_levels_observed ? JSON.stringify(validatedData.language_levels_observed) : undefined,
