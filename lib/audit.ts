@@ -63,7 +63,7 @@ export function getUserAgent(request: NextRequest): string | null {
  */
 export async function createAuditLog(data: AuditLogData): Promise<void> {
   try {
-    await prisma.auditLog.create({
+    await prisma.audit_logs.create({
       data: {
         user_id: data.userId || null,
         user_role: data.userRole || null,
@@ -259,13 +259,13 @@ export async function getAuditLogs(filters: {
   }
 
   const [logs, total] = await Promise.all([
-    prisma.auditLog.findMany({
+    prisma.audit_logs.findMany({
       where,
       orderBy: { created_at: 'desc' },
       take: filters.limit || 50,
       skip: filters.offset || 0,
     }),
-    prisma.auditLog.count({ where }),
+    prisma.audit_logs.count({ where }),
   ]);
 
   return { logs, total };
@@ -275,7 +275,7 @@ export async function getAuditLogs(filters: {
  * Get audit statistics
  */
 export async function getAuditStats(startDate: Date, endDate: Date) {
-  const stats = await prisma.auditLog.groupBy({
+  const stats = await prisma.audit_logs.groupBy({
     by: ['action', 'resource_type', 'status'],
     where: {
       created_at: {
@@ -298,7 +298,7 @@ export async function cleanupOldAuditLogs(daysToKeep: number = 90): Promise<numb
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
-  const result = await prisma.auditLog.deleteMany({
+  const result = await prisma.audit_logs.deleteMany({
     where: {
       created_at: {
         lt: cutoffDate,

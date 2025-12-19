@@ -201,7 +201,7 @@ async function migrateMentoringVisits(dryRun: boolean, verbose: boolean): Promis
     already_migrated: 0
   };
 
-  const visits = await prisma.mentoringVisit.findMany({
+  const visits = await prisma.mentoring_visits.findMany({
     select: {
       id: true,
       is_temporary: true,
@@ -246,7 +246,7 @@ async function migrateMentoringVisits(dryRun: boolean, verbose: boolean): Promis
     }
 
     if (!dryRun && newStatus !== 'production') {
-      await prisma.mentoringVisit.update({
+      await prisma.mentoring_visits.update({
         where: { id: visit.id },
         data: {
           record_status: newStatus

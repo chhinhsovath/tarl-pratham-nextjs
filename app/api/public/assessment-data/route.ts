@@ -63,11 +63,11 @@ export async function GET(request: NextRequest) {
         where: { is_active: true }
       }),
       // Get total schools
-      prisma.pilotSchool.count(),
+      prisma.pilot_schools.count(),
       // Get total assessments across all subjects
       prisma.assessments.count(),
       // Get total mentoring visits
-      prisma.mentoringVisit.count(),
+      prisma.mentoring_visits.count(),
       // Get total unique students assessed for this subject
       prisma.assessments.findMany({
         where: {

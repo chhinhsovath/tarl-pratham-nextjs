@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
     // SHEET 3: PILOT SCHOOLS
     // ============================================
     console.log('[Export] Fetching pilot schools...');
-    const pilotSchools = await prisma.pilotSchool.findMany({
+    const pilotSchools = await prisma.pilot_schools.findMany({
       include: {
         _count: {
           select: {
@@ -380,7 +380,7 @@ export async function GET(request: NextRequest) {
     // SHEET 9: OBSERVATIONS (MENTORING VISITS)
     // ============================================
     console.log('[Export] Fetching mentoring visits...');
-    const mentoringVisits = await prisma.mentoringVisit.findMany({
+    const mentoringVisits = await prisma.mentoring_visits.findMany({
       where: {
         record_status: 'production',
       },

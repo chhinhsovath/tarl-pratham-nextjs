@@ -29,10 +29,10 @@ export async function POST(request: NextRequest) {
 
     // Get classes and pilot schools for validation
     const [classes, pilotSchools] = await Promise.all([
-      prisma.schoolClass.findMany({
+      prisma.school_classes.findMany({
         select: { id: true, name: true, school: { select: { name: true } } }
       }),
-      prisma.pilotSchool.findMany({
+      prisma.pilot_schools.findMany({
         select: { id: true, name: true, code: true }
       })
     ]);

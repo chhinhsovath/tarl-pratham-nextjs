@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [pilotSchools, total] = await Promise.all([
-      prisma.pilotSchool.findMany({
+      prisma.pilot_schools.findMany({
         where: pilotWhere,
         select: {
           id: true,
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { created_at: "desc" }
       }),
-      prisma.pilotSchool.count({ where: pilotWhere })
+      prisma.pilot_schools.count({ where: pilotWhere })
     ]);
 
     // Transform pilot_schools data to match updated API format
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
     let finalSchoolCode = schoolCode;
     let counter = 1;
     while (true) {
-      const existingSchool = await prisma.pilotSchool.findFirst({
+      const existingSchool = await prisma.pilot_schools.findFirst({
         where: { school_code: finalSchoolCode }
       });
 
@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get next available ID explicitly to avoid sequence cache issues
-    const maxId = await prisma.pilotSchool.findFirst({
+    const maxId = await prisma.pilot_schools.findFirst({
       select: { id: true },
       orderBy: { id: 'desc' }
     });
@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
 
     console.log("Creating school with auto-generated data:", JSON.stringify(createData, null, 2));
 
-    const pilotSchool = await prisma.pilotSchool.create({
+    const pilotSchool = await prisma.pilot_schools.create({
       data: createData
     });
 
@@ -281,7 +281,7 @@ export async function PUT(request: NextRequest) {
 
     // Check if school code already exists (excluding current school)
     if (updateData.code) {
-      const existingSchool = await prisma.pilotSchool.findFirst({
+      const existingSchool = await prisma.pilot_schools.findFirst({
         where: {
           school_code: updateData.code,
           id: { not: parseInt(id) }
@@ -305,7 +305,7 @@ export async function PUT(request: NextRequest) {
     if (updateData.cluster) pilotUpdateData.cluster = updateData.cluster;
 
     // Update pilot school
-    const pilotSchool = await prisma.pilotSchool.update({
+    const pilotSchool = await prisma.pilot_schools.update({
       where: { id: parseInt(id) },
       data: pilotUpdateData
     });
@@ -365,7 +365,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if pilot school exists
-    const pilotSchool = await prisma.pilotSchool.findUnique({
+    const pilotSchool = await prisma.pilot_schools.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -404,7 +404,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete pilot school (hard delete since pilot_schools doesn't have is_active)
-    await prisma.pilotSchool.delete({
+    await prisma.pilot_schools.delete({
       where: { id: parseInt(id) }
     });
 

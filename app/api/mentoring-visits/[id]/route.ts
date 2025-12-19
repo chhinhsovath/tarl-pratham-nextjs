@@ -134,7 +134,7 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
-    const mentoringVisit = await prisma.mentoringVisit.findUnique({
+    const mentoringVisit = await prisma.mentoring_visits.findUnique({
       where: { id },
       include: {
         mentor: {
@@ -203,7 +203,7 @@ export async function PUT(
     }
 
     // Check if mentoring visit exists and user has access
-    const existingMentoringVisit = await prisma.mentoringVisit.findUnique({
+    const existingMentoringVisit = await prisma.mentoring_visits.findUnique({
       where: { id }
     });
 
@@ -227,7 +227,7 @@ export async function PUT(
 
     // Verify pilot school exists if being updated
     if (validatedData.pilot_school_id) {
-      const pilotSchool = await prisma.pilotSchool.findUnique({
+      const pilotSchool = await prisma.pilot_schools.findUnique({
         where: { id: validatedData.pilot_school_id }
       });
       
@@ -257,7 +257,7 @@ export async function PUT(
     }
 
     // Update mentoring visit
-    const mentoringVisit = await prisma.mentoringVisit.update({
+    const mentoringVisit = await prisma.mentoring_visits.update({
       where: { id },
       data: {
         ...validatedData,
@@ -332,7 +332,7 @@ export async function DELETE(
     }
 
     // Check if mentoring visit exists and user has access
-    const existingMentoringVisit = await prisma.mentoringVisit.findUnique({
+    const existingMentoringVisit = await prisma.mentoring_visits.findUnique({
       where: { id }
     });
 
@@ -352,11 +352,11 @@ export async function DELETE(
     // For mentors deleting temporary mentoring visits, hard delete
     // For others, soft delete (mark as deleted status)
     if (session.user.role === 'mentor' && existingMentoringVisit.is_temporary) {
-      await prisma.mentoringVisit.delete({
+      await prisma.mentoring_visits.delete({
         where: { id }
       });
     } else {
-      await prisma.mentoringVisit.update({
+      await prisma.mentoring_visits.update({
         where: { id },
         data: { status: 'deleted' }
       });

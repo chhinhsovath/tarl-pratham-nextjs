@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const validatedData = bulkLockSchema.parse(body);
 
     // Update mentoring visits to locked status
-    const result = await prisma.mentoringVisit.updateMany({
+    const result = await prisma.mentoring_visits.updateMany({
       where: {
         id: { in: validatedData.mentoring_visit_ids },
         is_locked: false // Only lock unlocked visits

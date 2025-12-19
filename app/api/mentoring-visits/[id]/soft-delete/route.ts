@@ -45,7 +45,7 @@ export async function DELETE(
     }
 
     // Check if mentoring visit exists
-    const visit = await prisma.mentoringVisit.findUnique({
+    const visit = await prisma.mentoring_visits.findUnique({
       where: { id: visitId },
       include: {
         mentor: true,
@@ -89,7 +89,7 @@ export async function DELETE(
     console.log(`[Soft Delete] School: ${visit.pilot_schools?.school_name || 'N/A'}`);
 
     // Soft delete the mentoring visit
-    const updatedVisit = await prisma.mentoringVisit.update({
+    const updatedVisit = await prisma.mentoring_visits.update({
       where: { id: visitId },
       data: {
         record_status: 'archived',

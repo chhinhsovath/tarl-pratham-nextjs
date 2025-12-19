@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
     try {
       // PilotSchool is the correct model name (PascalCase in schema = camelCase instance)
-      schoolCount = await prisma.pilotSchool.count();
+      schoolCount = await prisma.pilot_schools.count();
     } catch (e) {
       console.error('Error counting schools:', e);
       // Fallback: try School model if PilotSchool doesn't exist

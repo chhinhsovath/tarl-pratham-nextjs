@@ -286,7 +286,7 @@ export class TeacherRepository {
       }
 
       // Get upcoming mentoring visits
-      const upcomingVisits = await prisma.mentoringVisit.findMany({
+      const upcomingVisits = await prisma.mentoring_visits.findMany({
         where: {
           teacher_id: teacher_id,
           visit_date: {

@@ -90,19 +90,19 @@ export async function POST(request: NextRequest) {
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
       prisma.students.count({ where: studentWhere }),
       prisma.assessments.count({ where: assessmentWhere }),
-      prisma.mentoringVisit.count({ where: mentoringVisitWhere })
+      prisma.mentoring_visits.count({ where: mentoringVisitWhere })
     ]);
 
     // Perform bulk deletion
     await prisma.$transaction([
       prisma.assessments.deleteMany({ where: assessmentWhere }),
       prisma.students.deleteMany({ where: studentWhere }),
-      prisma.mentoringVisit.deleteMany({ where: mentoringVisitWhere })
+      prisma.mentoring_visits.deleteMany({ where: mentoringVisitWhere })
     ]);
 
     // If deleting by session, mark session as expired
     if (test_session_id) {
-      await prisma.testSession.update({
+      await prisma.test_sessions.update({
         where: { id: test_session_id },
         data: {
           status: 'expired',

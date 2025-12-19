@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     console.log('✅ Found user:', user.name || user.username, isQuickLogin ? '(username login)' : '(email login)');
 
     // Get school details for location
-    const school = await prisma.pilotSchool.findUnique({
+    const school = await prisma.pilot_schools.findUnique({
       where: { id: parseInt(pilot_school_id) }
     });
 
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       for (const assignmentSubject of assignmentSubjects) {
         try {
           // Check if assignment already exists
-          const existingAssignment = await prisma.mentorSchoolAssignment.findFirst({
+          const existingAssignment = await prisma.mentor_school_assignments.findFirst({
             where: {
               mentor_id: userId,
               pilot_school_id: parseInt(pilot_school_id),
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
 
           if (!existingAssignment) {
             // Create new assignment
-            await prisma.mentorSchoolAssignment.create({
+            await prisma.mentor_school_assignments.create({
               data: {
                 mentor_id: userId,
                 pilot_school_id: parseInt(pilot_school_id),

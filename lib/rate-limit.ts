@@ -102,7 +102,7 @@ export async function checkRateLimit(
 
   try {
     // Check if currently blocked
-    const existing = await prisma.rateLimit.findFirst({
+    const existing = await prisma.rate_limits.findFirst({
       where: {
         identifier,
         endpoint: normalizedEndpoint,
@@ -122,7 +122,7 @@ export async function checkRateLimit(
     }
 
     // Clean up old records
-    await prisma.rateLimit.deleteMany({
+    await prisma.rate_limits.deleteMany({
       where: {
         window_start: {
           lt: windowStart,
@@ -132,7 +132,7 @@ export async function checkRateLimit(
     });
 
     // Get or create rate limit record
-    const record = await prisma.rateLimit.upsert({
+    const record = await prisma.rate_limits.upsert({
       where: {
         identifier_endpoint_window_start: {
           identifier,
@@ -158,7 +158,7 @@ export async function checkRateLimit(
       // Block the identifier
       const blockedUntil = new Date(now.getTime() + (config.blockDurationMs || 60 * 60 * 1000));
 
-      await prisma.rateLimit.update({
+      await prisma.rate_limits.update({
         where: { id: record.id },
         data: {
           blocked_until: blockedUntil,
@@ -250,7 +250,7 @@ export async function getRateLimitStatus(
   const config = getApplicableConfig(endpoint);
   const windowStart = new Date(Date.now() - config.windowMs);
 
-  const record = await prisma.rateLimit.findFirst({
+  const record = await prisma.rate_limits.findFirst({
     where: {
       identifier,
       endpoint,
@@ -285,7 +285,7 @@ export async function getRateLimitStatus(
 export async function cleanupRateLimits(): Promise<number> {
   const cutoffDate = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
 
-  const result = await prisma.rateLimit.deleteMany({
+  const result = await prisma.rate_limits.deleteMany({
     where: {
       created_at: {
         lt: cutoffDate,

@@ -48,13 +48,13 @@ export async function PUT(request: NextRequest) {
     };
 
     // Get count of schools before update
-    const totalSchools = await prisma.pilotSchool.count();
-    const lockedSchools = await prisma.pilotSchool.count({
+    const totalSchools = await prisma.pilot_schools.count();
+    const lockedSchools = await prisma.pilot_schools.count({
       where: { is_locked: true }
     });
 
     // Update ALL non-locked pilot schools with the specified dates
-    const result = await prisma.pilotSchool.updateMany({
+    const result = await prisma.pilot_schools.updateMany({
       where: {
         is_locked: false, // Only update non-locked schools
       },

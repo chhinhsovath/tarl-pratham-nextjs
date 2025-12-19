@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       where.school_id = parseInt(school_id);
     }
 
-    const schoolClasses = await prisma.schoolClass.findMany({
+    const schoolClasses = await prisma.school_classes.findMany({
       where,
       include: {
         school: {

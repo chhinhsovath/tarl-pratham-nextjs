@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const mentorId = parseInt(session.user.id);
 
     // Verify pilot school exists
-    const pilotSchool = await prisma.pilotSchool.findUnique({
+    const pilotSchool = await prisma.pilot_schools.findUnique({
       where: { id: validatedData.pilot_school_id }
     });
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     // Create a mentor assignment record if subject is provided
     if (validatedData.subject) {
       // Check if assignment already exists
-      const existingAssignment = await prisma.mentorSchoolAssignment.findFirst({
+      const existingAssignment = await prisma.mentor_school_assignments.findFirst({
         where: {
           mentor_id: mentorId,
           pilot_school_id: validatedData.pilot_school_id,
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (!existingAssignment) {
-        await prisma.mentorSchoolAssignment.create({
+        await prisma.mentor_school_assignments.create({
           data: {
             mentor_id: mentorId,
             pilot_school_id: validatedData.pilot_school_id,
@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get mentor assignments
-    const assignments = await prisma.mentorSchoolAssignment.findMany({
+    const assignments = await prisma.mentor_school_assignments.findMany({
       where: {
         mentor_id: mentorId,
         is_active: true

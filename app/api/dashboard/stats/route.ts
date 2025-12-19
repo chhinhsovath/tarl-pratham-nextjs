@@ -15,8 +15,8 @@ export async function GET(request: Request) {
     const [totalStudents, totalAssessments, totalSchools, totalMentoringVisits] = await Promise.all([
       prisma.students.count().catch(() => 0),
       prisma.assessments.count().catch(() => 0),
-      prisma.pilotSchool.count().catch(() => 0),
-      prisma.mentoringVisit.count().catch(() => 0)
+      prisma.pilot_schools.count().catch(() => 0),
+      prisma.mentoring_visits.count().catch(() => 0)
     ]);
 
     return NextResponse.json({

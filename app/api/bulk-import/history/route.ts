@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     // Admins see all imports (no filter)
 
     // Fetch bulk import records
-    const imports = await prisma.bulkImport.findMany({
+    const imports = await prisma.bulk_imports.findMany({
       where: whereFilter,
       take: limit,
       orderBy: { created_at: 'desc' },

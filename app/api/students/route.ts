@@ -359,7 +359,7 @@ export async function POST(request: NextRequest) {
     let testSessionId = null;
     if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
       try {
-        const activeSession = await prisma.testSession.findFirst({
+        const activeSession = await prisma.test_sessions.findFirst({
           where: {
             user_id: parseInt(session.user.id),
             status: 'active'
@@ -376,7 +376,7 @@ export async function POST(request: NextRequest) {
 
     // Verify school class exists if provided
     if (validatedData.school_class_id) {
-      const schoolClass = await prisma.schoolClass.findUnique({
+      const schoolClass = await prisma.school_classes.findUnique({
         where: { id: validatedData.school_class_id }
       });
       
@@ -390,7 +390,7 @@ export async function POST(request: NextRequest) {
 
     // Verify pilot school exists if provided
     if (validatedData.pilot_school_id) {
-      const pilotSchool = await prisma.pilotSchool.findUnique({
+      const pilotSchool = await prisma.pilot_schools.findUnique({
         where: { id: validatedData.pilot_school_id }
       });
       
@@ -560,7 +560,7 @@ export async function PUT(request: NextRequest) {
 
     // Verify school class exists if being updated
     if (validatedData.school_class_id) {
-      const schoolClass = await prisma.schoolClass.findUnique({
+      const schoolClass = await prisma.school_classes.findUnique({
         where: { id: validatedData.school_class_id }
       });
       

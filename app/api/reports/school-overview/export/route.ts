@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     const headers = HEADERS[lang as 'km' | 'en'];
 
     // OPTIMIZED: Fetch schools with all related data in efficient batches
-    const schools = await prisma.pilotSchool.findMany({
+    const schools = await prisma.pilot_schools.findMany({
       select: {
         id: true,
         school_name: true,
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
     });
 
     // BATCH 5: Mentoring visits per school (1 query)
-    const mentoringVisitCounts = await prisma.mentoringVisit.groupBy({
+    const mentoringVisitCounts = await prisma.mentoring_visits.groupBy({
       by: ['pilot_school_id'],
       where: { pilot_school_id: { in: schoolIds } },
       _count: { id: true }

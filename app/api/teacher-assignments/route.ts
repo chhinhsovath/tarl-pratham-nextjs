@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify school exists
-    const school = await prisma.pilotSchool.findUnique({
+    const school = await prisma.pilot_schools.findUnique({
       where: { id: validatedData.pilot_school_id }
     });
 

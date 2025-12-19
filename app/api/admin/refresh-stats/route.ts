@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const freshStats = await calculateAllStats();
 
     // Store in cache table
-    await prisma.dashboardStats.upsert({
+    await prisma.dashboard_stats.upsert({
       where: { cache_key: 'global' },
       create: {
         cache_key: 'global',
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const cached = await prisma.dashboardStats.findUnique({
+    const cached = await prisma.dashboard_stats.findUnique({
       where: { cache_key: 'global' },
       select: {
         last_updated: true,
@@ -148,7 +148,7 @@ async function calculateAllStats() {
     midline_assessments,
     endline_assessments,
   ] = await Promise.all([
-    prisma.pilotSchool.count(),
+    prisma.pilot_schools.count(),
     prisma.students.count({ where: schoolFilter }),
     prisma.user.count({ where: { role: 'teacher', is_active: true } }),
     prisma.user.count({ where: { role: 'mentor', is_active: true } }),

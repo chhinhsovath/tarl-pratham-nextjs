@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const visits = await prisma.mentoringVisit.findMany({
+    const visits = await prisma.mentoring_visits.findMany({
       where,
       include: {
         mentor: {

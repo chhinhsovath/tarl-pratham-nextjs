@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid class ID' }, { status: 400 });
     }
 
-    const schoolClass = await prisma.schoolClass.findUnique({
+    const schoolClass = await prisma.school_classes.findUnique({
       where: { id: classId },
       include: {
         school: {
@@ -78,7 +78,7 @@ export async function PUT(
     } = body;
 
     // Check if class exists
-    const existingClass = await prisma.schoolClass.findUnique({
+    const existingClass = await prisma.school_classes.findUnique({
       where: { id: classId }
     });
 
@@ -87,7 +87,7 @@ export async function PUT(
     }
 
     // Update class
-    const updatedClass = await prisma.schoolClass.update({
+    const updatedClass = await prisma.school_classes.update({
       where: { id: classId },
       data: {
         name: name || existingClass.name,
@@ -137,7 +137,7 @@ export async function DELETE(
     }
 
     // Check if class exists
-    const existingClass = await prisma.schoolClass.findUnique({
+    const existingClass = await prisma.school_classes.findUnique({
       where: { id: classId },
       include: {
         students: { select: { id: true } }
@@ -157,7 +157,7 @@ export async function DELETE(
     }
 
     // Delete class
-    await prisma.schoolClass.delete({
+    await prisma.school_classes.delete({
       where: { id: classId }
     });
 

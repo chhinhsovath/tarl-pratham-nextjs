@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
       prisma.students.count({ where: studentWhere }),
       prisma.assessments.count({ where: assessmentWhere }),
-      prisma.mentoringVisit.count({ where: mentoringVisitWhere })
+      prisma.mentoring_visits.count({ where: mentoringVisitWhere })
     ]);
 
     if (studentCount === 0 && assessmentCount === 0 && mentoringVisitCount === 0) {
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
 
     // If promoting by session, mark session as completed
     if (test_session_id) {
-      await prisma.testSession.update({
+      await prisma.test_sessions.update({
         where: { id: test_session_id },
         data: {
           status: 'completed',
@@ -276,7 +276,7 @@ export async function GET(request: NextRequest) {
         },
         take: 100
       }),
-      prisma.mentoringVisit.findMany({
+      prisma.mentoring_visits.findMany({
         where: mentoringVisitWhere,
         select: {
           id: true,
@@ -295,7 +295,7 @@ export async function GET(request: NextRequest) {
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
       prisma.students.count({ where: studentWhere }),
       prisma.assessments.count({ where: assessmentWhere }),
-      prisma.mentoringVisit.count({ where: mentoringVisitWhere })
+      prisma.mentoring_visits.count({ where: mentoringVisitWhere })
     ]);
 
     return NextResponse.json({

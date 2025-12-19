@@ -27,7 +27,7 @@ export async function POST(
     const { action = 'archive' } = body; // 'archive' or 'delete'
 
     // Get the test session
-    const testSession = await prisma.testSession.findUnique({
+    const testSession = await prisma.test_sessions.findUnique({
       where: { id: sessionId }
     });
 
@@ -55,7 +55,7 @@ export async function POST(
       prisma.assessments.count({
         where: { test_session_id: sessionId }
       }),
-      prisma.mentoringVisit.count({
+      prisma.mentoring_visits.count({
         where: { test_session_id: sessionId }
       })
     ]);
@@ -69,10 +69,10 @@ export async function POST(
         prisma.students.deleteMany({
           where: { test_session_id: sessionId }
         }),
-        prisma.mentoringVisit.deleteMany({
+        prisma.mentoring_visits.deleteMany({
           where: { test_session_id: sessionId }
         }),
-        prisma.testSession.update({
+        prisma.test_sessions.update({
           where: { id: sessionId },
           data: {
             status: 'expired',
@@ -108,11 +108,11 @@ export async function POST(
           where: { test_session_id: sessionId },
           data: { record_status: 'archived' }
         }),
-        prisma.mentoringVisit.updateMany({
+        prisma.mentoring_visits.updateMany({
           where: { test_session_id: sessionId },
           data: { record_status: 'archived' }
         }),
-        prisma.testSession.update({
+        prisma.test_sessions.update({
           where: { id: sessionId },
           data: { status: 'archived' }
         })

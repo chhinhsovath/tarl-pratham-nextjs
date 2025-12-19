@@ -88,7 +88,7 @@ async function fetchMentorAssignedSchools(
     // ✅ OPTIMIZATION: Batch fetch mentor data with minimal fields
     const [assignments, user] = await Promise.all([
       // Query 1: Check explicit assignments
-      prisma.mentorSchoolAssignment.findMany({
+      prisma.mentor_school_assignments.findMany({
         where: {
           mentor_id: mentorId,
           ...(activeOnly && { is_active: true }),
@@ -268,7 +268,7 @@ export async function getMentorSchoolsWhereClause(
  */
 export async function getMentorDetailedAssignments(mentorId: number) {
   try {
-    const assignments = await prisma.mentorSchoolAssignment.findMany({
+    const assignments = await prisma.mentor_school_assignments.findMany({
       where: {
         mentor_id: mentorId,
         is_active: true,

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       totalCoordinators,
       totalUsers
     ] = await Promise.all([
-      prisma.pilotSchool.count(),
+      prisma.pilot_schools.count(),
       prisma.user.count({ where: { role: 'teacher' } }),
       prisma.user.count({ where: { role: 'mentor' } }),
       prisma.user.count({ where: { role: 'coordinator' } }),
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       schoolsToday,
       usersToday
     ] = await Promise.all([
-      prisma.pilotSchool.count({
+      prisma.pilot_schools.count({
         where: {
           created_at: {
             gte: startOfMonth
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
           }
         }
       }),
-      prisma.pilotSchool.count({
+      prisma.pilot_schools.count({
         where: {
           created_at: {
             gte: startOfToday

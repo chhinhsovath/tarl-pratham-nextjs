@@ -38,7 +38,7 @@ export async function getCoordinatorStats(): Promise<CoordinatorStatsData> {
 
   try {
     // Try to get cached stats
-    const cached = await prisma.dashboardStats.findUnique({
+    const cached = await prisma.dashboard_stats.findUnique({
       where: { cache_key: cacheKey }
     });
 
@@ -79,7 +79,7 @@ export async function getCoordinatorStats(): Promise<CoordinatorStatsData> {
       // Separate scalar fields from complex data (charts)
       const { by_level, overall_results_khmer, overall_results_math, ...scalarStats } = freshStats;
 
-      await prisma.dashboardStats.upsert({
+      await prisma.dashboard_stats.upsert({
         where: { cache_key: cacheKey },
         create: {
           cache_key: cacheKey,
@@ -140,7 +140,7 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
     midline_assessments,
     endline_assessments,
   ] = await Promise.all([
-    prisma.pilotSchool.count(),
+    prisma.pilot_schools.count(),
     prisma.students.count({ where: schoolFilter }),
     prisma.user.count({ where: { ...userFilter, role: 'teacher', is_active: true } }),
     prisma.user.count({ where: { ...userFilter, role: 'mentor', is_active: true } }),
@@ -270,7 +270,7 @@ async function calculateCoordinatorStats(): Promise<CoordinatorStatsData> {
  */
 export async function invalidateStatsCache(cacheKey: string = 'global'): Promise<void> {
   try {
-    await prisma.dashboardStats.delete({
+    await prisma.dashboard_stats.delete({
       where: { cache_key: cacheKey }
     });
     console.log(`[STATS CACHE] Invalidated cache for key: ${cacheKey}`);

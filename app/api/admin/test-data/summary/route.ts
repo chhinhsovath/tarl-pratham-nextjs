@@ -51,7 +51,7 @@ export async function GET() {
       }
     });
 
-    const mentoringVisitCounts = await prisma.mentoringVisit.groupBy({
+    const mentoringVisitCounts = await prisma.mentoring_visits.groupBy({
       by: ['record_status'],
       _count: {
         id: true

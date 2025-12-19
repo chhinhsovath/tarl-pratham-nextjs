@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 1: Find or create a School entry from pilot_school
-    const pilotSchool = await prisma.pilotSchool.findUnique({
+    const pilotSchool = await prisma.pilot_schools.findUnique({
       where: { id: pilot_school_id }
     });
 
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     // Step 2: Find or create the class
     const finalClassName = class_name || `ថ្នាក់ទី${grade}`;
 
-    let schoolClass = await prisma.schoolClass.findFirst({
+    let schoolClass = await prisma.school_classes.findFirst({
       where: {
         school_id: school.id,
         grade: grade,
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     if (!schoolClass) {
       // Create the class if it doesn't exist
-      schoolClass = await prisma.schoolClass.create({
+      schoolClass = await prisma.school_classes.create({
         data: {
           school_id: school.id,
           name: finalClassName,
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    await prisma.schoolClass.update({
+    await prisma.school_classes.update({
       where: { id: schoolClass.id },
       data: { student_count: newStudentCount }
     });

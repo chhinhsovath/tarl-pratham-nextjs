@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Step 1: Get all matching schools for filtering (by assignment status)
-    const allSchools = await prisma.pilotSchool.findMany({
+    const allSchools = await prisma.pilot_schools.findMany({
       where: schoolWhere,
       select: { id: true },
     });
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     // Step 2: Get ALL mentor and teacher assignments (filtered by schoolIds in-memory)
     // This is more efficient than querying all assignments system-wide
     const [mentorAssignments, teacherAssignments] = await Promise.all([
-      prisma.mentorSchoolAssignment.findMany({
+      prisma.mentor_school_assignments.findMany({
         where: {
           is_active: true,
           pilot_school_id: { in: allSchoolIds }
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
     // Step 5: Get paginated schools with all details
     const paginatedSchoolIds = filteredSchoolIds.slice(skip, skip + limit);
 
-    const schools = await prisma.pilotSchool.findMany({
+    const schools = await prisma.pilot_schools.findMany({
       where: {
         id: { in: paginatedSchoolIds }
       },

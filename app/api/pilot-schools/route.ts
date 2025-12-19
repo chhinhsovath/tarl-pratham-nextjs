@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     const validatedData = pilotSchoolSchema.parse(body);
 
     // Check if school code already exists
-    const existingSchool = await prisma.pilotSchool.findUnique({
+    const existingSchool = await prisma.pilot_schools.findUnique({
       where: { school_code: validatedData.school_code }
     });
 
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create pilot school
-    const school = await prisma.pilotSchool.create({
+    const school = await prisma.pilot_schools.create({
       data: {
         province: validatedData.province,
         district: validatedData.district,
@@ -197,7 +197,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if school exists
-    const existingSchool = await prisma.pilotSchool.findUnique({
+    const existingSchool = await prisma.pilot_schools.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -210,7 +210,7 @@ export async function PUT(request: NextRequest) {
 
     // If school_code is being updated, check for duplicates
     if (updateData.school_code && updateData.school_code !== existingSchool.school_code) {
-      const duplicate = await prisma.pilotSchool.findUnique({
+      const duplicate = await prisma.pilot_schools.findUnique({
         where: { school_code: updateData.school_code }
       });
 
@@ -254,7 +254,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update pilot school
-    const updatedSchool = await prisma.pilotSchool.update({
+    const updatedSchool = await prisma.pilot_schools.update({
       where: { id: parseInt(id) },
       data: dataToUpdate
     });
@@ -309,7 +309,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if school exists
-    const existingSchool = await prisma.pilotSchool.findUnique({
+    const existingSchool = await prisma.pilot_schools.findUnique({
       where: { id: parseInt(id) },
       include: {
         students: { take: 1 },
@@ -345,7 +345,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete pilot school
-    await prisma.pilotSchool.delete({
+    await prisma.pilot_schools.delete({
       where: { id: parseInt(id) }
     });
 

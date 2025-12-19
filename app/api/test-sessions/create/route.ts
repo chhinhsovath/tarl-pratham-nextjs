@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const userId = parseInt(session.user.id);
 
     // Check if user already has an active session
-    const existingSession = await prisma.testSession.findFirst({
+    const existingSession = await prisma.test_sessions.findFirst({
       where: {
         user_id: userId,
         status: 'active'
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new test session
-    const testSession = await prisma.testSession.create({
+    const testSession = await prisma.test_sessions.create({
       data: {
         id: uuidv4(),
         user_id: userId,

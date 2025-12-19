@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     // Get basic statistics - Prisma connects automatically on first query
     const [userCount, schoolCount, studentCount, assessmentCount] = await Promise.all([
       prisma.user.count(),
-      prisma.pilotSchool.count(),
+      prisma.pilot_schools.count(),
       prisma.students.count(),
       prisma.assessments.count(),
     ]);
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const database = match ? match[3] : 'unknown';
 
     // Get sample school to verify data access
-    const sampleSchool = await prisma.pilotSchool.findFirst({
+    const sampleSchool = await prisma.pilot_schools.findFirst({
       select: {
         id: true,
         school_name: true,

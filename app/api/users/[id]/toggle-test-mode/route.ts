@@ -77,7 +77,7 @@ export async function POST(
 
     // If enabling test mode, check if user already has an active test session
     if (enabled) {
-      const activeSession = await prisma.testSession.findFirst({
+      const activeSession = await prisma.test_sessions.findFirst({
         where: {
           user_id: userId,
           status: 'active'
@@ -121,7 +121,7 @@ export async function POST(
             record_status: 'test_teacher'
           }
         }),
-        prisma.mentoringVisit.count({
+        prisma.mentoring_visits.count({
           where: {
             mentor_id: userId,
             record_status: 'test_teacher'
@@ -227,7 +227,7 @@ export async function GET(
     }
 
     // Get active test session if exists
-    const activeSession = await prisma.testSession.findFirst({
+    const activeSession = await prisma.test_sessions.findFirst({
       where: {
         user_id: userId,
         status: 'active'
@@ -248,7 +248,7 @@ export async function GET(
           record_status: user.role === 'mentor' ? 'test_mentor' : 'test_teacher'
         }
       }),
-      prisma.mentoringVisit.count({
+      prisma.mentoring_visits.count({
         where: {
           mentor_id: userId,
           record_status: user.role === 'mentor' ? 'test_mentor' : 'test_teacher'

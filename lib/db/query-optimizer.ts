@@ -113,7 +113,7 @@ export async function batchFetchAssessmentsByStudents(
 export async function batchFetchMentorAssignments(mentorIds: number[]) {
   if (mentorIds.length === 0) return [];
 
-  return prisma.mentorSchoolAssignment.findMany({
+  return prisma.mentor_school_assignments.findMany({
     where: { mentor_id: { in: mentorIds } },
     select: {
       mentor_id: true,

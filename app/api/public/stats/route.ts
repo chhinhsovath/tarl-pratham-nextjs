@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     console.log('[PUBLIC STATS] Fetching stats for unauthenticated homepage');
 
     // READ FROM CACHE (1 simple query - NO expensive calculations)
-    const cached = await prisma.dashboardStats.findUnique({
+    const cached = await prisma.dashboard_stats.findUnique({
       where: { cache_key: 'global' },
     });
 

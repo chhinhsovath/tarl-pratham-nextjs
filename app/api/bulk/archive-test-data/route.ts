@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const [studentCount, assessmentCount, mentoringVisitCount] = await Promise.all([
       prisma.students.count({ where: studentWhere }),
       prisma.assessments.count({ where: assessmentWhere }),
-      prisma.mentoringVisit.count({ where: mentoringVisitWhere })
+      prisma.mentoring_visits.count({ where: mentoringVisitWhere })
     ]);
 
     // Perform bulk archiving
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
           record_status: 'archived'
         }
       }),
-      prisma.mentoringVisit.updateMany({
+      prisma.mentoring_visits.updateMany({
         where: mentoringVisitWhere,
         data: {
           record_status: 'archived'
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     // If archiving by session, mark session as archived
     if (test_session_id) {
-      await prisma.testSession.update({
+      await prisma.test_sessions.update({
         where: { id: test_session_id },
         data: { status: 'archived' }
       });

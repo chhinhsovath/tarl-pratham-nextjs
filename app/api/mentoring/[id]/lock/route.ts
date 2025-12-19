@@ -27,7 +27,7 @@ export async function POST(
     }
 
     // Check if visit exists
-    const existingVisit = await prisma.mentoringVisit.findUnique({
+    const existingVisit = await prisma.mentoring_visits.findUnique({
       where: { id: visitId }
     });
 
@@ -40,7 +40,7 @@ export async function POST(
     }
 
     // Lock the visit
-    const visit = await prisma.mentoringVisit.update({
+    const visit = await prisma.mentoring_visits.update({
       where: { id: visitId },
       data: {
         is_locked: true,
@@ -119,7 +119,7 @@ export async function DELETE(
     }
 
     // Check if visit exists
-    const existingVisit = await prisma.mentoringVisit.findUnique({
+    const existingVisit = await prisma.mentoring_visits.findUnique({
       where: { id: visitId }
     });
 
@@ -132,7 +132,7 @@ export async function DELETE(
     }
 
     // Unlock the visit
-    const visit = await prisma.mentoringVisit.update({
+    const visit = await prisma.mentoring_visits.update({
       where: { id: visitId },
       data: {
         is_locked: false,

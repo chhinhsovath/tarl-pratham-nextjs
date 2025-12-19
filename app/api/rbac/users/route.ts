@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
 
     // Get filter options
     const [schools, roles] = await Promise.all([
-      prisma.pilotSchool.findMany({
+      prisma.pilot_schools.findMany({
         select: { id: true, school_name: true },
         orderBy: { school_name: 'asc' },
         take: 100 // Limit schools list to prevent unbounded query

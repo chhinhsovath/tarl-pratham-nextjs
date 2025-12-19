@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
       totalMentoringVisits,
       atRiskStudents
     ] = await Promise.all([
-      prisma.pilotSchool.count(),
-      prisma.mentoringVisit.count(),
+      prisma.pilot_schools.count(),
+      prisma.mentoring_visits.count(),
       prisma.students.count({
         where: {
           OR: [
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         where: { subject: 'Math' },
         _count: { id: true }
       }),
-      prisma.pilotSchool.groupBy({
+      prisma.pilot_schools.groupBy({
         by: ['province'],
         _count: { id: true }
       })

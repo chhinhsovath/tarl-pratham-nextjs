@@ -42,7 +42,7 @@ export async function isIpWhitelisted(
 
   try {
     // Check if IP is in whitelist
-    const whitelist = await prisma.ipWhitelist.findFirst({
+    const whitelist = await prisma.ip_whitelist.findFirst({
       where: {
         ip_address: clientIp,
         is_active: true,
@@ -85,7 +85,7 @@ export async function addToWhitelist(
   allowedRoles: string[],
   addedBy: number
 ): Promise<void> {
-  await prisma.ipWhitelist.create({
+  await prisma.ip_whitelist.create({
     data: {
       ip_address: ipAddress,
       description,
@@ -100,7 +100,7 @@ export async function addToWhitelist(
  * Remove IP from whitelist
  */
 export async function removeFromWhitelist(ipAddress: string): Promise<void> {
-  await prisma.ipWhitelist.update({
+  await prisma.ip_whitelist.update({
     where: { ip_address: ipAddress },
     data: { is_active: false },
   });
@@ -110,7 +110,7 @@ export async function removeFromWhitelist(ipAddress: string): Promise<void> {
  * Get all whitelisted IPs
  */
 export async function getWhitelistedIps() {
-  return prisma.ipWhitelist.findMany({
+  return prisma.ip_whitelist.findMany({
     where: { is_active: true },
     orderBy: { created_at: 'desc' },
   });
@@ -126,7 +126,7 @@ export async function checkSuspiciousActivity(
   const since = new Date(Date.now() - lookbackHours * 60 * 60 * 1000);
 
   // Check audit logs for denied access attempts
-  const deniedAttempts = await prisma.auditLog.count({
+  const deniedAttempts = await prisma.audit_logs.count({
     where: {
       ip_address: ipAddress,
       status: 'denied',

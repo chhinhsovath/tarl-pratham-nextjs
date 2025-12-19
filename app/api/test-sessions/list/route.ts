@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     // Get sessions with pagination
     const [sessions, total] = await Promise.all([
-      prisma.testSession.findMany({
+      prisma.test_sessions.findMany({
         where,
         orderBy: [
           { status: 'asc' }, // Active first
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit
       }),
-      prisma.testSession.count({ where })
+      prisma.test_sessions.count({ where })
     ]);
 
     return NextResponse.json({

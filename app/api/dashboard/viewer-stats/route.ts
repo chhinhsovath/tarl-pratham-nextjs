@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       totalAssessments
     ] = await Promise.all([
       prisma.students.count(),
-      prisma.pilotSchool.count(),
+      prisma.pilot_schools.count(),
       prisma.assessments.count()
     ]);
 

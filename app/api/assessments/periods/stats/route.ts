@@ -16,10 +16,10 @@ export async function GET(request: NextRequest) {
     today.setHours(0, 0, 0, 0); // Set to start of day for consistent comparison
 
     // Count total schools
-    const total_schools = await prisma.pilotSchool.count();
+    const total_schools = await prisma.pilot_schools.count();
 
     // Count schools with active baseline period
-    const baseline_active = await prisma.pilotSchool.count({
+    const baseline_active = await prisma.pilot_schools.count({
       where: {
         AND: [
           { baseline_start_date: { lte: today } },
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Count schools with active midline period
-    const midline_active = await prisma.pilotSchool.count({
+    const midline_active = await prisma.pilot_schools.count({
       where: {
         AND: [
           { midline_start_date: { lte: today } },
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Count schools with active endline period
-    const endline_active = await prisma.pilotSchool.count({
+    const endline_active = await prisma.pilot_schools.count({
       where: {
         AND: [
           { endline_start_date: { lte: today } },
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Count locked schools
-    const locked_schools = await prisma.pilotSchool.count({
+    const locked_schools = await prisma.pilot_schools.count({
       where: { is_locked: true },
     });
 

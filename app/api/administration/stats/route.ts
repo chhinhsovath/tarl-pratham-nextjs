@@ -28,10 +28,10 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { is_active: true } }),
-      prisma.pilotSchool.count(),
+      prisma.pilot_schools.count(),
       prisma.students.count(),
       prisma.assessments.count(),
-      prisma.mentoringVisit.count()
+      prisma.mentoring_visits.count()
     ]);
 
     const stats = {

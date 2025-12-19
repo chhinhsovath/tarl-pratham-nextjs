@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       prisma.assessments.count({ where: baseWhere }),
 
       // Total schools count
-      prisma.pilotSchool.count({
+      prisma.pilot_schools.count({
         where: {
           is_active: true,
           ...(session.user.role === 'mentor' && session.user.pilot_school_id && {
@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
     // 4. School Comparison (only for admin/coordinator)
     let schoolComparison: any[] = [];
     if (['admin', 'coordinator'].includes(session.user.role)) {
-      const schools = await prisma.pilotSchool.findMany({
+      const schools = await prisma.pilot_schools.findMany({
         where: {
           is_active: true,
           ...(school_id && { id: parseInt(school_id) })

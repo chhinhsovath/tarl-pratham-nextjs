@@ -26,7 +26,7 @@ export interface StandardSchool {
  */
 export async function getAllPilotSchools(): Promise<StandardSchool[]> {
   try {
-    const schools = await prisma.pilotSchool.findMany({
+    const schools = await prisma.pilot_schools.findMany({
       orderBy: { school_name: "asc" }
     });
 
@@ -56,7 +56,7 @@ export async function getAllPilotSchools(): Promise<StandardSchool[]> {
  */
 export async function getPilotSchoolById(id: number): Promise<StandardSchool | null> {
   try {
-    const school = await prisma.pilotSchool.findUnique({
+    const school = await prisma.pilot_schools.findUnique({
       where: { id }
     });
 
@@ -82,7 +82,7 @@ export async function getPilotSchoolById(id: number): Promise<StandardSchool | n
  */
 export async function searchPilotSchools(query: string): Promise<StandardSchool[]> {
   try {
-    const schools = await prisma.pilotSchool.findMany({
+    const schools = await prisma.pilot_schools.findMany({
       where: {
         OR: [
           { school_name: { contains: query, mode: "insensitive" } },

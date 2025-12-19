@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [mentoringVisits, total] = await Promise.all([
-      prisma.mentoringVisit.findMany({
+      prisma.mentoring_visits.findMany({
         where,
         include: {
           mentor: {
@@ -193,7 +193,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { visit_date: 'desc' }
       }),
-      prisma.mentoringVisit.count({ where })
+      prisma.mentoring_visits.count({ where })
     ]);
 
     return NextResponse.json({
@@ -244,7 +244,7 @@ export async function POST(request: NextRequest) {
                         'production';
 
     if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
-      const activeSession = await prisma.testSession.findFirst({
+      const activeSession = await prisma.test_sessions.findFirst({
         where: {
           user_id: parseInt(session.user.id),
           status: 'active'
@@ -268,7 +268,7 @@ export async function POST(request: NextRequest) {
 
     // Verify pilot school exists
     if (validatedData.pilot_school_id) {
-      const pilotSchool = await prisma.pilotSchool.findUnique({
+      const pilotSchool = await prisma.pilot_schools.findUnique({
         where: { id: validatedData.pilot_school_id }
       });
       
@@ -298,7 +298,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create mentoring visit
-    const mentoringVisit = await prisma.mentoringVisit.create({
+    const mentoringVisit = await prisma.mentoring_visits.create({
       data: mentorData,
       include: {
         mentor: {

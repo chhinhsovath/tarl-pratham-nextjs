@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
           added_by_id: mentorId
         }
       }),
-      prisma.mentoringVisit.count({
+      prisma.mentoring_visits.count({
         where: {
           record_status: 'test_mentor',
           mentor_id: mentorId
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         orderBy: { created_at: 'asc' },
         take: 1
       }),
-      prisma.testSession.findMany({
+      prisma.test_sessions.findMany({
         where: {
           user_id: mentorId,
           status: 'active'

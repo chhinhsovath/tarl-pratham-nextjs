@@ -27,7 +27,7 @@ export async function GET(
       );
     }
 
-    const school = await prisma.pilotSchool.findUnique({
+    const school = await prisma.pilot_schools.findUnique({
       where: { id: schoolId },
       select: {
         id: true,
@@ -119,7 +119,7 @@ export async function PUT(
 
     // Update the school - ONLY allow editing name and province
     // school_code, district, cluster are auto-managed and should not be changed
-    const updatedSchool = await prisma.pilotSchool.update({
+    const updatedSchool = await prisma.pilot_schools.update({
       where: { id: schoolId },
       data: {
         school_name: body.school_name.trim(),
@@ -176,7 +176,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.pilotSchool.delete({
+    await prisma.pilot_schools.delete({
       where: { id: schoolId },
     });
 

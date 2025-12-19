@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
           added_by_id: mentorId
         }
       }),
-      prisma.mentoringVisit.count({
+      prisma.mentoring_visits.count({
         where: {
           record_status: 'test_mentor',
           mentor_id: mentorId
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       }),
 
       // 3. Delete mentoring visits
-      prisma.mentoringVisit.deleteMany({
+      prisma.mentoring_visits.deleteMany({
         where: {
           record_status: 'test_mentor',
           mentor_id: mentorId

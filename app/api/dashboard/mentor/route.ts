@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 
     // Get recent mentoring visits across all schools
     const recentVisits = schoolIds.length > 0
-      ? await prisma.mentoringVisit.findMany({
+      ? await prisma.mentoring_visits.findMany({
           where: {
             OR: [
               { pilot_school_id: { in: schoolIds } },

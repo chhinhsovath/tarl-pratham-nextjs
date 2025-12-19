@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const mentoringVisits = await prisma.mentoringVisit.findMany({
+    const mentoringVisits = await prisma.mentoring_visits.findMany({
       where,
       include: {
         mentor: {

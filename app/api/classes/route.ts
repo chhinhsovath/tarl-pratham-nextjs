@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Get classes with pagination
     const [classes, total] = await Promise.all([
-      prisma.schoolClass.findMany({
+      prisma.school_classes.findMany({
         where,
         include: {
           school: {
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit
       }),
-      prisma.schoolClass.count({ where })
+      prisma.school_classes.count({ where })
     ]);
 
     // Add student count to each class
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if class already exists for this school and grade
-    const existingClass = await prisma.schoolClass.findFirst({
+    const existingClass = await prisma.school_classes.findFirst({
       where: {
         school_id,
         name,
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create class
-    const schoolClass = await prisma.schoolClass.create({
+    const schoolClass = await prisma.school_classes.create({
       data: {
         school_id,
         name,

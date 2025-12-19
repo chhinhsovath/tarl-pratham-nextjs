@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { is_active: true } }),
-      prisma.pilotSchool.count(),
+      prisma.pilot_schools.count(),
       prisma.students.count({ where: { is_active: true } }),
       prisma.assessments.count(),
     ]);
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       midline_active,
       endline_active,
     ] = await Promise.all([
-      prisma.pilotSchool.count({
+      prisma.pilot_schools.count({
         where: {
           baseline_start_date: { not: null },
           baseline_end_date: { not: null },
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
           ],
         },
       }),
-      prisma.pilotSchool.count({
+      prisma.pilot_schools.count({
         where: {
           midline_start_date: { not: null },
           midline_end_date: { not: null },
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
           ],
         },
       }),
-      prisma.pilotSchool.count({
+      prisma.pilot_schools.count({
         where: {
           endline_start_date: { not: null },
           endline_end_date: { not: null },

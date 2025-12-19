@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
       ] = await Promise.all([
         prisma.students.count({ where: { is_active: true } }),
         prisma.assessments.count(),
-        prisma.pilotSchool.count(),
-        prisma.mentoringVisit.count(),
+        prisma.pilot_schools.count(),
+        prisma.mentoring_visits.count(),
         prisma.user.count({ where: { role: 'teacher', is_active: true } }),
         prisma.user.count({ where: { role: 'mentor', is_active: true } }),
         prisma.assessments.count({ where: { assessment_type: 'baseline' } }),

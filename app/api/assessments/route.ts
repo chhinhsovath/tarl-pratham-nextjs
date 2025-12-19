@@ -348,7 +348,7 @@ export async function POST(request: NextRequest) {
                         'production';
 
     if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
-      const activeSession = await prisma.testSession.findFirst({
+      const activeSession = await prisma.test_sessions.findFirst({
         where: {
           user_id: parseInt(session.user.id),
           status: 'active'
@@ -522,7 +522,7 @@ async function handleBulkAssessment(body: any, session: any) {
                         'production';
 
     if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
-      const activeSession = await prisma.testSession.findFirst({
+      const activeSession = await prisma.test_sessions.findFirst({
         where: {
           user_id: parseInt(session.user.id),
           status: 'active'

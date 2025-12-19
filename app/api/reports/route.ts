@@ -118,7 +118,7 @@ async function getOverviewReport(baseFilters: any, params: any) {
   ] = await Promise.all([
     prisma.students.count({ where: whereStudent }),
     prisma.assessments.count({ where: whereAssessment }),
-    prisma.mentoringVisit.count({ where: whereMentoring }),
+    prisma.mentoring_visits.count({ where: whereMentoring }),
     prisma.students.groupBy({
       by: ['gender'],
       where: whereStudent,
@@ -342,7 +342,7 @@ async function getMentorActivityReport(baseFilters: any, params: any) {
     mentorStats,
     temporaryStudents
   ] = await Promise.all([
-    prisma.mentoringVisit.findMany({
+    prisma.mentoring_visits.findMany({
       where: whereMentoring,
       include: {
         mentor: { select: { name: true, email: true } },
@@ -350,7 +350,7 @@ async function getMentorActivityReport(baseFilters: any, params: any) {
       },
       orderBy: { visit_date: 'desc' }
     }),
-    prisma.mentoringVisit.groupBy({
+    prisma.mentoring_visits.groupBy({
       by: ['mentor_id', 'status'],
       where: whereMentoring,
       _count: { mentor_id: true },
@@ -414,7 +414,7 @@ async function getSchoolStatisticsReport(baseFilters: any, params: any) {
         }
       }
     }),
-    prisma.pilotSchool.findMany({
+    prisma.pilot_schools.findMany({
       where: {},
       include: {
         students: {

@@ -79,7 +79,7 @@ export async function GET(
     }
 
     // Get mentoring visit with all relationships
-    const visit = await prisma.mentoringVisit.findUnique({
+    const visit = await prisma.mentoring_visits.findUnique({
       where: { id: visitId },
       include: {
         mentor: {
@@ -292,7 +292,7 @@ export async function PUT(
     }
 
     // Check if visit exists and user has access
-    const existingVisit = await prisma.mentoringVisit.findUnique({
+    const existingVisit = await prisma.mentoring_visits.findUnique({
       where: { id: visitId }
     });
 
@@ -322,7 +322,7 @@ export async function PUT(
 
     // Verify pilot school exists if being updated
     if (validatedData.pilot_school_id) {
-      const pilotSchool = await prisma.pilotSchool.findUnique({
+      const pilotSchool = await prisma.pilot_schools.findUnique({
         where: { id: validatedData.pilot_school_id }
       });
 
@@ -338,7 +338,7 @@ export async function PUT(
     const { mentor_id, mentor_name, ...updateData } = validatedData;
 
     // Update mentoring visit
-    const visit = await prisma.mentoringVisit.update({
+    const visit = await prisma.mentoring_visits.update({
       where: { id: visitId },
       data: {
         ...updateData,
@@ -433,7 +433,7 @@ export async function DELETE(
     }
 
     // Check if visit exists and user has access
-    const existingVisit = await prisma.mentoringVisit.findUnique({
+    const existingVisit = await prisma.mentoring_visits.findUnique({
       where: { id: visitId }
     });
 
@@ -446,7 +446,7 @@ export async function DELETE(
     }
 
     // Delete mentoring visit
-    await prisma.mentoringVisit.delete({
+    await prisma.mentoring_visits.delete({
       where: { id: visitId }
     });
 

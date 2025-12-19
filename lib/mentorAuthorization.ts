@@ -123,7 +123,7 @@ export async function canMentorAccessVisit(
   visitId: number
 ): Promise<AuthorizationResult> {
   try {
-    const visit = await prisma.mentoringVisit.findUnique({
+    const visit = await prisma.mentoring_visits.findUnique({
       where: { id: visitId },
       select: {
         mentor_id: true,
