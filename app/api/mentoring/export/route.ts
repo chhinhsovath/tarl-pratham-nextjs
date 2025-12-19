@@ -83,15 +83,7 @@ export async function GET(request: NextRequest) {
     const visits = await prisma.mentoring_visits.findMany({
       where,
       include: {
-        mentor: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true
-          }
-        },
-        teacher: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -102,14 +94,10 @@ export async function GET(request: NextRequest) {
         pilot_schools: {
           select: {
             id: true,
-            name: true,
-            code: true,
-            province: {
-              select: {
-                name_english: true,
-                name_khmer: true
-              }
-            }
+            school_name: true,
+            school_code: true,
+            province: true,
+            district: true
           }
         }
       },
@@ -149,8 +137,8 @@ export async function GET(request: NextRequest) {
       visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('km-KH') : '',
       visit.pilot_schools?.school_name || '',
       visit.pilot_schools?.school_code || '',
-      visit.mentor?.name || '',
-      visit.teacher?.name || '',
+      visit.users?.name || '',
+      '', // teacher name - not in relation
       visit.class_in_session ? 'បាទ/ចាស' : 'ទេ',
       visit.subject_observed || '',
       visit.total_students_enrolled || 0,
@@ -159,7 +147,7 @@ export async function GET(request: NextRequest) {
       visit.number_of_activities || 0,
       visit.score || '',
       visit.follow_up_required ? 'បាទ/ចាស' : 'ទេ',
-      visit.status === 'completed' ? 'បានបញ្ចប់' : 
+      visit.status === 'completed' ? 'បានបញ្ចប់' :
       visit.status === 'cancelled' ? 'បានបោះបង់' : 'កំពុងដំណើរការ'
     ]);
 

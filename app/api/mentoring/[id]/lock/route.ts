@@ -48,15 +48,7 @@ export async function POST(
         locked_at: new Date()
       },
       include: {
-        mentor: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true
-          }
-        },
-        teacher: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -67,15 +59,8 @@ export async function POST(
         pilot_schools: {
           select: {
             id: true,
-            name: true,
-            code: true
-          }
-        },
-        locked_by_user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
+            school_name: true,
+            school_code: true
           }
         }
       }
@@ -140,15 +125,7 @@ export async function DELETE(
         locked_at: null
       },
       include: {
-        mentor: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true
-          }
-        },
-        teacher: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -159,8 +136,8 @@ export async function DELETE(
         pilot_schools: {
           select: {
             id: true,
-            name: true,
-            code: true
+            school_name: true,
+            school_code: true
           }
         }
       }
