@@ -29,16 +29,21 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    # Use npm ci for faster, cached installs
-                    # Only clean if package-lock.json changed
-                    if [ ! -f "node_modules/.package-lock.json" ] || ! diff -q package-lock.json node_modules/.package-lock.json > /dev/null 2>&1; then
-                        echo "Dependencies changed, installing..."
-                        npm ci --prefer-offline --no-audit
-                    else
-                        echo "Using cached dependencies"
-                    fi
-                '''
+                retry(3) {
+                    sh '''
+                        # Install dependencies with retry logic
+                        echo "Installing dependencies..."
+
+                        # Try npm ci first (faster and more reliable)
+                        if npm ci --no-audit --no-fund 2>/dev/null; then
+                            echo "✅ Dependencies installed successfully with npm ci"
+                        else
+                            echo "⚠️  npm ci failed, falling back to npm install..."
+                            # Fallback to npm install if npm ci fails
+                            npm install --no-audit --no-fund
+                        fi
+                    '''
+                }
             }
         }
 
@@ -116,13 +121,16 @@ NODE_ENV="production"
 PORT="3006"
 EOF
 
-                            # Install production dependencies (only if changed)
+                            # Install production dependencies
                             cd /opt/tarl-pratham
-                            if [ ! -d "node_modules" ] || [ package-lock.json -nt node_modules ]; then
-                                echo "Installing dependencies..."
-                                npm ci --production --prefer-offline --no-audit
+                            echo "Installing production dependencies..."
+
+                            # Try npm ci first, fallback to npm install if it fails
+                            if npm ci --production --no-audit --no-fund 2>/dev/null; then
+                                echo "✅ Production dependencies installed"
                             else
-                                echo "Using existing dependencies"
+                                echo "⚠️  npm ci failed, using npm install..."
+                                npm install --production --no-audit --no-fund
                             fi
 
                             # Generate Prisma client on server
