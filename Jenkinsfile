@@ -107,10 +107,13 @@ pipeline {
                             --exclude='.env*' \
                             --exclude='backups' \
                             --exclude='*.md' \
+                            --exclude='*.sh' \
+                            --exclude='test-*.js' \
                             .next/ prisma/ public/ app/ components/ lib/ styles/ \
-                            package.json package-lock.json next.config.mjs \
-                            tailwind.config.ts tsconfig.json \
-                            middleware.ts auth.ts tarl-pratham.service
+                            package.json package-lock.json \
+                            next.config.ts tailwind.config.ts tsconfig.json \
+                            middleware.ts postcss.config.mjs eslint.config.mjs \
+                            tarl-pratham.service 2>/dev/null || true
 
                         # Copy to server
                         scp -o StrictHostKeyChecking=no ${APP_NAME}.tar.gz ${SERVER_USER}@localhost:~
