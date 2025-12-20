@@ -1,0 +1,68 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TaRL Pratham Next.js - Systemd Service Configuration
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+# Installation:
+#   sudo cp tarl-pratham.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable tarl-pratham
+#   sudo systemctl start tarl-pratham
+#
+# Management:
+#   sudo systemctl status tarl-pratham
+#   sudo systemctl restart tarl-pratham
+#   sudo systemctl stop tarl-pratham
+#   sudo journalctl -u tarl-pratham -f
+#
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Unit]
+Description=TaRL Pratham Next.js Application
+Documentation=https://github.com/chhinhsovath/tarl-pratham-nextjs
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/tarl-pratham
+
+# Environment variables
+Environment=NODE_ENV=production
+Environment=PORT=3006
+Environment=NODE_OPTIONS=--max-old-space-size=1024
+
+# Load additional environment from .env file
+EnvironmentFile=/opt/tarl-pratham/.env
+
+# Start command
+ExecStart=/usr/bin/npm run start:prod
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=tarl-pratham
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/tarl-pratham
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Graceful shutdown
+TimeoutStopSec=30
+KillMode=mixed
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

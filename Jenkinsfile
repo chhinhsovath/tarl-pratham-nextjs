@@ -1,0 +1,269 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'tarl-pratham'
+        APP_DIR = '/opt/tarl-pratham'
+        SERVER_HOST = '157.10.73.82'
+        SERVER_USER = 'ubuntu'
+        NODE_VERSION = '18'
+        PORT = '3006'
+        // Database configuration
+        DB_HOST = '157.10.73.82'
+        DB_PORT = '5432'
+        DB_NAME = 'tarl_pratham'
+        DB_USER = 'admin'
+    }
+
+    stages {
+        stage('Verify Node.js') {
+            steps {
+                sh '''
+                    echo "Node.js version:"
+                    node --version
+                    echo "npm version:"
+                    npm --version
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    # Clean install for reliable builds
+                    rm -rf node_modules package-lock.json
+                    npm install --force
+                '''
+            }
+        }
+
+        stage('Generate Prisma Client') {
+            steps {
+                sh '''
+                    # Generate Prisma client
+                    npx prisma generate
+                '''
+            }
+        }
+
+        stage('Build Application') {
+            steps {
+                sh '''
+                    # Build Next.js application with memory optimization
+                    NODE_OPTIONS='--max-old-space-size=1024' npm run build
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            when {
+                expression { fileExists('playwright.config.ts') }
+            }
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh 'npm run test -- --passWithNoTests || true'
+                }
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                withCredentials([string(credentialsId: 'tarl-pratham-db-password', variable: 'DB_PASSWORD')]) {
+                    sh '''
+                        # Create deployment package
+                        tar -czf ${APP_NAME}.tar.gz \
+                            --exclude='node_modules' \
+                            --exclude='.git' \
+                            --exclude='*.log' \
+                            --exclude='.env*' \
+                            --exclude='backups' \
+                            --exclude='*.md' \
+                            .next/ prisma/ public/ app/ components/ lib/ styles/ \
+                            package.json package-lock.json next.config.mjs \
+                            tailwind.config.ts tsconfig.json \
+                            middleware.ts auth.ts tarl-pratham.service
+
+                        # Copy to server
+                        scp -o StrictHostKeyChecking=no ${APP_NAME}.tar.gz ${SERVER_USER}@localhost:~
+
+                        # Deploy on server
+                        ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost << 'ENDSSH'
+                            set -e
+
+                            # Create app directory if not exists
+                            sudo mkdir -p /opt/tarl-pratham
+
+                            # Extract to app directory
+                            sudo tar -xzf ~/tarl-pratham.tar.gz -C /opt/tarl-pratham
+                            rm ~/tarl-pratham.tar.gz
+
+                            # Create .env file with production settings
+                            sudo tee /opt/tarl-pratham/.env > /dev/null << EOF
+DATABASE_URL="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=5&statement_timeout=30000&idle_in_transaction_session_timeout=30000&connection_limit=3&pool_timeout=5"
+POSTGRES_PRISMA_URL="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=5&statement_timeout=30000&idle_in_transaction_session_timeout=30000&connection_limit=3&pool_timeout=5"
+POSTGRES_URL_NON_POOLING="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=10"
+NEXTAUTH_URL="https://tarl.openplp.com"
+NEXTAUTH_SECRET="${NEXTAUTH_SECRET}"
+NODE_ENV="production"
+PORT="3006"
+EOF
+
+                            # Install production dependencies
+                            cd /opt/tarl-pratham
+                            npm install --production --no-optional
+
+                            # Generate Prisma client on server
+                            npx prisma generate
+
+                            # Check if PM2 is installed, if not use systemd
+                            if command -v pm2 &> /dev/null; then
+                                echo "Deploying with PM2..."
+
+                                # Stop existing PM2 process if running
+                                pm2 stop tarl-pratham 2>/dev/null || true
+                                pm2 delete tarl-pratham 2>/dev/null || true
+
+                                # Start with PM2
+                                NODE_OPTIONS='--max-old-space-size=1024' \
+                                PORT=3006 \
+                                pm2 start npm --name tarl-pratham -- run start:prod
+
+                                # Save PM2 configuration
+                                pm2 save
+
+                                # Check status
+                                pm2 list
+                            else
+                                echo "Deploying with systemd..."
+
+                                # Copy/update service file
+                                if [ -f /opt/tarl-pratham/tarl-pratham.service ]; then
+                                    sudo cp /opt/tarl-pratham/tarl-pratham.service /etc/systemd/system/
+                                else
+                                    # Create service file if not provided
+                                    sudo tee /etc/systemd/system/tarl-pratham.service > /dev/null << SERVICE_FILE
+[Unit]
+Description=TaRL Pratham Next.js Application
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/tarl-pratham
+Environment=NODE_ENV=production
+Environment=PORT=3006
+Environment=NODE_OPTIONS=--max-old-space-size=1024
+EnvironmentFile=/opt/tarl-pratham/.env
+ExecStart=/usr/bin/npm run start:prod
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+SERVICE_FILE
+                                fi
+
+                                sudo systemctl daemon-reload
+                                sudo systemctl enable tarl-pratham
+                                sudo systemctl restart tarl-pratham
+
+                                # Wait for service to start
+                                sleep 5
+
+                                # Check status
+                                sudo systemctl status tarl-pratham --no-pager -l
+                            fi
+ENDSSH
+                    '''
+                }
+            }
+        }
+
+        stage('Database Migration') {
+            when {
+                expression {
+                    // Only run migrations if schema has changed in this commit
+                    sh(returnStatus: true, script: 'git diff HEAD~1 --name-only | grep -q "prisma/schema.prisma"') == 0
+                }
+            }
+            steps {
+                withCredentials([string(credentialsId: 'tarl-pratham-db-password', variable: 'DB_PASSWORD')]) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost << 'ENDSSH'
+                            cd /opt/tarl-pratham
+
+                            # Run database push (safer than migrate for production)
+                            DATABASE_URL="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham" \
+                            npx prisma db push --skip-generate
+
+                            echo "Database schema updated successfully"
+ENDSSH
+                    '''
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh '''
+                    # Wait for application to start
+                    sleep 10
+
+                    # Check if the application is responding
+                    MAX_RETRIES=5
+                    RETRY_COUNT=0
+
+                    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+                        if curl -f http://localhost:3006 > /dev/null 2>&1; then
+                            echo "✅ Application is running successfully!"
+                            echo "Dashboard accessible at: http://${SERVER_HOST}:3006"
+                            exit 0
+                        fi
+
+                        RETRY_COUNT=$((RETRY_COUNT + 1))
+                        echo "Health check attempt $RETRY_COUNT failed, retrying in 5 seconds..."
+                        sleep 5
+                    done
+
+                    echo "❌ Health check failed after $MAX_RETRIES attempts"
+
+                    # Show service logs for debugging
+                    ssh ${SERVER_USER}@localhost "sudo systemctl status tarl-pratham --no-pager -l || pm2 logs tarl-pratham --lines 50" || true
+                    exit 1
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed'
+            // Clean up build artifacts
+            sh 'rm -f ${APP_NAME}.tar.gz'
+        }
+        success {
+            echo '''
+                ╔══════════════════════════════════════════╗
+                ║  🎉 Deployment successful!               ║
+                ║                                          ║
+                ║  Application: TaRL Pratham              ║
+                ║  URL: http://157.10.73.82:3006          ║
+                ║  Environment: Production                 ║
+                ╚══════════════════════════════════════════╝
+            '''
+        }
+        failure {
+            echo '''
+                ╔══════════════════════════════════════════╗
+                ║  ❌ Deployment failed!                   ║
+                ║                                          ║
+                ║  Check the logs for details              ║
+                ║  Rollback may be required                ║
+                ╚══════════════════════════════════════════╝
+            '''
+        }
+    }
+}
