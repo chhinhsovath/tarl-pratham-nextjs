@@ -58,7 +58,7 @@ pipeline {
 
         stage('Build Application') {
             options {
-                timeout(time: 20, unit: 'MINUTES')
+                timeout(time: 30, unit: 'MINUTES')
             }
             steps {
                 sh '''

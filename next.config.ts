@@ -74,13 +74,7 @@ const nextConfig: NextConfig = {
   // Experimental features for performance
   experimental: {
     optimizePackageImports: ['antd', '@ant-design/icons'],
-    // Enable parallel build processing
-    workerThreads: false,
-    cpus: 2,
   },
-
-  // Optimize for production builds
-  swcMinify: true,
 };
 
 export default nextConfig;
