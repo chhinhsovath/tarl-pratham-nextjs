@@ -266,7 +266,7 @@ ENDSSH
                         if curl -f http://localhost:3006 > /dev/null 2>&1; then
                             echo "✅ Application is running successfully!"
                             echo "Dashboard accessible at: http://${SERVER_HOST}:3006"
-                            exit 0
+                            break
                         fi
 
                         RETRY_COUNT=$((RETRY_COUNT + 1))
@@ -274,11 +274,33 @@ ENDSSH
                         sleep 5
                     done
 
-                    echo "❌ Health check failed after $MAX_RETRIES attempts"
+                    if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                        echo "❌ Health check failed after $MAX_RETRIES attempts"
+                        ssh ${SERVER_USER}@localhost "sudo systemctl status tarl-pratham --no-pager -l || pm2 logs tarl-pratham --lines 50" || true
+                        exit 1
+                    fi
 
-                    # Show service logs for debugging
-                    ssh ${SERVER_USER}@localhost "sudo systemctl status tarl-pratham --no-pager -l || pm2 logs tarl-pratham --lines 50" || true
-                    exit 1
+                    # CRITICAL: Verify app is listening on 0.0.0.0 (not 127.0.0.1)
+                    ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost << '"'"'ENDSSH'"'"'
+                        echo "=== Verifying Network Binding ==="
+                        LISTEN_ADDR=$(sudo ss -tlnp | grep :3006 | awk '"'"'{print $4}'"'"')
+                        echo "App listening on: $LISTEN_ADDR"
+
+                        if echo "$LISTEN_ADDR" | grep -q "0.0.0.0:3006"; then
+                            echo "✅ CORRECT: App is listening on 0.0.0.0:3006 (accessible from Docker/NPM)"
+                        elif echo "$LISTEN_ADDR" | grep -q "127.0.0.1:3006"; then
+                            echo "❌ ERROR: App is listening on 127.0.0.1:3006 (NOT accessible from Docker/NPM)"
+                            echo "This means Nginx Proxy Manager cannot reach the app!"
+                            exit 1
+                        else
+                            echo "⚠️  WARNING: Unexpected listening address"
+                        fi
+ENDSSH
+
+                    echo "✅ Deployment successful and network binding verified!"
+                    echo "Local access: http://localhost:3006"
+                    echo "Server access: http://10.1.73.82:3006"
+                    echo "Public URL (via NPM): Configure in Nginx Proxy Manager"
                 '''
             }
         }
