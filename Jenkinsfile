@@ -82,16 +82,18 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            when {
-                expression { fileExists('playwright.config.ts') }
-            }
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh 'npm run test || true'
-                }
-            }
-        }
+        // Tests disabled - Playwright browsers not installed on Jenkins server
+        // To enable: run 'npx playwright install --with-deps' on Jenkins server
+        // stage('Run Tests') {
+        //     when {
+        //         expression { fileExists('playwright.config.ts') }
+        //     }
+        //     steps {
+        //         catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+        //             sh 'npm run test || true'
+        //         }
+        //     }
+        // }
 
         stage('Deploy to Server') {
             steps {
