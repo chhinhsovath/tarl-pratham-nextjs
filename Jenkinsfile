@@ -58,18 +58,26 @@ pipeline {
 
         stage('Build Application') {
             options {
-                timeout(time: 15, unit: 'MINUTES')
+                timeout(time: 20, unit: 'MINUTES')
             }
             steps {
                 sh '''
-                    # Build Next.js application with increased memory (2GB for faster builds)
-                    # Next.js will cache unchanged pages automatically in .next/cache
-                    export NODE_OPTIONS='--max-old-space-size=2048'
+                    # Build Next.js application with increased memory (3GB for faster builds)
+                    # and optimization flags
+                    export NODE_OPTIONS='--max-old-space-size=3072'
+                    export NEXT_TELEMETRY_DISABLED=1
 
                     echo "Starting build at $(date) with NODE_OPTIONS=$NODE_OPTIONS"
-                    npm run build
+                    echo "Current memory info:"
+                    free -h || true
+
+                    # Run build with timing
+                    time npm run build
 
                     echo "✅ Build completed successfully at $(date)"
+
+                    # Show build output size
+                    du -sh .next 2>/dev/null || true
                 '''
             }
         }
