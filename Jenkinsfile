@@ -125,8 +125,11 @@ pipeline {
                             # Create app directory if not exists
                             sudo mkdir -p /opt/tarl-pratham
 
+                            # Set ownership to ubuntu user
+                            sudo chown -R ubuntu:ubuntu /opt/tarl-pratham
+
                             # Extract to app directory
-                            sudo tar -xzf ~/tarl-pratham.tar.gz -C /opt/tarl-pratham
+                            tar -xzf ~/tarl-pratham.tar.gz -C /opt/tarl-pratham
                             rm ~/tarl-pratham.tar.gz
 
                             # Create .env file with production settings
@@ -145,15 +148,18 @@ EOF
                             echo "Installing production dependencies..."
 
                             # Try npm ci first, fallback to npm install if it fails
-                            if npm ci --production --no-audit --no-fund 2>/dev/null; then
-                                echo "✅ Production dependencies installed"
+                            if npm ci --omit=dev --no-audit --no-fund 2>/dev/null; then
+                                echo "✅ Production dependencies installed with npm ci"
                             else
                                 echo "⚠️  npm ci failed, using npm install..."
-                                npm install --production --no-audit --no-fund
+                                npm install --omit=dev --no-audit --no-fund
                             fi
 
                             # Generate Prisma client on server
                             npx prisma generate
+
+                            # Ensure correct ownership
+                            sudo chown -R ubuntu:ubuntu /opt/tarl-pratham
 
                             # Check if PM2 is installed, if not use systemd
                             if command -v pm2 &> /dev/null; then
