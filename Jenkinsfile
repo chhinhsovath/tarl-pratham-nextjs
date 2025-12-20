@@ -30,9 +30,14 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    # Clean install for reliable builds
-                    rm -rf node_modules package-lock.json
-                    npm install --force
+                    # Use npm ci for faster, cached installs
+                    # Only clean if package-lock.json changed
+                    if [ ! -f "node_modules/.package-lock.json" ] || ! diff -q package-lock.json node_modules/.package-lock.json > /dev/null 2>&1; then
+                        echo "Dependencies changed, installing..."
+                        npm ci --prefer-offline --no-audit
+                    else
+                        echo "Using cached dependencies"
+                    fi
                 '''
             }
         }
@@ -49,8 +54,11 @@ pipeline {
         stage('Build Application') {
             steps {
                 sh '''
-                    # Build Next.js application with memory optimization
-                    NODE_OPTIONS='--max-old-space-size=1024' npm run build
+                    # Build Next.js application with increased memory (2GB for faster builds)
+                    # Next.js will cache unchanged pages automatically in .next/cache
+                    NODE_OPTIONS='--max-old-space-size=2048' npm run build
+
+                    echo "Build completed in $(date)"
                 '''
             }
         }
@@ -108,9 +116,14 @@ NODE_ENV="production"
 PORT="3006"
 EOF
 
-                            # Install production dependencies
+                            # Install production dependencies (only if changed)
                             cd /opt/tarl-pratham
-                            npm install --production --no-optional
+                            if [ ! -d "node_modules" ] || [ package-lock.json -nt node_modules ]; then
+                                echo "Installing dependencies..."
+                                npm ci --production --prefer-offline --no-audit
+                            else
+                                echo "Using existing dependencies"
+                            fi
 
                             # Generate Prisma client on server
                             npx prisma generate
