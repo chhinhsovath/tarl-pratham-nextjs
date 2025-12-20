@@ -77,10 +77,11 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Set environment to production
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_OPTIONS="--max-old-space-size=1024"
-ENV PORT 3006
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS=--max-old-space-size=2048
+ENV PORT=3006
+ENV HOSTNAME=0.0.0.0
 
 # Create app user for security
 RUN addgroup --system --gid 1001 nodejs && \

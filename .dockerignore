@@ -1,0 +1,69 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json.bak
+
+# Next.js
+.next
+out
+
+# Production
+build
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+
+# Testing
+test-results
+playwright-report
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Backup and migration files
+backups/
+migration_backups/
+*.sql
+*.sql.gz
+*.dump
+*.sh
+*.md
+*.py
+*.js
+!next.config.ts
+!postcss.config.mjs
+!eslint.config.mjs
+!playwright.config.ts
+
+# Keep necessary configs
+!package.json
+!package-lock.json
+!next.config.ts
+!tsconfig.json
+!tailwind.config.ts
+!middleware.ts
+!postcss.config.mjs
+!eslint.config.mjs
+
+# Supabase
+.supabase/

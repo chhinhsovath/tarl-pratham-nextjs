@@ -1,0 +1,202 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'tarl-pratham'
+        IMAGE_NAME = 'tarl-pratham:latest'
+        CONTAINER_NAME = 'tarl-pratham'
+        SERVER_HOST = '157.10.73.82'
+        SERVER_USER = 'ubuntu'
+        PORT = '3006'
+        DB_HOST = '157.10.73.82'
+        DB_PORT = '5432'
+        DB_NAME = 'tarl_pratham'
+        DB_USER = 'admin'
+    }
+
+    stages {
+        stage('Verify Node.js') {
+            steps {
+                sh '''
+                    echo "Node.js version:"
+                    node --version
+                    echo "npm version:"
+                    npm --version
+                    echo "Docker version:"
+                    docker --version
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                retry(3) {
+                    sh '''
+                        echo "Installing dependencies..."
+                        if npm ci --no-audit --no-fund 2>/dev/null; then
+                            echo "✅ Dependencies installed successfully with npm ci"
+                        else
+                            echo "⚠️  npm ci failed, falling back to npm install..."
+                            npm install --no-audit --no-fund
+                        fi
+                    '''
+                }
+            }
+        }
+
+        stage('Generate Prisma Client') {
+            steps {
+                sh 'npx prisma generate'
+            }
+        }
+
+        stage('Build Docker Image') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                sh '''
+                    echo "Building Docker image..."
+                    docker build -t ${IMAGE_NAME} .
+                    echo "✅ Docker image built successfully"
+                '''
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                withCredentials([string(credentialsId: 'tarl-pratham-db-password', variable: 'DB_PASSWORD')]) {
+                    sh '''
+                        # Stop and remove existing container if running
+                        ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost << 'ENDSSH'
+                            # Stop existing container
+                            docker stop ${CONTAINER_NAME} 2>/dev/null || true
+                            docker rm ${CONTAINER_NAME} 2>/dev/null || true
+
+                            echo "✅ Old container removed"
+ENDSSH
+
+                        # Save Docker image and transfer to server
+                        echo "Saving Docker image..."
+                        docker save ${IMAGE_NAME} | ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost docker load
+                        echo "✅ Docker image transferred to server"
+
+                        # Deploy with docker-compose
+                        ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost << 'ENDSSH'
+                            set -e
+
+                            # Create app directory
+                            sudo mkdir -p /opt/tarl-pratham
+                            cd /opt/tarl-pratham
+
+                            # Create .env file
+                            cat > .env << EOF
+DATABASE_URL="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=5&statement_timeout=30000&idle_in_transaction_session_timeout=30000&connection_limit=3&pool_timeout=5"
+POSTGRES_PRISMA_URL="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=5&statement_timeout=30000&idle_in_transaction_session_timeout=30000&connection_limit=3&pool_timeout=5"
+POSTGRES_URL_NON_POOLING="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=10"
+NEXTAUTH_URL="https://tarl.sovathc.org"
+NEXTAUTH_SECRET="5ZIzBW/SBr7fIKlZT4LQCpNRnA1wnn7LTnAwx5bNvO0="
+NODE_ENV="production"
+PORT="3006"
+EOF
+
+                            # Start container
+                            docker run -d \
+                                --name ${CONTAINER_NAME} \
+                                --restart unless-stopped \
+                                -p 10.1.73.82:3006:3006 \
+                                --env-file .env \
+                                --memory 1024m \
+                                --cpus 1.0 \
+                                ${IMAGE_NAME}
+
+                            echo "✅ Container started"
+
+                            # Wait for container to be healthy
+                            echo "Waiting for container to be healthy..."
+                            sleep 10
+
+                            # Check container status
+                            docker ps -a | grep ${CONTAINER_NAME}
+                            docker logs ${CONTAINER_NAME} --tail 20
+ENDSSH
+                    '''
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh '''
+                    # Wait for application to start
+                    sleep 15
+
+                    # Check if the application is responding
+                    MAX_RETRIES=5
+                    RETRY_COUNT=0
+
+                    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+                        if curl -f http://localhost:3006 > /dev/null 2>&1; then
+                            echo "✅ Application is running successfully!"
+                            echo "Dashboard accessible at: http://${SERVER_HOST}:3006"
+                            break
+                        fi
+
+                        RETRY_COUNT=$((RETRY_COUNT + 1))
+                        echo "Health check attempt $RETRY_COUNT failed, retrying in 5 seconds..."
+                        sleep 5
+                    done
+
+                    if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                        echo "❌ Health check failed after $MAX_RETRIES attempts"
+                        ssh ${SERVER_USER}@localhost "docker logs ${CONTAINER_NAME} --tail 50" || true
+                        exit 1
+                    fi
+
+                    # Verify network binding
+                    ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost << 'ENDSSH'
+                        echo "=== Verifying Docker Container ==="
+                        docker ps | grep ${CONTAINER_NAME}
+
+                        echo "=== Container Logs (last 10 lines) ==="
+                        docker logs ${CONTAINER_NAME} --tail 10
+ENDSSH
+
+                    echo "✅ Deployment successful!"
+                    echo "Local access: http://localhost:3006"
+                    echo "Server access: http://10.1.73.82:3006"
+                    echo "Public URL: https://tarl.sovathc.org (via Nginx Proxy Manager)"
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed'
+        }
+        success {
+            echo '''
+                ╔══════════════════════════════════════════╗
+                ║  🎉 Docker Deployment successful!        ║
+                ║                                          ║
+                ║  Application: TaRL Pratham              ║
+                ║  Container: tarl-pratham                ║
+                ║  Port: 3006                             ║
+                ║  URL: http://157.10.73.82:3006          ║
+                ║  Public: https://tarl.sovathc.org       ║
+                ╚══════════════════════════════════════════╝
+            '''
+        }
+        failure {
+            echo '''
+                ╔══════════════════════════════════════════╗
+                ║  ❌ Docker Deployment failed!            ║
+                ║                                          ║
+                ║  Check the logs for details              ║
+                ║  Container logs: docker logs tarl-pratham║
+                ╚══════════════════════════════════════════╝
+            '''
+        }
+    }
+}
