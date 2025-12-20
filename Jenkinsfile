@@ -57,13 +57,19 @@ pipeline {
         }
 
         stage('Build Application') {
+            options {
+                timeout(time: 15, unit: 'MINUTES')
+            }
             steps {
                 sh '''
                     # Build Next.js application with increased memory (2GB for faster builds)
                     # Next.js will cache unchanged pages automatically in .next/cache
-                    NODE_OPTIONS='--max-old-space-size=2048' npm run build
+                    export NODE_OPTIONS='--max-old-space-size=2048'
 
-                    echo "Build completed in $(date)"
+                    echo "Starting build at $(date) with NODE_OPTIONS=$NODE_OPTIONS"
+                    npm run build
+
+                    echo "✅ Build completed successfully at $(date)"
                 '''
             }
         }
@@ -144,8 +150,8 @@ EOF
                                 pm2 stop tarl-pratham 2>/dev/null || true
                                 pm2 delete tarl-pratham 2>/dev/null || true
 
-                                # Start with PM2
-                                NODE_OPTIONS='--max-old-space-size=1024' \
+                                # Start with PM2 (increased memory for production)
+                                NODE_OPTIONS='--max-old-space-size=2048' \
                                 PORT=3006 \
                                 pm2 start npm --name tarl-pratham -- run start:prod
 
@@ -174,7 +180,7 @@ Group=ubuntu
 WorkingDirectory=/opt/tarl-pratham
 Environment=NODE_ENV=production
 Environment=PORT=3006
-Environment=NODE_OPTIONS=--max-old-space-size=1024
+Environment=NODE_OPTIONS=--max-old-space-size=2048
 EnvironmentFile=/opt/tarl-pratham/.env
 ExecStart=/usr/bin/npm run start:prod
 Restart=always

@@ -31,7 +31,7 @@ WorkingDirectory=/opt/tarl-pratham
 # Environment variables
 Environment=NODE_ENV=production
 Environment=PORT=3006
-Environment=NODE_OPTIONS=--max-old-space-size=1024
+Environment=NODE_OPTIONS=--max-old-space-size=2048
 
 # Load additional environment from .env file
 EnvironmentFile=/opt/tarl-pratham/.env
