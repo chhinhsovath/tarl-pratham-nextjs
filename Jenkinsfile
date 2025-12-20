@@ -281,9 +281,9 @@ ENDSSH
                     fi
 
                     # CRITICAL: Verify app is listening on 0.0.0.0 (not 127.0.0.1)
-                    ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost << '"'"'ENDSSH'"'"'
+                    ssh -o StrictHostKeyChecking=no ${SERVER_USER}@localhost << 'ENDSSH'
                         echo "=== Verifying Network Binding ==="
-                        LISTEN_ADDR=$(sudo ss -tlnp | grep :3006 | awk '"'"'{print $4}'"'"')
+                        LISTEN_ADDR=$(sudo ss -tlnp | grep :3006 | awk '{print $4}')
                         echo "App listening on: $LISTEN_ADDR"
 
                         if echo "$LISTEN_ADDR" | grep -q "0.0.0.0:3006"; then
