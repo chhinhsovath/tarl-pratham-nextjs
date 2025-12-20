@@ -254,6 +254,17 @@ function parseStringArray(value?: string | string[]): string[] {
 }
 
 /**
+ * Helper function to convert boolean values to Khmer text
+ * Handles: true/false, "true"/"false", 1/0, null/undefined
+ */
+function booleanToKhmer(value: any): string {
+  if (value === null || value === undefined) return '';
+  if (value === true || value === 'true' || value === 1 || value === '1') return 'បាទ/ចាស';
+  if (value === false || value === 'false' || value === 0 || value === '0') return 'ទេ';
+  return '';
+}
+
+/**
  * Export mentoring visits data with individual sheets for each visit
  */
 export function exportMentoringVisits(visits: any[]): void {
@@ -279,7 +290,7 @@ export function exportMentoringVisits(visits: any[]): void {
       visit.users?.name || '',
       'មិនបានបញ្ជាក់', // teacher info not in relation
       visit.score !== undefined ? visit.score : '',
-      visit.follow_up_required ? 'បាទ/ចាស' : 'ទេ',
+      booleanToKhmer(visit.follow_up_required),
       visit.is_locked ? 'ជាប់សោ' : (visit.is_temporary ? 'បណ្តោះអាសន្ន' : 'សកម្ម')
     ]);
 
@@ -307,9 +318,9 @@ export function exportMentoringVisits(visits: any[]): void {
         ['ពិន្ទុ', visit.score !== undefined ? visit.score : ''],
         [''],
         ['ព័ត៌មានថ្នាក់រៀន (Class Information)', ''],
-        ['ថ្នាក់រៀនកំពុងបង្រៀន', visit.class_in_session ? 'បាទ/ចាស' : 'ទេ'],
+        ['ថ្នាក់រៀនកំពុងបង្រៀន', booleanToKhmer(visit.class_in_session)],
         ['មូលហេតុមិនបានបង្រៀន', visit.class_not_in_session_reason || ''],
-        ['អង្កេតពេញមួយមេរៀន', visit.full_session_observed ? 'បាទ/ចាស' : 'ទេ'],
+        ['អង្កេតពេញមួយមេរៀន', booleanToKhmer(visit.full_session_observed)],
         ['ក្រុមថ្នាក់', visit.grade_group || ''],
         ['ថ្នាក់រៀនដែលបានអង្កេត', parseStringArray(visit.grades_observed).join(', ')],
         ['មុខវិជ្ជាដែលបានអង្កេត', visit.subject_observed || ''],
@@ -323,49 +334,78 @@ export function exportMentoringVisits(visits: any[]): void {
         ['ថ្នាក់រៀនដែលធ្វើពីមុន', visit.classes_conducted_before || 0],
         [''],
         ['ការបង្រៀន និងការរៀបចំ (Teaching & Organization)', ''],
-        ['ថ្នាក់រៀនចាប់ផ្តើមទាន់ពេល', visit.class_started_on_time ? 'បាទ/ចាស' : 'ទេ'],
+        ['ថ្នាក់រៀនចាប់ផ្តើមទាន់ពេល', booleanToKhmer(visit.class_started_on_time)],
         ['មូលហេតុចាប់ផ្តើមយឺត', visit.late_start_reason || ''],
         ['ឧបករណ៍បង្រៀន', parseStringArray(visit.teaching_materials).join(', ')],
-        ['សិស្សបានដាក់ក្រុមតាមកម្រិត', visit.students_grouped_by_level ? 'បាទ/ចាស' : 'ទេ'],
-        ['សិស្សចូលរួមយ៉ាងសកម្ម', visit.students_active_participation ? 'បាទ/ចាស' : 'ទេ'],
+        ['សិស្សបានដាក់ក្រុមតាមកម្រិត', booleanToKhmer(visit.students_grouped_by_level)],
+        ['សិស្សចូលរួមយ៉ាងសកម្ម', booleanToKhmer(visit.students_active_participation)],
         [''],
         ['ការរៀបចំរបស់អ្នកបង្រៀន (Teacher Planning)', ''],
-        ['មានផែនការបង្រៀន', visit.teacher_has_lesson_plan ? 'បាទ/ចាស' : 'ទេ'],
+        ['មានផែនការបង្រៀន', booleanToKhmer(visit.teacher_has_lesson_plan)],
         ['មូលហេតុមិនមានផែនការ', visit.no_lesson_plan_reason || ''],
-        ['បានធ្វើតាមផែនការ', visit.followed_lesson_plan ? 'បាទ/ចាស' : 'ទេ'],
+        ['បានធ្វើតាមផែនការ', booleanToKhmer(visit.followed_lesson_plan)],
         ['មូលហេតុមិនធ្វើតាម', visit.not_followed_reason || ''],
-        ['ផែនការសមរម្យ', visit.plan_appropriate_for_levels ? 'បាទ/ចាស' : 'ទេ'],
+        ['ផែនការសមរម្យ', booleanToKhmer(visit.plan_appropriate_for_levels)],
         ['មតិយោបល់អំពីផែនការ', visit.lesson_plan_feedback || ''],
         [''],
         ['សកម្មភាព (Activities)', ''],
-        ['ចំនួនសកម្មភាពអង្កេត', visit.num_activities_observed || 0],
+        ['ចំនួនសកម្មភាពអង្កេត', visit.number_of_activities || visit.num_activities_observed || 0],
       ];
 
-      // Add Activity 1 details if exists
-      if (visit.activity1_type) {
+      // Add Activity 1 details if exists (check for any activity1 field)
+      const hasActivity1 = visit.activity1_name_language || visit.activity1_name_numeracy || visit.activity1_duration;
+      if (hasActivity1) {
+        const act1_clear_value = booleanToKhmer(visit.activity1_clear_instructions);
+        const act1_followed_value = booleanToKhmer(visit.activity1_followed_process);
+
+        console.log(`Visit ${visit.id} Activity 1:`, {
+          clear_raw: visit.activity1_clear_instructions,
+          clear_converted: act1_clear_value,
+          followed_raw: visit.activity1_followed_process,
+          followed_converted: act1_followed_value
+        });
+
         visitData.push(
           [''],
           ['សកម្មភាពទី ១', ''],
-          ['ប្រភេទ', visit.activity1_type],
+          ['ឈ្មោះសកម្មភាព (ភាសា)', visit.activity1_name_language || ''],
+          ['ឈ្មោះសកម្មភាព (គណិត)', visit.activity1_name_numeracy || ''],
           ['រយៈពេល (នាទី)', visit.activity1_duration || ''],
-          ['ការណែនាំច្បាស់', visit.activity1_clear_instructions ? 'បាទ/ចាស' : 'ទេ'],
-          ['មូលហេតុមិនច្បាស់', visit.activity1_unclear_reason || ''],
-          ['ធ្វើតាមដំណើរការ', visit.activity1_followed_process ? 'បាទ/ចាស' : 'ទេ'],
+          ['ការណែនាំច្បាស់', act1_clear_value],
+          ['មូលហេតុមិនច្បាស់', visit.activity1_unclear_reason || visit.activity1_no_clear_instructions_reason || ''],
+          ['ធ្វើតាមដំណើរការ', act1_followed_value],
           ['មូលហេតុមិនធ្វើតាម', visit.activity1_not_followed_reason || '']
         );
       }
 
       // Add Activity 2 details if exists
-      if (visit.activity2_type) {
+      const hasActivity2 = visit.activity2_name_language || visit.activity2_name_numeracy || visit.activity2_duration;
+      if (hasActivity2) {
         visitData.push(
           [''],
           ['សកម្មភាពទី ២', ''],
-          ['ប្រភេទ', visit.activity2_type],
+          ['ឈ្មោះសកម្មភាព (ភាសា)', visit.activity2_name_language || ''],
+          ['ឈ្មោះសកម្មភាព (គណិត)', visit.activity2_name_numeracy || ''],
           ['រយៈពេល (នាទី)', visit.activity2_duration || ''],
-          ['ការណែនាំច្បាស់', visit.activity2_clear_instructions ? 'បាទ/ចាស' : 'ទេ'],
-          ['មូលហេតុមិនច្បាស់', visit.activity2_unclear_reason || ''],
-          ['ធ្វើតាមដំណើរការ', visit.activity2_followed_process ? 'បាទ/ចាស' : 'ទេ'],
+          ['ការណែនាំច្បាស់', booleanToKhmer(visit.activity2_clear_instructions)],
+          ['មូលហេតុមិនច្បាស់', visit.activity2_unclear_reason || visit.activity2_no_clear_instructions_reason || ''],
+          ['ធ្វើតាមដំណើរការ', booleanToKhmer(visit.activity2_followed_process)],
           ['មូលហេតុមិនធ្វើតាម', visit.activity2_not_followed_reason || '']
+        );
+      }
+
+      // Add Activity 3 details if exists (note: no followed_process field for activity3)
+      const hasActivity3 = visit.activity3_name_language || visit.activity3_name_numeracy || visit.activity3_duration;
+      if (hasActivity3) {
+        visitData.push(
+          [''],
+          ['សកម្មភាពទី ៣', ''],
+          ['ឈ្មោះសកម្មភាព (ភាសា)', visit.activity3_name_language || ''],
+          ['ឈ្មោះសកម្មភាព (គណិត)', visit.activity3_name_numeracy || ''],
+          ['រយៈពេល (នាទី)', visit.activity3_duration || ''],
+          ['ការណែនាំច្បាស់', booleanToKhmer(visit.activity3_clear_instructions)],
+          ['មូលហេតុមិនច្បាស់', visit.activity3_no_clear_instructions_reason || ''],
+          ['បានបង្ហាញ', booleanToKhmer(visit.activity3_demonstrated)]
         );
       }
 
@@ -376,11 +416,11 @@ export function exportMentoringVisits(visits: any[]): void {
         ['សេចក្តីសម្គាល់', visit.observation || ''],
         ['មតិយោបល់ចំពោះអ្នកបង្រៀន', visit.teacher_feedback || ''],
         ['ផែនការសកម្មភាព', visit.action_plan || ''],
-        ['ត្រូវការការតាមដាន', visit.follow_up_required ? 'បាទ/ចាស' : 'ទេ'],
+        ['ត្រូវការការតាមដាន', booleanToKhmer(visit.follow_up_required)],
         [''],
         ['ស្ថានភាព (Status)', ''],
-        ['ជាប់សោ', visit.is_locked ? 'បាទ/ចាស' : 'ទេ'],
-        ['បណ្តោះអាសន្ន', visit.is_temporary ? 'បាទ/ចាស' : 'ទេ'],
+        ['ជាប់សោ', booleanToKhmer(visit.is_locked)],
+        ['បណ្តោះអាសន្ន', booleanToKhmer(visit.is_temporary)],
         ['ថ្ងៃបង្កើត', visit.created_at ? new Date(visit.created_at).toLocaleDateString('km-KH') : ''],
         ['ថ្ងៃកែសម្រួល', visit.updated_at ? new Date(visit.updated_at).toLocaleDateString('km-KH') : '']
       );

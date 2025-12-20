@@ -42,3 +42,53 @@ coverage/
 *.tmp
 *.temp
 
+# Database backups and migrations
+backups/
+migration_backups/
+*.sql
+*.sql.gz
+*.dump
+
+# Migration and sync scripts
+*-sync-*.sh
+*-migration-*.sh
+*-import-*.sh
+migrate-*.sh
+sync-databases.sh
+setup-sync-schedule.sh
+setup-auto-sync.sh
+monitor-sync.sh
+compare-*.sh
+export_*.sh
+import_*.sh
+split_*.sh
+split_*.py
+prepare_*.sh
+test-*-connection.sh
+update-env-*.sh
+backup-*.sh
+quick-sync-*.sh
+auto_import_helper.sh
+
+# Migration documentation (generated)
+*_MIGRATION*.md
+*_SYNC*.md
+COMPARISON_REPORT.md
+IMPORT_INSTRUCTIONS.md
+MANUAL_SQL_MIGRATION_GUIDE.md
+SIMPLE_IMPORT_GUIDE.md
+SUPABASE_QUICK_REFERENCE.md
+
+# Database comparison files
+database_comparison_*.txt
+update_sequences.sql
+supabase_schema.sql
+supabase_verification.sql
+
+# Generated report scripts
+generate-comparison-report.js
+generate-report-*.js
+
+# Supabase local development
+.supabase/
+
