@@ -88,7 +88,7 @@ pipeline {
             }
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh 'npm run test -- --passWithNoTests || true'
+                    sh 'npm run test || true'
                 }
             }
         }
