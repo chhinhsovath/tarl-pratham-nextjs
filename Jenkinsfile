@@ -58,18 +58,22 @@ pipeline {
 
         stage('Build Application') {
             options {
-                timeout(time: 30, unit: 'MINUTES')
+                timeout(time: 60, unit: 'MINUTES')
             }
             steps {
                 sh '''
-                    # Build Next.js application with increased memory (3GB for faster builds)
-                    # and optimization flags
-                    export NODE_OPTIONS='--max-old-space-size=3072'
+                    # Build Next.js application with reduced memory to prevent swapping
+                    # Using 1GB instead of 3GB to stay within server RAM limits
+                    export NODE_OPTIONS='--max-old-space-size=1024'
                     export NEXT_TELEMETRY_DISABLED=1
 
                     echo "Starting build at $(date) with NODE_OPTIONS=$NODE_OPTIONS"
                     echo "Current memory info:"
                     free -h || true
+
+                    # Check swap usage before build
+                    echo "Swap usage:"
+                    swapon --show || true
 
                     # Run build with timing
                     time npm run build
