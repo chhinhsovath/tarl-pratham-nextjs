@@ -137,7 +137,7 @@ pipeline {
 DATABASE_URL="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=5&statement_timeout=30000&idle_in_transaction_session_timeout=30000&connection_limit=3&pool_timeout=5"
 POSTGRES_PRISMA_URL="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=5&statement_timeout=30000&idle_in_transaction_session_timeout=30000&connection_limit=3&pool_timeout=5"
 POSTGRES_URL_NON_POOLING="postgres://admin:${DB_PASSWORD}@157.10.73.82:5432/tarl_pratham?sslmode=disable&connect_timeout=10"
-NEXTAUTH_URL="https://tarl.openplp.com"
+NEXTAUTH_URL="https://tarl.sovathc.org"
 NEXTAUTH_SECRET="${NEXTAUTH_SECRET}"
 NODE_ENV="production"
 PORT="3006"
