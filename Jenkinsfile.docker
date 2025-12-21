@@ -104,7 +104,7 @@ EOF
                             docker run -d \
                                 --name ${CONTAINER_NAME} \
                                 --restart unless-stopped \
-                                -p 10.1.73.82:3006:3006 \
+                                -p 157.10.73.82:3006:3006 \
                                 --env-file .env \
                                 --memory 1024m \
                                 --cpus 1.0 \
@@ -164,7 +164,7 @@ ENDSSH
 
                     echo "✅ Deployment successful!"
                     echo "Local access: http://localhost:3006"
-                    echo "Server access: http://10.1.73.82:3006"
+                    echo "Server access: http://157.10.73.82:3006"
                     echo "Public URL: https://tarl.sovathc.org (via Nginx Proxy Manager)"
                 '''
             }

@@ -299,7 +299,7 @@ ENDSSH
 
                     echo "✅ Deployment successful and network binding verified!"
                     echo "Local access: http://localhost:3006"
-                    echo "Server access: http://10.1.73.82:3006"
+                    echo "Server access: http://157.10.73.82:3006"
                     echo "Public URL (via NPM): Configure in Nginx Proxy Manager"
                 '''
             }
