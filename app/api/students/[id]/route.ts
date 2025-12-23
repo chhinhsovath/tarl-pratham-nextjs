@@ -69,9 +69,9 @@ export async function GET(
     const student = await prisma.students.findUnique({
       where: { id: studentId },
       include: {
-        school_class: {
+        school_classes: {
           include: {
-            school: {
+            schools: {
               select: {
                 id: true,
                 name: true,
@@ -89,7 +89,7 @@ export async function GET(
             district: true
           }
         },
-        users_assessments_added_by_idTousers: {
+        users: {
           select: {
             id: true,
             name: true,

@@ -419,9 +419,9 @@ export async function POST(request: NextRequest) {
         test_session_id: testSessionId
       },
       include: {
-        school_class: {
+        school_classes: {
           include: {
-            school: {
+            schools: {
               select: {
                 id: true,
                 name: true,
@@ -437,7 +437,7 @@ export async function POST(request: NextRequest) {
             school_code: true
           }
         },
-        users_assessments_added_by_idTousers: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -447,7 +447,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: "បានបង្កើតសិស្សដោយជោគជ័យ",
       data: student 
     }, { status: 201 });
@@ -577,9 +577,9 @@ export async function PUT(request: NextRequest) {
       where: { id: parseInt(id) },
       data: validatedData,
       include: {
-        school_class: {
+        school_classes: {
           include: {
-            school: {
+            schools: {
               select: {
                 id: true,
                 name: true,
@@ -595,7 +595,7 @@ export async function PUT(request: NextRequest) {
             school_code: true
           }
         },
-        users_assessments_added_by_idTousers: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -605,7 +605,7 @@ export async function PUT(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: "Student updated successfully",
       data: student 
     });

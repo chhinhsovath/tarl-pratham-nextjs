@@ -56,9 +56,9 @@ export async function GET(
       include: {
         students: {
           include: {
-            school_class: {
+            school_classes: {
               include: {
-                school: {
+                schools: {
                   select: { name: true }
                 }
               }
