@@ -407,6 +407,12 @@ export async function POST(request: NextRequest) {
       has_session_plan,
       followed_session_plan,
       session_plan_appropriate,
+      // CRITICAL: Remove these from spread to prevent override
+      students_grouped_by_level: _students_grouped,
+      students_active_participation: _students_active,
+      teacher_has_lesson_plan: _teacher_plan,
+      followed_lesson_plan: _followed_plan,
+      plan_appropriate_for_levels: _plan_appropriate,
       ...cleanedData
     } = validatedData;
 
@@ -562,6 +568,12 @@ export async function PUT(request: NextRequest) {
       has_session_plan,
       followed_session_plan,
       session_plan_appropriate,
+      // CRITICAL: Remove these from spread to prevent override
+      students_grouped_by_level: _students_grouped_upd,
+      students_active_participation: _students_active_upd,
+      teacher_has_lesson_plan: _teacher_plan_upd,
+      followed_lesson_plan: _followed_plan_upd,
+      plan_appropriate_for_levels: _plan_appropriate_upd,
       ...cleanedUpdateData
     } = validatedData;
 
