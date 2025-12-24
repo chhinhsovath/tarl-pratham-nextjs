@@ -409,6 +409,7 @@ export async function POST(request: NextRequest) {
         // ALL data is production - no temporary data anymore
         is_temporary: false,
         assessed_date: validatedData.assessed_date ? new Date(validatedData.assessed_date) : new Date(),
+        updated_at: new Date(),
         record_status: 'production',
         created_by_role: session.user.role,
         test_session_id: testSessionId,
@@ -477,7 +478,7 @@ export async function POST(request: NextRequest) {
           error: "ទិន្នន័យមិនត្រឹមត្រូវ សូមពិនិត្យឡើងវិញ",
           message: "Validation failed",
           code: "VALIDATION_ERROR",
-          meta: error.errors,
+          meta: error.issues,
           details: error.issues
         },
         { status: 400 }
@@ -603,6 +604,7 @@ async function handleBulkAssessment(body: any, session: any) {
             assessed_by_mentor: assessmentData.assessed_by_mentor !== undefined ? assessmentData.assessed_by_mentor : (session.user.role === "mentor"),
             is_temporary: assessmentData.mentor_assessment_id ? false : (session.user.role === "mentor" ? true : false),
             assessed_date: assessmentData.assessed_date ? new Date(assessmentData.assessed_date) : new Date(),
+            updated_at: new Date(),
             record_status: assessmentData.mentor_assessment_id ? 'production' : recordStatus,
             created_by_role: session.user.role,
             test_session_id: testSessionId,
@@ -664,7 +666,7 @@ async function handleBulkAssessment(body: any, session: any) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "Validation failed", details: error.issues },
         { status: 400 }
       );
     }
@@ -706,7 +708,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
     }
 
-    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
+    if (!await canAccessAssessment(session.user.role, session.user.id, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -766,11 +768,11 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "Validation failed", details: error.issues },
         { status: 400 }
       );
     }
-    
+
     console.error("Error updating assessment:", error);
     return NextResponse.json(
       { error: "Internal server error" },
@@ -808,7 +810,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
     }
 
-    if (!canAccessAssessment(session.user.role, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
+    if (!await canAccessAssessment(session.user.role, session.user.id, session.user.pilot_school_id, existingAssessment.pilot_school_id)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
