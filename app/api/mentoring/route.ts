@@ -25,10 +25,11 @@ const mentoringVisitSchema = z.object({
   village: z.string().optional(),
 
   // Class Session - Support both boolean and number (0/1) from form
+  // IMPORTANT: Use nullish transform to preserve null/undefined values
   class_in_session: z.union([z.boolean(), z.number()]).optional().default(true).transform(val => val === 1 || val === true),
   class_not_in_session_reason: z.string().optional(),
-  full_session_observed: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
-  class_started_on_time: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  full_session_observed: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
+  class_started_on_time: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   late_start_reason: z.string().optional(),
   
   // Student Data
@@ -44,19 +45,19 @@ const mentoringVisitSchema = z.object({
   numeracy_levels_observed: z.any().optional(),
   
   // Classroom Organization - Support both boolean and number (0/1)
-  // REQUIRED: At least one grouping/participation field must be provided
-  students_grouped_by_level: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
-  children_grouped_appropriately: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
-  students_active_participation: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
-  students_fully_involved: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  // IMPORTANT: Use nullish transform to preserve null/undefined values
+  students_grouped_by_level: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
+  children_grouped_appropriately: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
+  students_active_participation: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
+  students_fully_involved: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
 
   // Teacher Planning - Support both boolean and number (0/1)
-  // REQUIRED: Session plan information must be provided
-  has_session_plan: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
-  followed_session_plan: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  // IMPORTANT: Use nullish transform to preserve null/undefined values
+  has_session_plan: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
+  followed_session_plan: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   no_session_plan_reason: z.string().optional(),
   no_follow_plan_reason: z.string().optional(),
-  session_plan_appropriate: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  session_plan_appropriate: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   session_plan_notes: z.string().optional(), // Form sends this
 
   // Classroom Materials
@@ -71,12 +72,12 @@ const mentoringVisitSchema = z.object({
   activity1_name_language: z.string().optional(),
   activity1_name_numeracy: z.string().optional(),
   activity1_duration: z.number().min(0).optional(),
-  activity1_clear_instructions: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity1_clear_instructions: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   activity1_no_clear_instructions_reason: z.string().optional(),
-  activity1_followed_process: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity1_followed_process: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   activity1_not_followed_reason: z.string().optional(),
   activity1_type: z.string().optional(),
-  activity1_demonstrated: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity1_demonstrated: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   activity1_students_practice: z.string().optional(),
   activity1_small_groups: z.string().optional(),
   activity1_individual: z.string().optional(),
@@ -85,12 +86,12 @@ const mentoringVisitSchema = z.object({
   activity2_name_language: z.string().optional(),
   activity2_name_numeracy: z.string().optional(),
   activity2_duration: z.number().min(0).optional(),
-  activity2_clear_instructions: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity2_clear_instructions: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   activity2_no_clear_instructions_reason: z.string().optional(),
-  activity2_followed_process: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity2_followed_process: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   activity2_not_followed_reason: z.string().optional(),
   activity2_type: z.string().optional(),
-  activity2_demonstrated: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity2_demonstrated: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   activity2_students_practice: z.string().optional(),
   activity2_small_groups: z.string().optional(),
   activity2_individual: z.string().optional(),
@@ -99,11 +100,11 @@ const mentoringVisitSchema = z.object({
   activity3_name_language: z.string().optional(),
   activity3_name_numeracy: z.string().optional(),
   activity3_duration: z.number().min(0).optional(),
-  activity3_clear_instructions: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity3_clear_instructions: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   activity3_no_clear_instructions_reason: z.string().optional(),
-  activity3_followed_process: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true), // Accepted but not saved
+  activity3_followed_process: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)), // Accepted but not saved
   activity3_not_followed_reason: z.string().optional(), // Accepted but not saved
-  activity3_demonstrated: z.union([z.boolean(), z.number()]).optional().transform(val => val === 1 || val === true),
+  activity3_demonstrated: z.union([z.boolean(), z.number()]).nullish().transform(val => val == null ? null : (val === 1 || val === true)),
   activity3_students_practice: z.string().optional(),
   activity3_small_groups: z.string().optional(),
   activity3_individual: z.string().optional(),
