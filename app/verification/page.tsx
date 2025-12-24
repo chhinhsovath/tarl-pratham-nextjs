@@ -526,20 +526,20 @@ export default function VerificationPage() {
       title: 'លេខសិស្ស',
       key: 'student_id',
       width: 100,
-      render: (record: any) => record.student?.student_id || '-'
+      render: (record: any) => record.students?.student_id || '-'
     },
     {
       title: 'សិស្ស',
       key: 'student',
       render: (record: any) => (
-        <div className="font-semibold">{record.student?.name}</div>
+        <div className="font-semibold">{record.students?.name || '-'}</div>
       )
     },
     {
       title: 'សាលា',
       key: 'school',
       render: (record: any) => (
-        <div className="text-sm">{record.pilot_school?.school_name || '-'}</div>
+        <div className="text-sm">{record.pilot_schools?.school_name || '-'}</div>
       )
     },
     {
@@ -580,7 +580,7 @@ export default function VerificationPage() {
       title: 'វាយតម្លៃដោយ',
       key: 'assessor',
       render: (record: any) => (
-        <div className="text-sm">{record.added_by?.name || '-'}</div>
+        <div className="text-sm">{record.users_assessments_added_by_idTousers?.name || '-'}</div>
       )
     },
     {
@@ -621,8 +621,8 @@ export default function VerificationPage() {
                     const params = new URLSearchParams({
                       verificationMode: 'true',
                       originalAssessmentId: record.id.toString(),
-                      studentId: record.student?.id?.toString() || '',
-                      studentName: record.student?.name || '',
+                      studentId: record.students?.id?.toString() || '',
+                      studentName: record.students?.name || '',
                       assessmentType: record.assessment_type || '',
                       subject: record.subject || ''
                     });
@@ -658,8 +658,8 @@ export default function VerificationPage() {
                 const params = new URLSearchParams({
                   verificationMode: 'true',
                   originalAssessmentId: record.id.toString(),
-                  studentId: record.student?.id?.toString() || '',
-                  studentName: record.student?.name || ''
+                  studentId: record.students?.id?.toString() || '',
+                  studentName: record.students?.name || ''
                 });
                 router.push(`/assessments/create?${params.toString()}`);
               }}
