@@ -414,13 +414,15 @@ export async function POST(request: NextRequest) {
       ...cleanedData,
       mentor_id: parseInt(session.user.id),
       visit_date: new Date(validatedData.visit_date),
-      lesson_plan_feedback: session_plan_notes || null, // Map session_plan_notes to lesson_plan_feedback
+      lesson_plan_feedback: session_plan_notes ?? null, // Map session_plan_notes to lesson_plan_feedback
       // Map form fields to correct database columns
-      students_grouped_by_level: validatedData.students_grouped_by_level || children_grouped_appropriately || null,
-      students_active_participation: validatedData.students_active_participation || students_fully_involved || null,
-      teacher_has_lesson_plan: validatedData.teacher_has_lesson_plan || has_session_plan || null,
-      followed_lesson_plan: validatedData.followed_lesson_plan || followed_session_plan || null,
-      plan_appropriate_for_levels: validatedData.plan_appropriate_for_levels || session_plan_appropriate || null,
+      // IMPORTANT: Use ?? (nullish coalescing) NOT || (logical OR)
+      // Because false || null = null (WRONG), but false ?? null = false (CORRECT)
+      students_grouped_by_level: validatedData.students_grouped_by_level ?? children_grouped_appropriately ?? null,
+      students_active_participation: validatedData.students_active_participation ?? students_fully_involved ?? null,
+      teacher_has_lesson_plan: validatedData.teacher_has_lesson_plan ?? has_session_plan ?? null,
+      followed_lesson_plan: validatedData.followed_lesson_plan ?? followed_session_plan ?? null,
+      plan_appropriate_for_levels: validatedData.plan_appropriate_for_levels ?? session_plan_appropriate ?? null,
       photos: validatedData.photos ? JSON.stringify(validatedData.photos) : null,
       grades_observed: validatedData.grades_observed ? JSON.stringify(validatedData.grades_observed) : null,
       language_levels_observed: validatedData.language_levels_observed ? JSON.stringify(validatedData.language_levels_observed) : null,
@@ -566,7 +568,7 @@ export async function PUT(request: NextRequest) {
     const updateDbData = {
       ...cleanedUpdateData,
       visit_date: validatedData.visit_date ? new Date(validatedData.visit_date) : undefined,
-      lesson_plan_feedback: session_plan_notes || undefined, // Map session_plan_notes to lesson_plan_feedback
+      lesson_plan_feedback: session_plan_notes ?? undefined, // Map session_plan_notes to lesson_plan_feedback
       // Map form fields to correct database columns
       students_grouped_by_level: validatedData.students_grouped_by_level !== undefined ? validatedData.students_grouped_by_level : (children_grouped_appropriately !== undefined ? children_grouped_appropriately : undefined),
       students_active_participation: validatedData.students_active_participation !== undefined ? validatedData.students_active_participation : (students_fully_involved !== undefined ? students_fully_involved : undefined),
