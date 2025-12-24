@@ -80,15 +80,15 @@ export async function GET(request: NextRequest) {
                 school_name: true,
                 province: true,
                 district: true
-        }
-        },
-            mentor: {
+              }
+            },
+            users: {
               select: {
                 id: true,
                 name: true
-        }
-        }
-        },
+              }
+            }
+          },
           orderBy: { visit_date: "desc" },
           take: 10
         })

@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
       "ID",
       "កាលបរិច្ចេទ",
       "ឈ្មោះសាលា",
-      "កូដសាលា", 
+      "កូដសាលា",
       "ឈ្មោះអ្នកណែនាំ",
       "ឈ្មោះគ្រូ",
       "ថ្នាក់រៀនដំណើរការ",
@@ -129,7 +129,13 @@ export async function GET(request: NextRequest) {
       "សកម្មភាពចំនួន",
       "ពិន្ទុ",
       "ត្រូវការតាមដាន",
-      "ស្ថានភាព"
+      "ស្ថានភាព",
+      // Teaching & Organization section (ការបង្រៀន និងការរៀបចំ)
+      "ថ្នាក់រៀនចាប់ផ្តើមទាន់ពេល",
+      "មូលហេតុចាប់ផ្តើមយឺត",
+      "ឧបករណ៍បង្រៀន",
+      "សិស្សបានដាក់ក្រុមតាមកម្រិត",
+      "សិស្សចូលរួមយ៉ាងសកម្ម"
     ];
 
     const csvRows = visits.map(visit => [
@@ -148,7 +154,13 @@ export async function GET(request: NextRequest) {
       visit.score || '',
       visit.follow_up_required ? 'បាទ/ចាស' : 'ទេ',
       visit.status === 'completed' ? 'បានបញ្ចប់' :
-      visit.status === 'cancelled' ? 'បានបោះបង់' : 'កំពុងដំណើរការ'
+      visit.status === 'cancelled' ? 'បានបោះបង់' : 'កំពុងដំណើរការ',
+      // Teaching & Organization section - read from actual database values
+      visit.class_started_on_time === true ? 'បាទ/ចាស' : visit.class_started_on_time === false ? 'ទេ' : '',
+      visit.late_start_reason || '',
+      visit.teaching_materials || '',
+      visit.students_grouped_by_level === true ? 'បាទ/ចាស' : visit.students_grouped_by_level === false ? 'ទេ' : '',
+      visit.students_active_participation === true ? 'បាទ/ចាស' : visit.students_active_participation === false ? 'ទេ' : ''
     ]);
 
     // Convert to CSV format
