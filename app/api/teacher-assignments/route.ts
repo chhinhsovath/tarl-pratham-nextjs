@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [assignments, total] = await Promise.all([
-      prisma.teacherSchoolAssignment.findMany({
+      prisma.teacher_school_assignments.findMany({
         where,
         include: {
           teacher: {
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { created_at: "desc" }
       }),
-      prisma.teacherSchoolAssignment.count({ where })
+      prisma.teacher_school_assignments.count({ where })
     ]);
 
     return NextResponse.json({
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if assignment already exists
-    const existingAssignment = await prisma.teacherSchoolAssignment.findFirst({
+    const existingAssignment = await prisma.teacher_school_assignments.findFirst({
       where: {
         teacher_id: validatedData.teacher_id,
         pilot_school_id: validatedData.pilot_school_id,
@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create assignment
-    const assignment = await prisma.teacherSchoolAssignment.create({
+    const assignment = await prisma.teacher_school_assignments.create({
       data: {
         ...validatedData,
         assigned_by_id: parseInt(session.user.id),
@@ -305,7 +305,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if assignment exists
-    const existingAssignment = await prisma.teacherSchoolAssignment.findUnique({
+    const existingAssignment = await prisma.teacher_school_assignments.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -320,7 +320,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update assignment
-    const updatedAssignment = await prisma.teacherSchoolAssignment.update({
+    const updatedAssignment = await prisma.teacher_school_assignments.update({
       where: { id: parseInt(id) },
       data: {
         is_active: is_active !== undefined ? is_active : existingAssignment.is_active,
@@ -397,7 +397,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if assignment exists
-    const existingAssignment = await prisma.teacherSchoolAssignment.findUnique({
+    const existingAssignment = await prisma.teacher_school_assignments.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -412,7 +412,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete assignment
-    await prisma.teacherSchoolAssignment.delete({
+    await prisma.teacher_school_assignments.delete({
       where: { id: parseInt(id) }
     });
 
