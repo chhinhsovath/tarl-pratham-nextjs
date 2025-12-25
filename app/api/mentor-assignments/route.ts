@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
       prisma.mentor_school_assignments.findMany({
         where,
         include: {
-          mentor: {
+          users_mentor_school_assignments_mentor_idTousers: {
             select: {
               id: true,
               name: true,
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
               cluster: true,
             }
           },
-          assigned_by: {
+          users_mentor_school_assignments_assigned_by_idTousers: {
             select: {
               id: true,
               name: true,
@@ -116,8 +116,15 @@ export async function GET(request: NextRequest) {
       prisma.mentor_school_assignments.count({ where })
     ]);
 
+    // Map to simpler field names for frontend
+    const mappedAssignments = assignments.map(a => ({
+      ...a,
+      mentor: a.users_mentor_school_assignments_mentor_idTousers,
+      assigned_by: a.users_mentor_school_assignments_assigned_by_idTousers,
+    }));
+
     return NextResponse.json({
-      data: assignments,
+      data: mappedAssignments,
       pagination: {
         page,
         limit,
@@ -225,9 +232,10 @@ export async function POST(request: NextRequest) {
       data: {
         ...validatedData,
         assigned_by_id: parseInt(session.user.id),
+        updated_at: new Date(),
       },
       include: {
-        mentor: {
+        users_mentor_school_assignments_mentor_idTousers: {
           select: {
             id: true,
             name: true,
@@ -246,8 +254,14 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Map to simpler field names
+    const mappedAssignment = {
+      ...assignment,
+      mentor: assignment.users_mentor_school_assignments_mentor_idTousers,
+    };
+
     return NextResponse.json({
-      data: assignment,
+      data: mappedAssignment,
       message: "បានបង្កើតការចាត់តាំងដោយជោគជ័យ",
       success: true
     }, { status: 201 });
@@ -328,7 +342,7 @@ export async function PUT(request: NextRequest) {
         updated_at: new Date(),
       },
       include: {
-        mentor: {
+        users_mentor_school_assignments_mentor_idTousers: {
           select: {
             id: true,
             name: true,
@@ -347,8 +361,14 @@ export async function PUT(request: NextRequest) {
       }
     });
 
+    // Map to simpler field names
+    const mappedUpdate = {
+      ...updatedAssignment,
+      mentor: updatedAssignment.users_mentor_school_assignments_mentor_idTousers,
+    };
+
     return NextResponse.json({
-      data: updatedAssignment,
+      data: mappedUpdate,
       message: "បានកែប្រែការចាត់តាំងដោយជោគជ័យ",
       success: true
     });
