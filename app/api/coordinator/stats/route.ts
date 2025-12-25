@@ -28,56 +28,51 @@ export async function GET(request: NextRequest) {
 
     console.log(`[COORDINATOR STATS] LIVE DATA MODE - User: ${session.user.email}`);
 
-    // FETCH LIVE DATA - NO CACHE
-    // Always get fresh data from database (with aggregations for charts)
-    // Performance: 100-200ms for live data with aggregations is acceptable
+    // FETCH LIVE DATA - SEQUENTIAL BATCHES
+    // Optimized for serverless with limited connection pool (connection_limit=1)
+    // Queries run in small sequential batches to prevent connection exhaustion
+    // Performance: 300-500ms (slower than Promise.all but works with strict pool limits)
     try {
-      const [
-        total_students,
-        total_assessments,
-        total_schools,
-        total_mentoring_visits,
-        total_teachers,
-        total_mentors,
-        baseline_assessments,
-        midline_assessments,
-        endline_assessments,
-        language_assessments,
-        math_assessments,
-        assessments_by_level,
-        assessments_by_cycle_and_level
-      ] = await Promise.all([
-        prisma.students.count({ where: { is_active: true } }),
-        prisma.assessments.count(),
-        prisma.pilot_schools.count(),
-        prisma.mentoring_visits.count(),
-        prisma.users.count({ where: { role: 'teacher', is_active: true } }),
-        prisma.users.count({ where: { role: 'mentor', is_active: true } }),
-        prisma.assessments.count({ where: { assessment_type: 'baseline' } }),
-        prisma.assessments.count({ where: { assessment_type: 'midline' } }),
-        prisma.assessments.count({ where: { assessment_type: 'endline' } }),
-        prisma.assessments.count({ where: { subject: 'language' } }),
-        prisma.assessments.count({ where: { subject: 'math' } }),
-        // Query for by_level: Group assessments by level, count khmer and math
-        prisma.assessments.groupBy({
-          by: ['level'],
-          _count: {
-            id: true,
-          },
-          where: { level: { not: null } }
-        }),
-        // Query for overall results: Group by assessment_type and level, count by subject
-        prisma.assessments.groupBy({
-          by: ['assessment_type', 'level', 'subject'],
-          _count: {
-            id: true,
-          },
-          where: {
-            level: { not: null },
-            assessment_type: { in: ['baseline', 'midline', 'endline'] }
-          }
-        })
-      ]);
+      // ━━━ BATCH 1: Basic Entity Counts (run sequentially to use 1 connection) ━━━
+      console.log('[COORDINATOR STATS] Fetching basic counts...');
+      const total_students = await prisma.students.count({ where: { is_active: true } });
+      const total_assessments = await prisma.assessments.count();
+      const total_schools = await prisma.pilot_schools.count();
+      const total_mentoring_visits = await prisma.mentoring_visits.count();
+      const total_teachers = await prisma.users.count({ where: { role: 'teacher', is_active: true } });
+      const total_mentors = await prisma.users.count({ where: { role: 'mentor', is_active: true } });
+
+      // ━━━ BATCH 2: Assessment Type Counts ━━━
+      console.log('[COORDINATOR STATS] Fetching assessment types...');
+      const baseline_assessments = await prisma.assessments.count({ where: { assessment_type: 'baseline' } });
+      const midline_assessments = await prisma.assessments.count({ where: { assessment_type: 'midline' } });
+      const endline_assessments = await prisma.assessments.count({ where: { assessment_type: 'endline' } });
+
+      // ━━━ BATCH 3: Subject Counts ━━━
+      console.log('[COORDINATOR STATS] Fetching subject counts...');
+      const language_assessments = await prisma.assessments.count({ where: { subject: 'language' } });
+      const math_assessments = await prisma.assessments.count({ where: { subject: 'math' } });
+
+      // ━━━ BATCH 4: Aggregations (more complex, run one at a time) ━━━
+      console.log('[COORDINATOR STATS] Fetching aggregations...');
+      const assessments_by_level = await prisma.assessments.groupBy({
+        by: ['level'],
+        _count: {
+          id: true,
+        },
+        where: { level: { not: null } }
+      });
+
+      const assessments_by_cycle_and_level = await prisma.assessments.groupBy({
+        by: ['assessment_type', 'level', 'subject'],
+        _count: {
+          id: true,
+        },
+        where: {
+          level: { not: null },
+          assessment_type: { in: ['baseline', 'midline', 'endline'] }
+        }
+      });
 
       console.log('[COORDINATOR STATS] LIVE data fetched:', {
         schools: total_schools,
