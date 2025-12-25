@@ -370,6 +370,7 @@ export async function POST(request: NextRequest) {
       mentor_id: parseInt(session.user.id),
       pilot_school_id: validatedData.pilot_school_id,
       visit_date: new Date(validatedData.visit_date),
+      updated_at: new Date(),
 
       // Direct mappings (form field = DB field)
       teacher_id: validatedData.teacher_id ?? null,
@@ -578,7 +579,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // COMPLETE update mapping
-    const updateDbData: any = {};
+    const updateDbData: any = {
+      updated_at: new Date() // Always update timestamp
+    };
 
     if (validatedData.visit_date !== undefined) updateDbData.visit_date = new Date(validatedData.visit_date);
     if (validatedData.pilot_school_id !== undefined) updateDbData.pilot_school_id = validatedData.pilot_school_id;
