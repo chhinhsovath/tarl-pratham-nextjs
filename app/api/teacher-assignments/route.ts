@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
               cluster: true,
             }
           },
-          assigned_by: {
+          users_teacher_school_assignments_assigned_by_idTousers: {
             select: {
               id: true,
               name: true,
