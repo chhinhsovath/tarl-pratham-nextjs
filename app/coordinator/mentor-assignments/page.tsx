@@ -61,8 +61,8 @@ interface Assignment {
   is_active: boolean;
   notes?: string;
   mentor: Mentor;
-  pilot_school: PilotSchool;
-  assigned_by?: {
+  pilot_schools: PilotSchool;
+  users_mentor_school_assignments_assigned_by_idTousers?: {
     id: number;
     name: string;
   };
@@ -345,7 +345,7 @@ function MentorAssignmentsPageContent() {
     },
     {
       title: "សាលារៀន",
-      dataIndex: ["pilot_school", "school_name"],
+      dataIndex: ["pilot_schools", "school_name"],
       key: "school_name",
       render: (text: string, record: Assignment) => (
         <Space direction="vertical" size={0}>
@@ -353,7 +353,7 @@ function MentorAssignmentsPageContent() {
             <BankOutlined /> {text}
           </div>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            {record.pilot_school.province} - {record.pilot_school.district}
+            {record.pilot_schools.province} - {record.pilot_schools.district}
           </Text>
         </Space>
       ),
