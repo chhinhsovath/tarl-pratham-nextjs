@@ -117,6 +117,56 @@ function StudentsContent() {
       }
 
       console.log(`✅ All students fetched: ${allStudents.length} total`);
+
+      // Fetch assessments to populate assessment levels
+      if (allStudents.length > 0) {
+        const studentIds = allStudents.map(s => s.id);
+        const assessmentResponse = await fetch(`/api/assessments/students`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ student_ids: studentIds })
+        });
+
+        if (assessmentResponse.ok) {
+          const assessmentData = await assessmentResponse.json();
+          const assessmentMap = new Map();
+
+          // Build a map of student_id -> assessment levels
+          assessmentData.forEach((assessment: any) => {
+            const key = assessment.student_id;
+            if (!assessmentMap.has(key)) {
+              assessmentMap.set(key, {
+                baseline_khmer_level: null,
+                baseline_math_level: null,
+                midline_khmer_level: null,
+                midline_math_level: null,
+                endline_khmer_level: null,
+                endline_math_level: null
+              });
+            }
+
+            const levels = assessmentMap.get(key);
+            const subject = assessment.subject.toLowerCase().includes('khmer') ? 'khmer' : 'math';
+            const levelKey = `${assessment.assessment_type.toLowerCase()}_${subject}_level`;
+
+            if (assessment.level) {
+              levels[levelKey] = assessment.level;
+            }
+          });
+
+          // Merge assessment levels into students
+          allStudents = allStudents.map(student => {
+            const assessmentLevels = assessmentMap.get(student.id) || {};
+            return {
+              ...student,
+              ...assessmentLevels
+            };
+          });
+
+          console.log('✅ Assessment levels enriched');
+        }
+      }
+
       setStudents(allStudents);
 
       // Track activity: User viewed student list
