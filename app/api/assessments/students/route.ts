@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
     const studentsWithAssessments = students.map(student => {
       const hasAssessment = student.assessments.length > 0;
       const assessment = hasAssessment ? student.assessments[0] : null;
-      
+
       return {
         id: student.id,
         name: student.name,
@@ -137,6 +137,50 @@ export async function GET(request: NextRequest) {
         error: 'Failed to fetch students',
         message: error.message,
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { student_ids } = body;
+
+    if (!student_ids || !Array.isArray(student_ids) || student_ids.length === 0) {
+      return NextResponse.json({ error: 'student_ids array is required' }, { status: 400 });
+    }
+
+    // Fetch all assessments for these students
+    const assessments = await prisma.assessments.findMany({
+      where: {
+        student_id: { in: student_ids }
+      },
+      select: {
+        id: true,
+        student_id: true,
+        subject: true,
+        assessment_type: true,
+        level: true,
+        assessed_date: true
+      }
+    });
+
+    return NextResponse.json(assessments);
+
+  } catch (error: any) {
+    console.error('❌ [API] Error in POST /api/assessments/students:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch assessments',
+        message: error.message
       },
       { status: 500 }
     );
