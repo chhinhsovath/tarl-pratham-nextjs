@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
             schools: true,
           },
         },
-        users_assessments_added_by_idTousers: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -120,7 +120,6 @@ export async function GET(request: NextRequest) {
       'Gender': student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender || '',
       'Age': student.age || '',
       'Grade': student.grade ? `ទី${student.grade}` : '',
-      'Date of Birth': student.date_of_birth ? new Date(student.date_of_birth).toISOString().split('T')[0] : '',
       'Guardian Name': student.guardian_name || '',
       'Guardian Phone': student.guardian_phone || '',
       'Address': student.address || '',
@@ -136,8 +135,8 @@ export async function GET(request: NextRequest) {
       'Midline Math Level': student.midline_math_level || '',
       'Endline Khmer Level': student.endline_khmer_level || '',
       'Endline Math Level': student.endline_math_level || '',
-      'Added By': student.users_assessments_added_by_idTousers?.name || '',
-      'Added By Role': student.created_by_role || student.users_assessments_added_by_idTousers?.role || '',
+      'Added By': student.users?.name || '',
+      'Added By Role': student.created_by_role || student.users?.role || '',
       'Added By Mentor': student.added_by_mentor ? 'Yes' : 'No',
       'Is Temporary': student.is_temporary ? 'Yes' : 'No',
       'Record Status': student.record_status === 'production' ? 'ផលិតកម្ម' :
