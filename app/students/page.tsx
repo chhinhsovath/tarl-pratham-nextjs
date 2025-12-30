@@ -82,6 +82,7 @@ function StudentsContent() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
+  const [exportFilter, setExportFilter] = useState<'all' | 'both' | 'three'>('all');
 
   useEffect(() => {
     fetchStudents();
@@ -212,7 +213,12 @@ function StudentsContent() {
 
   const handleExport = async () => {
     try {
-      const response = await fetch('/api/students/export');
+      const params = new URLSearchParams();
+      if (exportFilter !== 'all') {
+        params.append('assessment_filter', exportFilter);
+      }
+
+      const response = await fetch(`/api/students/export?${params.toString()}`);
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -223,14 +229,14 @@ function StudentsContent() {
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        message.success('ឯកសារលម្អិតសិស្សបានដោះលក់ដោយជោគជ័យ');
+        message.success('ឯកសារលម្អិតសិស្សបានទាញចេញដោយជោគជ័យ');
       } else {
         const error = await response.json();
-        message.error(error.error || 'មានបញ្ហាក្នុងការដោះលក់ឯកសារ');
+        message.error(error.error || 'មានបញ្ហាក្នុងការទាញចេញឯកសារ');
       }
     } catch (error) {
       console.error('Export error:', error);
-      message.error('មានបញ្ហាក្នុងការដោះលក់ឯកសារ');
+      message.error('មានបញ្ហាក្នុងការទាញចេញឯកសារ');
     }
   };
 
@@ -471,13 +477,24 @@ function StudentsContent() {
                 >
                   បន្ថែមសិស្សថ្មី
                 </Button>
+                <Select
+                  value={exportFilter}
+                  onChange={setExportFilter}
+                  style={{ width: 200 }}
+                  size="large"
+                  className="flex-1 md:flex-none"
+                >
+                  <Option value="all">ការវាយតម្លៃទាំងអស់</Option>
+                  <Option value="both">Baseline + Endline</Option>
+                  <Option value="three">Baseline + Midline + Endline</Option>
+                </Select>
                 <Button
                   icon={<ExportOutlined />}
                   onClick={handleExport}
                   size="large"
                   className="flex-1 md:flex-none"
                 >
-                  ដោះលក់
+                  ទាញចេញ
                 </Button>
               </div>
             </Col>

@@ -85,15 +85,80 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Get assessment filter parameter
+    const assessmentFilter = request.nextUrl.searchParams.get('assessment_filter') || 'all';
+    console.log(`[Students Export] Assessment filter: ${assessmentFilter}`);
+
     // Instead of student summary data, fetch and export individual assessments
     // This shows each assessment as a separate row
     console.log('[Students Export] Fetching individual assessments...');
-    const assessments = await prisma.assessments.findMany({
-      where: {
-        students: {
-          pilot_school_id: userRole === 'teacher' ? (session.user as any).pilot_school_id : undefined,
+
+    // First, get all students and their assessment counts to filter them
+    let studentIds: number[] = [];
+
+    if (assessmentFilter !== 'all') {
+      const studentsData = await prisma.students.findMany({
+        where: whereClause,
+        select: { id: true },
+      });
+
+      // Get all assessments for these students
+      const allAssessments = await prisma.assessments.findMany({
+        where: {
+          student_id: { in: studentsData.map(s => s.id) },
         },
-      },
+        select: {
+          student_id: true,
+          assessment_type: true,
+        },
+      });
+
+      // Build map of student_id -> set of assessment types
+      const studentAssessmentTypes = new Map<number, Set<string>>();
+      allAssessments.forEach(assessment => {
+        if (!studentAssessmentTypes.has(assessment.student_id)) {
+          studentAssessmentTypes.set(assessment.student_id, new Set());
+        }
+        studentAssessmentTypes.get(assessment.student_id)!.add(assessment.assessment_type);
+      });
+
+      // Filter based on assessment_filter
+      if (assessmentFilter === 'both') {
+        // Students with at least baseline and endline
+        studentIds = Array.from(studentAssessmentTypes.entries())
+          .filter(([_, types]) => types.has('baseline') && types.has('endline'))
+          .map(([id, _]) => id);
+      } else if (assessmentFilter === 'three') {
+        // Students with all 3 assessment types (baseline, midline, endline)
+        studentIds = Array.from(studentAssessmentTypes.entries())
+          .filter(([_, types]) => types.has('baseline') && types.has('midline') && types.has('endline'))
+          .map(([id, _]) => id);
+      }
+
+      console.log(`[Students Export] Filtered to ${studentIds.length} students with assessment filter: ${assessmentFilter}`);
+    }
+
+    // Build the where clause for assessments query
+    const assessmentWhere: any = {};
+
+    if (studentIds.length > 0) {
+      // If we filtered students, only get assessments for those students
+      assessmentWhere.student_id = { in: studentIds };
+    } else if (assessmentFilter === 'all') {
+      // If no filter, get assessments for all students in the user's school
+      const schoolFilter = userRole === 'teacher' ? (session.user as any).pilot_school_id : undefined;
+      if (schoolFilter) {
+        // Get student IDs from the school first
+        const schoolStudents = await prisma.students.findMany({
+          where: { pilot_school_id: schoolFilter },
+          select: { id: true },
+        });
+        assessmentWhere.student_id = { in: schoolStudents.map(s => s.id) };
+      }
+    }
+
+    const assessments = await prisma.assessments.findMany({
+      where: assessmentWhere,
       include: {
         students: {
           select: {
