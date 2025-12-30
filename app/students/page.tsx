@@ -54,6 +54,10 @@ interface Student {
   };
   baseline_khmer_level?: string;
   baseline_math_level?: string;
+  midline_khmer_level?: string;
+  midline_math_level?: string;
+  endline_khmer_level?: string;
+  endline_math_level?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -271,17 +275,33 @@ function StudentsContent() {
       render: (grade: number) => grade ? `ថ្នាក់ទី${grade}` : '-',
     },
     {
-      title: 'ចំនួនការវាយតម្លៃ',
-      key: 'assessment_count',
-      width: 150,
+      title: 'ការវាយតម្លៃ',
+      key: 'assessment_levels',
+      width: 200,
       render: (_: any, record: Student) => {
-        const assessments = record.assessments || [];
-        const count = assessments.length;
+        const levels = [];
+        const assessmentCounts = {
+          baseline: (record.baseline_khmer_level ? 1 : 0) + (record.baseline_math_level ? 1 : 0),
+          midline: (record.midline_khmer_level ? 1 : 0) + (record.midline_math_level ? 1 : 0),
+          endline: (record.endline_khmer_level ? 1 : 0) + (record.endline_math_level ? 1 : 0),
+        };
+
+        if (assessmentCounts.baseline > 0) levels.push('Baseline');
+        if (assessmentCounts.midline > 0) levels.push('Midline');
+        if (assessmentCounts.endline > 0) levels.push('Endline');
 
         return (
-          <Tag color={count > 0 ? 'blue' : 'default'}>
-            {count} ដង
-          </Tag>
+          <Space size="small" wrap>
+            {levels.length > 0 ? (
+              levels.map((level, idx) => (
+                <Tag key={idx} color={level === 'Baseline' ? 'blue' : level === 'Midline' ? 'orange' : 'green'}>
+                  {level}
+                </Tag>
+              ))
+            ) : (
+              <Tag color="default">មិនទាន់</Tag>
+            )}
+          </Space>
         );
       },
     },
@@ -569,13 +589,28 @@ function StudentsContent() {
                     {/* Baseline */}
                     <div style={{ marginBottom: '12px' }}>
                       <div style={{
-                        fontSize: '12px',
+                        fontSize: '11px',
                         color: '#8c8c8c',
                         marginBottom: '8px',
-                        fontWeight: 600,
+                        fontWeight: 700,
                         textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
+                        letterSpacing: '0.8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
                       }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minWidth: '16px',
+                          height: '16px',
+                          borderRadius: '3px',
+                          background: '#667eea',
+                          color: 'white',
+                          fontSize: '10px',
+                          fontWeight: 700
+                        }}>1</span>
                         មូលដ្ឋាន (Baseline)
                       </div>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -615,13 +650,28 @@ function StudentsContent() {
                     {(student.midline_khmer_level || student.midline_math_level) && (
                       <div style={{ marginBottom: '12px' }}>
                         <div style={{
-                          fontSize: '12px',
+                          fontSize: '11px',
                           color: '#8c8c8c',
                           marginBottom: '8px',
-                          fontWeight: 600,
+                          fontWeight: 700,
                           textTransform: 'uppercase',
-                          letterSpacing: '0.5px'
+                          letterSpacing: '0.8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
                         }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '16px',
+                            height: '16px',
+                            borderRadius: '3px',
+                            background: '#fa709a',
+                            color: 'white',
+                            fontSize: '10px',
+                            fontWeight: 700
+                          }}>2</span>
                           កណ្តាល (Midline)
                         </div>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -659,13 +709,28 @@ function StudentsContent() {
                     {(student.endline_khmer_level || student.endline_math_level) && (
                       <div style={{ marginBottom: '12px' }}>
                         <div style={{
-                          fontSize: '12px',
+                          fontSize: '11px',
                           color: '#8c8c8c',
                           marginBottom: '8px',
-                          fontWeight: 600,
+                          fontWeight: 700,
                           textTransform: 'uppercase',
-                          letterSpacing: '0.5px'
+                          letterSpacing: '0.8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
                         }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '16px',
+                            height: '16px',
+                            borderRadius: '3px',
+                            background: '#52c41a',
+                            color: 'white',
+                            fontSize: '10px',
+                            fontWeight: 700
+                          }}>3</span>
                           បញ្ចប់ (Endline)
                         </div>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
