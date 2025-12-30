@@ -90,8 +90,8 @@ export async function GET(request: NextRequest) {
     const students = await prisma.students.findMany({
       where: whereClause,
       include: {
-        pilot_school: true,
-        school_class: {
+        pilot_schools: true,
+        school_classes: {
           include: {
             school: true,
           },
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
       'Province': student.pilot_schools?.province || '',
       'District': student.pilot_schools?.district || '',
       'Cluster': student.pilot_schools?.cluster || '',
-      'Class': student.school_class?.name || '',
+      'Class': student.school_classes?.name || '',
       'Baseline Khmer Level': student.baseline_khmer_level || '',
       'Baseline Math Level': student.baseline_math_level || '',
       'Midline Khmer Level': student.midline_khmer_level || '',
