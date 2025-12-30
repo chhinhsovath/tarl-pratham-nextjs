@@ -267,14 +267,14 @@ function AssessmentsContent() {
       width: 100,
       render: (record: any) => {
         // Try multiple possible locations for student_id
-        const studentId = record.student?.student_id || record.student_id || '-';
+        const studentId = record.students?.student_id || record.student_id || '-';
         return <span>{studentId}</span>;
       }
     },
     {
       title: 'សិស្ស',
-      dataIndex: 'student',
-      key: 'student',
+      dataIndex: 'students',
+      key: 'students',
       render: (student: any) => (
         <div>
           <strong>{student?.name}</strong>
@@ -447,7 +447,7 @@ function AssessmentsContent() {
           <SoftDeleteButton
             type="assessment"
             id={record.id}
-            displayName={`${record.student?.name || 'N/A'} - ${getSubjectLabelKM(record.subject)}`}
+            displayName={`${record.students?.name || 'N/A'} - ${getSubjectLabelKM(record.subject)}`}
             size="small"
             buttonType="default"
             iconOnly={true}
@@ -550,6 +550,7 @@ function AssessmentsContent() {
             pageSize: pagination.pageSize,
             total: pagination.total,
             showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
             showQuickJumper: true,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} នៃ ${total}`,
