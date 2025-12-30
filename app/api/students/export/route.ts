@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
         pilot_schools: true,
         school_classes: {
           include: {
-            school: true,
+            schools: true,
           },
         },
         users_assessments_added_by_idTousers: {
