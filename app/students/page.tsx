@@ -25,7 +25,8 @@ import {
   EyeOutlined,
   UserOutlined,
   SearchOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  ExportOutlined
 } from '@ant-design/icons';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
@@ -206,6 +207,30 @@ function StudentsContent() {
     } catch (error) {
       console.error('Delete student error:', error);
       message.error('មានបញ្ហាក្នុងការលុបសិស្ស');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await fetch('/api/students/export');
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `students_${dayjs().format('YYYY-MM-DD')}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        message.success('ឯកសារលម្អិតសិស្សបានដោះលក់ដោយជោគជ័យ');
+      } else {
+        const error = await response.json();
+        message.error(error.error || 'មានបញ្ហាក្នុងការដោះលក់ឯកសារ');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      message.error('មានបញ្ហាក្នុងការដោះលក់ឯកសារ');
     }
   };
 
@@ -445,6 +470,14 @@ function StudentsContent() {
                   className="flex-1 md:flex-none"
                 >
                   បន្ថែមសិស្សថ្មី
+                </Button>
+                <Button
+                  icon={<ExportOutlined />}
+                  onClick={handleExport}
+                  size="large"
+                  className="flex-1 md:flex-none"
+                >
+                  ដោះលក់
                 </Button>
               </div>
             </Col>
