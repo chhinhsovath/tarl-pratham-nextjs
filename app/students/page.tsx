@@ -272,9 +272,29 @@ function StudentsContent() {
     }
   };
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredStudents = students
+    .filter(student =>
+      student.name.toLowerCase().includes(searchText.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Count total assessments for each student
+      const countAssessments = (student: Student) => {
+        let count = 0;
+        if (student.baseline_khmer_level) count++;
+        if (student.baseline_math_level) count++;
+        if (student.midline_khmer_level) count++;
+        if (student.midline_math_level) count++;
+        if (student.endline_khmer_level) count++;
+        if (student.endline_math_level) count++;
+        return count;
+      };
+
+      const aCount = countAssessments(a);
+      const bCount = countAssessments(b);
+
+      // Sort descending: students with more assessments first
+      return bCount - aCount;
+    });
 
   const columns = [
     {
@@ -474,6 +494,7 @@ function StudentsContent() {
                 total: filteredStudents.length,
                 pageSize: 10,
                 showSizeChanger: true,
+                pageSizeOptions: ['10', '20', '50', '100'],
                 showQuickJumper: true,
                 showTotal: (total, range) => `${range[0]}-${range[1]} ពី ${total} សិស្ស`,
               }}
