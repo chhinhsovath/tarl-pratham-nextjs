@@ -141,20 +141,55 @@ export async function GET(request: NextRequest) {
     // Build the where clause for assessments query
     const assessmentWhere: any = {};
 
-    if (studentIds.length > 0) {
-      // If we filtered students, only get assessments for those students
-      assessmentWhere.student_id = { in: studentIds };
-    } else if (assessmentFilter === 'all') {
-      // If no filter, get assessments for all students in the user's school
-      const schoolFilter = userRole === 'teacher' ? (session.user as any).pilot_school_id : undefined;
+    // CRITICAL FIX: Always apply school filter for teachers/mentors first
+    let schoolFilter: number | number[] | undefined = undefined;
+    let allowedStudentIds: number[] = [];
+
+    if (userRole === 'teacher') {
+      schoolFilter = (session.user as any).pilot_school_id;
       if (schoolFilter) {
-        // Get student IDs from the school first
         const schoolStudents = await prisma.students.findMany({
           where: { pilot_school_id: schoolFilter },
           select: { id: true },
         });
-        assessmentWhere.student_id = { in: schoolStudents.map(s => s.id) };
+        allowedStudentIds = schoolStudents.map(s => s.id);
       }
+    } else if (userRole === 'mentor') {
+      const userId = parseInt(session.user.id);
+      const mentorAssignments = await prisma.mentor_school_assignments.findMany({
+        where: { mentor_id: userId, is_active: true },
+        select: { pilot_school_id: true },
+      });
+      const schoolIds = mentorAssignments.map(a => a.pilot_school_id);
+
+      if (schoolIds.length > 0) {
+        const schoolStudents = await prisma.students.findMany({
+          where: { pilot_school_id: { in: schoolIds } },
+          select: { id: true },
+        });
+        allowedStudentIds = schoolStudents.map(s => s.id);
+      }
+    }
+
+    if (studentIds.length > 0) {
+      // If we filtered students by assessment criteria, use those IDs
+      // BUT also ensure teacher/mentor can only see their school's students
+      if (allowedStudentIds.length > 0) {
+        // Intersect: only students that are BOTH in the filter AND in user's allowed schools
+        const filteredStudentIds = studentIds.filter(id => allowedStudentIds.includes(id));
+        assessmentWhere.student_id = { in: filteredStudentIds };
+
+        console.log(`[Students Export] School filter applied: ${allowedStudentIds.length} allowed students, ${filteredStudentIds.length} after assessment filter`);
+      } else {
+        // Admin/Coordinator - use all filtered students
+        assessmentWhere.student_id = { in: studentIds };
+      }
+    } else if (assessmentFilter === 'all') {
+      // If no filter, get assessments for all students in the user's allowed schools
+      if (allowedStudentIds.length > 0) {
+        assessmentWhere.student_id = { in: allowedStudentIds };
+      }
+      // For admin/coordinator with no filter, no student_id filter needed (gets all)
     }
 
     const assessments = await prisma.assessments.findMany({
