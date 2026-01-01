@@ -227,7 +227,7 @@ export default function TeacherDashboard({ userId, user }: TeacherDashboardProps
 
                     <div style={{ space: 8 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <Text type="secondary">បានបញ្ចប់:</Text>
+                        <Text type="secondary">បានតេស្តចុងក្រោយគ្រា:</Text>
                         <Text style={{ color: '#52c41a', fontWeight: 'bold' }}>
                           <CheckCircleOutlined style={{ marginRight: 4 }} />
                           {progress.completed}

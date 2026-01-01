@@ -31,6 +31,12 @@ import {
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission } from '@/lib/permissions';
+import {
+  ASSESSMENT_TYPE_LABELS_KM,
+  MATH_LEVEL_LABELS_KM,
+  LANGUAGE_LEVEL_LABELS_KM,
+  getLevelLabelKM
+} from '@/lib/constants/assessment-levels';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -138,7 +144,7 @@ function StudentDetailsPageContent() {
       key: 'assessment_type',
       render: (type: string) => (
         <Tag color={type === 'baseline' ? 'blue' : type === 'midline' ? 'orange' : 'green'}>
-          {type === 'baseline' ? 'មូលដ្ឋាន' : type === 'midline' ? 'កុលសនភាព' : 'បញ្ចប់'}
+          {ASSESSMENT_TYPE_LABELS_KM[type as keyof typeof ASSESSMENT_TYPE_LABELS_KM] || type}
         </Tag>
       )
     },
@@ -351,15 +357,15 @@ function StudentDetailsPageContent() {
                   
                   <Row gutter={16} style={{ marginTop: '16px' }}>
                     <Col span={8}>
-                      <Text type="secondary">មូលដ្ឋាន:</Text>
+                      <Text type="secondary">តេស្តដើមគ្រា:</Text>
                       <div>{assessmentHistory.stats.assessment_types.baseline}</div>
                     </Col>
                     <Col span={8}>
-                      <Text type="secondary">កុលសនភាព:</Text>
+                      <Text type="secondary">តេស្តពាក់កណ្ដាលគ្រា:</Text>
                       <div>{assessmentHistory.stats.assessment_types.midline}</div>
                     </Col>
                     <Col span={8}>
-                      <Text type="secondary">បញ្ចប់:</Text>
+                      <Text type="secondary">តេស្តចុងក្រោយគ្រា:</Text>
                       <div>{assessmentHistory.stats.assessment_types.endline}</div>
                     </Col>
                   </Row>
@@ -377,21 +383,21 @@ function StudentDetailsPageContent() {
                   <div style={{ marginBottom: '16px' }}>
                     <Text strong>កម្រិតបច្ចុប្បន្ន:</Text>
                     <div style={{ marginTop: '8px' }}>
-                      <div>មូលដ្ឋាន: {assessmentHistory.levelProgression.khmer.baseline ? (
+                      <div>តេស្តដើមគ្រា: {assessmentHistory.levelProgression.khmer.baseline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.baseline)}>
-                          {assessmentHistory.levelProgression.khmer.baseline.toUpperCase()}
+                          {LANGUAGE_LEVEL_LABELS_KM[assessmentHistory.levelProgression.khmer.baseline as keyof typeof LANGUAGE_LEVEL_LABELS_KM] || assessmentHistory.levelProgression.khmer.baseline}
                         </Tag>
                       ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
 
-                      <div>កុលសនភាព: {assessmentHistory.levelProgression.khmer.midline ? (
+                      <div>តេស្តពាក់កណ្ដាលគ្រា: {assessmentHistory.levelProgression.khmer.midline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.midline)}>
-                          {assessmentHistory.levelProgression.khmer.midline.toUpperCase()}
+                          {LANGUAGE_LEVEL_LABELS_KM[assessmentHistory.levelProgression.khmer.midline as keyof typeof LANGUAGE_LEVEL_LABELS_KM] || assessmentHistory.levelProgression.khmer.midline}
                         </Tag>
                       ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
 
-                      <div>បញ្ចប់: {assessmentHistory.levelProgression.khmer.endline ? (
+                      <div>តេស្តចុងក្រោយគ្រា: {assessmentHistory.levelProgression.khmer.endline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.khmer.endline)}>
-                          {assessmentHistory.levelProgression.khmer.endline.toUpperCase()}
+                          {LANGUAGE_LEVEL_LABELS_KM[assessmentHistory.levelProgression.khmer.endline as keyof typeof LANGUAGE_LEVEL_LABELS_KM] || assessmentHistory.levelProgression.khmer.endline}
                         </Tag>
                       ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
                     </div>
@@ -412,21 +418,21 @@ function StudentDetailsPageContent() {
                   <div style={{ marginBottom: '16px' }}>
                     <Text strong>កម្រិតបច្ចុប្បន្ន:</Text>
                     <div style={{ marginTop: '8px' }}>
-                      <div>មូលដ្ឋាន: {assessmentHistory.levelProgression.math.baseline ? (
+                      <div>តេស្តដើមគ្រា: {assessmentHistory.levelProgression.math.baseline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.baseline)}>
-                          {assessmentHistory.levelProgression.math.baseline.toUpperCase()}
+                          {MATH_LEVEL_LABELS_KM[assessmentHistory.levelProgression.math.baseline as keyof typeof MATH_LEVEL_LABELS_KM] || assessmentHistory.levelProgression.math.baseline}
                         </Tag>
                       ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
 
-                      <div>កុលសនភាព: {assessmentHistory.levelProgression.math.midline ? (
+                      <div>តេស្តពាក់កណ្ដាលគ្រា: {assessmentHistory.levelProgression.math.midline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.midline)}>
-                          {assessmentHistory.levelProgression.math.midline.toUpperCase()}
+                          {MATH_LEVEL_LABELS_KM[assessmentHistory.levelProgression.math.midline as keyof typeof MATH_LEVEL_LABELS_KM] || assessmentHistory.levelProgression.math.midline}
                         </Tag>
                       ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
 
-                      <div>បញ្ចប់: {assessmentHistory.levelProgression.math.endline ? (
+                      <div>តេស្តចុងក្រោយគ្រា: {assessmentHistory.levelProgression.math.endline ? (
                         <Tag color={getLevelColor(assessmentHistory.levelProgression.math.endline)}>
-                          {assessmentHistory.levelProgression.math.endline.toUpperCase()}
+                          {MATH_LEVEL_LABELS_KM[assessmentHistory.levelProgression.math.endline as keyof typeof MATH_LEVEL_LABELS_KM] || assessmentHistory.levelProgression.math.endline}
                         </Tag>
                       ) : <Text type="secondary">មិនទាន់វាយតម្លៃ</Text>}</div>
                     </div>

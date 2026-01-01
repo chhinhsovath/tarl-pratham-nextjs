@@ -198,9 +198,9 @@ export async function GET(request: NextRequest) {
 
     // Prepare assessment data for export - one row per assessment
     const assessmentTypeMap: Record<string, string> = {
-      baseline: 'មូលដ្ឋាន (Baseline)',
-      midline: 'កណ្តាល (Midline)',
-      endline: 'បញ្ចប់ (Endline)',
+      baseline: 'តេស្តដើមគ្រា (Baseline)',
+      midline: 'តេស្តពាក់កណ្ដាលគ្រា (Midline)',
+      endline: 'តេស្តចុងក្រោយគ្រា (Endline)',
     };
 
     const subjectMap: Record<string, string> = {

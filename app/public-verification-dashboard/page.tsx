@@ -247,9 +247,9 @@ export default function PublicVerificationDashboard() {
                 {Object.entries(stats.by_assessment_type).map(([type, data]) => {
                   const percentage = data.total > 0 ? (data.verified / data.total) * 100 : 0;
                   const typeLabels: Record<string, string> = {
-                    baseline: 'មូលដ្ឋាន',
-                    midline: 'ពាក់កណ្តាល',
-                    endline: 'បញ្ចប់'
+                    baseline: 'តេស្តដើមគ្រា',
+                    midline: 'តេស្តពាក់កណ្ដាលគ្រា',
+                    endline: 'តេស្តចុងក្រោយគ្រា'
                   };
 
                   return (

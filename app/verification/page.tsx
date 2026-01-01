@@ -323,9 +323,9 @@ export default function VerificationPage() {
           comp.school_name || '',
           comp.province || '',
           comp.district || '',
-          comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
-            comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 
-            comp.assessment_type === 'endline' ? 'បញ្ចប់' : '',
+          comp.assessment_type === 'baseline' ? 'តេស្តដើមគ្រា' : 
+            comp.assessment_type === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' : 
+            comp.assessment_type === 'endline' ? 'តេស្តចុងក្រោយគ្រា' : '',
           comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
           comp.teacher_name || '',
           comp.teacher_assessment_date ? dayjs(comp.teacher_assessment_date).format('YYYY-MM-DD') : '',
@@ -382,8 +382,8 @@ export default function VerificationPage() {
           comp.school_name || '',
           comp.province || '',
           comp.district || '',
-          comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
-            comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់',
+          comp.assessment_type === 'baseline' ? 'តេស្តដើមគ្រា' : 
+            comp.assessment_type === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' : 'បញ្ចប់',
           comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
           comp.teacher_name || '',
           comp.teacher_assessment_date ? dayjs(comp.teacher_assessment_date).format('YYYY-MM-DD') : '',
@@ -430,8 +430,8 @@ export default function VerificationPage() {
             comp.school_name || '',
             comp.province || '',
             comp.district || '',
-            comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' : 
-              comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់',
+            comp.assessment_type === 'baseline' ? 'តេស្តដើមគ្រា' : 
+              comp.assessment_type === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' : 'បញ្ចប់',
             comp.subject === 'language' || comp.subject === 'khmer' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា',
             teacherLevelLabel,
             mentorLevelLabel,
@@ -870,9 +870,9 @@ export default function VerificationPage() {
                 style={{ width: '100%' }}
                 size="middle"
               >
-                <Option value="baseline">មូលដ្ឋាន</Option>
-                <Option value="midline">ពាក់កណ្តាល</Option>
-                <Option value="endline">បញ្ចប់</Option>
+                <Option value="baseline">តេស្តដើមគ្រា</Option>
+                <Option value="midline">តេស្តពាក់កណ្ដាលគ្រា</Option>
+                <Option value="endline">តេស្តចុងក្រោយគ្រា</Option>
               </Select>
             </Col>
             <Col xs={12} sm={6} md={4}>

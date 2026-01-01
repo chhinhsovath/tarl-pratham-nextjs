@@ -23,7 +23,7 @@ export default function AssessmentEntryHelpPage() {
   const assessmentSteps = [
     {
       title: 'ជ្រើសរើសប្រភេទការវាយតម្លៃ',
-      description: 'មូលដ្ឋាន (Baseline), ពាក់កណ្តាល (Midline), ឬ បញ្ចប់ (Endline)',
+      description: 'តេស្តដើមគ្រា (Baseline), ពាក់តេស្តពាក់កណ្ដាលគ្រា (Midline), ឬ តេស្តចុងក្រោយគ្រា (Endline)',
       icon: <FileTextOutlined />
     },
     {
@@ -98,7 +98,7 @@ export default function AssessmentEntryHelpPage() {
         {/* Assessment Types */}
         <Card title="ប្រភេទការវាយតម្លៃ" className="mb-6">
           <Space direction="vertical" size="large" className="w-full">
-            <Card type="inner" title={<><CheckCircleOutlined className="text-green-500 mr-2" />មូលដ្ឋាន (Baseline)</>}>
+            <Card type="inner" title={<><CheckCircleOutlined className="text-green-500 mr-2" />តេស្តដើមគ្រា (Baseline)</>}>
               <Paragraph>
                 ការវាយតម្លៃដំបូងដើម្បីវាស់កម្រិតជំនាញដើមរបស់សិស្សមុនពេលចាប់ផ្តើមការបង្រៀន។
               </Paragraph>
@@ -113,7 +113,7 @@ export default function AssessmentEntryHelpPage() {
               />
             </Card>
 
-            <Card type="inner" title={<><ClockCircleOutlined className="text-orange-500 mr-2" />ពាក់កណ្តាល (Midline)</>}>
+            <Card type="inner" title={<><ClockCircleOutlined className="text-orange-500 mr-2" />ពាក់តេស្តពាក់កណ្ដាលគ្រា (Midline)</>}>
               <Paragraph>
                 ការវាយតម្លៃពាក់កណ្តាលដើម្បីតាមដានវឌ្ឍនភាពនិងកែតម្រូវវិធីសាស្រ្តបង្រៀន។
               </Paragraph>
@@ -128,7 +128,7 @@ export default function AssessmentEntryHelpPage() {
               />
             </Card>
 
-            <Card type="inner" title={<><ExclamationCircleOutlined className="text-red-500 mr-2" />បញ្ចប់ (Endline)</>}>
+            <Card type="inner" title={<><ExclamationCircleOutlined className="text-red-500 mr-2" />តេស្តចុងក្រោយគ្រា (Endline)</>}>
               <Paragraph>
                 ការវាយតម្លៃចុងក្រោយដើម្បីវាស់លទ្ធផលការសិក្សាបន្ទាប់ពីបញ្ចប់ការបង្រៀន។
               </Paragraph>

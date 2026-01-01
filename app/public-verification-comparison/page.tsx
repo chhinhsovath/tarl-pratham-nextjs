@@ -197,8 +197,8 @@ export default function PublicVerificationComparison() {
         }
 
         const assessmentTypeLabel =
-          comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' :
-          comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់';
+          comp.assessment_type === 'baseline' ? 'តេស្តដើមគ្រា' :
+          comp.assessment_type === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' : 'បញ្ចប់';
 
         const subjectLabel = (comp.subject === 'language' || comp.subject === 'khmer') ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា';
 
@@ -236,8 +236,8 @@ export default function PublicVerificationComparison() {
           const mentorLevelLabel = comp.mentor_level ? getLevelLabelKM(subject, comp.mentor_level) : '-';
 
           const assessmentTypeLabel =
-            comp.assessment_type === 'baseline' ? 'មូលដ្ឋាន' :
-            comp.assessment_type === 'midline' ? 'ពាក់កណ្តាល' : 'បញ្ចប់';
+            comp.assessment_type === 'baseline' ? 'តេស្តដើមគ្រា' :
+            comp.assessment_type === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' : 'បញ្ចប់';
 
           const subjectLabel = (comp.subject === 'language' || comp.subject === 'khmer') ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា';
 
@@ -495,9 +495,9 @@ export default function PublicVerificationComparison() {
                 allowClear
                 style={{ width: '100%' }}
               >
-                <Option value="baseline">មូលដ្ឋាន</Option>
-                <Option value="midline">ពាក់កណ្តាល</Option>
-                <Option value="endline">បញ្ចប់</Option>
+                <Option value="baseline">តេស្តដើមគ្រា</Option>
+                <Option value="midline">តេស្តពាក់កណ្ដាលគ្រា</Option>
+                <Option value="endline">តេស្តចុងក្រោយគ្រា</Option>
               </Select>
             </Col>
             <Col xs={24} sm={12} md={6}>

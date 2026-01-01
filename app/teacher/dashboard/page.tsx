@@ -491,7 +491,7 @@ function TeacherDashboardContent() {
                 <div style={{ marginBottom: 8 }}>
                   <Text strong>{subject.subject}</Text>
                   <div style={{ float: 'right' }}>
-                    <Text type="secondary">មូលដ្ឋាន: {subject.baseline}%</Text>
+                    <Text type="secondary">តេស្តដើមគ្រា: {subject.baseline}%</Text>
                     <Divider type="vertical" />
                     <Text strong>បច្ចុប្បន្ន: {subject.current}%</Text>
                     <Divider type="vertical" />

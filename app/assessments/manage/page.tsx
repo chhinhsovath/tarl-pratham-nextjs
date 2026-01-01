@@ -477,9 +477,9 @@ export default function AssessmentManagementPage() {
           onChange={(value) => setFilters({ ...filters, assessment_period: value || '' })}
           allowClear
         >
-          <Select.Option value="baseline">មូលដ្ឋាន</Select.Option>
-          <Select.Option value="midline">កុលសនភាព</Select.Option>
-          <Select.Option value="endline">បញ្ចប់</Select.Option>
+          <Select.Option value="baseline">តេស្តដើមគ្រា</Select.Option>
+          <Select.Option value="midline">តេស្តពាក់កណ្ដាលគ្រា</Select.Option>
+          <Select.Option value="endline">តេស្តចុងក្រោយគ្រា</Select.Option>
         </Select>
 
         <Select

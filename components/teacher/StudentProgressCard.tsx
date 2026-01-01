@@ -123,7 +123,7 @@ const StudentProgressCard: React.FC<StudentProgressCardProps> = ({ student, onCl
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <Text style={{ fontSize: '11px' }} type="secondary">
-              មូលដ្ឋាន: {student.baseline_score}%
+              តេស្តដើមគ្រា: {student.baseline_score}%
             </Text>
             <span style={{ margin: '0 8px', color: '#d9d9d9' }}>|</span>
             <Text style={{ fontSize: '11px' }} type="secondary">

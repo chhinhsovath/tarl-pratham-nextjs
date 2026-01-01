@@ -32,6 +32,12 @@ import HorizontalLayout from '@/components/layout/HorizontalLayout';
 import dayjs from 'dayjs';
 import { trackActivity } from '@/lib/trackActivity';
 import { useSession } from 'next-auth/react';
+import {
+  ASSESSMENT_TYPE_LABELS_KM,
+  MATH_LEVEL_LABELS_KM,
+  LANGUAGE_LEVEL_LABELS_KM,
+  getLevelLabelKM
+} from '@/lib/constants/assessment-levels';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -732,7 +738,7 @@ function StudentsContent() {
                           fontSize: '10px',
                           fontWeight: 700
                         }}>1</span>
-                        មូលដ្ឋាន (Baseline)
+                        តេស្តដើមគ្រា (Baseline)
                       </div>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         {student.baseline_khmer_level ? (
@@ -745,7 +751,7 @@ function StudentsContent() {
                             fontWeight: 600,
                             boxShadow: '0 2px 4px rgba(102,126,234,0.3)'
                           }}>
-                            📚 ភាសា: {student.baseline_khmer_level}
+                            ភាសាខ្មែរ: {LANGUAGE_LEVEL_LABELS_KM[student.baseline_khmer_level as keyof typeof LANGUAGE_LEVEL_LABELS_KM] || student.baseline_khmer_level}
                           </span>
                         ) : null}
                         {student.baseline_math_level ? (
@@ -758,7 +764,7 @@ function StudentsContent() {
                             fontWeight: 600,
                             boxShadow: '0 2px 4px rgba(17,153,142,0.3)'
                           }}>
-                            🔢 គណិត: {student.baseline_math_level}
+                            គណិតវិទ្យា: {MATH_LEVEL_LABELS_KM[student.baseline_math_level as keyof typeof MATH_LEVEL_LABELS_KM] || student.baseline_math_level}
                           </span>
                         ) : null}
                         {!student.baseline_khmer_level && !student.baseline_math_level && (
@@ -793,7 +799,7 @@ function StudentsContent() {
                             fontSize: '10px',
                             fontWeight: 700
                           }}>2</span>
-                          កណ្តាល (Midline)
+                          តេស្តពាក់កណ្ដាលគ្រា (Midline)
                         </div>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                           {student.midline_khmer_level && (
@@ -806,7 +812,7 @@ function StudentsContent() {
                               fontWeight: 600,
                               boxShadow: '0 2px 4px rgba(240,147,251,0.3)'
                             }}>
-                              📚 ភាសា: {student.midline_khmer_level}
+                              ភាសាខ្មែរ: {LANGUAGE_LEVEL_LABELS_KM[student.midline_khmer_level as keyof typeof LANGUAGE_LEVEL_LABELS_KM] || student.midline_khmer_level}
                             </span>
                           )}
                           {student.midline_math_level && (
@@ -819,7 +825,7 @@ function StudentsContent() {
                               fontWeight: 600,
                               boxShadow: '0 2px 4px rgba(250,112,154,0.3)'
                             }}>
-                              🔢 គណិត: {student.midline_math_level}
+                              គណិតវិទ្យា: {MATH_LEVEL_LABELS_KM[student.midline_math_level as keyof typeof MATH_LEVEL_LABELS_KM] || student.midline_math_level}
                             </span>
                           )}
                         </div>
@@ -852,7 +858,7 @@ function StudentsContent() {
                             fontSize: '10px',
                             fontWeight: 700
                           }}>3</span>
-                          បញ្ចប់ (Endline)
+                          តេស្តចុងក្រោយគ្រា (Endline)
                         </div>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                           {student.endline_khmer_level && (
@@ -865,7 +871,7 @@ function StudentsContent() {
                               fontWeight: 600,
                               boxShadow: '0 2px 4px rgba(168,237,234,0.3)'
                             }}>
-                              📚 ភាសា: {student.endline_khmer_level}
+                              ភាសាខ្មែរ: {LANGUAGE_LEVEL_LABELS_KM[student.endline_khmer_level as keyof typeof LANGUAGE_LEVEL_LABELS_KM] || student.endline_khmer_level}
                             </span>
                           )}
                           {student.endline_math_level && (
@@ -878,7 +884,7 @@ function StudentsContent() {
                               fontWeight: 600,
                               boxShadow: '0 2px 4px rgba(255,236,210,0.3)'
                             }}>
-                              🔢 គណិត: {student.endline_math_level}
+                              គណិតវិទ្យា: {MATH_LEVEL_LABELS_KM[student.endline_math_level as keyof typeof MATH_LEVEL_LABELS_KM] || student.endline_math_level}
                             </span>
                           )}
                         </div>
