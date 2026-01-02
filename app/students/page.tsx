@@ -154,7 +154,8 @@ function StudentsContent() {
             }
 
             const levels = assessmentMap.get(key);
-            const subject = assessment.subject.toLowerCase().includes('khmer') ? 'khmer' : 'math';
+            // Fix: Map 'language' to 'khmer', keep 'math' as 'math'
+            const subject = assessment.subject === 'language' ? 'khmer' : 'math';
             const levelKey = `${assessment.assessment_type.toLowerCase()}_${subject}_level`;
 
             if (assessment.level) {

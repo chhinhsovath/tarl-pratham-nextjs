@@ -158,10 +158,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'student_ids array is required' }, { status: 400 });
     }
 
-    // Fetch all assessments for these students
+    // Fetch all assessments for these students (exclude archived/deleted)
     const assessments = await prisma.assessments.findMany({
       where: {
-        student_id: { in: student_ids }
+        student_id: { in: student_ids },
+        record_status: { not: 'archived' } // Exclude soft-deleted assessments
       },
       select: {
         id: true,
