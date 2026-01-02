@@ -9,8 +9,8 @@ function hasPermission(userRole: string, action: string): boolean {
   const permissions = {
     admin: ["view", "create", "update", "delete"],
     coordinator: ["view", "create", "update", "delete"],
-    mentor: ["view", "create", "update"],
-    teacher: ["view", "create", "update"],
+    mentor: ["view", "create", "update", "delete"],
+    teacher: ["view", "create", "update", "delete"],
     viewer: ["view"]
   };
 
@@ -180,17 +180,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden - Cannot update assessments from other schools' }, { status: 403 });
     }
 
-    // Teachers can only update unverified and unlocked assessments
-    if (session.user.role === 'teacher') {
-      if (existingAssessment.is_locked || existingAssessment.verified_by_id) {
-        return NextResponse.json({
-          error: 'មិនអាចកែប្រែការវាយតម្លៃបានទេ ព្រោះការវាយតម្លៃនេះត្រូវបានផ្ទៀងផ្ទាត់ ឬចាក់សោរួចហើយ។ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រសិនបើចង់កែប្រែ។',
-          message: 'Cannot update verified or locked assessment. Only admins and coordinators can update verified/locked assessments.'
-        }, { status: 403 });
-      }
-    }
-
-    // Update assessment
+    // Update assessment (no restrictions on verified/locked - full CRUD for all roles)
     const updatedAssessment = await prisma.assessments.update({
       where: { id: assessmentId },
       data: {

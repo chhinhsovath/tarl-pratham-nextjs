@@ -53,13 +53,9 @@ export default function SoftDeleteButton({
   const userRole = (session?.user as any)?.role;
   const currentUserId = parseInt((session?.user as any)?.id || '0');
 
-  // Admin and coordinator can delete any record
-  const isAdminOrCoordinator = ['admin', 'coordinator'].includes(userRole);
-
-  // User can delete their own records
-  const isOwner = createdByUserId ? createdByUserId === currentUserId : false;
-
-  const hasPermission = isAdminOrCoordinator || isOwner;
+  // Full CRUD: Admin, coordinator, mentor, and teacher can delete
+  // Backend will enforce school-level access control
+  const hasPermission = ['admin', 'coordinator', 'mentor', 'teacher'].includes(userRole);
 
   if (!hasPermission) {
     return null; // Don't show button if no permission

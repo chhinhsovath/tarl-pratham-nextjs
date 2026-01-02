@@ -24,13 +24,13 @@ export async function DELETE(
       );
     }
 
-    // Authorization check - only admin and coordinator
+    // Authorization check - admin, coordinator, mentor, and teacher can soft-delete
     const userRole = (session.user as any).role;
-    if (!['admin', 'coordinator'].includes(userRole)) {
+    if (!['admin', 'coordinator', 'mentor', 'teacher'].includes(userRole)) {
       return NextResponse.json(
         {
           error: 'ការចូលប្រើត្រូវបានបដិសេធ។',
-          message: 'មានតែអ្នកគ្រប់គ្រងប្រព័ន្ធ និងអ្នកសម្របសម្រួលទេដែលអាចលុបសិស្សបាន។'
+          message: 'អ្នកមិនមានសិទ្ធិលុបសិស្សទេ។'
         },
         { status: 403 }
       );

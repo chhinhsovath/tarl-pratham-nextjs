@@ -237,28 +237,8 @@ export async function DELETE(
     // Check permissions based on role
     const userRole = session.user.role;
 
-    if (userRole === 'teacher' || userRole === 'mentor') {
-      // Teachers and mentors can delete students if:
-      // 1. Student has NO assessments, OR
-      // 2. Student has assessments BUT none are verified/locked
-      const verifiedOrLockedCount = await prisma.assessments.count({
-        where: {
-          student_id: studentId,
-          OR: [
-            { verified_by_id: { not: null } },
-            { is_locked: true }
-          ]
-        }
-      });
-
-      if (verifiedOrLockedCount > 0) {
-        return NextResponse.json({
-          error: 'មិនអាចលុបសិស្សបានទេ ព្រោះការវាយតម្លៃរបស់សិស្សនេះត្រូវបានផ្ទៀងផ្ទាត់ ឬចាក់សោរួចហើយ។ សូមទាក់ទងអ្នកគ្រប់គ្រងប្រសិនបើចង់លុប។',
-          message: `Cannot delete student with ${verifiedOrLockedCount} verified/locked assessment(s). Only admins and coordinators can delete students with verified or locked assessments.`
-        }, { status: 403 });
-      }
-    } else if (userRole !== 'admin' && userRole !== 'coordinator') {
-      // Other roles (viewer) cannot delete
+    // Admin, coordinator, mentor, and teacher can delete
+    if (!['admin', 'coordinator', 'mentor', 'teacher'].includes(userRole)) {
       return NextResponse.json({
         error: 'អ្នកមិនមានសិទ្ធិលុបសិស្សទេ'
       }, { status: 403 });
@@ -266,17 +246,25 @@ export async function DELETE(
 
     // Delete in transaction to ensure data consistency
     await prisma.$transaction(async (tx) => {
-      // First, delete related assessment history records
-      await tx.assessmentHistory.deleteMany({
-        where: {
-          assessment: {
-            student_id: studentId
-          }
-        }
+      // First, get all assessment IDs for this student
+      const studentAssessments = await tx.assessments.findMany({
+        where: { student_id: studentId },
+        select: { id: true }
       });
 
+      const assessmentIds = studentAssessments.map(a => a.id);
+
+      // Delete related assessment history records
+      if (assessmentIds.length > 0) {
+        await tx.assessment_histories.deleteMany({
+          where: {
+            assessment_id: { in: assessmentIds }
+          }
+        });
+      }
+
       // Then, delete all assessments for this student
-      await tx.assessment.deleteMany({
+      await tx.assessments.deleteMany({
         where: { student_id: studentId }
       });
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
+import { getMentorSchoolIds } from '@/lib/mentorAssignments';
 
 const prisma = new PrismaClient();
 
@@ -55,15 +56,29 @@ export async function DELETE(
       );
     }
 
-    // Authorization check - admin/coordinator can delete any, others can only delete their own
+    // Authorization check - check if user has access to this assessment's school
     const isAdminOrCoordinator = ['admin', 'coordinator'].includes(userRole);
-    const isOwner = assessment.added_by_id === userId;
 
-    if (!isAdminOrCoordinator && !isOwner) {
+    let hasSchoolAccess = false;
+    if (isAdminOrCoordinator) {
+      hasSchoolAccess = true;
+    } else if (userRole === 'mentor') {
+      // Mentors can delete assessments from their assigned schools
+      if (assessment.pilot_school_id) {
+        const mentorSchoolIds = await getMentorSchoolIds(userId);
+        hasSchoolAccess = mentorSchoolIds.includes(assessment.pilot_school_id);
+      }
+    } else if (userRole === 'teacher') {
+      // Teachers can delete assessments from their assigned school
+      const userPilotSchoolId = (session.user as any).pilot_school_id;
+      hasSchoolAccess = userPilotSchoolId && assessment.pilot_school_id === userPilotSchoolId;
+    }
+
+    if (!hasSchoolAccess) {
       return NextResponse.json(
         {
           error: 'ការចូលប្រើត្រូវបានបដិសេធ។',
-          message: 'អ្នកអាចលុបបានតែការវាយតម្លៃដែលអ្នកបានបង្កើតដោយខ្លួនឯងប៉ុណ្ណោះ។'
+          message: 'អ្នកអាចលុបបានតែការវាយតម្លៃពីសាលារបស់អ្នកប៉ុណ្ណោះ។'
         },
         { status: 403 }
       );
@@ -80,16 +95,7 @@ export async function DELETE(
       );
     }
 
-    // Check if assessment is locked
-    if (assessment.is_locked) {
-      return NextResponse.json(
-        {
-          error: 'ការវាយតម្លៃត្រូវបានចាក់សោ។',
-          message: 'សូមដោះសោការវាយតម្លៃជាមុនសិនមុនពេលលុប។'
-        },
-        { status: 400 }
-      );
-    }
+    // Full CRUD: No restriction on locked assessments
 
     console.log(`[Soft Delete] User ${session.user.email} (${userRole}) deleting assessment ID ${assessmentId}`);
     console.log(`[Soft Delete] Assessment type: ${assessment.assessment_type}, Subject: ${assessment.subject}`);
