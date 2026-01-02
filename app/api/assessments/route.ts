@@ -724,7 +724,7 @@ async function handleBulkAssessment(body: any, session: any) {
         });
 
         // Update student assessment level ONLY for regular assessments (not verifications)
-        const isVerification = assessmentData.assessment_type.includes('_verification');
+        // Note: isVerification already declared above at line 663
         if (!isVerification) {
           const levelField = buildLevelFieldName(assessmentData.assessment_type, assessmentData.subject);
           await prisma.students.update({
