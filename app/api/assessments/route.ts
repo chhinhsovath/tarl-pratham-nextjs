@@ -399,6 +399,70 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // ✅ CRITICAL: Validate assessment order (baseline → midline → endline)
+    if (!isVerification) {
+      const subject = validatedData.subject;
+      const studentId = validatedData.student_id;
+
+      // For MIDLINE: Must have baseline first
+      if (validatedData.assessment_type === 'midline') {
+        const hasBaseline = await prisma.assessments.findFirst({
+          where: {
+            student_id: studentId,
+            assessment_type: 'baseline',
+            subject: subject,
+            record_status: { not: 'archived' }
+          }
+        });
+
+        if (!hasBaseline) {
+          const subjectMap: Record<string, string> = {
+            'language': 'ភាសា',
+            'math': 'គណិតវិទ្យា'
+          };
+          const subjectKh = subjectMap[subject] || subject;
+
+          return NextResponse.json(
+            {
+              error: `មិនអាចបង្កើតតេស្តពាក់កណ្ដាលគ្រាបានទេ ព្រោះមិនទាន់មានតេស្តដើមគ្រា${subjectKh}`,
+              message: `Cannot create midline assessment without baseline ${subject} assessment`,
+              code: 'BASELINE_REQUIRED'
+            },
+            { status: 400 }
+          );
+        }
+      }
+
+      // For ENDLINE: Must have midline first
+      if (validatedData.assessment_type === 'endline') {
+        const hasMidline = await prisma.assessments.findFirst({
+          where: {
+            student_id: studentId,
+            assessment_type: 'midline',
+            subject: subject,
+            record_status: { not: 'archived' }
+          }
+        });
+
+        if (!hasMidline) {
+          const subjectMap: Record<string, string> = {
+            'language': 'ភាសា',
+            'math': 'គណិតវិទ្យា'
+          };
+          const subjectKh = subjectMap[subject] || subject;
+
+          return NextResponse.json(
+            {
+              error: `មិនអាចបង្កើតតេស្តចុងក្រោយគ្រាបានទេ ព្រោះមិនទាន់មានតេស្តពាក់កណ្ដាលគ្រា${subjectKh}`,
+              message: `Cannot create endline assessment without midline ${subject} assessment`,
+              code: 'MIDLINE_REQUIRED'
+            },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     // Create assessment
     const assessment = await prisma.assessments.create({
       data: {
@@ -593,6 +657,45 @@ async function handleBulkAssessment(body: any, session: any) {
         if (existingAssessmentSet.has(key)) {
           errors.push(`Assessment ${i + 1}: ${assessmentData.assessment_type} ${assessmentData.subject} assessment already exists for student ${student.name}`);
           continue;
+        }
+
+        // ✅ CRITICAL: Validate assessment order (baseline → midline → endline)
+        const isVerification = assessmentData.assessment_type?.includes('_verification');
+
+        if (!isVerification) {
+          // For MIDLINE: Must have baseline first
+          if (assessmentData.assessment_type === 'midline') {
+            const hasBaseline = await prisma.assessments.findFirst({
+              where: {
+                student_id: assessmentData.student_id,
+                assessment_type: 'baseline',
+                subject: assessmentData.subject,
+                record_status: { not: 'archived' }
+              }
+            });
+
+            if (!hasBaseline) {
+              errors.push(`Assessment ${i + 1}: Cannot create midline assessment for ${student.name} without baseline ${assessmentData.subject} assessment`);
+              continue;
+            }
+          }
+
+          // For ENDLINE: Must have midline first
+          if (assessmentData.assessment_type === 'endline') {
+            const hasMidline = await prisma.assessments.findFirst({
+              where: {
+                student_id: assessmentData.student_id,
+                assessment_type: 'midline',
+                subject: assessmentData.subject,
+                record_status: { not: 'archived' }
+              }
+            });
+
+            if (!hasMidline) {
+              errors.push(`Assessment ${i + 1}: Cannot create endline assessment for ${student.name} without midline ${assessmentData.subject} assessment`);
+              continue;
+            }
+          }
         }
 
         // Create assessment
