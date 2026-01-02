@@ -27,6 +27,8 @@ interface SoftDeleteButtonProps {
   additionalInfo?: string;
   /** Show as icon button only */
   iconOnly?: boolean;
+  /** User ID of the record creator (for ownership check) */
+  createdByUserId?: number;
 }
 
 export default function SoftDeleteButton({
@@ -40,15 +42,24 @@ export default function SoftDeleteButton({
   onSuccess,
   additionalInfo,
   iconOnly = false,
+  createdByUserId,
 }: SoftDeleteButtonProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Check if user has permission (only admin and coordinator)
+  // Check if user has permission
   const userRole = (session?.user as any)?.role;
-  const hasPermission = ['admin', 'coordinator'].includes(userRole);
+  const currentUserId = parseInt((session?.user as any)?.id || '0');
+
+  // Admin and coordinator can delete any record
+  const isAdminOrCoordinator = ['admin', 'coordinator'].includes(userRole);
+
+  // User can delete their own records
+  const isOwner = createdByUserId ? createdByUserId === currentUserId : false;
+
+  const hasPermission = isAdminOrCoordinator || isOwner;
 
   if (!hasPermission) {
     return null; // Don't show button if no permission

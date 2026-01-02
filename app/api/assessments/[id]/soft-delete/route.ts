@@ -24,17 +24,8 @@ export async function DELETE(
       );
     }
 
-    // Authorization check - only admin and coordinator
     const userRole = (session.user as any).role;
-    if (!['admin', 'coordinator'].includes(userRole)) {
-      return NextResponse.json(
-        {
-          error: 'ការចូលប្រើត្រូវបានបដិសេធ។',
-          message: 'មានតែអ្នកគ្រប់គ្រងប្រព័ន្ធ និងអ្នកសម្របសម្រួលទេដែលអាចលុបការវាយតម្លៃបាន។'
-        },
-        { status: 403 }
-      );
-    }
+    const userId = parseInt((session.user as any).id);
 
     const assessmentId = parseInt(params.id);
     if (isNaN(assessmentId)) {
@@ -50,10 +41,10 @@ export async function DELETE(
       include: {
         students: {
           include: {
-            pilot_school: true,
+            pilot_schools: true,
           },
         },
-        added_by: true,
+        users_assessments_added_by_idTousers: true,
       },
     });
 
@@ -61,6 +52,20 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'រកមិនឃើញការវាយតម្លៃ។' },
         { status: 404 }
+      );
+    }
+
+    // Authorization check - admin/coordinator can delete any, others can only delete their own
+    const isAdminOrCoordinator = ['admin', 'coordinator'].includes(userRole);
+    const isOwner = assessment.added_by_id === userId;
+
+    if (!isAdminOrCoordinator && !isOwner) {
+      return NextResponse.json(
+        {
+          error: 'ការចូលប្រើត្រូវបានបដិសេធ។',
+          message: 'អ្នកអាចលុបបានតែការវាយតម្លៃដែលអ្នកបានបង្កើតដោយខ្លួនឯងប៉ុណ្ណោះ។'
+        },
+        { status: 403 }
       );
     }
 

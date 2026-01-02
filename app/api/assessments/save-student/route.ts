@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create assessment history record
-    await prisma.assessmentHistory.create({
+    await prisma.assessment_histories.create({
       data: {
         assessment_id: assessment.id,
         field_name: existingAssessment ? 'updated' : 'created',

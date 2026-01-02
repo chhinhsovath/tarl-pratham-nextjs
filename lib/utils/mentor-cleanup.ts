@@ -30,7 +30,7 @@ export async function cleanupMentorData() {
     for (const student of temporaryStudents) {
       if (student.assessments.length > 0) {
         // Delete assessment histories
-        await prisma.assessmentHistory.deleteMany({
+        await prisma.assessment_histories.deleteMany({
           where: {
             assessment_id: {
               in: student.assessments.map(a => a.id)
@@ -71,7 +71,7 @@ export async function cleanupMentorData() {
 
     // Delete orphaned assessment histories
     if (temporaryAssessments.length > 0) {
-      await prisma.assessmentHistory.deleteMany({
+      await prisma.assessment_histories.deleteMany({
         where: {
           assessment_id: {
             in: temporaryAssessments.map(a => a.id)

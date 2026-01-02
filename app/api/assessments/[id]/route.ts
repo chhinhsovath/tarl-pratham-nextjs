@@ -98,10 +98,15 @@ export async function GET(
 
     return NextResponse.json({ assessment });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Assessment fetch error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch assessment' },
+      {
+        error: 'Failed to fetch assessment',
+        message: error?.message || 'Unknown error',
+        code: error?.code,
+        meta: error?.meta
+      },
       { status: 500 }
     );
   }
@@ -213,7 +218,7 @@ export async function PUT(
     });
 
     // Create history record
-    await prisma.assessmentHistory.create({
+    await prisma.assessment_histories.create({
       data: {
         assessment_id: assessmentId,
         field_name: 'updated',
@@ -258,10 +263,15 @@ export async function PUT(
       assessment: updatedAssessment
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Assessment update error:', error);
     return NextResponse.json(
-      { error: 'Failed to update assessment' },
+      {
+        error: 'Failed to update assessment',
+        message: error?.message || 'Unknown error',
+        code: error?.code,
+        meta: error?.meta
+      },
       { status: 500 }
     );
   }
@@ -314,7 +324,7 @@ export async function DELETE(
     }
 
     // Delete assessment histories first
-    await prisma.assessmentHistory.deleteMany({
+    await prisma.assessment_histories.deleteMany({
       where: { assessment_id: assessmentId }
     });
 
@@ -328,10 +338,15 @@ export async function DELETE(
       message: 'Assessment deleted successfully'
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Assessment deletion error:', error);
     return NextResponse.json(
-      { error: 'Failed to delete assessment' },
+      {
+        error: 'Failed to delete assessment',
+        message: error?.message || 'Unknown error',
+        code: error?.code,
+        meta: error?.meta
+      },
       { status: 500 }
     );
   }

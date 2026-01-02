@@ -379,16 +379,18 @@ function AssessmentsContent() {
     },
     {
       title: 'វាយតម្លៃដោយ',
-      dataIndex: 'added_by',
       key: 'added_by',
-      render: (addedBy: any) => addedBy ? (
-        <div>
-          <div><strong>{addedBy.name}</strong></div>
-          <Tag size="small" color={addedBy.role === 'mentor' ? 'orange' : 'blue'}>
-            {addedBy.role === 'mentor' ? 'អ្នកណែនាំ' : 'គ្រូបង្រៀន'}
-          </Tag>
-        </div>
-      ) : '-'
+      render: (record: any) => {
+        const addedBy = record.users_assessments_added_by_idTousers || record.added_by;
+        return addedBy ? (
+          <div>
+            <div><strong>{addedBy.name}</strong></div>
+            <Tag size="small" color={addedBy.role === 'mentor' ? 'orange' : 'blue'}>
+              {addedBy.role === 'mentor' ? 'អ្នកណែនាំ' : 'គ្រូបង្រៀន'}
+            </Tag>
+          </div>
+        ) : '-';
+      }
     },
     {
       title: 'ស្ថានភាព',
@@ -453,6 +455,7 @@ function AssessmentsContent() {
             iconOnly={true}
             onSuccess={fetchAssessments}
             additionalInfo={`ប្រភេទ: ${getAssessmentTypeLabelKM(record.assessment_type)}, កម្រិត: ${getLevelLabelKM(record.level)}`}
+            createdByUserId={record.added_by_id || record.users_assessments_added_by_idTousers?.id || record.added_by?.id}
           />
         </Space>
       )
