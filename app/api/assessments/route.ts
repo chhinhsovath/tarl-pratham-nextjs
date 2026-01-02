@@ -117,29 +117,33 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     
     // Build where clause
-    const where: any = {};
-    
-    if (search) {
-      where.OR = [
-        { 
-          students: { 
-            name: { contains: search, mode: "insensitive" } 
-          } 
+    const where: any = {
+      // Exclude archived (soft-deleted) assessments
+      record_status: { not: 'archived' }
+    };
+
+    // Store search condition separately to combine with access control later
+    const searchCondition = search ? {
+      OR: [
+        {
+          students: {
+            name: { contains: search, mode: "insensitive" }
+          }
         },
-        { 
-          notes: { contains: search, mode: "insensitive" } 
+        {
+          notes: { contains: search, mode: "insensitive" }
         }
-      ];
-    }
-    
+      ]
+    } : null;
+
     if (assessment_type) {
       where.assessment_type = assessment_type;
     }
-    
+
     if (subject) {
       where.subject = subject;
     }
-    
+
     // Add student_id filter if provided
     if (student_id) {
       where.student_id = parseInt(student_id);
@@ -155,45 +159,78 @@ export async function GET(request: NextRequest) {
     if (session.user.role === "mentor") {
       // Mentors can see assessments from their assigned schools
       const mentorSchoolIds = await getMentorSchoolIds(parseInt(session.user.id));
+
+      let accessControlCondition: any;
+
       if (mentorSchoolIds.length > 0) {
         // If a specific pilot_school_id was requested, verify mentor has access to it
         if (pilot_school_id) {
           const requestedSchoolId = parseInt(pilot_school_id);
           if (mentorSchoolIds.includes(requestedSchoolId)) {
             // Mentor has access to requested school - use it
-            where.pilot_school_id = requestedSchoolId;
+            accessControlCondition = { pilot_school_id: requestedSchoolId };
           } else {
             // Mentor requested a school they're not assigned to - return no results
-            where.id = -1;
+            accessControlCondition = { id: -1 };
           }
         } else {
           // No specific school requested - show all schools mentor is assigned to
-          where.pilot_school_id = { in: mentorSchoolIds };
+          accessControlCondition = { pilot_school_id: { in: mentorSchoolIds } };
         }
       } else {
         // No schools assigned - return no assessments
-        where.id = -1;
+        accessControlCondition = { id: -1 };
+      }
+
+      // Combine search condition and access control condition
+      if (searchCondition && accessControlCondition) {
+        where.AND = [searchCondition, accessControlCondition];
+      } else if (accessControlCondition) {
+        Object.assign(where, accessControlCondition);
       }
     } else if (session.user.role === "teacher") {
-      // Teachers remain restricted to their single school
+      // Teachers can see:
+      // 1. Assessments from their assigned school, OR
+      // 2. Assessments they created themselves (regardless of school)
+      const teacherUserId = parseInt(session.user.id);
+
+      let accessControlCondition: any;
+
       if (session.user.pilot_school_id) {
-        // If a specific pilot_school_id was requested, verify it matches their assigned school
+        // If a specific pilot_school_id was requested
         if (pilot_school_id) {
           const requestedSchoolId = parseInt(pilot_school_id);
           if (requestedSchoolId === session.user.pilot_school_id) {
-            // Requested school matches teacher's school - use it
-            where.pilot_school_id = requestedSchoolId;
+            // Requested school matches teacher's school - show school assessments OR own assessments
+            accessControlCondition = {
+              OR: [
+                { pilot_school_id: requestedSchoolId },
+                { added_by_id: teacherUserId }
+              ]
+            };
           } else {
-            // Teacher requested a different school - return no results
-            where.id = -1;
+            // Teacher requested a different school - only show own assessments
+            accessControlCondition = { added_by_id: teacherUserId };
           }
         } else {
-          // No specific school requested - show their assigned school
-          where.pilot_school_id = session.user.pilot_school_id;
+          // No specific school requested - show school assessments OR own assessments
+          accessControlCondition = {
+            OR: [
+              { pilot_school_id: session.user.pilot_school_id },
+              { added_by_id: teacherUserId }
+            ]
+          };
         }
       } else {
-        // If user has no pilot school, they can't see any assessments
-        where.id = -1;
+        // If user has no pilot school, show only assessments they created
+        accessControlCondition = { added_by_id: teacherUserId };
+      }
+
+      // Combine search condition and access control condition
+      if (searchCondition && accessControlCondition) {
+        where.AND = [searchCondition, accessControlCondition];
+      } else if (accessControlCondition) {
+        Object.assign(where, accessControlCondition);
       }
     } else if (session.user.role === "admin" || session.user.role === "coordinator") {
       // Admin and Coordinator have full access to all assessments
@@ -201,12 +238,20 @@ export async function GET(request: NextRequest) {
       if (pilot_school_id) {
         where.pilot_school_id = parseInt(pilot_school_id);
       }
+      // Apply search condition if exists
+      if (searchCondition) {
+        Object.assign(where, searchCondition);
+      }
       // If no specific school requested, no filter applied - returns all assessments
     } else if (session.user.role === "viewer") {
       // Viewers have read-only access to all assessments
       // But if a specific school is requested, use that filter
       if (pilot_school_id) {
         where.pilot_school_id = parseInt(pilot_school_id);
+      }
+      // Apply search condition if exists
+      if (searchCondition) {
+        Object.assign(where, searchCondition);
       }
     }
 
