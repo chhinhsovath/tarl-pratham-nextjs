@@ -16,7 +16,9 @@ import {
   Select,
   Input,
   Dropdown,
-  MenuProps
+  MenuProps,
+  Modal,
+  Popconfirm
 } from 'antd';
 import {
   BankOutlined,
@@ -27,11 +29,14 @@ import {
   DownloadOutlined,
   SearchOutlined,
   FileExcelOutlined,
-  FilePdfOutlined
+  FilePdfOutlined,
+  EditOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import HorizontalLayout from '@/components/layout/HorizontalLayout';
+import SoftDeleteButton from '@/components/common/SoftDeleteButton';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -72,6 +77,13 @@ function SchoolOverviewContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
 
+  // Modal state for viewing students
+  const [studentsModalVisible, setStudentsModalVisible] = useState(false);
+  const [studentsModalLoading, setStudentsModalLoading] = useState(false);
+  const [selectedSchool, setSelectedSchool] = useState<SchoolOverview | null>(null);
+  const [selectedAssessmentType, setSelectedAssessmentType] = useState<string>('');
+  const [modalStudents, setModalStudents] = useState<any[]>([]);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -111,6 +123,37 @@ function SchoolOverviewContent() {
       message.success(`Export ${format.toUpperCase()} បានជោគជ័យ`);
     } catch (error) {
       message.error('Export បរាជ័យ');
+    }
+  };
+
+  const handleViewStudents = async (school: SchoolOverview, assessmentType: string) => {
+    setSelectedSchool(school);
+    setSelectedAssessmentType(assessmentType);
+    setStudentsModalVisible(true);
+    setStudentsModalLoading(true);
+
+    try {
+      const response = await fetch(
+        `/api/reports/school-overview/${school.school_id}/students?assessment_type=${assessmentType}`
+      );
+      if (!response.ok) throw new Error('Failed to fetch students');
+
+      const result = await response.json();
+      setModalStudents(result.students || []);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យសិស្ស');
+      setModalStudents([]);
+    } finally {
+      setStudentsModalLoading(false);
+    }
+  };
+
+  const handleDeleteStudent = async (studentId: number) => {
+    // Refresh modal data after deletion
+    if (selectedSchool && selectedAssessmentType) {
+      await handleViewStudents(selectedSchool, selectedAssessmentType);
+      await fetchData(); // Refresh main table
     }
   };
 
@@ -199,8 +242,22 @@ function SchoolOverviewContent() {
       width: 120,
       align: 'center' as const,
       render: (count: number, record: SchoolOverview) => (
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 'bold', color: count > 0 ? '#52c41a' : '#ccc' }}>
+        <div
+          style={{
+            cursor: count > 0 && session?.user?.role === 'coordinator' ? 'pointer' : 'default'
+          }}
+          onClick={() => {
+            if (count > 0 && session?.user?.role === 'coordinator') {
+              handleViewStudents(record, 'baseline');
+            }
+          }}
+        >
+          <div style={{
+            fontSize: 18,
+            fontWeight: 'bold',
+            color: count > 0 ? '#52c41a' : '#ccc',
+            textDecoration: count > 0 && session?.user?.role === 'coordinator' ? 'underline' : 'none'
+          }}>
             {count}
           </div>
           {record.total_students > 0 && (
@@ -220,8 +277,22 @@ function SchoolOverviewContent() {
       width: 140,
       align: 'center' as const,
       render: (count: number, record: SchoolOverview) => (
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 'bold', color: count > 0 ? '#faad14' : '#ccc' }}>
+        <div
+          style={{
+            cursor: count > 0 && session?.user?.role === 'coordinator' ? 'pointer' : 'default'
+          }}
+          onClick={() => {
+            if (count > 0 && session?.user?.role === 'coordinator') {
+              handleViewStudents(record, 'midline');
+            }
+          }}
+        >
+          <div style={{
+            fontSize: 18,
+            fontWeight: 'bold',
+            color: count > 0 ? '#faad14' : '#ccc',
+            textDecoration: count > 0 && session?.user?.role === 'coordinator' ? 'underline' : 'none'
+          }}>
             {count}
           </div>
           {record.total_students > 0 && (
@@ -241,8 +312,22 @@ function SchoolOverviewContent() {
       width: 140,
       align: 'center' as const,
       render: (count: number, record: SchoolOverview) => (
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 'bold', color: count > 0 ? '#52c41a' : '#ccc' }}>
+        <div
+          style={{
+            cursor: count > 0 && session?.user?.role === 'coordinator' ? 'pointer' : 'default'
+          }}
+          onClick={() => {
+            if (count > 0 && session?.user?.role === 'coordinator') {
+              handleViewStudents(record, 'endline');
+            }
+          }}
+        >
+          <div style={{
+            fontSize: 18,
+            fontWeight: 'bold',
+            color: count > 0 ? '#52c41a' : '#ccc',
+            textDecoration: count > 0 && session?.user?.role === 'coordinator' ? 'underline' : 'none'
+          }}>
             {count}
           </div>
           {record.total_students > 0 && (
@@ -480,6 +565,115 @@ function SchoolOverviewContent() {
           pagination={false}
         />
       </Card>
+
+      {/* Students Modal for Coordinators */}
+      <Modal
+        title={
+          <Space direction="vertical" size={0}>
+            <Text strong style={{ fontSize: 18 }}>
+              {selectedSchool?.school_name} - {
+                selectedAssessmentType === 'baseline' ? 'តេស្តដើមគ្រា' :
+                selectedAssessmentType === 'midline' ? 'តេស្តពាក់កណ្ដាលគ្រា' :
+                'តេស្តចុងក្រោយគ្រា'
+              }
+            </Text>
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              សិស្សទាំងអស់ដែលបានធ្វើការវាយតម្លៃ
+            </Text>
+          </Space>
+        }
+        open={studentsModalVisible}
+        onCancel={() => setStudentsModalVisible(false)}
+        footer={null}
+        width={1000}
+      >
+        <Table
+          dataSource={modalStudents}
+          loading={studentsModalLoading}
+          rowKey="id"
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `សរុប ${total} សិស្ស`
+          }}
+          columns={[
+            {
+              title: 'លេខសិស្ស',
+              dataIndex: 'student_id',
+              key: 'student_id',
+              width: 100
+            },
+            {
+              title: 'ឈ្មោះសិស្ស',
+              dataIndex: 'name',
+              key: 'name',
+              width: 150
+            },
+            {
+              title: 'ភេទ',
+              dataIndex: 'gender',
+              key: 'gender',
+              width: 80,
+              render: (gender: string) => gender === 'male' ? 'ប្រុស' : 'ស្រី'
+            },
+            {
+              title: 'អាយុ',
+              dataIndex: 'age',
+              key: 'age',
+              width: 70,
+              align: 'center' as const
+            },
+            {
+              title: 'ថ្នាក់',
+              dataIndex: 'grade',
+              key: 'grade',
+              width: 70,
+              align: 'center' as const
+            },
+            {
+              title: 'ការវាយតម្លៃ',
+              key: 'assessments',
+              render: (record: any) => (
+                <Space direction="vertical" size="small">
+                  {record.assessments?.map((assessment: any) => (
+                    <Tag
+                      key={assessment.id}
+                      color={assessment.subject === 'language' ? 'purple' : 'cyan'}
+                    >
+                      {assessment.subject === 'language' ? 'ភាសាខ្មែរ' : 'គណិតវិទ្យា'}: {assessment.level}
+                    </Tag>
+                  ))}
+                </Space>
+              )
+            },
+            {
+              title: 'សកម្មភាព',
+              key: 'actions',
+              fixed: 'right' as const,
+              width: 120,
+              render: (record: any) => (
+                <Space size="small">
+                  <Button
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={() => router.push(`/students/${record.id}/edit`)}
+                    title="កែសម្រួលសិស្ស"
+                  />
+                  <SoftDeleteButton
+                    type="student"
+                    id={record.id}
+                    displayName={record.name}
+                    size="small"
+                    iconOnly={true}
+                    onSuccess={handleDeleteStudent}
+                  />
+                </Space>
+              )
+            }
+          ]}
+        />
+      </Modal>
     </>
   );
 }
