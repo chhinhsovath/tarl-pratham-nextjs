@@ -416,7 +416,8 @@ export async function POST(request: NextRequest) {
         mentor_created_at: session.user.role === "mentor" ? new Date() : null,
         record_status: recordStatus,
         created_by_role: session.user.role,
-        test_session_id: testSessionId
+        test_session_id: testSessionId,
+        updated_at: new Date()
       },
       include: {
         school_classes: {
@@ -575,7 +576,10 @@ export async function PUT(request: NextRequest) {
     // Update student
     const student = await prisma.students.update({
       where: { id: parseInt(id) },
-      data: validatedData,
+      data: {
+        ...validatedData,
+        updated_at: new Date()
+      },
       include: {
         school_classes: {
           include: {
