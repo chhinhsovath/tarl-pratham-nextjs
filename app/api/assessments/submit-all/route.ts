@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
           // Check if student exists
           const student = await tx.students.findUnique({
             where: { id: student_id },
-            include: { pilot_school: true }
+            include: { pilot_schools: true }
           });
 
           if (!student) {

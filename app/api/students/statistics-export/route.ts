@@ -320,8 +320,8 @@ export async function GET(request: NextRequest) {
     const students = await prisma.students.findMany({
       where: { is_active: true },
       include: {
-        pilot_school: true,
-        school_class: true,
+        pilot_schools: true,
+        school_classes: true,
         users_assessments_added_by_idTousers: {
           select: {
             id: true,
