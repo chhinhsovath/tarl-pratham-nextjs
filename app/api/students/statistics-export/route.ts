@@ -322,7 +322,7 @@ export async function GET(request: NextRequest) {
       include: {
         pilot_schools: true,
         school_classes: true,
-        users_assessments_added_by_idTousers: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -360,7 +360,7 @@ export async function GET(request: NextRequest) {
         s.midline_math_level || '',
         s.endline_khmer_level || '',
         s.endline_math_level || '',
-        s.users_assessments_added_by_idTousers?.name || '',
+        s.users?.name || '',
         s.record_status || '',
         s.created_at.toISOString().split('T')[0]
       ])
