@@ -340,13 +340,13 @@ function AssessmentVerificationPage() {
   const individualColumns = [
     {
       title: 'សិស្ស',
-      dataIndex: 'student',
+      dataIndex: 'students',
       key: 'student',
       render: (student: any) => (
         <div>
-          <div><strong>{student.name}</strong></div>
+          <div><strong>{student?.name || 'Unknown'}</strong></div>
           <div style={{ fontSize: '12px', color: '#666' }}>
-            ID: {student.id} | Age: {student.age || 'N/A'}
+            ID: {student?.id || 'N/A'} | Age: {student?.age || 'N/A'}
           </div>
         </div>
       )
