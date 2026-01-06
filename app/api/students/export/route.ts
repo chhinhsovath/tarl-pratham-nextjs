@@ -85,126 +85,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get assessment filter parameter
-    const assessmentFilter = request.nextUrl.searchParams.get('assessment_filter') || 'all';
-    console.log(`[Students Export] Assessment filter: ${assessmentFilter}`);
+    // Export students, not assessments - one row per student showing all data
+    console.log('[Students Export] Fetching ALL students (not assessments)...');
 
-    // Instead of student summary data, fetch and export individual assessments
-    // This shows each assessment as a separate row
-    console.log('[Students Export] Fetching individual assessments...');
-
-    // First, get all students and their assessment counts to filter them
-    let studentIds: number[] = [];
-
-    if (assessmentFilter !== 'all') {
-      const studentsData = await prisma.students.findMany({
-        where: whereClause,
-        select: { id: true },
-      });
-
-      // Get all assessments for these students
-      const allAssessments = await prisma.assessments.findMany({
-        where: {
-          student_id: { in: studentsData.map(s => s.id) },
-        },
-        select: {
-          student_id: true,
-          assessment_type: true,
-        },
-      });
-
-      // Build map of student_id -> set of assessment types
-      const studentAssessmentTypes = new Map<number, Set<string>>();
-      allAssessments.forEach(assessment => {
-        if (!studentAssessmentTypes.has(assessment.student_id)) {
-          studentAssessmentTypes.set(assessment.student_id, new Set());
-        }
-        studentAssessmentTypes.get(assessment.student_id)!.add(assessment.assessment_type);
-      });
-
-      // Filter based on assessment_filter
-      if (assessmentFilter === 'both') {
-        // Students with at least baseline and endline
-        studentIds = Array.from(studentAssessmentTypes.entries())
-          .filter(([_, types]) => types.has('baseline') && types.has('endline'))
-          .map(([id, _]) => id);
-      } else if (assessmentFilter === 'three') {
-        // Students with all 3 assessment types (baseline, midline, endline)
-        studentIds = Array.from(studentAssessmentTypes.entries())
-          .filter(([_, types]) => types.has('baseline') && types.has('midline') && types.has('endline'))
-          .map(([id, _]) => id);
-      }
-
-      console.log(`[Students Export] Filtered to ${studentIds.length} students with assessment filter: ${assessmentFilter}`);
-    }
-
-    // Build the where clause for assessments query
-    const assessmentWhere: any = {};
-
-    // CRITICAL FIX: Always apply school filter for teachers/mentors first
-    let schoolFilter: number | number[] | undefined = undefined;
-    let allowedStudentIds: number[] = [];
-
-    if (userRole === 'teacher') {
-      schoolFilter = (session.user as any).pilot_school_id;
-      if (schoolFilter) {
-        const schoolStudents = await prisma.students.findMany({
-          where: { pilot_school_id: schoolFilter },
-          select: { id: true },
-        });
-        allowedStudentIds = schoolStudents.map(s => s.id);
-      }
-    } else if (userRole === 'mentor') {
-      const userId = parseInt(session.user.id);
-      const mentorAssignments = await prisma.mentor_school_assignments.findMany({
-        where: { mentor_id: userId, is_active: true },
-        select: { pilot_school_id: true },
-      });
-      const schoolIds = mentorAssignments.map(a => a.pilot_school_id);
-
-      if (schoolIds.length > 0) {
-        const schoolStudents = await prisma.students.findMany({
-          where: { pilot_school_id: { in: schoolIds } },
-          select: { id: true },
-        });
-        allowedStudentIds = schoolStudents.map(s => s.id);
-      }
-    }
-
-    if (studentIds.length > 0) {
-      // If we filtered students by assessment criteria, use those IDs
-      // BUT also ensure teacher/mentor can only see their school's students
-      if (allowedStudentIds.length > 0) {
-        // Intersect: only students that are BOTH in the filter AND in user's allowed schools
-        const filteredStudentIds = studentIds.filter(id => allowedStudentIds.includes(id));
-        assessmentWhere.student_id = { in: filteredStudentIds };
-
-        console.log(`[Students Export] School filter applied: ${allowedStudentIds.length} allowed students, ${filteredStudentIds.length} after assessment filter`);
-      } else {
-        // Admin/Coordinator - use all filtered students
-        assessmentWhere.student_id = { in: studentIds };
-      }
-    } else if (assessmentFilter === 'all') {
-      // If no filter, get assessments for all students in the user's allowed schools
-      if (allowedStudentIds.length > 0) {
-        assessmentWhere.student_id = { in: allowedStudentIds };
-      }
-      // For admin/coordinator with no filter, no student_id filter needed (gets all)
-    }
-
-    const assessments = await prisma.assessments.findMany({
-      where: assessmentWhere,
+    // Fetch all students matching the where clause
+    const students = await prisma.students.findMany({
+      where: whereClause,
       include: {
-        students: {
-          select: {
-            id: true,
-            student_id: true,
-            name: true,
-            gender: true,
-            age: true,
-            grade: true,
-          },
-        },
         pilot_schools: {
           select: {
             id: true,
@@ -215,100 +102,130 @@ export async function GET(request: NextRequest) {
             cluster: true,
           },
         },
-        users_assessments_added_by_idTousers: {
-          select: {
-            id: true,
-            name: true,
-            role: true,
-          },
-        },
+      },
+      orderBy: [{ created_at: 'desc' }],
+    });
+
+    console.log(`[Students Export] Found ${students.length} students from school`);
+
+    // Get assessment data for each student to show completion status
+    const studentIds = students.map(s => s.id);
+    const assessmentData = await prisma.assessments.findMany({
+      where: {
+        student_id: { in: studentIds },
+      },
+      select: {
+        student_id: true,
+        assessment_type: true,
+        level: true,
+        assessed_date: true,
       },
       orderBy: [{ assessed_date: 'desc' }],
     });
 
-    console.log(`[Students Export] Found ${assessments.length} assessments`);
+    // Group assessments by student and assessment type
+    const studentAssessments = new Map<number, any>();
+    assessmentData.forEach(assessment => {
+      if (!studentAssessments.has(assessment.student_id)) {
+        studentAssessments.set(assessment.student_id, {
+          baseline: null,
+          midline: null,
+          endline: null,
+          has_baseline: false,
+          has_midline: false,
+          has_endline: false,
+        });
+      }
+      const data = studentAssessments.get(assessment.student_id);
+      if (assessment.assessment_type === 'baseline' && !data.baseline) {
+        data.baseline = assessment.level;
+        data.has_baseline = true;
+      } else if (assessment.assessment_type === 'midline' && !data.midline) {
+        data.midline = assessment.level;
+        data.has_midline = true;
+      } else if (assessment.assessment_type === 'endline' && !data.endline) {
+        data.endline = assessment.level;
+        data.has_endline = true;
+      }
+    });
 
     // Create workbook
     const workbook = XLSX.utils.book_new();
 
-    // Prepare assessment data for export - one row per assessment
-    const assessmentTypeMap: Record<string, string> = {
-      baseline: 'តេស្តដើមគ្រា (Baseline)',
-      midline: 'តេស្តពាក់កណ្ដាលគ្រា (Midline)',
-      endline: 'តេស្តចុងក្រោយគ្រា (Endline)',
-    };
+    // Prepare student data for export - one row per student (COMPLETE LIST)
+    const studentExportData = students.map((student) => {
+      const assessments = studentAssessments.get(student.id) || {
+        baseline: null,
+        midline: null,
+        endline: null,
+        has_baseline: false,
+        has_midline: false,
+        has_endline: false,
+      };
 
-    const subjectMap: Record<string, string> = {
-      language: 'ភាសាខ្មែរ (Language)',
-      khmer: 'ភាសាខ្មែរ (Language)',
-      math: 'គណិតវិទ្យា (Math)',
-    };
+      return {
+        'Student ID': student.student_id || '',
+        'Student Name': student.name || '',
+        'Gender': student.gender === 'male' ? 'ប្រុស' : student.gender === 'female' ? 'ស្រី' : student.gender || '',
+        'Age': student.age || '',
+        'Grade': student.grade ? `ទី${student.grade}` : '',
+        'Guardian Name': student.guardian_name || '',
+        'Guardian Phone': student.guardian_phone || '',
+        'Address': student.address || '',
+        'School': student.pilot_schools?.school_name || '',
+        'School Code': student.pilot_schools?.school_code || '',
+        'Province': student.pilot_schools?.province || '',
+        'District': student.pilot_schools?.district || '',
+        'Cluster': student.pilot_schools?.cluster || '',
+        'Has Baseline': assessments.has_baseline ? 'Yes' : 'No',
+        'Has Midline': assessments.has_midline ? 'Yes' : 'No',
+        'Has Endline': assessments.has_endline ? 'Yes' : 'No',
+        'Baseline Level': assessments.baseline || '',
+        'Midline Level': assessments.midline || '',
+        'Endline Level': assessments.endline || '',
+        'Status': student.is_active ? 'Active' : 'Inactive',
+        'Is Temporary': student.is_temporary ? 'Yes' : 'No',
+        'Record Status': student.record_status === 'production' ? 'ផលិតកម្ម' : student.record_status || '',
+        'Created At': new Date(student.created_at).toISOString().split('T')[0],
+        'Updated At': new Date(student.updated_at).toISOString().split('T')[0],
+      };
+    });
 
-    const assessmentData = assessments.map((assessment) => ({
-      'Assessment ID': assessment.id,
-      'Student ID': assessment.students?.student_id || '',
-      'Student Name': assessment.students?.name || '',
-      'Gender': assessment.students?.gender === 'male' ? 'ប្រុស' : assessment.students?.gender === 'female' ? 'ស្រី' : assessment.students?.gender || '',
-      'Age': assessment.students?.age || '',
-      'Grade': assessment.students?.grade ? `ទី${assessment.students.grade}` : '',
-      'School': assessment.pilot_schools?.school_name || '',
-      'School Code': assessment.pilot_schools?.school_code || '',
-      'Province': assessment.pilot_schools?.province || '',
-      'District': assessment.pilot_schools?.district || '',
-      'Cluster': assessment.pilot_schools?.cluster || '',
-      'Assessment Type': assessmentTypeMap[assessment.assessment_type] || assessment.assessment_type,
-      'Subject': subjectMap[assessment.subject] || assessment.subject,
-      'Level': assessment.level || '',
-      'Assessment Sample': assessment.assessment_sample || '',
-      'Student Consent': assessment.student_consent || '',
-      'Assessed Date': assessment.assessed_date ? new Date(assessment.assessed_date).toISOString().split('T')[0] : '',
-      'Assessed By Mentor': assessment.assessed_by_mentor ? 'Yes' : 'No',
-      'Added By': assessment.users_assessments_added_by_idTousers?.name || '',
-      'Added By Role': assessment.users_assessments_added_by_idTousers?.role || '',
-      'Is Temporary': assessment.is_temporary ? 'Yes' : 'No',
-      'Record Status': assessment.record_status === 'production' ? 'ផលិតកម្ម' : assessment.record_status || '',
-      'Created At': new Date(assessment.created_at).toISOString().split('T')[0],
-      'Updated At': new Date(assessment.updated_at).toISOString().split('T')[0],
-      'Notes': assessment.notes || '',
-    }));
+    // Create worksheet with student data (one row per student - COMPLETE LIST)
+    const studentSheet = XLSX.utils.json_to_sheet(studentExportData);
 
-    // Create worksheet with assessment data
-    const assessmentSheet = XLSX.utils.json_to_sheet(assessmentData);
-
-    // Auto-size columns
-    const maxWidth = 50;
+    // Auto-size columns for student data
     const columnWidths = [
-      { wch: 12 }, // Assessment ID
       { wch: 12 }, // Student ID
       { wch: 25 }, // Student Name
       { wch: 10 }, // Gender
       { wch: 8 },  // Age
       { wch: 8 },  // Grade
+      { wch: 20 }, // Guardian Name
+      { wch: 15 }, // Guardian Phone
+      { wch: 30 }, // Address
       { wch: 30 }, // School
-      { wch: 15 }, // School Code
+      { wch: 12 }, // School Code
       { wch: 15 }, // Province
       { wch: 15 }, // District
       { wch: 15 }, // Cluster
-      { wch: 20 }, // Assessment Type
-      { wch: 15 }, // Subject
-      { wch: 15 }, // Level
-      { wch: 20 }, // Assessment Sample
-      { wch: 15 }, // Student Consent
-      { wch: 15 }, // Assessed Date
-      { wch: 15 }, // Assessed By Mentor
-      { wch: 20 }, // Added By
-      { wch: 15 }, // Added By Role
+      { wch: 12 }, // Has Baseline
+      { wch: 12 }, // Has Midline
+      { wch: 12 }, // Has Endline
+      { wch: 15 }, // Baseline Level
+      { wch: 15 }, // Midline Level
+      { wch: 15 }, // Endline Level
+      { wch: 10 }, // Status
       { wch: 12 }, // Is Temporary
       { wch: 15 }, // Record Status
       { wch: 12 }, // Created At
       { wch: 12 }, // Updated At
-      { wch: 30 }, // Notes
     ];
 
-    assessmentSheet['!cols'] = columnWidths;
+    studentSheet['!cols'] = columnWidths;
 
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(workbook, assessmentSheet, 'Assessments');
+    // Add worksheet to workbook - Student Roster (COMPLETE LIST, one row per student)
+    XLSX.utils.book_append_sheet(workbook, studentSheet, 'Student Roster');
 
     // Generate Excel file
     console.log('[Students Export] Generating Excel file...');
@@ -316,10 +233,10 @@ export async function GET(request: NextRequest) {
 
     // Create filename with timestamp
     const timestamp = new Date().toISOString().split('T')[0];
-    const filename = `TaRL_Students_Export_${timestamp}.xlsx`;
+    const filename = `TaRL_Students_Complete_List_${timestamp}.xlsx`;
 
     console.log(`[Students Export] Export completed successfully: ${filename}`);
-    console.log(`[Students Export] Total assessments exported: ${assessmentData.length}`);
+    console.log(`[Students Export] Total students exported: ${studentExportData.length} (COMPLETE LIST - all students from school)`);
 
     // Return the Excel file
     return new NextResponse(buffer, {
