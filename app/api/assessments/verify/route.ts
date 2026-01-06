@@ -270,7 +270,7 @@ export async function POST(request: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       if (action === 'approve') {
         // Mark as verified (approved)
-        const updated = await tx.assessment.updateMany({
+        const updated = await tx.assessments.updateMany({
           where: { id: { in: assessment_ids } },
           data: {
             verified_by_id: parseInt(session.user.id),
@@ -283,7 +283,7 @@ export async function POST(request: NextRequest) {
       } else {
         // Reject - mark as verified with rejection note
         const rejectionNote = notes ? `Rejected: ${notes}` : 'Rejected';
-        const updated = await tx.assessment.updateMany({
+        const updated = await tx.assessments.updateMany({
           where: { id: { in: assessment_ids } },
           data: {
             verified_by_id: parseInt(session.user.id),

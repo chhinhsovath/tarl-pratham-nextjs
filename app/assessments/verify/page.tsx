@@ -353,12 +353,12 @@ function AssessmentVerificationPage() {
     },
     {
       title: 'សាលារៀន',
-      dataIndex: 'pilot_school',
+      dataIndex: 'pilot_schools',
       key: 'school',
       render: (school: any) => (
         <div>
-          <div>{school?.school_name}</div>
-          <div style={{ fontSize: '12px', color: '#666' }}>{school?.district}</div>
+          <div>{school?.school_name || 'N/A'}</div>
+          <div style={{ fontSize: '12px', color: '#666' }}>{school?.school_code || ''}</div>
         </div>
       )
     },
@@ -385,13 +385,13 @@ function AssessmentVerificationPage() {
     },
     {
       title: 'វាយតម្លៃដោយ',
-      dataIndex: 'added_by',
+      dataIndex: 'users_assessments_added_by_idTousers',
       key: 'added_by',
-      render: (user: any) => (
+      render: (user: any, record: any) => (
         <div>
           <div>{user?.name || 'Unknown'}</div>
           <div style={{ fontSize: '12px', color: '#666' }}>
-            {dayjs(user?.created_at).format('DD/MM/YYYY')}
+            {dayjs(record?.created_at).format('DD/MM/YYYY')}
           </div>
         </div>
       )

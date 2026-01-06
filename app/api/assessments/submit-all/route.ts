@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
           }
 
           // Check for existing assessment
-          const existingAssessment = await tx.assessment.findFirst({
+          const existingAssessment = await tx.assessments.findFirst({
             where: {
               student_id,
               assessment_type,
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
           if (existingAssessment) {
             // Update existing assessment
-            assessment = await tx.assessment.update({
+            assessment = await tx.assessments.update({
               where: { id: existingAssessment.id },
               data: {
                 level,
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
             updatedAssessments.push(assessment);
           } else {
             // Create new assessment
-            assessment = await tx.assessment.create({
+            assessment = await tx.assessments.create({
               data: {
                 student_id,
                 pilot_school_id: pilotSchoolId || student.pilot_school_id,
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
           });
 
           // Create assessment history record
-          await tx.assessmentHistory.create({
+          await tx.assessment_histories.create({
             data: {
               assessment_id: assessment.id,
               field_name: existingAssessment ? 'bulk_updated' : 'bulk_created',

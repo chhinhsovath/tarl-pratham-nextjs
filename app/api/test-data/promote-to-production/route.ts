@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
       // Promote assessments
       if (assessmentCount > 0) {
         updates.push(
-          tx.assessment.updateMany({
+          tx.assessments.updateMany({
             where: assessmentWhere,
             data: {
               record_status: 'production',
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
       // Promote mentoring visits
       if (mentoringVisitCount > 0) {
         updates.push(
-          tx.mentoringVisit.updateMany({
+          tx.mentoring_visits.updateMany({
             where: mentoringVisitWhere,
             data: {
               record_status: 'production',
