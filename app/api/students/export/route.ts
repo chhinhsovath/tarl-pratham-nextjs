@@ -111,15 +111,16 @@ export async function GET(request: NextRequest) {
     // Get assessment data for each student to show completion status
     const studentIds = students.map(s => s.id);
 
-    // CRITICAL: Fetch ALL assessments regardless of record_status
-    // Students might be filtered by production status, but we want to show ALL their assessments
-    // (baseline, midline, endline) even if they were created at different times with different record_status
-    // This ensures no assessment type is missing from the export
+    // Get assessment data for each student - ONLY production status
+    // We fetch all assessment TYPES (baseline, midline, endline) but only those in PRODUCTION
+    // This ensures:
+    // 1. Baseline, midline, endline are all captured if they exist
+    // 2. Future/archived assessments are NOT exported
+    // 3. Only completed (production) assessments are visible
     const assessmentData = await prisma.assessments.findMany({
       where: {
         student_id: { in: studentIds },
-        // Get ALL assessments regardless of record_status to show complete assessment history
-        // Don't filter by record_status here - we want all baseline, midline, endline regardless
+        record_status: 'production', // ONLY export production assessments
       },
       select: {
         student_id: true,
@@ -131,7 +132,7 @@ export async function GET(request: NextRequest) {
       orderBy: [{ assessed_date: 'desc' }],
     });
 
-    console.log(`[Students Export] Found ${assessmentData.length} total assessments for ${studentIds.length} students (ALL record_status values included)`);
+    console.log(`[Students Export] Found ${assessmentData.length} production assessments for ${studentIds.length} students`);
 
     // Group assessments by student and assessment type
     // Take the MOST RECENT assessment of each type (ordered by assessed_date DESC)
