@@ -110,20 +110,31 @@ export async function GET(request: NextRequest) {
 
     // Get assessment data for each student to show completion status
     const studentIds = students.map(s => s.id);
+
+    // CRITICAL: Fetch ALL assessments regardless of record_status
+    // Students might be filtered by production status, but we want to show ALL their assessments
+    // (baseline, midline, endline) even if they were created at different times with different record_status
+    // This ensures no assessment type is missing from the export
     const assessmentData = await prisma.assessments.findMany({
       where: {
         student_id: { in: studentIds },
+        // Get ALL assessments regardless of record_status to show complete assessment history
+        // Don't filter by record_status here - we want all baseline, midline, endline regardless
       },
       select: {
         student_id: true,
         assessment_type: true,
         level: true,
         assessed_date: true,
+        record_status: true, // Include record_status so we can log it
       },
       orderBy: [{ assessed_date: 'desc' }],
     });
 
+    console.log(`[Students Export] Found ${assessmentData.length} total assessments for ${studentIds.length} students (ALL record_status values included)`);
+
     // Group assessments by student and assessment type
+    // Take the MOST RECENT assessment of each type (ordered by assessed_date DESC)
     const studentAssessments = new Map<number, any>();
     assessmentData.forEach(assessment => {
       if (!studentAssessments.has(assessment.student_id)) {
@@ -137,15 +148,20 @@ export async function GET(request: NextRequest) {
         });
       }
       const data = studentAssessments.get(assessment.student_id);
+
+      // Take the FIRST (most recent) occurrence of each assessment type
       if (assessment.assessment_type === 'baseline' && !data.baseline) {
         data.baseline = assessment.level;
         data.has_baseline = true;
+        console.log(`[Students Export] Added baseline for student ${assessment.student_id}: level=${assessment.level}, record_status=${assessment.record_status}`);
       } else if (assessment.assessment_type === 'midline' && !data.midline) {
         data.midline = assessment.level;
         data.has_midline = true;
+        console.log(`[Students Export] Added midline for student ${assessment.student_id}: level=${assessment.level}, record_status=${assessment.record_status}`);
       } else if (assessment.assessment_type === 'endline' && !data.endline) {
         data.endline = assessment.level;
         data.has_endline = true;
+        console.log(`[Students Export] Added endline for student ${assessment.student_id}: level=${assessment.level}, record_status=${assessment.record_status}`);
       }
     });
 
