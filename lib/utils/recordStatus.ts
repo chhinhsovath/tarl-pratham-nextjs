@@ -52,41 +52,14 @@ export function canModifyRecord(
 
 /**
  * Get filter for querying records by status
+ * PRODUCTION-ONLY POLICY: All queries return only production data
  */
 export function getRecordStatusFilter(
   userRole: string,
   includeTestData: boolean = false
 ): { record_status?: RecordStatus | { in: RecordStatus[] } } {
-  if (includeTestData) {
-    // Show all data
-    return {};
-  }
-
-  if (userRole === 'admin' || userRole === 'coordinator') {
-    // Admins and coordinators see ALL data (no filter applied)
-    // This allows them to manage students with any record_status
-    return {};
-  }
-
-  if (userRole === 'mentor') {
-    // Mentors see their test data and production
-    return {
-      record_status: {
-        in: ['production', 'test_mentor']
-      }
-    };
-  }
-
-  if (userRole === 'teacher') {
-    // Teachers see their test data and production
-    return {
-      record_status: {
-        in: ['production', 'test_teacher']
-      }
-    };
-  }
-
-  // Viewers only see production
+  // PRODUCTION-ONLY: All users see only production data
+  // No test data, archived data, or future data anywhere
   return { record_status: 'production' };
 }
 

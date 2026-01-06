@@ -386,23 +386,9 @@ export async function POST(request: NextRequest) {
       validatedData.pilot_school_id = session.user.pilot_school_id;
     }
 
-    // Auto-link to active test session for test data
+    // PRODUCTION-ONLY POLICY: All assessments are production status
+    // No test data, test sessions, or temporary assessments
     let testSessionId = null;
-    const recordStatus = session.user.role === "mentor" ? 'test_mentor' :
-                        (session.user.role === "teacher" && session.user.test_mode_enabled) ? 'test_teacher' :
-                        'production';
-
-    if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
-      const activeSession = await prisma.test_sessions.findFirst({
-        where: {
-          user_id: parseInt(session.user.id),
-          status: 'active'
-        }
-      });
-      if (activeSession) {
-        testSessionId = activeSession.id;
-      }
-    }
 
     // Check for duplicate assessment (skip for verification assessments)
     const isVerification = validatedData.assessment_type.includes('_verification');

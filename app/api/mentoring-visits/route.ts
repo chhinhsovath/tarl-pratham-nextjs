@@ -237,32 +237,18 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validatedData = mentoringVisitSchema.parse(body);
 
-    // Auto-link to active test session for test data
+    // PRODUCTION-ONLY POLICY: All mentoring visits are production status
+    // No test data, test sessions, temporary visits, or expirations
     let testSessionId = null;
-    const recordStatus = session.user.role === 'mentor' ? 'test_mentor' :
-                        (session.user.role === 'teacher' && session.user.test_mode_enabled) ? 'test_teacher' :
-                        'production';
-
-    if (recordStatus === 'test_mentor' || recordStatus === 'test_teacher') {
-      const activeSession = await prisma.test_sessions.findFirst({
-        where: {
-          user_id: parseInt(session.user.id),
-          status: 'active'
-        }
-      });
-      if (activeSession) {
-        testSessionId = activeSession.id;
-      }
-    }
 
     // Set mentor information
     const mentorData = {
       ...validatedData,
       mentor_id: parseInt(session.user.id),
       mentor_name: session.user.name || 'Unknown Mentor',
-      is_temporary: session.user.role === 'mentor',
-      expires_at: session.user.role === 'mentor' ? new Date(Date.now() + 48 * 60 * 60 * 1000) : null,
-      record_status: recordStatus,
+      is_temporary: false,
+      expires_at: null,
+      record_status: 'production',
       test_session_id: testSessionId
     };
 
