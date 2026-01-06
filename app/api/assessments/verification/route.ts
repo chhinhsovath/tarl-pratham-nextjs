@@ -13,15 +13,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Only admin, coordinator, mentor, and teacher can access verification data
+    if (!['admin', 'coordinator', 'mentor', 'teacher'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status') || 'pending';
+    const status = searchParams.get('status') || '';
     const assessment_type = searchParams.get('assessment_type');
     const subject = searchParams.get('subject');
     const school_id = searchParams.get('school_id');
     const is_temporary = searchParams.get('is_temporary');
 
     // Build where clause
-    const where: any = {};
+    const where: any = {
+      // Coordinators and admins see production records only
+      record_status: 'production'
+    };
 
     // Filter by verification status
     if (status === 'pending') {

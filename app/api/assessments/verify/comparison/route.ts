@@ -38,7 +38,9 @@ export async function GET(request: NextRequest) {
       OR: [
         { assessed_by_mentor: false },
         { assessed_by_mentor: null }
-      ]
+      ],
+      // Only show production records (completed assessments)
+      record_status: 'production'
     };
 
     // If mentor, filter by assigned schools only

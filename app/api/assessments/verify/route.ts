@@ -41,7 +41,9 @@ export async function GET(request: NextRequest) {
       // Show original assessment types (not verification types)
       assessment_type: {
         in: ['baseline', 'midline', 'endline']
-      }
+      },
+      // Only show production records (completed assessments)
+      record_status: 'production'
     };
 
     // If mentor, filter by assigned schools only
